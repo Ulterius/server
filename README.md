@@ -10,13 +10,13 @@ This software is under development
 
 ### TODO
 
-[ ] An actual control panel
+[] An actual control panel
 
-[ ] Configureable (Settings, ports, etc)
+[] Configureable (Settings, ports, etc)
 
-[ ] RESTFUL Server API 
+[] RESTFUL Server API 
 
-[ ] Replicate Windows Task Manager completely (service management, graphs, usage, startup, etc)
+[] Replicate Windows Task Manager completely (service management, graphs, usage, startup, etc)
 
 
 ### Contact
