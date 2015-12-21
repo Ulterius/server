@@ -1,12 +1,8 @@
 ﻿using System;
-using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Runtime.Serialization.Formatters.Binary;
-using System.Text;
-using RemoteTaskServer.Api;
-using RemoteTaskServer.Utilities;
+using System.Web;
 using RemoteTaskServer.WebSocketAPI;
 
 namespace RemoteTaskServer.Server
@@ -15,55 +11,85 @@ namespace RemoteTaskServer.Server
     [Serializable]
     public class Packets
     {
-
         public string command;
-        public string format;
-        public Uri query;
-        public string paramaters;
+        public string action;
         public PacketType packetType;
+        public string paramaters;
+        public Uri query;
         public string senderID;
 
         public Packets(PacketType type, string senderID)
         {
-            
             this.senderID = senderID;
             packetType = type;
 
             Console.WriteLine();
         }
+        private string GetQueryString(string url, string key)
+        {
+            string query_string = string.Empty;
 
+            var uri = new Uri(url);
+            var newQueryString = HttpUtility.ParseQueryString(uri.Query);
+            if (newQueryString[key] != null)
+            {
+                query_string = newQueryString[key].ToString();
+            }
+          
+
+            return query_string;
+        }
         public Packets(byte[] packetBytes, int readBytes)
         {
-
-
             var decodedQuery = WebSocketFunctions.DecodeMessage(packetBytes, readBytes);
             Uri myUri = null;
             try
             {
-               myUri = new Uri(decodedQuery);
+                myUri = new Uri(decodedQuery);
             }
             catch (Exception)
             {
-               
-
                 return;
             }
             query = myUri;
             command = myUri.Host;
 
-            format = "JSON";
+            action = GetQueryString(decodedQuery, "command");
 
             senderID = "server";
             switch (command)
             {
-                case "showprocesslist":
-                    Console.WriteLine("Request Process");
+                case "requestprocessinformation":
+                    Console.WriteLine("Request Process Information");
                     packetType = PacketType.RequestProcess;
-                break;
+                    break;
+                case "requestcpuinformation":
+                    Console.WriteLine("Request CPU Information");
+                    packetType = PacketType.RequestCpuInformation;
+                    break;
+                case "requestosinformation":
+                    Console.WriteLine("Request OS Information");
+                    packetType = PacketType.RequestOsInformation;
+                    break;
+                case "requestnetworkinformation":
+                    Console.WriteLine("Request Network Information");
+                    packetType = PacketType.RequestNetworkInformation;
+                    break;
+                case "requestsysteminformation":
+                    Console.WriteLine("Request System Information");
+                    packetType = PacketType.RequestSystemInformation;
+                    break;
+                case "startprocess":
+                    Console.WriteLine("Starting Process " + action);
+                    packetType = PacketType.StartProcess;
+                    break;
+                case "killprocess":
+                    Console.WriteLine("Killing Process " + action);
+                    packetType = PacketType.KillProcess;
+                    break;
                 default:
                     break;
             }
-           
         }
 
         public static string GetIPv4Address()
@@ -79,6 +105,12 @@ namespace RemoteTaskServer.Server
 
     public enum PacketType
     {
-        RequestProcess
+        RequestProcess,
+        RequestCpuInformation,
+        RequestOsInformation,
+        RequestNetworkInformation,
+        RequestSystemInformation,
+        StartProcess,
+        KillProcess
     }
 }

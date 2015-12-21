@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Web.Script.Serialization;
 using RemoteTaskServer.Api;
-using RemoteTaskServer.Utilities;
 using RemoteTaskServer.WebSocketAPI;
 
 namespace RemoteTaskServer.Server
@@ -19,7 +18,7 @@ namespace RemoteTaskServer.Server
         private static List<ClientData> clients;
 
         /// <summary>
-        ///    Starts the actual server
+        ///     Starts the actual server
         /// </summary>
         /// <returns></returns>
         public static void Start()
@@ -77,7 +76,6 @@ namespace RemoteTaskServer.Server
                             var packet = new Packets(buffer, readBytes);
                             HandlePacket(clientSocket, packet);
                         }
-                      
                     }
                 }
                 catch (SocketException ex)
@@ -88,7 +86,7 @@ namespace RemoteTaskServer.Server
         }
 
         /// <summary>
-        ///    Executes certain functions based on a packets job
+        ///     Executes certain functions based on a packets job
         /// </summary>
         /// <param name="clientSocket"></param>
         /// <param name="packets"></param>
@@ -103,24 +101,60 @@ namespace RemoteTaskServer.Server
             switch (packetType)
             {
                 case PacketType.RequestProcess:
-                     var processData = WebSocketFunctions.EncodeMessageToSend(TaskApi.GetProcessInformation());
-                     clientSocket.Send(processData);
+                    var processData = WebSocketFunctions.EncodeMessageToSend(TaskApi.GetProcessInformation());
+                    clientSocket.Send(processData);
+                    break;
+                case PacketType.RequestCpuInformation:
+                    var cpuData = WebSocketFunctions.EncodeMessageToSend(TaskApi.GetCpuInformation());
+                    clientSocket.Send(cpuData);
+                    break;
+                case PacketType.RequestOsInformation:
+                    var osData = WebSocketFunctions.EncodeMessageToSend(TaskApi.GetOperatingSystemInformation());
+                    clientSocket.Send(osData);
+                    break;
+                case PacketType.RequestNetworkInformation:
+                    var networkData = WebSocketFunctions.EncodeMessageToSend(TaskApi.GetNetworkInformation());
+                    clientSocket.Send(networkData);
+                    break;
+                case PacketType.RequestSystemInformation:
+                    var systemData = WebSocketFunctions.EncodeMessageToSend(TaskApi.GetSystemInformation());
+                    clientSocket.Send(systemData);
+                    break;
+                case PacketType.StartProcess:
+                    var started = TaskApi.StartProcess(packets.action);
+                    var processJson =
+                        new JavaScriptSerializer().Serialize(
+                            new
+                            {
+                                processStarted = started
+                            });
+                    var processStartData = WebSocketFunctions.EncodeMessageToSend(processJson);
+                    clientSocket.Send(processStartData);
+                    break;
+                case PacketType.KillProcess:
+                    var killed = TaskApi.KillProcessByID(int.Parse(packets.action));
+                    var killedJson =
+                        new JavaScriptSerializer().Serialize(
+                            new
+                            {
+                                processKilled = killed
+                            });
+                    var processKilledData = WebSocketFunctions.EncodeMessageToSend(killedJson);
+                    clientSocket.Send(processKilledData);
                     break;
             }
         }
 
         /// <summary>
-        ///    Listens for new connections
+        ///     Listens for new connections
         /// </summary>
         private static void ListenThread()
         {
             while (true)
             {
                 listenerSocket.Listen(0);
-                clients.Add((new ClientData(listenerSocket.Accept())));
+                clients.Add(new ClientData(listenerSocket.Accept()));
             }
         }
     }
-
-
 }
