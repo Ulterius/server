@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Security.Principal;
 using System.Threading;
 using System.Threading.Tasks;
+
 using Microsoft.VisualBasic.Devices;
 using RemoteTaskServer.Api.Models;
 
@@ -23,7 +25,8 @@ namespace RemoteTaskServer.Utilities.System
                     SystemInformation.RunningProcesses = GetTotalProcesses();
                     SystemInformation.UpTime = GetUpTime().TotalMilliseconds;
                     SystemInformation.RunningAsAdmin = IsRunningAsAdministrator();
-                    SystemInformation.CpuUsage = GetCurrentCpuUsage();
+                      SystemInformation.CpuUsage = GetPerformanceCounters();
+                    //GetPerformanceCounters();
 
                 }
             });
@@ -59,6 +62,23 @@ namespace RemoteTaskServer.Utilities.System
             var myPrincipal = new WindowsPrincipal(WindowsIdentity.GetCurrent());
             return myPrincipal.IsInRole(WindowsBuiltInRole.Administrator);
         }
+
+        public static List<float> GetPerformanceCounters()
+        {
+            List<float> performanceCounters = new List<float>();
+            int procCount = Environment.ProcessorCount;
+            for (int i = 0; i < procCount; i++)
+            {
+                PerformanceCounter pc = new PerformanceCounter("Processor", "% Processor Time", i.ToString());
+                dynamic firstValue = pc.NextValue();
+                Thread.Sleep(1000);
+                // now matches task manager reading
+                dynamic secondValue = pc.NextValue();
+                performanceCounters.Add(secondValue);
+            }
+            return performanceCounters;
+        }
+
         private float GetCurrentCpuUsage()
         {
             var cpuCounter = new PerformanceCounter();
