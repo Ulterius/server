@@ -1,6 +1,6 @@
 # Strike Task Manager 
 
-![images](http://i.andrew.im/90m4mi.png)
+![images](http://i.andrew.im/12bruk.png)
 
 ### What is it?
 
