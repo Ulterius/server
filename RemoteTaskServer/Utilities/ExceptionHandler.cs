@@ -19,13 +19,17 @@ namespace RemoteTaskServer.Utilities
                     if (!Directory.Exists(ExceptionHandler.LogsPath))
                         Directory.CreateDirectory(ExceptionHandler.LogsPath);
 
-                    string filePath = Path.Combine(ExceptionHandler.LogsPath, string.Format("UnhandledException_{0}.json", DateTime.Now.ToShortDateString().Replace("/", "-")));
+                    var filePath = Path.Combine(ExceptionHandler.LogsPath,
+                        $"UnhandledException_{DateTime.Now.ToShortDateString().Replace("/", "-")}.json");
 
                     File.AppendAllText(filePath, JsonConvert.SerializeObject(args.ExceptionObject, Formatting.Indented) + "\r\n\r\n");
 
-                  Console.WriteLine(string.Format("An Unhandled Exception was Caught and Logged to:\r\n{0}", filePath));
+                  Console.WriteLine("An Unhandled Exception was Caught and Logged to:\r\n{0}", filePath);
                 }
-                catch { }
+                catch
+                {
+                    // ignored
+                }
             };
         }
     }
