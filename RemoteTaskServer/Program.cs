@@ -41,6 +41,7 @@ namespace RemoteTaskServer
             var systemUtilities = new SystemUtilities();
             systemUtilities.Start();
             Console.ReadLine();
+           
         }
     }
 }

@@ -169,8 +169,8 @@ namespace RemoteTaskServer.Server
                                  message = "Provided API Key does not match the server key"
                              });
 
-                    var invalidApiKeyData = WebSocketFunctions.EncodeMessageToSend(invalidApiKeyStatus);
-                    clientSocket.Send(invalidApiKeyData);
+                    var invalidOAuthData = WebSocketFunctions.EncodeMessageToSend(invalidApiKeyStatus);
+                    clientSocket.Send(invalidOAuthData);
                     break;
                 case PacketType.InvalidPacket:
                     var invalidPacketStatus =
@@ -183,6 +183,12 @@ namespace RemoteTaskServer.Server
 
                     var invalidPacketData = WebSocketFunctions.EncodeMessageToSend(invalidPacketStatus);
                     clientSocket.Send(invalidPacketData);
+                    break;
+                case PacketType.GenerateNewKey:
+                    var generateNewKeyStatus = SettingsApi.GenerateNewAPiKey(packets.apiKey);
+                  
+                    var generateNewKeyData = WebSocketFunctions.EncodeMessageToSend(generateNewKeyStatus);
+                    clientSocket.Send(generateNewKeyData);
                     break;
             }
         }

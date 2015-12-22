@@ -6,6 +6,7 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Security.Cryptography;
 using System.Text;
 using System.Web;
 
@@ -14,7 +15,17 @@ namespace RemoteTaskServer.Utilities
     internal class Tools
     {
 
-        private string GetQueryString(string url, string key)
+        public static string GenerateAPIKey()
+        {
+            string res = "";
+            Random rnd = new Random();
+            while (res.Length < 35) res += (new Func<Random, string>((r) => {
+                char c = (char)((r.Next(123) * DateTime.Now.Millisecond % 123));
+                return (Char.IsLetterOrDigit(c)) ? c.ToString() : "";
+            }))(rnd);
+            return res;
+        }
+        public static string GetQueryString(string url, string key)
         {
             string query_string = string.Empty;
 

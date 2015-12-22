@@ -37,8 +37,7 @@ namespace RemoteTaskServer.Server
             query = myUri;
             command = myUri.Host;
             action = Tools.GetQueryString(decodedQuery, "command");
-            apiKey = Tools.GetQueryString(decodedQuery, "oauth");
-            Console.WriteLine(apiKey);
+            apiKey = Tools.GetQueryString(decodedQuery, "key");
             senderID = "server";
             var key = settings.Read("ApiKey", "TaskServer");
             if (!String.IsNullOrEmpty(key))
@@ -75,6 +74,10 @@ namespace RemoteTaskServer.Server
                             Console.WriteLine("Killing Process " + action);
                             packetType = PacketType.KillProcess;
                             break;
+                        case "generatenewkey":
+                            Console.WriteLine("Creating New Api Key");
+                            packetType = PacketType.GenerateNewKey;
+                            break;
                         default:
                             packetType = PacketType.InvalidPacket;
                             break;
@@ -82,14 +85,14 @@ namespace RemoteTaskServer.Server
                 }
                 else
                 {
-                    Console.WriteLine("Invalid OAuth Key" + key);
+                    Console.WriteLine("Invalid OAuth Key " + key);
                     packetType = PacketType.InvalidApiKey;
                 }
             }
             else
             {
-                Console.WriteLine("Please Generate a OAuth Key.");
-                packetType = PacketType.EmptyApiKey;
+                Console.WriteLine("No API Key Detected - Generated");
+                packetType = PacketType.GenerateNewKey;
             }
         }
     }
@@ -103,6 +106,7 @@ namespace RemoteTaskServer.Server
         RequestSystemInformation,
         StartProcess,
         KillProcess,
+        GenerateNewKey,
         EmptyApiKey,
         InvalidApiKey,
         InvalidPacket
