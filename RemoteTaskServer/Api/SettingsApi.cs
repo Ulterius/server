@@ -38,8 +38,26 @@ namespace RemoteTaskServer.Api
                 });
             }
         }
+        public static string GetCurrentSettings()
+        {
+           
+           var UseWebServer = settings.Read("UseWebServer", "WebServer");
+            var WebServerPort = settings.Read("WebServerPort", "WebServer");
+            var WebFilePath = settings.Read("WebFilePath", "WebServer");
+            var TaskServerPort = settings.Read("TaskServerPort", "TaskServer");
+            var SkipHostNameResolve = settings.Read("SkipHostNameResolve", "Network");
+            return new JavaScriptSerializer().Serialize(
+                 new
+                 {
+                     UseWebServer = UseWebServer,
+                     WebServerPort = WebServerPort,
+                     WebFilePath = WebFilePath,
+                     TaskServerPort = TaskServerPort,
+                     SkipHostNameResolve = SkipHostNameResolve
+                 });
+        }
 
-        public string ChangeNetworkResolve(string status)
+        public static string ChangeNetworkResolve(string status)
         {
             settings.Write("SkipHostNameResolve", status, "Network");
             var currentStatus = settings.Read("SkipHostNameResolve", "Network");
@@ -50,7 +68,7 @@ namespace RemoteTaskServer.Api
                      resolveNetworks = currentStatus
                  });
         }
-        public string ChangeWebServerPort(string port)
+        public static string ChangeWebServerPort(string port)
         {
             settings.Write("WebServerPort", port, "WebServer");
             var currentStatus = settings.Read("WebServerPort", "WebServer");
@@ -61,7 +79,7 @@ namespace RemoteTaskServer.Api
                      webServerPort = currentStatus
                  });
         }
-        public string ChangeTaskServerPort(string port)
+        public static string ChangeTaskServerPort(string port)
         {
             settings.Write("TaskServerPort", port, "TaskServer");
             var currentStatus = settings.Read("TaskServerPort", "TaskServer");
@@ -72,7 +90,7 @@ namespace RemoteTaskServer.Api
                    taskServerPort = currentStatus
                });
         }
-        public string ChangeWebFilePath(string path)
+        public static string ChangeWebFilePath(string path)
         {
             settings.Write("WebFilePath", path, "WebServer");
             var currentStatus = settings.Read("WebFilePath", "WebServer");
@@ -83,7 +101,7 @@ namespace RemoteTaskServer.Api
                    webFilePath = currentStatus
                });
         }
-        public string ChangeWebServerUse(string status)
+        public static string ChangeWebServerUse(string status)
         {
             settings.Write("UseWebServer", status, "WebServer");
             var currentStatus = settings.Read("UseWebServer", "WebServer");

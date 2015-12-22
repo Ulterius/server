@@ -122,6 +122,30 @@ namespace RemoteTaskServer.Server
                     var networkData = WebSocketFunctions.EncodeMessageToSend(TaskApi.GetNetworkInformation());
                     clientSocket.Send(networkData);
                     break;
+                case PacketType.UseWebServer:
+                    var useWebServerData = WebSocketFunctions.EncodeMessageToSend(SettingsApi.ChangeWebServerUse(packets.action));
+                    clientSocket.Send(useWebServerData);
+                    break;
+                case PacketType.ChangeWebServerPort:
+                    var changeWebServerPortData = WebSocketFunctions.EncodeMessageToSend(SettingsApi.ChangeWebServerPort(packets.action));
+                    clientSocket.Send(changeWebServerPortData);
+                    break;
+                case PacketType.ChangeWebFilePath:
+                    var changeWebFilePathData = WebSocketFunctions.EncodeMessageToSend(SettingsApi.ChangeWebFilePath(packets.action));
+                    clientSocket.Send(changeWebFilePathData);
+                    break;
+                case PacketType.ChangeTaskServerPort:
+                    var changeTaskServerPortData = WebSocketFunctions.EncodeMessageToSend(SettingsApi.ChangeTaskServerPort(packets.action));
+                    clientSocket.Send(changeTaskServerPortData);
+                    break;
+                case PacketType.ChangeNetworkResolve:
+                    var changeNetworkResolveData = WebSocketFunctions.EncodeMessageToSend(SettingsApi.ChangeNetworkResolve(packets.action));
+                    clientSocket.Send(changeNetworkResolveData);
+                    break;
+                case PacketType.GetCurrentSettings:
+                    var currentSettingsData = WebSocketFunctions.EncodeMessageToSend(SettingsApi.GetCurrentSettings());
+                    clientSocket.Send(currentSettingsData);
+                    break;
                 case PacketType.RequestSystemInformation:
                     var systemData = WebSocketFunctions.EncodeMessageToSend(TaskApi.GetSystemInformation());
                     clientSocket.Send(systemData);

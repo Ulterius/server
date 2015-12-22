@@ -78,6 +78,30 @@ namespace RemoteTaskServer.Server
                             Console.WriteLine("Creating New Api Key");
                             packetType = PacketType.GenerateNewKey;
                             break;
+                        case "togglewebserver":
+                            Console.WriteLine("Toggling Web Server");
+                            packetType = PacketType.UseWebServer;
+                            break;
+                        case "changewebserverport":
+                            Console.WriteLine("Changing Web Server Port");
+                            packetType = PacketType.ChangeWebServerPort;
+                            break;
+                        case "changewebfilepath":
+                            Console.WriteLine("Changing Web File Path");
+                            packetType = PacketType.ChangeWebFilePath;
+                            break;
+                        case "changetaskserverport":
+                            Console.WriteLine("Changing Task Server Port");
+                            packetType = PacketType.ChangeTaskServerPort;
+                            break;
+                        case "changenetworkresolve":
+                            Console.WriteLine("Changing Network Resolve");
+                            packetType = PacketType.ChangeNetworkResolve;
+                            break;
+                        case "getcurrentsettings":
+                            Console.WriteLine("Getting Current Settings");
+                            packetType = PacketType.GetCurrentSettings;
+                            break;
                         default:
                             packetType = PacketType.InvalidPacket;
                             break;
@@ -109,6 +133,12 @@ namespace RemoteTaskServer.Server
         GenerateNewKey,
         EmptyApiKey,
         InvalidApiKey,
-        InvalidPacket
+        InvalidPacket,
+        UseWebServer,
+        ChangeWebServerPort,
+        ChangeWebFilePath,
+        ChangeTaskServerPort,
+        ChangeNetworkResolve,
+        GetCurrentSettings
     }
 }
