@@ -7,11 +7,28 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Web;
 
 namespace RemoteTaskServer.Utilities
 {
     internal class Tools
     {
+
+        private string GetQueryString(string url, string key)
+        {
+            string query_string = string.Empty;
+
+            var uri = new Uri(url);
+            var newQueryString = HttpUtility.ParseQueryString(uri.Query);
+            if (newQueryString[key] != null)
+            {
+                query_string = newQueryString[key].ToString();
+            }
+
+
+            return query_string;
+        }
+
         /// <summary>
         ///     Gets the icon for a process by its path
         /// </summary>

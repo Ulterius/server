@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
@@ -16,6 +17,7 @@ namespace RemoteTaskServer.Utilities.Network
 
     internal class NetworkUtilities
     {
+        private static Settings settings = new Settings();
         /// <summary>
         ///     Error codes GetIpNetTable returns that we recognise
         /// </summary>
@@ -29,15 +31,24 @@ namespace RemoteTaskServer.Utilities.Network
             foreach (var device in all)
             {
                 var name = "";
-                try
+                var resolveHost = settings.Read("SkipHostNameResolve", "Network");
+                if (resolveHost == "true")
                 {
-                    var hostEntry = Dns.GetHostEntry(device.Key);
-                    name = hostEntry.HostName;
+                    try
+                    {
+                        var hostEntry = Dns.GetHostEntry(device.Key);
+                        name = hostEntry.HostName;
+                    }
+                    catch (SocketException ex)
+                    {
+                        name = "null";
+                    }
                 }
-                catch (SocketException ex)
+                else
                 {
                     name = "null";
                 }
+              
                 Console.WriteLine(name);
                 Devices.Add(new NetworkDevices
                 {
@@ -199,6 +210,15 @@ namespace RemoteTaskServer.Utilities.Network
             return ip;
         }
 
+        public static string GetIPv4Address()
+        {
+            var ips = Dns.GetHostAddresses(Dns.GetHostName());
+            foreach (var i in ips.Where(i => i.AddressFamily == AddressFamily.InterNetwork))
+            {
+                return i.ToString();
+            }
+            return "127.0.0.1";
+        }
 
         /// <summary>
         ///     MIB_IPNETROW structure returned by GetIpNetTable

@@ -8,6 +8,8 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Web.Script.Serialization;
 using RemoteTaskServer.Api;
+using RemoteTaskServer.Utilities;
+using RemoteTaskServer.Utilities.Network;
 using RemoteTaskServer.WebSocketAPI;
 
 namespace RemoteTaskServer.Server
@@ -16,6 +18,7 @@ namespace RemoteTaskServer.Server
     {
         private static Socket listenerSocket;
         private static List<ClientData> clients;
+        public static int boundPort = 0;
 
         /// <summary>
         ///     Starts the actual server
@@ -23,9 +26,12 @@ namespace RemoteTaskServer.Server
         /// <returns></returns>
         public static void Start()
         {
+            var settings = new Settings();
             listenerSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             clients = new List<ClientData>();
-            var ip = new IPEndPoint(IPAddress.Parse(Packets.GetIPv4Address()), 8387);
+            var port = int.Parse(settings.Read("TaskServerPort", "TaskServer"));
+            boundPort = port;
+            var ip = new IPEndPoint(IPAddress.Parse(NetworkUtilities.GetIPv4Address()), port);
             listenerSocket.Bind(ip);
             var listenThread = new Thread(ListenThread);
             listenThread.Start();
@@ -132,7 +138,7 @@ namespace RemoteTaskServer.Server
                     clientSocket.Send(processStartData);
                     break;
                 case PacketType.KillProcess:
-                    var killed = TaskApi.KillProcessByID(int.Parse(packets.action));
+                    var killed = TaskApi.KillProcessById(int.Parse(packets.action));
                     var killedJson =
                         new JavaScriptSerializer().Serialize(
                             new
@@ -141,6 +147,42 @@ namespace RemoteTaskServer.Server
                             });
                     var processKilledData = WebSocketFunctions.EncodeMessageToSend(killedJson);
                     clientSocket.Send(processKilledData);
+                    break;
+                case PacketType.EmptyApiKey:
+                    var emptyApiKeyStatus =
+                         new JavaScriptSerializer().Serialize(
+                             new
+                             {
+                                 emptyApiKey = true,
+                                 message = "Please generate an API Key"
+                             });
+
+                    var emptyApiKeyData = WebSocketFunctions.EncodeMessageToSend(emptyApiKeyStatus);
+                    clientSocket.Send(emptyApiKeyData);
+                    break;
+                case PacketType.InvalidApiKey:
+                    var invalidApiKeyStatus =
+                         new JavaScriptSerializer().Serialize(
+                             new
+                             {
+                                 invalidApiKey = true,
+                                 message = "Provided API Key does not match the server key"
+                             });
+
+                    var invalidApiKeyData = WebSocketFunctions.EncodeMessageToSend(invalidApiKeyStatus);
+                    clientSocket.Send(invalidApiKeyData);
+                    break;
+                case PacketType.InvalidPacket:
+                    var invalidPacketStatus =
+                         new JavaScriptSerializer().Serialize(
+                             new
+                             {
+                                 invalidPacket = true,
+                                 message = "This packet does not exisit on the server."
+                             });
+
+                    var invalidPacketData = WebSocketFunctions.EncodeMessageToSend(invalidPacketStatus);
+                    clientSocket.Send(invalidPacketData);
                     break;
             }
         }

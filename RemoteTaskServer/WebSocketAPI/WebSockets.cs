@@ -805,7 +805,7 @@ namespace RemoteTaskServer.WebSocketAPI
         private static readonly Regex HostRe = new Regex(@"^Host: (.*)\s*$", DefaultOptions);
         private static readonly Regex OriginRe = new Regex(@"^Origin: (.*)\s*$", DefaultOptions);
         private static readonly Regex ProtocolRe = new Regex(@"^(Sec-)*WebSocket-Protocol: (.*)\s*$", DefaultOptions);
-        private static readonly Regex KeyRe = new Regex(@"^Sec-WebSocket-Key(\d): (.*)\s*$", DefaultOptions);
+        private static readonly Regex KeyRe = new Regex(@"^Sec-WebSocket-key(\d): (.*)\s*$", DefaultOptions);
         private static readonly Regex CookieRe = new Regex(@"^Cookie: (.*)\s*$", DefaultOptions);
 
         public WebSocketServer() :

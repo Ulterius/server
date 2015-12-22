@@ -6,7 +6,7 @@ namespace RemoteTaskServer.Api.Models
     public static class CpuInformation
     {
         public static string Name { get; set; }
-        public static string ID { get; set; }
+        public static string Id { get; set; }
         public static string Socket { get; set; }
         public static string Description { get; set; }
         public static ushort AddressWidth { get; set; }
@@ -29,7 +29,7 @@ namespace RemoteTaskServer.Api.Models
                         new
                         {
                             cpuName = Name,
-                            id = ID,
+                            id = Id,
                             socket = Socket,
                             description = Description,
                             addressWidth = AddressWidth,

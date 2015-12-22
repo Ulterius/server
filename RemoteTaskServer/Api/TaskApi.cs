@@ -23,7 +23,7 @@ namespace RemoteTaskServer.Api
         private static extern bool ShowWindowAsync(IntPtr hwnd, int a);
 
 
-        public static bool KillProcessByID(int id, bool waitForExit = false)
+        public static bool KillProcessById(int id, bool waitForExit = false)
         {
             using (Process p = Process.GetProcessById(id))
             {
@@ -82,7 +82,7 @@ namespace RemoteTaskServer.Api
                         .Cast<ManagementObject>()
                         .First();
 
-                CpuInformation.ID = (string) cpu["ProcessorId"];
+                CpuInformation.Id = (string) cpu["ProcessorId"];
                 CpuInformation.Socket = (string) cpu["SocketDesignation"];
                 CpuInformation.Name = (string) cpu["Name"];
                 CpuInformation.Description = (string) cpu["Caption"];
