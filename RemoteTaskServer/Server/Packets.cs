@@ -19,7 +19,7 @@ namespace RemoteTaskServer.Server
         public Uri query;
         public string apiKey;
         public string senderID;
-        private Settings settings = new Settings();
+        private readonly Settings settings = new Settings();
         
         public Packets(byte[] packetBytes, int readBytes)
         {
