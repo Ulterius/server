@@ -150,6 +150,10 @@ namespace RemoteTaskServer.Server
                     var systemData = WebSocketFunctions.EncodeMessageToSend(TaskApi.GetSystemInformation());
                     clientSocket.Send(systemData);
                     break;
+                case PacketType.GetEventLogs:
+                    var eventData = WebSocketFunctions.EncodeMessageToSend(TaskApi.GetEventLogs());
+                    clientSocket.Send(eventData);
+                    break;
                 case PacketType.StartProcess:
                     var started = TaskApi.StartProcess(packets.action);
                     var processJson =

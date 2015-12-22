@@ -102,6 +102,10 @@ namespace RemoteTaskServer.Server
                             Console.WriteLine("Getting Current Settings");
                             packetType = PacketType.GetCurrentSettings;
                             break;
+                        case "geteventlogs":
+                            Console.WriteLine("Getting Event Logs");
+                            packetType = PacketType.GetEventLogs;
+                            break;
                         default:
                             packetType = PacketType.InvalidPacket;
                             break;
@@ -139,6 +143,7 @@ namespace RemoteTaskServer.Server
         ChangeWebFilePath,
         ChangeTaskServerPort,
         ChangeNetworkResolve,
-        GetCurrentSettings
+        GetCurrentSettings,
+        GetEventLogs
     }
 }

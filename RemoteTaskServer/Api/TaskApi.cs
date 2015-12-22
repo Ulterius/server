@@ -6,9 +6,11 @@ using System.Linq;
 using System.Management;
 using System.Runtime.InteropServices;
 using System.Web.Script.Serialization;
+using Newtonsoft.Json;
 using RemoteTaskServer.Api.Models;
 using RemoteTaskServer.Utilities;
 using RemoteTaskServer.Utilities.Network;
+using RemoteTaskServer.Utilities.System;
 
 namespace RemoteTaskServer.Api
 {
@@ -72,6 +74,10 @@ namespace RemoteTaskServer.Api
             return NetworkInformation.ToJson();
         }
 
+        public static string GetEventLogs()
+        {
+            return SystemUtilities.GetEventLogs();
+        }
         public static string GetCpuInformation()
         {
             if (string.IsNullOrEmpty(CpuInformation.Name))

@@ -5,8 +5,9 @@ using System.Runtime.InteropServices;
 using System.Security.Principal;
 using System.Threading;
 using System.Threading.Tasks;
-
+using System.Web.Script.Serialization;
 using Microsoft.VisualBasic.Devices;
+using Newtonsoft.Json;
 using RemoteTaskServer.Api.Models;
 
 namespace RemoteTaskServer.Utilities.System
@@ -63,6 +64,29 @@ namespace RemoteTaskServer.Utilities.System
             return myPrincipal.IsInRole(WindowsBuiltInRole.Administrator);
         }
 
+
+        public static string GetEventLogs()
+        {
+            var dictionary = new Dictionary<string, List<EventLogEntry>>();
+            var d = EventLog.GetEventLogs();
+            foreach (EventLog l in d)
+            {
+                var categoryName = l.LogDisplayName;
+                if (!dictionary.ContainsKey(categoryName))
+                    dictionary.Add(categoryName, new List<EventLogEntry>());
+
+                foreach (EventLogEntry entry in l.Entries)
+                {
+                    dictionary[categoryName].Add(entry);
+                }
+            }
+
+            JavaScriptSerializer serializer = new JavaScriptSerializer();
+            serializer.MaxJsonLength = Int32.MaxValue;
+            var json =
+                    serializer.Serialize(dictionary);
+            return json;
+        }  
         public static List<float> GetPerformanceCounters()
         {
             List<float> performanceCounters = new List<float>();
