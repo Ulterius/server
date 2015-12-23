@@ -106,6 +106,10 @@ namespace RemoteTaskServer.Server
                             Console.WriteLine("Getting Event Logs");
                             packetType = PacketType.GetEventLogs;
                             break;
+                        case "checkforupdate":
+                            Console.WriteLine("Checking for update");
+                            packetType = PacketType.CheckUpdate;
+                            break;
                         default:
                             packetType = PacketType.InvalidPacket;
                             break;
@@ -144,6 +148,7 @@ namespace RemoteTaskServer.Server
         ChangeTaskServerPort,
         ChangeNetworkResolve,
         GetCurrentSettings,
-        GetEventLogs
+        GetEventLogs,
+        CheckUpdate
     }
 }

@@ -218,6 +218,10 @@ namespace RemoteTaskServer.Server
                     var generateNewKeyData = WebSocketFunctions.EncodeMessageToSend(generateNewKeyStatus);
                     clientSocket.Send(generateNewKeyData);
                     break;
+                case PacketType.CheckUpdate:
+                    var checkUpdateData = WebSocketFunctions.EncodeMessageToSend(Tools.CheckForUpdates());
+                    clientSocket.Send(checkUpdateData);
+                    break;
             }
         }
 
