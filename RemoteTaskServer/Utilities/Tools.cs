@@ -4,18 +4,10 @@ using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
-<<<<<<< HEAD
-=======
-using System.Linq;
-using System.Net;
 using System.Net.NetworkInformation;
 using System.Reflection;
-using System.Security.Cryptography;
-using System.Text;
->>>>>>> bfec803572a4753144bfeca511d085dc78326a6d
 using System.Web;
 using System.Xml;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 #endregion
@@ -31,7 +23,7 @@ namespace RemoteTaskServer.Utilities
             while (res.Length < 35)
                 res += new Func<Random, string>(r =>
                 {
-                    var c = (char) (r.Next(123)*DateTime.Now.Millisecond%123);
+                    var c = (char)(r.Next(123) * DateTime.Now.Millisecond % 123);
                     return char.IsLetterOrDigit(c) ? c.ToString() : "";
                 })(rnd);
             return res;
@@ -80,7 +72,7 @@ namespace RemoteTaskServer.Utilities
                     {
                         using (Ping p = new Ping())
                         {
-                            result = 
+                            result =
                                 (p.Send("8.8.8.8", 15000).Status == IPStatus.Success) ||
                                 (p.Send("8.8.4.4", 15000).Status == IPStatus.Success) ||
                                 (p.Send("4.2.2.1", 15000).Status == IPStatus.Success);
@@ -143,7 +135,7 @@ namespace RemoteTaskServer.Utilities
                         //    MessageBoxIcon.Error);
                         isError = true;
                         errorData = e.Message.ToString();
-                        
+
                     }
                     finally
                     {
@@ -194,7 +186,8 @@ namespace RemoteTaskServer.Utilities
                     }
                     */
                 }
-                catch (Exception e) {
+                catch (Exception e)
+                {
                     return JObject.FromObject(new
                     {
                         update = false,
