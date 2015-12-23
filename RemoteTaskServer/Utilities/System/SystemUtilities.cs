@@ -1,4 +1,6 @@
-﻿using System;
+﻿#region
+
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
@@ -7,8 +9,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Web.Script.Serialization;
 using Microsoft.VisualBasic.Devices;
-using Newtonsoft.Json;
 using RemoteTaskServer.Api.Models;
+
+#endregion
 
 namespace RemoteTaskServer.Utilities.System
 {
@@ -26,9 +29,8 @@ namespace RemoteTaskServer.Utilities.System
                     SystemInformation.RunningProcesses = GetTotalProcesses();
                     SystemInformation.UpTime = GetUpTime().TotalMilliseconds;
                     SystemInformation.RunningAsAdmin = IsRunningAsAdministrator();
-                      SystemInformation.CpuUsage = GetPerformanceCounters();
+                    SystemInformation.CpuUsage = GetPerformanceCounters();
                     //GetPerformanceCounters();
-
                 }
             });
         }
@@ -69,7 +71,7 @@ namespace RemoteTaskServer.Utilities.System
         {
             var dictionary = new Dictionary<string, List<EventLogEntry>>();
             var d = EventLog.GetEventLogs();
-            foreach (EventLog l in d)
+            foreach (var l in d)
             {
                 var categoryName = l.LogDisplayName;
                 if (!dictionary.ContainsKey(categoryName))
@@ -81,19 +83,20 @@ namespace RemoteTaskServer.Utilities.System
                 }
             }
 
-            JavaScriptSerializer serializer = new JavaScriptSerializer();
-            serializer.MaxJsonLength = Int32.MaxValue;
+            var serializer = new JavaScriptSerializer();
+            serializer.MaxJsonLength = int.MaxValue;
             var json =
-                    serializer.Serialize(dictionary);
+                serializer.Serialize(dictionary);
             return json;
-        }  
+        }
+
         public static List<float> GetPerformanceCounters()
         {
-            List<float> performanceCounters = new List<float>();
-            int procCount = Environment.ProcessorCount;
-            for (int i = 0; i < procCount; i++)
+            var performanceCounters = new List<float>();
+            var procCount = Environment.ProcessorCount;
+            for (var i = 0; i < procCount; i++)
             {
-                PerformanceCounter pc = new PerformanceCounter("Processor", "% Processor Time", i.ToString());
+                var pc = new PerformanceCounter("Processor", "% Processor Time", i.ToString());
                 dynamic firstValue = pc.NextValue();
                 Thread.Sleep(1000);
                 // now matches task manager reading

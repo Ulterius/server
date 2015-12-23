@@ -1,5 +1,9 @@
-﻿using System.Collections.Generic;
+﻿#region
+
+using System.Collections.Generic;
 using System.Web.Script.Serialization;
+
+#endregion
 
 namespace RemoteTaskServer.Api.Models
 

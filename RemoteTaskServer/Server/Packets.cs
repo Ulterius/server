@@ -1,10 +1,10 @@
-﻿using System;
-using System.Linq;
-using System.Net;
-using System.Net.Sockets;
-using System.Web;
+﻿#region
+
+using System;
 using RemoteTaskServer.Utilities;
 using RemoteTaskServer.WebSocketAPI;
+
+#endregion
 
 namespace RemoteTaskServer.Server
 
@@ -12,18 +12,17 @@ namespace RemoteTaskServer.Server
     [Serializable]
     public class Packets
     {
-        public string command;
+        private readonly Settings settings = new Settings();
         public string action;
+        public string apiKey;
+        public string command;
         public PacketType packetType;
         public string paramaters;
         public Uri query;
-        public string apiKey;
         public string senderID;
-        private readonly Settings settings = new Settings();
 
         public Packets(byte[] packetBytes, int readBytes)
         {
-
             var decodedQuery = WebSocketFunctions.DecodeMessage(packetBytes, readBytes);
             Uri myUri = null;
             try
@@ -40,7 +39,7 @@ namespace RemoteTaskServer.Server
             apiKey = Tools.GetQueryString(decodedQuery, "key");
             senderID = "server";
             var key = settings.Read("ApiKey", "TaskServer");
-            if (!String.IsNullOrEmpty(key))
+            if (!string.IsNullOrEmpty(key))
             {
                 if (key.Equals(apiKey))
                 {

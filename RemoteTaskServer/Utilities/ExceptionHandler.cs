@@ -1,8 +1,10 @@
-﻿using System;
+﻿#region
+
+using System;
 using System.IO;
-using System.Net.Mime;
 using Newtonsoft.Json;
 
+#endregion
 
 namespace RemoteTaskServer.Utilities
 {
@@ -16,15 +18,16 @@ namespace RemoteTaskServer.Utilities
             {
                 try
                 {
-                    if (!Directory.Exists(ExceptionHandler.LogsPath))
-                        Directory.CreateDirectory(ExceptionHandler.LogsPath);
+                    if (!Directory.Exists(LogsPath))
+                        Directory.CreateDirectory(LogsPath);
 
-                    var filePath = Path.Combine(ExceptionHandler.LogsPath,
+                    var filePath = Path.Combine(LogsPath,
                         $"UnhandledException_{DateTime.Now.ToShortDateString().Replace("/", "-")}.json");
 
-                    File.AppendAllText(filePath, JsonConvert.SerializeObject(args.ExceptionObject, Formatting.Indented) + "\r\n\r\n");
+                    File.AppendAllText(filePath,
+                        JsonConvert.SerializeObject(args.ExceptionObject, Formatting.Indented) + "\r\n\r\n");
 
-                  Console.WriteLine("An Unhandled Exception was Caught and Logged to:\r\n{0}", filePath);
+                    Console.WriteLine("An Unhandled Exception was Caught and Logged to:\r\n{0}", filePath);
                 }
                 catch
                 {

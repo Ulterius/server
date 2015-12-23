@@ -1,4 +1,4 @@
-﻿// .NET
+﻿#region
 
 using System;
 using System.Collections.Generic;
@@ -12,6 +12,8 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Web;
+
+#endregion
 
 namespace RemoteTaskServer.WebSocketAPI
 {
@@ -232,7 +234,7 @@ namespace RemoteTaskServer.WebSocketAPI
         }
 
         public int Size { get; private set; }
-        public string Data { get; private set; }
+        public string Data { get; }
         public bool IsBinary { get; set; }
     }
 
@@ -277,7 +279,7 @@ namespace RemoteTaskServer.WebSocketAPI
 
         public bool IsSecure
         {
-            get { return (Stream is WebSocketSslStream); }
+            get { return Stream is WebSocketSslStream; }
         }
 
         public Socket Socket
@@ -347,7 +349,7 @@ namespace RemoteTaskServer.WebSocketAPI
         }
 
         public Stream Stream { get; private set; }
-        public Guid ID { get; private set; }
+        public Guid ID { get; }
         public WebSocketParameters Params { get; private set; }
         public event FrameReceivedHandler FrameReceived;
         public event DisconnectedEventHandler Disconnected;
@@ -500,7 +502,7 @@ namespace RemoteTaskServer.WebSocketAPI
                         if ((FrameBuffer[j] & 0x80) == 0x80)
                         {
                             // Add to frame length ...
-                            FrameLength = (FrameLength*0x80) + (FrameBuffer[j] & 0x7f);
+                            FrameLength = FrameLength*0x80 + (FrameBuffer[j] & 0x7f);
                         }
                         else
                         {
@@ -746,7 +748,7 @@ namespace RemoteTaskServer.WebSocketAPI
         {
             Start = 0x00,
             End = 0xff
-        };
+        }
 
         private enum WebSocketState
         {
@@ -1122,8 +1124,7 @@ namespace RemoteTaskServer.WebSocketAPI
         private bool IsValidOrigin(string aOrigin)
 
         {
-            
-            return (FireOnValidateOrigin(aOrigin) || (ValidOrigins.IndexOf(aOrigin) >= 0));
+            return FireOnValidateOrigin(aOrigin) || (ValidOrigins.IndexOf(aOrigin) >= 0);
         }
 
         private void InternalClientDisconnected(WebSocketClient aSender, EventArgs aEventArgs)
@@ -1349,7 +1350,7 @@ namespace RemoteTaskServer.WebSocketAPI
             {
                 throw new WebSocketMalformedHeaderException("\"Connection\" header missing or invalid!");
             }
-            string origin = headers[Constants.WS_ORIGIN] ?? "?";
+            var origin = headers[Constants.WS_ORIGIN] ?? "?";
             origin = origin.Trim();
             if (!IsValidOrigin(origin))
             {
@@ -1615,7 +1616,7 @@ namespace RemoteTaskServer.WebSocketAPI
                 result.ServerVariables.Add(Constants.WS_LOCATION,
                     string.Format("{0}://{1}{2}{3}",
                         IsSecure ? "wss" : "ws", result.ServerVariables[Constants.WS_HOST],
-                        (Port != (IsSecure ? Constants.WS_SSL_PORT : Constants.WS_PORT) ? ":" + Port : ""),
+                        Port != (IsSecure ? Constants.WS_SSL_PORT : Constants.WS_PORT) ? ":" + Port : "",
                         result.ServerVariables[Constants.URL]));
             }
 
@@ -1823,8 +1824,8 @@ namespace RemoteTaskServer.WebSocketAPI
         {
             get
             {
-                return (UserHostAddress == IPAddress.Loopback.ToString() ||
-                        UserHostAddress == Context.Client.ServerAddress.ToString());
+                return UserHostAddress == IPAddress.Loopback.ToString() ||
+                       UserHostAddress == Context.Client.ServerAddress.ToString();
             }
         }
 
@@ -1877,7 +1878,7 @@ namespace RemoteTaskServer.WebSocketAPI
             ContentEncoding = aIsBinary ? Utility.CP437 : Encoding.UTF8;
             ContentLength = aContent != null ? aContent.Length : 0;
 
-            var content = (aContent != null ? ContentEncoding.GetBytes(aContent) : new byte[0]);
+            var content = aContent != null ? ContentEncoding.GetBytes(aContent) : new byte[0];
             InputStream = new MemoryStream(content, 0, content.Length, false);
         }
     }
@@ -2037,7 +2038,7 @@ namespace RemoteTaskServer.WebSocketAPI
             get { return Guid.Empty; }
         }
 
-        public bool IsSorted { get; private set; }
+        public bool IsSorted { get; }
         public bool IsDirty { get; protected set; }
 
         public object this[int aIndex]
@@ -2266,7 +2267,7 @@ namespace RemoteTaskServer.WebSocketAPI
 
         public override Guid SessionID
         {
-            get { return (Client != null ? Client.ID : base.SessionID); }
+            get { return Client != null ? Client.ID : base.SessionID; }
         }
 
         public void Dispose()
@@ -2634,13 +2635,13 @@ namespace RemoteTaskServer.WebSocketAPI
         {
             lock (Services)
             {
-                List<string> endPoints = new List<string>();
-                foreach (string endPoint in Services.Keys)
+                var endPoints = new List<string>();
+                foreach (var endPoint in Services.Keys)
                 {
                     //Services[endPoint] = null;
                     endPoints.Add(endPoint);
                 }
-                foreach (string endPoint in endPoints)
+                foreach (var endPoint in endPoints)
                 {
                     Services[endPoint] = null;
                 }
@@ -2775,8 +2776,6 @@ namespace RemoteTaskServer.WebSocketAPI
     // --------------------------------------------------------------------------------------------------------------------- Utility
     internal static class Utility
     {
-
-
         private static readonly MD5CryptoServiceProvider Hasher = new MD5CryptoServiceProvider();
         internal static Encoding CP437 = Encoding.GetEncoding(437);
 

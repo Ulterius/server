@@ -1,6 +1,10 @@
-﻿using System;
+﻿#region
+
+using System;
 using System.Text;
 using System.Text.RegularExpressions;
+
+#endregion
 
 namespace RemoteTaskServer.Utilities
 {

@@ -1,10 +1,14 @@
-﻿using System;
+﻿#region
+
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+
+#endregion
 
 namespace RemoteTaskServer.WebServer
 {
@@ -141,8 +145,9 @@ namespace RemoteTaskServer.WebServer
             var userdomain = Environment.GetEnvironmentVariable("USERDOMAIN");
             _listener = new HttpListener();
             _listener.Prefixes.Add("http://*:" + _port + "/");
-            try {
-            _listener.Start();
+            try
+            {
+                _listener.Start();
             }
             catch (HttpListenerException ex)
             {
@@ -151,7 +156,6 @@ namespace RemoteTaskServer.WebServer
                     Console.WriteLine("You need to run the following command:");
                     Console.WriteLine("  netsh http add urlacl url={0} user={1}\\{2} listen=yes",
                         prefix, userdomain, username);
-                    
                 }
                 else
                 {
@@ -179,7 +183,9 @@ namespace RemoteTaskServer.WebServer
 
             if (string.IsNullOrEmpty(filename))
             {
-                foreach (var indexFile in _indexFiles.Where(indexFile => File.Exists(Path.Combine(_rootDirectory, indexFile))))
+                foreach (
+                    var indexFile in
+                        _indexFiles.Where(indexFile => File.Exists(Path.Combine(_rootDirectory, indexFile))))
                 {
                     filename = indexFile;
                     break;

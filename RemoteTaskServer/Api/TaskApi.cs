@@ -1,4 +1,6 @@
-﻿using System;
+﻿#region
+
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -6,11 +8,12 @@ using System.Linq;
 using System.Management;
 using System.Runtime.InteropServices;
 using System.Web.Script.Serialization;
-using Newtonsoft.Json;
 using RemoteTaskServer.Api.Models;
 using RemoteTaskServer.Utilities;
 using RemoteTaskServer.Utilities.Network;
 using RemoteTaskServer.Utilities.System;
+
+#endregion
 
 namespace RemoteTaskServer.Api
 {
@@ -27,7 +30,7 @@ namespace RemoteTaskServer.Api
 
         public static bool KillProcessById(int id, bool waitForExit = false)
         {
-            using (Process p = Process.GetProcessById(id))
+            using (var p = Process.GetProcessById(id))
             {
                 if (p == null || p.HasExited) return false;
 
@@ -44,7 +47,6 @@ namespace RemoteTaskServer.Api
         {
             try
             {
-               
                 var processStartInfo = new ProcessStartInfo(processName);
 
                 var process = new Process {StartInfo = processStartInfo};
@@ -78,6 +80,7 @@ namespace RemoteTaskServer.Api
         {
             return SystemUtilities.GetEventLogs();
         }
+
         public static string GetCpuInformation()
         {
             if (string.IsNullOrEmpty(CpuInformation.Name))

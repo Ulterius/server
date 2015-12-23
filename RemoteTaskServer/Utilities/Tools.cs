@@ -16,6 +16,34 @@ namespace RemoteTaskServer.Utilities
 {
     internal class Tools
     {
+        private static bool HasInternetConnection
+        {
+            // There is no way you can reliably check if there is an internet connection, but we can come close
+            get
+            {
+                var result = false;
+
+                try
+                {
+                    if (NetworkInterface.GetIsNetworkAvailable())
+                    {
+                        using (var p = new Ping())
+                        {
+                            result =
+                                (p.Send("8.8.8.8", 15000).Status == IPStatus.Success) ||
+                                (p.Send("8.8.4.4", 15000).Status == IPStatus.Success) ||
+                                (p.Send("4.2.2.1", 15000).Status == IPStatus.Success);
+                        }
+                    }
+                }
+                catch
+                {
+                }
+
+                return result;
+            }
+        }
+
         public static string GenerateAPIKey()
         {
             var res = "";
@@ -23,7 +51,7 @@ namespace RemoteTaskServer.Utilities
             while (res.Length < 35)
                 res += new Func<Random, string>(r =>
                 {
-                    var c = (char)(r.Next(123) * DateTime.Now.Millisecond % 123);
+                    var c = (char) (r.Next(123)*DateTime.Now.Millisecond%123);
                     return char.IsLetterOrDigit(c) ? c.ToString() : "";
                 })(rnd);
             return res;
@@ -59,46 +87,20 @@ namespace RemoteTaskServer.Utilities
             return SigBase64;
         }
 
-        private static bool HasInternetConnection
-        {
-            // There is no way you can reliably check if there is an internet connection, but we can come close
-            get
-            {
-                bool result = false;
-
-                try
-                {
-                    if (NetworkInterface.GetIsNetworkAvailable())
-                    {
-                        using (Ping p = new Ping())
-                        {
-                            result =
-                                (p.Send("8.8.8.8", 15000).Status == IPStatus.Success) ||
-                                (p.Send("8.8.4.4", 15000).Status == IPStatus.Success) ||
-                                (p.Send("4.2.2.1", 15000).Status == IPStatus.Success);
-                        }
-                    }
-                }
-                catch { }
-
-                return result;
-            }
-        }
-
         public static string CheckForUpdates()
         {
             var isError = false;
             var errorData = "";
-            if (Tools.HasInternetConnection)
+            if (HasInternetConnection)
             {
                 try
                 {
-                    string _releasePageURL = "";
+                    var _releasePageURL = "";
                     Version _newVersion = null;
                     const string _versionConfig = "https://raw.github.com/StrikeOrg/ulterius-server/master/version.xml";
-                    XmlTextReader _reader = new XmlTextReader(_versionConfig);
+                    var _reader = new XmlTextReader(_versionConfig);
                     _reader.MoveToContent();
-                    string _elementName = "";
+                    var _elementName = "";
                     try
                     {
                         if ((_reader.NodeType == XmlNodeType.Element) && (_reader.Name == "ulteriusserver"))
@@ -111,7 +113,7 @@ namespace RemoteTaskServer.Utilities
                                         _elementName = _reader.Name;
                                         break;
                                     default:
-                                        if ((_reader.NodeType == XmlNodeType.Text) && (_reader.HasValue))
+                                        if ((_reader.NodeType == XmlNodeType.Text) && _reader.HasValue)
                                         {
                                             switch (_elementName)
                                             {
@@ -130,19 +132,17 @@ namespace RemoteTaskServer.Utilities
                     }
                     catch (Exception e)
                     {
-
                         //MessageBox.Show(Resources.ErrorUpdates, Resources.ErrorHeader, MessageBoxButtons.OK,
                         //    MessageBoxIcon.Error);
                         isError = true;
-                        errorData = e.Message.ToString();
-
+                        errorData = e.Message;
                     }
                     finally
                     {
                         _reader.Close();
                     }
 
-                    Version applicationVersion = Assembly.GetExecutingAssembly().GetName().Version;
+                    var applicationVersion = Assembly.GetExecutingAssembly().GetName().Version;
                     JObject response;
                     if (isError)
                     {
@@ -160,7 +160,7 @@ namespace RemoteTaskServer.Utilities
                             update = true,
                             url = _releasePageURL,
                             newVersion = _newVersion.ToString(),
-                            message = "New version available: " + _newVersion.ToString(),
+                            message = "New version available: " + _newVersion
                         });
                     }
                     else
@@ -191,20 +191,17 @@ namespace RemoteTaskServer.Utilities
                     return JObject.FromObject(new
                     {
                         update = false,
-                        error = e.Message.ToString(),
-                        message = "General bad thing has happened: " + e.Message.ToString()
+                        error = e.Message,
+                        message = "General bad thing has happened: " + e.Message
                     }).ToString();
                 }
             }
-            else
+            return JObject.FromObject(new
             {
-                return JObject.FromObject(new
-                {
-                    update = false,
-                    error = "No connection",
-                    message = "Unable to connect to the internet to check for update."
-                }).ToString();
-            }
+                update = false,
+                error = "No connection",
+                message = "Unable to connect to the internet to check for update."
+            }).ToString();
         }
     }
 }

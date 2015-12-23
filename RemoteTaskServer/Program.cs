@@ -1,14 +1,15 @@
-﻿using System;
+﻿#region
+
+using System;
 using System.Diagnostics;
 using System.Security.Principal;
-using System.Threading;
-using System.Web.Script.Serialization;
-using RemoteTaskServer.Api;
 using RemoteTaskServer.Server;
 using RemoteTaskServer.Utilities;
 using RemoteTaskServer.Utilities.Network;
 using RemoteTaskServer.Utilities.System;
 using RemoteTaskServer.WebServer;
+
+#endregion
 
 namespace RemoteTaskServer
 {
@@ -16,7 +17,6 @@ namespace RemoteTaskServer
     {
         private static void Main(string[] args)
         {
-
             if (!Debugger.IsAttached)
                 ExceptionHandler.AddGlobalHandlers();
 
@@ -31,7 +31,6 @@ namespace RemoteTaskServer
             var useWebServer = settings.Read("UseWebServer", "WebServer");
             if (useWebServer == "true")
             {
-
                 var root = settings.Read("WebFilePath", "WebServer");
                 var port = int.Parse(settings.Read("WebServerPort", "WebServer"));
                 var httpServer = new HttpServer(root, port);
@@ -44,7 +43,6 @@ namespace RemoteTaskServer
             var systemUtilities = new SystemUtilities();
             systemUtilities.Start();
             Console.ReadLine();
-
         }
     }
 }

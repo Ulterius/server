@@ -1,7 +1,10 @@
-﻿using System;
+﻿#region
+
 using System.Collections.Generic;
 using System.Web.Script.Serialization;
 using RemoteTaskServer.Utilities.Network;
+
+#endregion
 
 namespace RemoteTaskServer.Api.Models
 

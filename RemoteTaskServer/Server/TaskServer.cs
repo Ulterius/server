@@ -1,4 +1,6 @@
-﻿using System;
+﻿#region
+
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
@@ -6,11 +8,14 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Web.Script.Serialization;
 using RemoteTaskServer.Api;
 using RemoteTaskServer.Utilities;
 using RemoteTaskServer.Utilities.Network;
 using RemoteTaskServer.WebSocketAPI;
+
+#endregion
 
 namespace RemoteTaskServer.Server
 {
@@ -18,7 +23,7 @@ namespace RemoteTaskServer.Server
     {
         private static Socket listenerSocket;
         private static List<ClientData> clients;
-        public static int boundPort = 0;
+        public static int boundPort;
 
         /// <summary>
         ///     Starts the actual server
@@ -44,7 +49,7 @@ namespace RemoteTaskServer.Server
         /// <returns></returns>
         public static void DataReceived(object cSocket)
         {
-            var clientSocket = (Socket)cSocket;
+            var clientSocket = (Socket) cSocket;
             byte[] buffer;
             int readBytes;
             while (true)
@@ -80,7 +85,8 @@ namespace RemoteTaskServer.Server
                         else
                         {
                             var packet = new Packets(buffer, readBytes);
-                            HandlePacket(clientSocket, packet);
+                            //cheap way to do non-blocking packet handling 
+                            Task.Run(() => { HandlePacket(clientSocket, packet); });
                         }
                     }
                 }
@@ -123,23 +129,28 @@ namespace RemoteTaskServer.Server
                     clientSocket.Send(networkData);
                     break;
                 case PacketType.UseWebServer:
-                    var useWebServerData = WebSocketFunctions.EncodeMessageToSend(SettingsApi.ChangeWebServerUse(packets.action));
+                    var useWebServerData =
+                        WebSocketFunctions.EncodeMessageToSend(SettingsApi.ChangeWebServerUse(packets.action));
                     clientSocket.Send(useWebServerData);
                     break;
                 case PacketType.ChangeWebServerPort:
-                    var changeWebServerPortData = WebSocketFunctions.EncodeMessageToSend(SettingsApi.ChangeWebServerPort(packets.action));
+                    var changeWebServerPortData =
+                        WebSocketFunctions.EncodeMessageToSend(SettingsApi.ChangeWebServerPort(packets.action));
                     clientSocket.Send(changeWebServerPortData);
                     break;
                 case PacketType.ChangeWebFilePath:
-                    var changeWebFilePathData = WebSocketFunctions.EncodeMessageToSend(SettingsApi.ChangeWebFilePath(packets.action));
+                    var changeWebFilePathData =
+                        WebSocketFunctions.EncodeMessageToSend(SettingsApi.ChangeWebFilePath(packets.action));
                     clientSocket.Send(changeWebFilePathData);
                     break;
                 case PacketType.ChangeTaskServerPort:
-                    var changeTaskServerPortData = WebSocketFunctions.EncodeMessageToSend(SettingsApi.ChangeTaskServerPort(packets.action));
+                    var changeTaskServerPortData =
+                        WebSocketFunctions.EncodeMessageToSend(SettingsApi.ChangeTaskServerPort(packets.action));
                     clientSocket.Send(changeTaskServerPortData);
                     break;
                 case PacketType.ChangeNetworkResolve:
-                    var changeNetworkResolveData = WebSocketFunctions.EncodeMessageToSend(SettingsApi.ChangeNetworkResolve(packets.action));
+                    var changeNetworkResolveData =
+                        WebSocketFunctions.EncodeMessageToSend(SettingsApi.ChangeNetworkResolve(packets.action));
                     clientSocket.Send(changeNetworkResolveData);
                     break;
                 case PacketType.GetCurrentSettings:
@@ -178,36 +189,36 @@ namespace RemoteTaskServer.Server
                     break;
                 case PacketType.EmptyApiKey:
                     var emptyApiKeyStatus =
-                         new JavaScriptSerializer().Serialize(
-                             new
-                             {
-                                 emptyApiKey = true,
-                                 message = "Please generate an API Key"
-                             });
+                        new JavaScriptSerializer().Serialize(
+                            new
+                            {
+                                emptyApiKey = true,
+                                message = "Please generate an API Key"
+                            });
 
                     var emptyApiKeyData = WebSocketFunctions.EncodeMessageToSend(emptyApiKeyStatus);
                     clientSocket.Send(emptyApiKeyData);
                     break;
                 case PacketType.InvalidApiKey:
                     var invalidApiKeyStatus =
-                         new JavaScriptSerializer().Serialize(
-                             new
-                             {
-                                 invalidApiKey = true,
-                                 message = "Provided API Key does not match the server key"
-                             });
+                        new JavaScriptSerializer().Serialize(
+                            new
+                            {
+                                invalidApiKey = true,
+                                message = "Provided API Key does not match the server key"
+                            });
 
                     var invalidOAuthData = WebSocketFunctions.EncodeMessageToSend(invalidApiKeyStatus);
                     clientSocket.Send(invalidOAuthData);
                     break;
                 case PacketType.InvalidPacket:
                     var invalidPacketStatus =
-                         new JavaScriptSerializer().Serialize(
-                             new
-                             {
-                                 invalidPacket = true,
-                                 message = "This packet does not exisit on the server."
-                             });
+                        new JavaScriptSerializer().Serialize(
+                            new
+                            {
+                                invalidPacket = true,
+                                message = "This packet does not exisit on the server."
+                            });
 
                     var invalidPacketData = WebSocketFunctions.EncodeMessageToSend(invalidPacketStatus);
                     clientSocket.Send(invalidPacketData);

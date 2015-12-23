@@ -1,4 +1,8 @@
-﻿using System.Web.Script.Serialization;
+﻿#region
+
+using System.Web.Script.Serialization;
+
+#endregion
 
 namespace RemoteTaskServer.Api.Models
 
