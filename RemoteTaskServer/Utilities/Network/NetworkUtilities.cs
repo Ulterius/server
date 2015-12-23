@@ -48,7 +48,7 @@ namespace RemoteTaskServer.Utilities.Network
                 {
                     name = "null";
                 }
-              
+
                 Console.WriteLine(name);
                 Devices.Add(new NetworkDevices
                 {
@@ -111,24 +111,24 @@ namespace RemoteTaskServer.Utilities.Network
                 }
                 // Get the rows count
                 var rowsCount = Marshal.ReadInt32(rawTable);
-                var currentBuffer = new IntPtr(rawTable.ToInt64() + Marshal.SizeOf(typeof (int)));
+                var currentBuffer = new IntPtr(rawTable.ToInt64() + Marshal.SizeOf(typeof(int)));
                 // Convert the raw table to individual entries
                 var rows = new MIB_IPNETROW[rowsCount];
                 for (var index = 0; index < rowsCount; index++)
                 {
-                    rows[index] = (MIB_IPNETROW) Marshal.PtrToStructure(new IntPtr(currentBuffer.ToInt64() +
-                                                                                   index*
-                                                                                   Marshal.SizeOf(typeof (MIB_IPNETROW))
+                    rows[index] = (MIB_IPNETROW)Marshal.PtrToStructure(new IntPtr(currentBuffer.ToInt64() +
+                                                                                   index *
+                                                                                   Marshal.SizeOf(typeof(MIB_IPNETROW))
                         ),
-                        typeof (MIB_IPNETROW));
+                        typeof(MIB_IPNETROW));
                 }
                 // Define the dummy entries list (we can discard these)
-                var virtualMAC = new PhysicalAddress(new byte[] {0, 0, 0, 0, 0, 0});
-                var broadcastMAC = new PhysicalAddress(new byte[] {255, 255, 255, 255, 255, 255});
+                var virtualMAC = new PhysicalAddress(new byte[] { 0, 0, 0, 0, 0, 0 });
+                var broadcastMAC = new PhysicalAddress(new byte[] { 255, 255, 255, 255, 255, 255 });
                 foreach (var row in rows)
                 {
                     var ip = new IPAddress(BitConverter.GetBytes(row.dwAddr));
-                    byte[] rawMAC = {row.mac0, row.mac1, row.mac2, row.mac3, row.mac4, row.mac5};
+                    byte[] rawMAC = { row.mac0, row.mac1, row.mac2, row.mac3, row.mac4, row.mac5 };
                     var pa = new PhysicalAddress(rawMAC);
                     if (!pa.Equals(virtualMAC) && !pa.Equals(broadcastMAC) && !IsMulticast(ip))
                     {
@@ -227,18 +227,30 @@ namespace RemoteTaskServer.Utilities.Network
         [StructLayout(LayoutKind.Sequential)]
         private struct MIB_IPNETROW
         {
-            [MarshalAs(UnmanagedType.U4)] public readonly int dwIndex;
-            [MarshalAs(UnmanagedType.U4)] public readonly int dwPhysAddrLen;
-            [MarshalAs(UnmanagedType.U1)] public readonly byte mac0;
-            [MarshalAs(UnmanagedType.U1)] public readonly byte mac1;
-            [MarshalAs(UnmanagedType.U1)] public readonly byte mac2;
-            [MarshalAs(UnmanagedType.U1)] public readonly byte mac3;
-            [MarshalAs(UnmanagedType.U1)] public readonly byte mac4;
-            [MarshalAs(UnmanagedType.U1)] public readonly byte mac5;
-            [MarshalAs(UnmanagedType.U1)] public readonly byte mac6;
-            [MarshalAs(UnmanagedType.U1)] public readonly byte mac7;
-            [MarshalAs(UnmanagedType.U4)] public readonly int dwAddr;
-            [MarshalAs(UnmanagedType.U4)] public readonly int dwType;
+            [MarshalAs(UnmanagedType.U4)]
+            public readonly int dwIndex;
+            [MarshalAs(UnmanagedType.U4)]
+            public readonly int dwPhysAddrLen;
+            [MarshalAs(UnmanagedType.U1)]
+            public readonly byte mac0;
+            [MarshalAs(UnmanagedType.U1)]
+            public readonly byte mac1;
+            [MarshalAs(UnmanagedType.U1)]
+            public readonly byte mac2;
+            [MarshalAs(UnmanagedType.U1)]
+            public readonly byte mac3;
+            [MarshalAs(UnmanagedType.U1)]
+            public readonly byte mac4;
+            [MarshalAs(UnmanagedType.U1)]
+            public readonly byte mac5;
+            [MarshalAs(UnmanagedType.U1)]
+            public readonly byte mac6;
+            [MarshalAs(UnmanagedType.U1)]
+            public readonly byte mac7;
+            [MarshalAs(UnmanagedType.U4)]
+            public readonly int dwAddr;
+            [MarshalAs(UnmanagedType.U4)]
+            public readonly int dwType;
         }
     }
 }

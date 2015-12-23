@@ -44,7 +44,7 @@ namespace RemoteTaskServer.Server
         /// <returns></returns>
         public static void DataReceived(object cSocket)
         {
-            var clientSocket = (Socket) cSocket;
+            var clientSocket = (Socket)cSocket;
             byte[] buffer;
             int readBytes;
             while (true)
@@ -214,7 +214,7 @@ namespace RemoteTaskServer.Server
                     break;
                 case PacketType.GenerateNewKey:
                     var generateNewKeyStatus = SettingsApi.GenerateNewAPiKey(packets.apiKey);
-                  
+
                     var generateNewKeyData = WebSocketFunctions.EncodeMessageToSend(generateNewKeyStatus);
                     clientSocket.Send(generateNewKeyData);
                     break;

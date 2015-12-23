@@ -21,7 +21,7 @@ namespace RemoteTaskServer
                 ExceptionHandler.AddGlobalHandlers();
 
             var settings = new Settings();
-           
+
             var myPrincipal = new WindowsPrincipal(WindowsIdentity.GetCurrent());
             if (myPrincipal.IsInRole(WindowsBuiltInRole.Administrator) == false)
             {
@@ -44,7 +44,7 @@ namespace RemoteTaskServer
             var systemUtilities = new SystemUtilities();
             systemUtilities.Start();
             Console.ReadLine();
-           
+
         }
     }
 }

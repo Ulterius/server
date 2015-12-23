@@ -20,10 +20,10 @@ namespace RemoteTaskServer.Server
         public string apiKey;
         public string senderID;
         private readonly Settings settings = new Settings();
-        
+
         public Packets(byte[] packetBytes, int readBytes)
         {
-            
+
             var decodedQuery = WebSocketFunctions.DecodeMessage(packetBytes, readBytes);
             Uri myUri = null;
             try

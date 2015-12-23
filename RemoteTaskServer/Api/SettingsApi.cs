@@ -40,8 +40,8 @@ namespace RemoteTaskServer.Api
         }
         public static string GetCurrentSettings()
         {
-           
-           var UseWebServer = settings.Read("UseWebServer", "WebServer");
+
+            var UseWebServer = settings.Read("UseWebServer", "WebServer");
             var WebServerPort = settings.Read("WebServerPort", "WebServer");
             var WebFilePath = settings.Read("WebFilePath", "WebServer");
             var TaskServerPort = settings.Read("TaskServerPort", "TaskServer");
