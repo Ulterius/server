@@ -75,6 +75,7 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.DirectoryServices" />
+    <Reference Include="System.DirectoryServices.AccountManagement" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Management" />
     <Reference Include="System.Web" />
@@ -94,6 +95,7 @@
     <Compile Include="Api\Models\CpuInformation.cs" />
     <Compile Include="Api\Models\ServerOperatingSystem.cs" />
     <Compile Include="Api\SettingsApi.cs" />
+    <Compile Include="Api\WindowsApi.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Server\ClientData.cs" />
     <Compile Include="Server\Packets.cs" />

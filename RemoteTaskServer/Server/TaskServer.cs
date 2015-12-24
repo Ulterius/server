@@ -161,6 +161,14 @@ namespace RemoteTaskServer.Server
                     var systemData = WebSocketFunctions.EncodeMessageToSend(TaskApi.GetSystemInformation());
                     clientSocket.Send(systemData);
                     break;
+                case PacketType.RequestWindowsInformation:
+                    var windowsData = WebSocketFunctions.EncodeMessageToSend(WindowsApi.GetWindowsInformation());
+                    clientSocket.Send(windowsData);
+                    break;
+                 case PacketType.VerifyWindowsPassword:
+                    var passwordData = WebSocketFunctions.EncodeMessageToSend(WindowsApi.VerifyPassword(packets.action));
+                    clientSocket.Send(passwordData);
+                    break;
                 case PacketType.GetEventLogs:
                     var eventData = WebSocketFunctions.EncodeMessageToSend(TaskApi.GetEventLogs());
                     clientSocket.Send(eventData);

@@ -109,6 +109,14 @@ namespace RemoteTaskServer.Server
                             Console.WriteLine("Checking for update");
                             packetType = PacketType.CheckUpdate;
                             break;
+                        case "verifypassword":
+                            Console.WriteLine("Verifying Windows Password");
+                            packetType = PacketType.VerifyWindowsPassword;
+                            break;
+                        case "getwindowsdata":
+                            Console.WriteLine("Getting Windows Account Data");
+                            packetType = PacketType.RequestWindowsInformation;
+                            break;
                         default:
                             packetType = PacketType.InvalidPacket;
                             break;
@@ -116,7 +124,7 @@ namespace RemoteTaskServer.Server
                 }
                 else
                 {
-                    Console.WriteLine("Invalid OAuth Key " + key);
+                    Console.WriteLine("Invalid API Key " + key);
                     packetType = PacketType.InvalidApiKey;
                 }
             }
@@ -148,6 +156,8 @@ namespace RemoteTaskServer.Server
         ChangeNetworkResolve,
         GetCurrentSettings,
         GetEventLogs,
-        CheckUpdate
+        CheckUpdate,
+        RequestWindowsInformation,
+        VerifyWindowsPassword
     }
 }

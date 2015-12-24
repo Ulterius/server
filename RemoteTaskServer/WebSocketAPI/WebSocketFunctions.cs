@@ -1,27 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics;
-using System.Linq;
+﻿#region
+
+using System;
 using System.Text;
-using System.Threading.Tasks;
-using System.Web.Script.Serialization;
 using MiscUtil.Conversion;
-using RemoteTaskServer.Api;
-using RemoteTaskServer.Utilities;
+
+#endregion
 
 namespace RemoteTaskServer.WebSocketAPI
 {
-    class WebSocketFunctions
+    internal class WebSocketFunctions
     {
-
         /// <summary>
         ///     Method to decode the message after its sent to the server
         /// </summary>
         /// <param name="buffer"></param>
-        ///  <param name="length"></param>
+        /// <param name="length"></param>
         /// <returns></returns>
-         public static string DecodeMessage(byte[] buffer, int length)
+        public static string DecodeMessage(byte[] buffer, int length)
         {
             var b = buffer[1];
             var dataLength = 0;
@@ -125,8 +120,5 @@ namespace RemoteTaskServer.WebSocketAPI
 
             return response;
         }
-
-   
     }
-    
 }
