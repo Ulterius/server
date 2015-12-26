@@ -3,7 +3,6 @@
 using System;
 using System.Diagnostics;
 using System.Security.Principal;
-using RemoteTaskServer.Api;
 using RemoteTaskServer.Server;
 using RemoteTaskServer.Utilities;
 using RemoteTaskServer.Utilities.Network;

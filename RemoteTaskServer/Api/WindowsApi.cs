@@ -1,6 +1,7 @@
 ﻿#region
 
 using System;
+using System.Diagnostics;
 using System.DirectoryServices.AccountManagement;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -56,6 +57,15 @@ namespace RemoteTaskServer.Api
                 validLogin = valid,
                 message = valid ? "Login was successfull" : "Login was unsuccessful"
             }).ToString();
+        }
+
+        private void ShutDownSystem()
+        {
+            Process.Start("shutdown", "/s /t 0");    // starts the shutdown application 
+                                                     // the argument /s is to shut down the computer
+                                                     // the argument /t 0 is to tell the process that 
+                                                     // the specified operation needs to be completed 
+                                                     // after 0 seconds
         }
 
 

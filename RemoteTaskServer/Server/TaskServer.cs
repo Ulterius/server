@@ -165,7 +165,7 @@ namespace RemoteTaskServer.Server
                     var windowsData = WebSocketFunctions.EncodeMessageToSend(WindowsApi.GetWindowsInformation());
                     clientSocket.Send(windowsData);
                     break;
-                 case PacketType.VerifyWindowsPassword:
+                case PacketType.VerifyWindowsPassword:
                     var passwordData = WebSocketFunctions.EncodeMessageToSend(WindowsApi.VerifyPassword(packets.action));
                     clientSocket.Send(passwordData);
                     break;
