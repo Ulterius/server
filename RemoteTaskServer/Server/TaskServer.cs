@@ -81,7 +81,7 @@ namespace RemoteTaskServer.Server
 
                             //Tells the web socket to stay connected
                             clientSocket.Send(response);
-                        } // first message from the websocket is always its headers; anything else is a message/command
+                        } // first message from the websocket is always its headers; anything else is a message/args
                         else
                         {
                             var packet = new Packets(buffer, readBytes);
@@ -123,6 +123,17 @@ namespace RemoteTaskServer.Server
                 case PacketType.RequestOsInformation:
                     var osData = WebSocketFunctions.EncodeMessageToSend(TaskApi.GetOperatingSystemInformation());
                     clientSocket.Send(osData);
+                    break;
+                case PacketType.RestartServer:
+                    var restartJson =
+                       new JavaScriptSerializer().Serialize(
+                           new
+                           {
+                               serverRestarted = true
+                           });
+                    var restartData = WebSocketFunctions.EncodeMessageToSend(restartJson);
+                    clientSocket.Send(restartData);
+                    TaskApi.RestartServer();
                     break;
                 case PacketType.RequestNetworkInformation:
                     var networkData = WebSocketFunctions.EncodeMessageToSend(TaskApi.GetNetworkInformation());

@@ -15,7 +15,7 @@ namespace RemoteTaskServer.Server
         private readonly Settings settings = new Settings();
         public string action;
         public string apiKey;
-        public string command;
+        public string args;
         public PacketType packetType;
         public string paramaters;
         public Uri query;
@@ -34,8 +34,8 @@ namespace RemoteTaskServer.Server
                 return;
             }
             query = myUri;
-            command = myUri.Host;
-            action = Tools.GetQueryString(decodedQuery, "command");
+            args = myUri.Host;
+            action = Tools.GetQueryString(decodedQuery, "args");
             apiKey = Tools.GetQueryString(decodedQuery, "key");
             senderID = "server";
             var key = settings.Read("ApiKey", "TaskServer");
@@ -43,7 +43,7 @@ namespace RemoteTaskServer.Server
             {
                 if (key.Equals(apiKey))
                 {
-                    switch (command)
+                    switch (args)
                     {
                         case "requestprocessinformation":
                             Console.WriteLine("Request Process Information");
@@ -113,6 +113,10 @@ namespace RemoteTaskServer.Server
                             Console.WriteLine("Verifying Windows Password");
                             packetType = PacketType.VerifyWindowsPassword;
                             break;
+                        case "restartserver":
+                            Console.WriteLine("Restarting Server");
+                            packetType = PacketType.RestartServer;
+                            break;
                         case "getwindowsdata":
                             Console.WriteLine("Getting Windows Account Data");
                             packetType = PacketType.RequestWindowsInformation;
@@ -158,6 +162,7 @@ namespace RemoteTaskServer.Server
         GetEventLogs,
         CheckUpdate,
         RequestWindowsInformation,
-        VerifyWindowsPassword
+        VerifyWindowsPassword,
+        RestartServer
     }
 }

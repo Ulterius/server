@@ -3,6 +3,7 @@
 using System;
 using System.Diagnostics;
 using System.Security.Principal;
+using RemoteTaskServer.Api;
 using RemoteTaskServer.Server;
 using RemoteTaskServer.Utilities;
 using RemoteTaskServer.Utilities.Network;
@@ -42,6 +43,7 @@ namespace RemoteTaskServer
             Console.WriteLine("Starting TaskServer on " + NetworkUtilities.GetIPv4Address() + ":" + TaskServer.boundPort);
             var systemUtilities = new SystemUtilities();
             systemUtilities.Start();
+            TaskApi.RestartServer();
             Console.ReadLine();
         }
     }

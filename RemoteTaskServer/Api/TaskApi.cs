@@ -6,6 +6,8 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Management;
+using System.Net.Mime;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Web.Script.Serialization;
 using RemoteTaskServer.Api.Models;
@@ -62,6 +64,14 @@ namespace RemoteTaskServer.Api
             }
         }
 
+        public static void RestartServer()
+        {
+            var info = Console.ReadKey();
+           var fileName = Assembly.GetExecutingAssembly().Location;
+           System.Diagnostics.Process.Start(fileName);
+            Environment.Exit(0);
+            
+        }
         public static string GetNetworkInformation()
 
 

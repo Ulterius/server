@@ -153,7 +153,7 @@ namespace RemoteTaskServer.WebServer
             {
                 if (ex.ErrorCode == 5)
                 {
-                    Console.WriteLine("You need to run the following command:");
+                    Console.WriteLine("You need to run the following args:");
                     Console.WriteLine("  netsh http add urlacl url={0} user={1}\\{2} listen=yes",
                         prefix, userdomain, username);
                 }
