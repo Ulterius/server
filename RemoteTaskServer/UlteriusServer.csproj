@@ -9,8 +9,8 @@
     <ProjectGuid>{E9A365D5-AEBE-4AF3-86C5-D17BC65ADE46}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>RemoteTaskServer</RootNamespace>
-    <AssemblyName>RemoteTaskServer</AssemblyName>
+    <RootNamespace>UlteriusServer</RootNamespace>
+    <AssemblyName>UlteriusServer</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <NuGetPackageImportStamp>
@@ -97,6 +97,11 @@
     <Compile Include="Api\SettingsApi.cs" />
     <Compile Include="Api\WindowsApi.cs" />
     <Compile Include="Program.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
     <Compile Include="Server\ClientData.cs" />
     <Compile Include="Server\Packets.cs" />
     <Compile Include="Api\Models\SystemProcesses.cs" />
@@ -116,9 +121,16 @@
   <ItemGroup>
     <None Include="App.config" />
     <None Include="app.manifest" />
+    <None Include="bin\Debug\UlteriusServer.ini" />
     <None Include="packages.config" />
+    <None Include="UlteriusServer.ini" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
       <Visible>False</Visible>
