@@ -104,6 +104,7 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="Server\ClientData.cs" />
+    <Compile Include="Server\JsPacket.cs" />
     <Compile Include="Server\Packets.cs" />
     <Compile Include="Api\Models\SystemProcesses.cs" />
     <Compile Include="Server\TaskServer.cs" />

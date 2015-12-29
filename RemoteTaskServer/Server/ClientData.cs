@@ -3,10 +3,11 @@
 using System;
 using System.Net.Sockets;
 using System.Threading;
+using UlteriusServer.Server;
 
 #endregion
 
-namespace RemoteTaskServer.Server
+namespace UlteriusServer.Server
 {
     internal class ClientData
     {

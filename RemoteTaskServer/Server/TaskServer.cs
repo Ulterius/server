@@ -17,7 +17,7 @@ using UlteriusServer.Api;
 
 #endregion
 
-namespace RemoteTaskServer.Server
+namespace UlteriusServer.Server
 {
     internal class TaskServer
     {
@@ -105,7 +105,7 @@ namespace RemoteTaskServer.Server
         /// <returns></returns>
         public static void HandlePacket(Socket clientSocket, Packets packets)
         {
-            if (packets.query == null) //do nothing if invalid query
+            if (packets.action == null) //do nothing if invalid query
             {
                 return;
             }
@@ -141,27 +141,27 @@ namespace RemoteTaskServer.Server
                     break;
                 case PacketType.UseWebServer:
                     var useWebServerData =
-                        WebSocketFunctions.EncodeMessageToSend(SettingsApi.ChangeWebServerUse(packets.action));
+                        WebSocketFunctions.EncodeMessageToSend(SettingsApi.ChangeWebServerUse(packets.args));
                     clientSocket.Send(useWebServerData);
                     break;
                 case PacketType.ChangeWebServerPort:
                     var changeWebServerPortData =
-                        WebSocketFunctions.EncodeMessageToSend(SettingsApi.ChangeWebServerPort(packets.action));
+                        WebSocketFunctions.EncodeMessageToSend(SettingsApi.ChangeWebServerPort(packets.args));
                     clientSocket.Send(changeWebServerPortData);
                     break;
                 case PacketType.ChangeWebFilePath:
                     var changeWebFilePathData =
-                        WebSocketFunctions.EncodeMessageToSend(SettingsApi.ChangeWebFilePath(packets.action));
+                        WebSocketFunctions.EncodeMessageToSend(SettingsApi.ChangeWebFilePath(packets.args));
                     clientSocket.Send(changeWebFilePathData);
                     break;
                 case PacketType.ChangeTaskServerPort:
                     var changeTaskServerPortData =
-                        WebSocketFunctions.EncodeMessageToSend(SettingsApi.ChangeTaskServerPort(packets.action));
+                        WebSocketFunctions.EncodeMessageToSend(SettingsApi.ChangeTaskServerPort(packets.args));
                     clientSocket.Send(changeTaskServerPortData);
                     break;
                 case PacketType.ChangeNetworkResolve:
                     var changeNetworkResolveData =
-                        WebSocketFunctions.EncodeMessageToSend(SettingsApi.ChangeNetworkResolve(packets.action));
+                        WebSocketFunctions.EncodeMessageToSend(SettingsApi.ChangeNetworkResolve(packets.args));
                     clientSocket.Send(changeNetworkResolveData);
                     break;
                 case PacketType.GetCurrentSettings:
@@ -177,7 +177,7 @@ namespace RemoteTaskServer.Server
                     clientSocket.Send(windowsData);
                     break;
                 case PacketType.VerifyWindowsPassword:
-                    var passwordData = WebSocketFunctions.EncodeMessageToSend(WindowsApi.VerifyPassword(packets.action));
+                    var passwordData = WebSocketFunctions.EncodeMessageToSend(WindowsApi.VerifyPassword(packets.args));
                     clientSocket.Send(passwordData);
                     break;
                 case PacketType.GetEventLogs:
@@ -185,7 +185,7 @@ namespace RemoteTaskServer.Server
                     clientSocket.Send(eventData);
                     break;
                 case PacketType.StartProcess:
-                    var started = TaskApi.StartProcess(packets.action);
+                    var started = TaskApi.StartProcess(packets.args);
                     var processJson =
                         new JavaScriptSerializer().Serialize(
                             new
@@ -196,7 +196,7 @@ namespace RemoteTaskServer.Server
                     clientSocket.Send(processStartData);
                     break;
                 case PacketType.KillProcess:
-                    var killed = TaskApi.KillProcessById(int.Parse(packets.action));
+                    var killed = TaskApi.KillProcessById(int.Parse(packets.args));
                     var killedJson =
                         new JavaScriptSerializer().Serialize(
                             new

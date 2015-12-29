@@ -1,12 +1,13 @@
 ﻿#region
 
 using System;
+using Newtonsoft.Json;
 using RemoteTaskServer.Utilities;
 using RemoteTaskServer.WebSocketAPI;
 
 #endregion
 
-namespace RemoteTaskServer.Server
+namespace UlteriusServer.Server
 
 {
     [Serializable]
@@ -17,33 +18,24 @@ namespace RemoteTaskServer.Server
         public string apiKey;
         public string args;
         public PacketType packetType;
-        public string paramaters;
-        public Uri query;
         public string senderID;
 
         public Packets(byte[] packetBytes, int readBytes)
         {
-            var decodedQuery = WebSocketFunctions.DecodeMessage(packetBytes, readBytes);
-            Uri myUri = null;
-            try
-            {
-                myUri = new Uri(decodedQuery);
-            }
-            catch (Exception)
-            {
-                return;
-            }
-            query = myUri;
-            args = myUri.Host;
-            action = Tools.GetQueryString(decodedQuery, "args");
-            apiKey = Tools.GetQueryString(decodedQuery, "key");
-            senderID = "server";
+            var packetJson = WebSocketFunctions.DecodeMessage(packetBytes, readBytes);
+            var deserializedPacket = JsonConvert.DeserializeObject<JsPacket>(packetJson);
+
+            apiKey = deserializedPacket.apiKey.Trim();
+            action = deserializedPacket.action.Trim().ToLower();
+            args = deserializedPacket.args.Trim();
+            senderID = "client";
             var key = settings.Read("ApiKey", "TaskServer");
+
             if (!string.IsNullOrEmpty(key))
             {
                 if (key.Equals(apiKey))
                 {
-                    switch (args)
+                    switch (action)
                     {
                         case "requestprocessinformation":
                             Console.WriteLine("Request Process Information");
@@ -66,11 +58,11 @@ namespace RemoteTaskServer.Server
                             packetType = PacketType.RequestSystemInformation;
                             break;
                         case "startprocess":
-                            Console.WriteLine("Starting Process " + action);
+                            Console.WriteLine("Starting Process " + args);
                             packetType = PacketType.StartProcess;
                             break;
                         case "killprocess":
-                            Console.WriteLine("Killing Process " + action);
+                            Console.WriteLine("Killing Process " + args);
                             packetType = PacketType.KillProcess;
                             break;
                         case "generatenewkey":
@@ -128,7 +120,7 @@ namespace RemoteTaskServer.Server
                 }
                 else
                 {
-                    Console.WriteLine("Invalid API Key " + key);
+                    Console.WriteLine("Invalid API Key " + apiKey);
                     packetType = PacketType.InvalidApiKey;
                 }
             }
