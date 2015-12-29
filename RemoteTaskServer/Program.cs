@@ -8,7 +8,6 @@ using RemoteTaskServer.Server;
 using RemoteTaskServer.Utilities;
 using RemoteTaskServer.Utilities.Network;
 using RemoteTaskServer.WebServer;
-using UlteriusServer.Api;
 using UlteriusServer.Properties;
 using UlteriusServer.Utilities.System;
 

@@ -30,7 +30,6 @@ namespace UlteriusServer.Utilities.System
                     SystemInformation.UpTime = GetUpTime().TotalMilliseconds;
                     SystemInformation.RunningAsAdmin = IsRunningAsAdministrator();
                     SystemInformation.CpuUsage = GetPerformanceCounters();
-               
                 }
             });
         }
@@ -107,7 +106,6 @@ namespace UlteriusServer.Utilities.System
             return performanceCounters;
         }
 
-    
 
         private float GetCurrentCpuUsage()
         {

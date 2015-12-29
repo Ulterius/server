@@ -175,7 +175,7 @@ namespace UlteriusServer.Api
                 {
                     //process can be overwritten after select
                     if (queryObj == null) continue;
-                    var name = (string)queryObj["Name"];
+                    var name = (string) queryObj["Name"];
                     var processId = int.Parse(queryObj["IDProcess"].ToString());
                     var handles = int.Parse(queryObj["HandleCount"].ToString());
                     var threads = int.Parse(queryObj["ThreadCount"].ToString());
