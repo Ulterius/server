@@ -17,8 +17,6 @@ namespace UlteriusServer.Api.Models
         public static int RunningProcesses { get; set; }
         public static double UpTime { get; set; }
         public static bool RunningAsAdmin { get; set; }
-        public static string JSON { get; set; }
-        //public static List<ProcessInformation> ProcessCpuUsage { get; set; }
 
         public static string ToJson()
         {
@@ -33,7 +31,6 @@ namespace UlteriusServer.Api.Models
                         runningProceses = RunningProcesses,
                         upTime = UpTime,
                         runningAsAdmin = RunningAsAdmin
-                      //  processCpuUsage = ProcessCpuUsage
                     });
 
             return json;
