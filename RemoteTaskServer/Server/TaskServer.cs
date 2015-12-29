@@ -10,10 +10,10 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web.Script.Serialization;
-using UlteriusServer.Api;
 using UlteriusServer.Utilities;
 using UlteriusServer.Utilities.Network;
 using UlteriusServer.WebSocketAPI;
+using UlteriusServer.Windows.Api;
 
 #endregion
 

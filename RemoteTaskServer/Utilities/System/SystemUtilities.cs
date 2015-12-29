@@ -10,7 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Web.Script.Serialization;
 using Microsoft.VisualBasic.Devices;
-using UlteriusServer.Api.Models;
+using UlteriusServer.Windows.Api.Models;
 
 #endregion
 

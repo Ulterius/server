@@ -5,12 +5,12 @@ using System.Diagnostics;
 using System.IO;
 using System.Security.Principal;
 using RemoteTaskServer.WebServer;
-using UlteriusServer.Api;
 using UlteriusServer.Properties;
 using UlteriusServer.Server;
 using UlteriusServer.Utilities;
 using UlteriusServer.Utilities.Network;
 using UlteriusServer.Utilities.System;
+using UlteriusServer.Windows.Api;
 
 #endregion
 

@@ -15,7 +15,7 @@ using Newtonsoft.Json.Linq;
 
 #endregion
 
-namespace UlteriusServer.Api
+namespace UlteriusServer.Windows.Api
 {
     internal class WindowsApi
     {

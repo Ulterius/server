@@ -90,13 +90,13 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Api\Models\DriveInformation.cs" />
-    <Compile Include="Api\Models\SystemInformation.cs" />
-    <Compile Include="Api\Models\NetworkInformation.cs" />
-    <Compile Include="Api\Models\CpuInformation.cs" />
-    <Compile Include="Api\Models\ServerOperatingSystem.cs" />
-    <Compile Include="Api\SettingsApi.cs" />
-    <Compile Include="Api\WindowsApi.cs" />
+    <Compile Include="Windows\Api\Models\DriveInformation.cs" />
+    <Compile Include="Windows\Api\Models\SystemInformation.cs" />
+    <Compile Include="Windows\Api\Models\NetworkInformation.cs" />
+    <Compile Include="Windows\Api\Models\CpuInformation.cs" />
+    <Compile Include="Windows\Api\Models\ServerOperatingSystem.cs" />
+    <Compile Include="Windows\Api\SettingsApi.cs" />
+    <Compile Include="Windows\Api\WindowsApi.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -106,10 +106,10 @@
     <Compile Include="Server\ClientData.cs" />
     <Compile Include="Server\JsPacket.cs" />
     <Compile Include="Server\Packets.cs" />
-    <Compile Include="Api\Models\SystemProcesses.cs" />
+    <Compile Include="Windows\Api\Models\SystemProcesses.cs" />
     <Compile Include="Server\TaskServer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Api\TaskApi.cs" />
+    <Compile Include="Windows\Api\TaskApi.cs" />
     <Compile Include="Utilities\ExceptionHandler.cs" />
     <Compile Include="Utilities\Network\NetworkUtilities.cs" />
     <Compile Include="Utilities\Settings.cs" />

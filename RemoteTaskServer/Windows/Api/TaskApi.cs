@@ -7,16 +7,15 @@ using System.Diagnostics;
 using System.Linq;
 using System.Management;
 using System.Reflection;
-using System.Runtime.InteropServices;
 using System.Web.Script.Serialization;
 using UlteriusServer.Utilities;
 using UlteriusServer.Utilities.Network;
-using UlteriusServer.Api.Models;
 using UlteriusServer.Utilities.System;
+using UlteriusServer.Windows.Api.Models;
 
 #endregion
 
-namespace UlteriusServer.Api
+namespace UlteriusServer.Windows.Api
 {
     internal class TaskApi
     {

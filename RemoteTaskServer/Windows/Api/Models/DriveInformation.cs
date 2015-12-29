@@ -4,7 +4,7 @@
 
 #endregion
 
-namespace UlteriusServer.Api.Models
+namespace UlteriusServer.Windows.Api.Models
 
 {
     public class DriveInformation

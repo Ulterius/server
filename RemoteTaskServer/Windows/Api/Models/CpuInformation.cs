@@ -4,7 +4,7 @@ using System.Web.Script.Serialization;
 
 #endregion
 
-namespace UlteriusServer.Api.Models
+namespace UlteriusServer.Windows.Api.Models
 
 {
     public static class CpuInformation

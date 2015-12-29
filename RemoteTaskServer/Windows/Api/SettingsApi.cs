@@ -5,7 +5,7 @@ using UlteriusServer.Utilities;
 
 #endregion
 
-namespace UlteriusServer.Api
+namespace UlteriusServer.Windows.Api
 {
     internal class SettingsApi
     {
