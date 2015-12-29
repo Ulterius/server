@@ -9,11 +9,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Web.Script.Serialization;
 using Microsoft.VisualBasic.Devices;
-using RemoteTaskServer.Api.Models;
+using UlteriusServer.Api.Models;
 
 #endregion
 
-namespace RemoteTaskServer.Utilities.System
+namespace UlteriusServer.Utilities.System
 {
     internal class SystemUtilities
     {
@@ -30,7 +30,7 @@ namespace RemoteTaskServer.Utilities.System
                     SystemInformation.UpTime = GetUpTime().TotalMilliseconds;
                     SystemInformation.RunningAsAdmin = IsRunningAsAdministrator();
                     SystemInformation.CpuUsage = GetPerformanceCounters();
-                    //GetPerformanceCounters();
+               
                 }
             });
         }
@@ -90,7 +90,6 @@ namespace RemoteTaskServer.Utilities.System
             return json;
         }
 
-        
 
         public static List<float> GetPerformanceCounters()
         {
@@ -107,6 +106,8 @@ namespace RemoteTaskServer.Utilities.System
             }
             return performanceCounters;
         }
+
+    
 
         private float GetCurrentCpuUsage()
         {

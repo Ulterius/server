@@ -4,17 +4,17 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Security.Principal;
-using RemoteTaskServer.Api;
 using RemoteTaskServer.Server;
 using RemoteTaskServer.Utilities;
 using RemoteTaskServer.Utilities.Network;
-using RemoteTaskServer.Utilities.System;
 using RemoteTaskServer.WebServer;
+using UlteriusServer.Api;
 using UlteriusServer.Properties;
+using UlteriusServer.Utilities.System;
 
 #endregion
 
-namespace RemoteTaskServer
+namespace UlteriusServer
 {
     internal class Program
     {
@@ -27,8 +27,8 @@ namespace RemoteTaskServer
             if (!File.Exists("UlteriusServer.ini"))
             {
                 Console.WriteLine(Resources.Program_Main_Settings_didn_t_exist__writing_to_disk_);
-                byte[] bytes = new byte[Resources.UlteriusServer.Length * sizeof(char)];
-                System.Buffer.BlockCopy(Resources.UlteriusServer.ToCharArray(), 0, bytes, 0, bytes.Length);
+                var bytes = new byte[Resources.UlteriusServer.Length*sizeof (char)];
+                Buffer.BlockCopy(Resources.UlteriusServer.ToCharArray(), 0, bytes, 0, bytes.Length);
                 File.WriteAllBytes("UlteriusServer.ini", bytes);
             }
 
@@ -36,7 +36,8 @@ namespace RemoteTaskServer
             var myPrincipal = new WindowsPrincipal(WindowsIdentity.GetCurrent());
             if (myPrincipal.IsInRole(WindowsBuiltInRole.Administrator) == false)
             {
-                Console.WriteLine(Resources.Program_Main_Its_recommended_You_need_to_elevate_this_server_to_administrator_);
+                Console.WriteLine(
+                    Resources.Program_Main_Its_recommended_You_need_to_elevate_this_server_to_administrator_);
             }
 
             var useWebServer = settings.Read("UseWebServer", "WebServer");
@@ -50,10 +51,11 @@ namespace RemoteTaskServer
 
             Console.Title = Resources.Program_Title;
             TaskServer.Start();
-            Console.WriteLine(Resources.Program_Main_Starting_TaskServer_on_ + NetworkUtilities.GetIPv4Address() + ":" + TaskServer.boundPort);
+            Console.WriteLine(Resources.Program_Main_Starting_TaskServer_on_ + NetworkUtilities.GetIPv4Address() + ":" +
+                              TaskServer.boundPort);
             var systemUtilities = new SystemUtilities();
             systemUtilities.Start();
-            TaskApi.RestartServer();
+
             Console.ReadLine();
         }
     }

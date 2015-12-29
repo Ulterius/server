@@ -5,7 +5,7 @@ using System.Web.Script.Serialization;
 
 #endregion
 
-namespace RemoteTaskServer.Api.Models
+namespace UlteriusServer.Api.Models
 
 {
     public static class SystemInformation
@@ -18,6 +18,7 @@ namespace RemoteTaskServer.Api.Models
         public static double UpTime { get; set; }
         public static bool RunningAsAdmin { get; set; }
         public static string JSON { get; set; }
+        //public static List<ProcessInformation> ProcessCpuUsage { get; set; }
 
         public static string ToJson()
         {
@@ -32,6 +33,7 @@ namespace RemoteTaskServer.Api.Models
                         runningProceses = RunningProcesses,
                         upTime = UpTime,
                         runningAsAdmin = RunningAsAdmin
+                      //  processCpuUsage = ProcessCpuUsage
                     });
 
             return json;

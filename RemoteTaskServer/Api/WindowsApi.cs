@@ -12,7 +12,7 @@ using Newtonsoft.Json.Linq;
 
 #endregion
 
-namespace RemoteTaskServer.Api
+namespace UlteriusServer.Api
 {
     internal class WindowsApi
     {
@@ -61,11 +61,11 @@ namespace RemoteTaskServer.Api
 
         private void ShutDownSystem()
         {
-            Process.Start("shutdown", "/s /t 0");    // starts the shutdown application 
-                                                     // the argument /s is to shut down the computer
-                                                     // the argument /t 0 is to tell the process that 
-                                                     // the specified operation needs to be completed 
-                                                     // after 0 seconds
+            Process.Start("shutdown", "/s /t 0"); // starts the shutdown application 
+            // the argument /s is to shut down the computer
+            // the argument /t 0 is to tell the process that 
+            // the specified operation needs to be completed 
+            // after 0 seconds
         }
 
 

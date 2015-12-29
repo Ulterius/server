@@ -5,7 +5,7 @@ using RemoteTaskServer.Utilities;
 
 #endregion
 
-namespace RemoteTaskServer.Api
+namespace UlteriusServer.Api
 {
     internal class SettingsApi
     {

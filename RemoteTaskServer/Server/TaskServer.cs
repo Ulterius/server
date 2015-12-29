@@ -10,10 +10,10 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web.Script.Serialization;
-using RemoteTaskServer.Api;
 using RemoteTaskServer.Utilities;
 using RemoteTaskServer.Utilities.Network;
 using RemoteTaskServer.WebSocketAPI;
+using UlteriusServer.Api;
 
 #endregion
 
@@ -126,11 +126,11 @@ namespace RemoteTaskServer.Server
                     break;
                 case PacketType.RestartServer:
                     var restartJson =
-                       new JavaScriptSerializer().Serialize(
-                           new
-                           {
-                               serverRestarted = true
-                           });
+                        new JavaScriptSerializer().Serialize(
+                            new
+                            {
+                                serverRestarted = true
+                            });
                     var restartData = WebSocketFunctions.EncodeMessageToSend(restartJson);
                     clientSocket.Send(restartData);
                     TaskApi.RestartServer();

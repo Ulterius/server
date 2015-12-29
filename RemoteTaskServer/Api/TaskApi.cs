@@ -6,18 +6,17 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Management;
-using System.Net.Mime;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Web.Script.Serialization;
-using RemoteTaskServer.Api.Models;
 using RemoteTaskServer.Utilities;
 using RemoteTaskServer.Utilities.Network;
-using RemoteTaskServer.Utilities.System;
+using UlteriusServer.Api.Models;
+using UlteriusServer.Utilities.System;
 
 #endregion
 
-namespace RemoteTaskServer.Api
+namespace UlteriusServer.Api
 {
     internal class TaskApi
     {
@@ -45,6 +44,7 @@ namespace RemoteTaskServer.Api
             }
         }
 
+
         public static bool StartProcess(string processName)
         {
             try
@@ -67,11 +67,11 @@ namespace RemoteTaskServer.Api
         public static void RestartServer()
         {
             var info = Console.ReadKey();
-           var fileName = Assembly.GetExecutingAssembly().Location;
-           System.Diagnostics.Process.Start(fileName);
+            var fileName = Assembly.GetExecutingAssembly().Location;
+            Process.Start(fileName);
             Environment.Exit(0);
-            
         }
+
         public static string GetNetworkInformation()
 
 
@@ -164,32 +164,50 @@ namespace RemoteTaskServer.Api
         {
             var results = new List<SystemProcesses>();
 
-            foreach (var process in Process.GetProcesses())
+            try
             {
-                var fullPath = "";
-                var id = process.Id;
-                var name = process.ProcessName;
-                var icon = "";
-                var counter = new PerformanceCounter("Process", "% Processor Time", process.ProcessName);
-                var memoryUsage = process.WorkingSet64;
-                try
+                var searcher =
+                    new ManagementObjectSearcher("root\\CIMV2",
+                        "SELECT * FROM Win32_PerfFormattedData_PerfProc_Process");
+
+
+                foreach (var queryObj in searcher.Get())
                 {
-                    fullPath = process.Modules[0].FileName;
-                    icon = Tools.GetIconForProcess(fullPath);
+                    var name = (string)queryObj["Name"];
+                    var processId = int.Parse(queryObj["IDProcess"].ToString());
+                    var handles = int.Parse(queryObj["HandleCount"].ToString());
+                    var threads = int.Parse(queryObj["ThreadCount"].ToString());
+                    var memory = long.Parse(queryObj["WorkingSetPrivate"].ToString());
+                    var cpuUsage = int.Parse(queryObj["PercentProcessorTime"].ToString());
+                    var fullPath = "";
+                    var icon = "";
+                    var process = Process.GetProcessById(processId);
+                    try
+                    {
+                        fullPath = process.Modules[0].FileName;
+                        icon = Tools.GetIconForProcess(fullPath);
+                    }
+                    catch (Win32Exception)
+                    {
+                        fullPath = "null";
+                        icon = "null";
+                    }
+                  
+                    results.Add(new SystemProcesses
+                    {
+                        id = processId,
+                        path = fullPath,
+                        name = name,
+                        icon = icon,
+                        ramUsage = memory,
+                        cpuUsage = cpuUsage,
+                        threads = threads,
+                        handles = handles
+                    });
                 }
-                catch (Win32Exception)
-                {
-                    fullPath = "null";
-                    icon = "null";
-                }
-                results.Add(new SystemProcesses
-                {
-                    id = id,
-                    path = fullPath,
-                    name = name,
-                    icon = icon,
-                    ramUsage = memoryUsage
-                });
+            }
+            catch (ManagementException e)
+            {
             }
             var json = new JavaScriptSerializer().Serialize(results);
             return json;

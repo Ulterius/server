@@ -9,11 +9,11 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 
-[assembly: AssemblyTitle("RemoteTaskServer")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("Ulterius")]
+[assembly: AssemblyDescription("A remote task server for managing all your server needs")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("RemoteTaskServer")]
+[assembly: AssemblyProduct("Ulterius")]
 [assembly: AssemblyCopyright("Copyright ©  2015")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

@@ -6,7 +6,7 @@ using RemoteTaskServer.Utilities.Network;
 
 #endregion
 
-namespace RemoteTaskServer.Api.Models
+namespace UlteriusServer.Api.Models
 
 {
     public static class NetworkInformation
