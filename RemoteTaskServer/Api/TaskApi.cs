@@ -181,6 +181,10 @@ namespace UlteriusServer.Api
                     var threads = int.Parse(queryObj["ThreadCount"].ToString());
                     var memory = long.Parse(queryObj["WorkingSetPrivate"].ToString());
                     var cpuUsage = int.Parse(queryObj["PercentProcessorTime"].ToString());
+                    var ioReadOperationsPerSec = int.Parse(queryObj["IOReadOperationsPerSec"].ToString());
+                    var ioWriteOperationsPerSec = int.Parse(queryObj["IOWriteOperationsPerSec"].ToString());
+                    var ioReadBytesPerSec = int.Parse(queryObj["IOReadBytesPerSec "].ToString());
+                    var ioWriteBytesPerSec = int.Parse(queryObj["IOWriteBytesPerSec  "].ToString());
                     var fullPath = "";
                     var icon = "";
                     var process = Process.GetProcessById(processId);
@@ -204,13 +208,17 @@ namespace UlteriusServer.Api
                         ramUsage = memory,
                         cpuUsage = cpuUsage,
                         threads = threads,
-                        handles = handles
+                        handles = handles, 
+                        ioWriteOperationsPerSec = ioWriteOperationsPerSec,
+                        ioReadOperationsPerSec = ioReadOperationsPerSec,
+                        ioReadBytesPerSec = ioReadBytesPerSec,
+                        ioWriteBytesPerSec = ioWriteBytesPerSec,
                     });
                 }
             }
             catch (ManagementException e)
             {
-                return null;
+               Console.WriteLine("What");
             }
             var json = new JavaScriptSerializer().Serialize(results);
             return json;

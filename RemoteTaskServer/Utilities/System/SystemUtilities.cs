@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Security.Principal;
 using System.Threading;
@@ -24,6 +25,7 @@ namespace UlteriusServer.Utilities.System
                 while (true)
                 {
                     SystemInformation.AvailableMemory = GetAvailablePhysicalMemory();
+                    SystemInformation.Drives = GetDriveInformation();
                     SystemInformation.UsedMemory = GetUsedMemory();
                     SystemInformation.TotalMemory = GetTotalPhysicalMemory();
                     SystemInformation.RunningProcesses = GetTotalProcesses();
@@ -89,8 +91,29 @@ namespace UlteriusServer.Utilities.System
             return json;
         }
 
+        public List<DriveInformation> GetDriveInformation()
+        {
+            var driveList = new List<DriveInformation>();
+            var drives = DriveInfo.GetDrives();
+            foreach (var drive in drives)
+            {
+                var driveInfo = new DriveInformation();
+                if (!drive.IsReady) continue;
+                driveInfo.Name = drive.Name;
+                driveInfo.FreeSpace = drive.TotalFreeSpace;
+                driveInfo.TotalSize = drive.TotalSize;
+                driveInfo.DriveType = drive.DriveType.ToString();
+                driveInfo.DriveFormat = drive.DriveFormat;
+                driveInfo.VolumeLabel = drive.VolumeLabel;
+                driveInfo.RootDirectory = drive.RootDirectory.ToString();
+                driveInfo.IsReady = drive.IsReady;
+                driveList.Add(driveInfo);
+            }
+            return driveList;
+        }
 
-        public static List<float> GetPerformanceCounters()
+
+        public List<float> GetPerformanceCounters()
         {
             var performanceCounters = new List<float>();
             var procCount = Environment.ProcessorCount;

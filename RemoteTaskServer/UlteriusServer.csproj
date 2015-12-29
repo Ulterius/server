@@ -90,6 +90,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Api\Models\DriveInformation.cs" />
     <Compile Include="Api\Models\SystemInformation.cs" />
     <Compile Include="Api\Models\NetworkInformation.cs" />
     <Compile Include="Api\Models\CpuInformation.cs" />

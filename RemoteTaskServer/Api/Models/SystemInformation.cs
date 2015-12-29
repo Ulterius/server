@@ -17,6 +17,7 @@ namespace UlteriusServer.Api.Models
         public static int RunningProcesses { get; set; }
         public static double UpTime { get; set; }
         public static bool RunningAsAdmin { get; set; }
+        public static List<DriveInformation> Drives { get; set; }
 
         public static string ToJson()
         {
@@ -30,7 +31,8 @@ namespace UlteriusServer.Api.Models
                         usedMemory = UsedMemory,
                         runningProceses = RunningProcesses,
                         upTime = UpTime,
-                        runningAsAdmin = RunningAsAdmin
+                        runningAsAdmin = RunningAsAdmin,
+                        drives = Drives
                     });
 
             return json;
