@@ -166,6 +166,7 @@ namespace UlteriusServer.Api
 
             try
             {
+                Console.WriteLine("Select Now");
                 var searcher =
                     new ManagementObjectSearcher("root\\CIMV2",
                         "SELECT * FROM Win32_PerfFormattedData_PerfProc_Process");
@@ -173,6 +174,7 @@ namespace UlteriusServer.Api
 
                 foreach (var queryObj in searcher.Get())
                 {
+                    
                     //process can be overwritten after select
                     if (queryObj == null) continue;
                     var name = (string) queryObj["Name"];
@@ -216,7 +218,7 @@ namespace UlteriusServer.Api
             }
             catch (ManagementException e)
             {
-                throw e;
+               Console.WriteLine("13 giga wat");
             }
             var json = new JavaScriptSerializer().Serialize(results);
             return json;

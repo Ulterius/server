@@ -23,7 +23,17 @@ namespace UlteriusServer.Server
         public Packets(byte[] packetBytes, int readBytes)
         {
             var packetJson = WebSocketFunctions.DecodeMessage(packetBytes, readBytes);
-            var deserializedPacket = JsonConvert.DeserializeObject<JsPacket>(packetJson);
+            JsPacket deserializedPacket = null;
+            try
+            {
+                deserializedPacket = JsonConvert.DeserializeObject<JsPacket>(packetJson);
+            }
+            catch (Exception)
+            {
+
+               Console.WriteLine("Loss or empty packet, discard.");
+                return;
+            }
 
             apiKey = deserializedPacket.apiKey.Trim();
             action = deserializedPacket.action.Trim().ToLower();
