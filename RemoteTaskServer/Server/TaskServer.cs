@@ -252,6 +252,10 @@ namespace UlteriusServer.Server
                     var checkUpdateData = WebSocketFunctions.EncodeMessageToSend(Tools.CheckForUpdates());
                     clientSocket.Send(checkUpdateData);
                     break;
+                case PacketType.GetActiveWindowsSnapshots:
+                    var activeWindowsData = WebSocketFunctions.EncodeMessageToSend(WindowsApi.GetActiveWindowsImages());
+                    clientSocket.Send(activeWindowsData);
+                    break;
             }
         }
 

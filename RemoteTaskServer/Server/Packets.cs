@@ -123,6 +123,10 @@ namespace UlteriusServer.Server
                             Console.WriteLine("Getting Windows Account Data");
                             packetType = PacketType.RequestWindowsInformation;
                             break;
+                        case "getactivewindowssnapshots":
+                            Console.WriteLine("Getting Active Windows Snapshots");
+                            packetType = PacketType.GetActiveWindowsSnapshots;
+                            break;
                         default:
                             packetType = PacketType.InvalidPacket;
                             break;
@@ -165,6 +169,7 @@ namespace UlteriusServer.Server
         CheckUpdate,
         RequestWindowsInformation,
         VerifyWindowsPassword,
-        RestartServer
+        RestartServer,
+        GetActiveWindowsSnapshots
     }
 }
