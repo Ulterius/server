@@ -15,7 +15,7 @@ using System.Web;
 
 #endregion
 
-namespace RemoteTaskServer.WebSocketAPI
+namespace UlteriusServer.WebSocketAPI
 {
     // ------------------------------------------------------------------------------------------------------------------- Constants
     internal static class Constants

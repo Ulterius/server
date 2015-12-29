@@ -6,7 +6,7 @@ using MiscUtil.Conversion;
 
 #endregion
 
-namespace RemoteTaskServer.WebSocketAPI
+namespace UlteriusServer.WebSocketAPI
 {
     internal class WebSocketFunctions
     {

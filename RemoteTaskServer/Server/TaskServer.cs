@@ -10,10 +10,10 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web.Script.Serialization;
-using RemoteTaskServer.Utilities;
-using RemoteTaskServer.Utilities.Network;
-using RemoteTaskServer.WebSocketAPI;
 using UlteriusServer.Api;
+using UlteriusServer.Utilities;
+using UlteriusServer.Utilities.Network;
+using UlteriusServer.WebSocketAPI;
 
 #endregion
 
@@ -34,7 +34,8 @@ namespace UlteriusServer.Server
             var settings = new Settings();
             listenerSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             clients = new List<ClientData>();
-            var port = int.Parse(settings.Read("TaskServerPort", "TaskServer"));
+           
+            var port = settings.Read("TaskServer", "TaskServerPort", 8387);
             boundPort = port;
             var ip = new IPEndPoint(IPAddress.Parse(NetworkUtilities.GetIPv4Address()), port);
             listenerSocket.Bind(ip);

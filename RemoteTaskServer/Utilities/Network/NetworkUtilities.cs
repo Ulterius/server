@@ -7,10 +7,11 @@ using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
+using UlteriusServer.Utilities;
 
 #endregion
 
-namespace RemoteTaskServer.Utilities.Network
+namespace UlteriusServer.Utilities.Network
 {
     public class NetworkDevices
     {
@@ -36,8 +37,8 @@ namespace RemoteTaskServer.Utilities.Network
             foreach (var device in all)
             {
                 var name = "";
-                var resolveHost = settings.Read("SkipHostNameResolve", "Network");
-                if (resolveHost == "true")
+                var resolveHost = settings.Read("Network", "SkipHostNameResolve", false);
+                if (resolveHost)
                 {
                     try
                     {

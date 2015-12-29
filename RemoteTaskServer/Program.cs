@@ -4,12 +4,12 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Security.Principal;
-using RemoteTaskServer.Utilities;
-using RemoteTaskServer.Utilities.Network;
 using RemoteTaskServer.WebServer;
 using UlteriusServer.Api;
 using UlteriusServer.Properties;
 using UlteriusServer.Server;
+using UlteriusServer.Utilities;
+using UlteriusServer.Utilities.Network;
 using UlteriusServer.Utilities.System;
 
 #endregion
@@ -26,10 +26,7 @@ namespace UlteriusServer
             var settings = new Settings();
             if (!File.Exists("UlteriusServer.ini"))
             {
-                Console.WriteLine(Resources.Program_Main_Settings_didn_t_exist__writing_to_disk_);
-                var bytes = new byte[Resources.UlteriusServer.Length*sizeof (char)];
-                Buffer.BlockCopy(Resources.UlteriusServer.ToCharArray(), 0, bytes, 0, bytes.Length);
-                File.WriteAllBytes("UlteriusServer.ini", bytes);
+               SettingsApi.GenerateSettings();
             }
 
 
@@ -40,11 +37,11 @@ namespace UlteriusServer
                     Resources.Program_Main_Its_recommended_You_need_to_elevate_this_server_to_administrator_);
             }
 
-            var useWebServer = settings.Read("UseWebServer", "WebServer");
-            if (useWebServer == "true")
+            var useWebServer = settings.Read("WebServer", "UseWebServer", false);
+            if (useWebServer == true)
             {
-                var root = settings.Read("WebFilePath", "WebServer");
-                var port = int.Parse(settings.Read("WebServerPort", "WebServer"));
+                var root = settings.Read("WebServer", "WebFilePath", "");
+                var port = settings.Read("WebServer", "WebServerPort", 9999);
                 var httpServer = new HttpServer(root, port);
                 Console.WriteLine(Resources.Program_Main_Web_Server_is_running_on_this_port__ + httpServer.Port);
             }
@@ -55,6 +52,7 @@ namespace UlteriusServer
                               TaskServer.boundPort);
             var systemUtilities = new SystemUtilities();
             systemUtilities.Start();
+            settings.Write("TaskServer", "ApiKey", "test");
             Console.ReadLine();
         }
     }

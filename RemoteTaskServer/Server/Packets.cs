@@ -2,8 +2,8 @@
 
 using System;
 using Newtonsoft.Json;
-using RemoteTaskServer.Utilities;
-using RemoteTaskServer.WebSocketAPI;
+using UlteriusServer.Utilities;
+using UlteriusServer.WebSocketAPI;
 
 #endregion
 
@@ -39,7 +39,8 @@ namespace UlteriusServer.Server
             action = deserializedPacket.action.Trim().ToLower();
             args = deserializedPacket.args?.Trim() ?? "";
             senderID = "client";
-            var key = settings.Read("ApiKey", "TaskServer");
+            var key = settings.Read("TaskServer", "ApiKey", "");
+            Console.WriteLine(key);
 
             if (!string.IsNullOrEmpty(key))
             {

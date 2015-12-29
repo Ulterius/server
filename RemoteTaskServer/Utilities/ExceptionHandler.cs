@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 
 #endregion
 
-namespace RemoteTaskServer.Utilities
+namespace UlteriusServer.Utilities
 {
     public static class ExceptionHandler
     {

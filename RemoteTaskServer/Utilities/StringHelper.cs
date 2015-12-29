@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 
 #endregion
 
-namespace RemoteTaskServer.Utilities
+namespace UlteriusServer.Utilities
 {
     internal static class StringHelper
     {

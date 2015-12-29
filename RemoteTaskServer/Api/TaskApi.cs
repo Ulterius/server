@@ -9,8 +9,8 @@ using System.Management;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Web.Script.Serialization;
-using RemoteTaskServer.Utilities;
-using RemoteTaskServer.Utilities.Network;
+using UlteriusServer.Utilities;
+using UlteriusServer.Utilities.Network;
 using UlteriusServer.Api.Models;
 using UlteriusServer.Utilities.System;
 
@@ -21,13 +21,6 @@ namespace UlteriusServer.Api
     internal class TaskApi
     {
         public string format = "JSON";
-
-        [DllImport("user32")]
-        private static extern bool SetForegroundWindow(IntPtr hwnd);
-
-        [DllImport("user32")]
-        private static extern bool ShowWindowAsync(IntPtr hwnd, int a);
-
 
         public static bool KillProcessById(int id, bool waitForExit = false)
         {

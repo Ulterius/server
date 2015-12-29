@@ -12,7 +12,7 @@ using Newtonsoft.Json.Linq;
 
 #endregion
 
-namespace RemoteTaskServer.Utilities
+namespace UlteriusServer.Utilities
 {
     internal class Tools
     {
