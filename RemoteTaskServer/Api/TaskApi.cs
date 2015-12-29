@@ -173,6 +173,8 @@ namespace UlteriusServer.Api
 
                 foreach (var queryObj in searcher.Get())
                 {
+                    //process can be overwritten after select
+                    if (queryObj == null) continue;
                     var name = (string)queryObj["Name"];
                     var processId = int.Parse(queryObj["IDProcess"].ToString());
                     var handles = int.Parse(queryObj["HandleCount"].ToString());
@@ -192,7 +194,7 @@ namespace UlteriusServer.Api
                         fullPath = "null";
                         icon = "null";
                     }
-                  
+
                     results.Add(new SystemProcesses
                     {
                         id = processId,
@@ -208,6 +210,7 @@ namespace UlteriusServer.Api
             }
             catch (ManagementException e)
             {
+                return null;
             }
             var json = new JavaScriptSerializer().Serialize(results);
             return json;
