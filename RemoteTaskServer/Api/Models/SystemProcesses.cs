@@ -13,7 +13,5 @@
         public int handles { get; set; }
         public int ioWriteOperationsPerSec { get; set; }
         public int ioReadOperationsPerSec { get; set; }
-        public int ioReadBytesPerSec { get; set; }
-        public int ioWriteBytesPerSec { get; set; }
     }
 }
