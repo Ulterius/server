@@ -1,14 +1,13 @@
 ﻿#region
 
-using System.IO;
-using System.Web.Script.Serialization;
+
 
 #endregion
 
 namespace UlteriusServer.Api.Models
 
 {
-    public  class DriveInformation
+    public class DriveInformation
     {
         public string Name { get; set; }
         public long TotalSize { get; set; }

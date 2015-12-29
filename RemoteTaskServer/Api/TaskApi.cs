@@ -183,8 +183,8 @@ namespace UlteriusServer.Api
                     var cpuUsage = int.Parse(queryObj["PercentProcessorTime"].ToString());
                     var ioReadOperationsPerSec = int.Parse(queryObj["IOReadOperationsPerSec"].ToString());
                     var ioWriteOperationsPerSec = int.Parse(queryObj["IOWriteOperationsPerSec"].ToString());
-                   // var ioReadBytesPerSec = int.Parse(queryObj["IOReadBytesPerSec "].ToString());
-                   // var ioWriteBytesPerSec = int.Parse(queryObj["IOWriteBytesPerSec  "].ToString());
+                    // var ioReadBytesPerSec = int.Parse(queryObj["IOReadBytesPerSec "].ToString());
+                    // var ioWriteBytesPerSec = int.Parse(queryObj["IOWriteBytesPerSec  "].ToString());
                     var fullPath = "";
                     var icon = "";
                     var process = Process.GetProcessById(processId);
@@ -208,10 +208,9 @@ namespace UlteriusServer.Api
                         ramUsage = memory,
                         cpuUsage = cpuUsage,
                         threads = threads,
-                        handles = handles, 
+                        handles = handles,
                         ioWriteOperationsPerSec = ioWriteOperationsPerSec,
                         ioReadOperationsPerSec = ioReadOperationsPerSec
-
                     });
                 }
             }

@@ -3,7 +3,6 @@
 using System;
 using System.Net.Sockets;
 using System.Threading;
-using UlteriusServer.Server;
 
 #endregion
 

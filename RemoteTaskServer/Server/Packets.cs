@@ -27,7 +27,7 @@ namespace UlteriusServer.Server
 
             apiKey = deserializedPacket.apiKey.Trim();
             action = deserializedPacket.action.Trim().ToLower();
-            args = deserializedPacket.args.Trim();
+            args = deserializedPacket.args?.Trim() ?? "";
             senderID = "client";
             var key = settings.Read("ApiKey", "TaskServer");
 
