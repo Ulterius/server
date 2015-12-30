@@ -1,4 +1,4 @@
-# Ulteris 
+# Ulterius 
 
 ![images](http://i.andrew.im/12bruk.png)
 
