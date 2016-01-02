@@ -90,6 +90,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Linux\Api\LinuxApi.cs" />
+    <Compile Include="Linux\Api\TaskApi.cs" />
     <Compile Include="Windows\Api\Models\DriveInformation.cs" />
     <Compile Include="Windows\Api\Models\SystemInformation.cs" />
     <Compile Include="Windows\Api\Models\NetworkInformation.cs" />

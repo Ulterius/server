@@ -78,7 +78,7 @@ namespace UlteriusServer.Windows.Api
         }
 
         /// <summary>
-        ///     Experimental function for monitoring active windows on your remote desktop.
+        ///     Experimental function for monitoring active windows on your remote desktop (windows).
         /// </summary>
         /// <returns></returns>
         public static string GetActiveWindowsImages()

@@ -167,8 +167,10 @@ namespace UlteriusServer.Windows.Api
                 foreach (var queryObj in searcher.Get())
                 {
                     
+
                     //process can be overwritten after select
                     if (queryObj == null) continue;
+
                     var name = (string) queryObj["Name"];
                     var processId = int.Parse(queryObj["IDProcess"].ToString());
                     var handles = int.Parse(queryObj["HandleCount"].ToString());
@@ -181,7 +183,11 @@ namespace UlteriusServer.Windows.Api
                     // var ioWriteBytesPerSec = int.Parse(queryObj["IOWriteBytesPerSec  "].ToString());
                     var fullPath = "";
                     var icon = "";
-                    var process = Process.GetProcessById(processId);
+                    Process process = null;
+                    try { process= Process.GetProcessById(processId); }
+                    catch (InvalidOperationException) { continue; }
+                    catch (ArgumentException) { continue; }
+                  
                     try
                     {
                         fullPath = process.Modules[0].FileName;
