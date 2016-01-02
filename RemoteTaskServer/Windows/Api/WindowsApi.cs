@@ -49,6 +49,7 @@ namespace UlteriusServer.Windows.Api
         {
             return JObject.FromObject(new
             {
+                endpoint = "getWindowsData",
                 avatar = GetUserAvatar(),
                 username = GetUsername()
             }).ToString();
@@ -63,6 +64,7 @@ namespace UlteriusServer.Windows.Api
             }
             return JObject.FromObject(new
             {
+                endpoint = "verifyPassword",
                 validLogin = valid,
                 message = valid ? "Login was successfull" : "Login was unsuccessful"
             }).ToString();
@@ -115,7 +117,12 @@ namespace UlteriusServer.Windows.Api
                     }
                 }
             }
-            return new JavaScriptSerializer().Serialize(activeWindows);
+            return new JavaScriptSerializer().Serialize(new
+            {
+                endpoint = "getActiveWindowsSnapshots",
+                activeWindows
+
+            });
         }
 
         private static string GetUserAvatar()

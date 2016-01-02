@@ -1,5 +1,6 @@
 ﻿#region
 
+using System;
 using System.Web.Script.Serialization;
 
 #endregion
@@ -24,31 +25,25 @@ namespace UlteriusServer.Windows.Api.Models
         public static string Architecture { get; set; }
         public static string JSON { get; set; }
 
-        public static string ToJson()
+        public static object ToObject()
         {
-            if (string.IsNullOrEmpty(JSON))
+            var data = new
             {
-                var json =
-                    new JavaScriptSerializer().Serialize(
-                        new
-                        {
-                            cpuName = Name,
-                            id = Id,
-                            socket = Socket,
-                            description = Description,
-                            addressWidth = AddressWidth,
-                            dataWidth = DataWidth,
-                            speedMhz = SpeedMHz,
-                            busSpeedMhz = BusSpeedMHz,
-                            l2Cache = L2Cache,
-                            l3Cache = L3Cache,
-                            cores = Cores,
-                            threads = Threads,
-                            architecture = Architecture
-                        });
-                JSON = json;
-            }
-            return JSON;
+                cpuName = Name,
+                id = Id,
+                socket = Socket,
+                description = Description,
+                addressWidth = AddressWidth,
+                dataWidth = DataWidth,
+                speedMhz = SpeedMHz,
+                busSpeedMhz = BusSpeedMHz,
+                l2Cache = L2Cache,
+                l3Cache = L3Cache,
+                cores = Cores,
+                threads = Threads,
+                architecture = Architecture
+            };
+            return data;
         }
     }
 }

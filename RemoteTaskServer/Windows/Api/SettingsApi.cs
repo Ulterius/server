@@ -24,6 +24,7 @@ namespace UlteriusServer.Windows.Api
                     new JavaScriptSerializer().Serialize(
                         new
                         {
+                            endpoint = "generateNewKey",
                             keyGenerated = true,
                             key = newKey
                         });
@@ -51,9 +52,11 @@ namespace UlteriusServer.Windows.Api
             var WebFilePath = settings.Read("WebServer", "WebFilePath", "");
             var TaskServerPort = settings.Read("TaskServer", "TaskServerPort", 8387);
             var SkipHostNameResolve = settings.Read("Network", "SkipHostNameResolve",  false);
+      
             return new JavaScriptSerializer().Serialize(
                 new
                 {
+                    endpoint = "getCurrentSettings",                 
                     UseWebServer,
                     WebServerPort,
                     WebFilePath,
@@ -69,7 +72,8 @@ namespace UlteriusServer.Windows.Api
             return new JavaScriptSerializer().Serialize(
                 new
                 {
-                    statusUpdated = true,
+                    endpoint = "changeNetworkResolve",
+                    results = true,
                     resolveNetworks = currentStatus
                 });
         }
@@ -81,7 +85,8 @@ namespace UlteriusServer.Windows.Api
             return new JavaScriptSerializer().Serialize(
                 new
                 {
-                    statusUpdated = true,
+                    endpoint = "changeWebServerPort",
+                    results = true,
                     webServerPort = currentStatus
                 });
         }
@@ -93,7 +98,8 @@ namespace UlteriusServer.Windows.Api
             return new JavaScriptSerializer().Serialize(
                 new
                 {
-                    statusUpdated = true,
+                    endpoint = "changeTaskServerPort",
+                    results = true,
                     taskServerPort = currentStatus
                 });
         }
@@ -105,7 +111,8 @@ namespace UlteriusServer.Windows.Api
             return new JavaScriptSerializer().Serialize(
                 new
                 {
-                    statusUpdated = true,
+                    endpoint = "changeWebFilePath",
+                    results = true,
                     webFilePath = currentStatus
                 });
         }
@@ -117,7 +124,8 @@ namespace UlteriusServer.Windows.Api
             return new JavaScriptSerializer().Serialize(
                 new
                 {
-                    statusUpdated = true,
+                    endpoint = "toggleWebServer",
+                    results = true,
                     useWebServer = currentStatus
                 });
         }

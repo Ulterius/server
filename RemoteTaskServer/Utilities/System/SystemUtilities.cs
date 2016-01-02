@@ -87,7 +87,12 @@ namespace UlteriusServer.Utilities.System
             var serializer = new JavaScriptSerializer();
             serializer.MaxJsonLength = int.MaxValue;
             var json =
-                serializer.Serialize(dictionary);
+                serializer.Serialize(new
+                {
+                    endpoint = "getEventLogs",
+                    dictionary
+        
+                });
             return json;
         }
 

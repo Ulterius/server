@@ -130,7 +130,8 @@ namespace UlteriusServer.Server
                         new JavaScriptSerializer().Serialize(
                             new
                             {
-                                serverRestarted = true
+                                endpoint = "restartServer",
+                                results = true
                             });
                     var restartData = WebSocketFunctions.EncodeMessageToSend(restartJson);
                     clientSocket.Send(restartData);
@@ -190,7 +191,9 @@ namespace UlteriusServer.Server
                     var processJson =
                         new JavaScriptSerializer().Serialize(
                             new
+
                             {
+                                endpoint = "startProcess",
                                 processStarted = started
                             });
                     var processStartData = WebSocketFunctions.EncodeMessageToSend(processJson);
@@ -202,6 +205,7 @@ namespace UlteriusServer.Server
                         new JavaScriptSerializer().Serialize(
                             new
                             {
+                                endpoint = "killProcess",
                                 processKilled = killed
                             });
                     var processKilledData = WebSocketFunctions.EncodeMessageToSend(killedJson);
@@ -212,6 +216,7 @@ namespace UlteriusServer.Server
                         new JavaScriptSerializer().Serialize(
                             new
                             {
+                                endpoint = "emptyApiKey",
                                 emptyApiKey = true,
                                 message = "Please generate an API Key"
                             });
@@ -224,6 +229,7 @@ namespace UlteriusServer.Server
                         new JavaScriptSerializer().Serialize(
                             new
                             {
+                                endpoint = "InvalidApiKey",
                                 invalidApiKey = true,
                                 message = "Provided API Key does not match the server key"
                             });
@@ -236,6 +242,7 @@ namespace UlteriusServer.Server
                         new JavaScriptSerializer().Serialize(
                             new
                             {
+                                endpoint = "InvalidPacket",
                                 invalidPacket = true,
                                 message = "This packet does not exisit on the server."
                             });

@@ -19,23 +19,21 @@ namespace UlteriusServer.Windows.Api.Models
         public static bool RunningAsAdmin { get; set; }
         public static List<DriveInformation> Drives { get; set; }
 
-        public static string ToJson()
+        public static object ToObject()
         {
-            var json =
-                new JavaScriptSerializer().Serialize(
-                    new
-                    {
-                        cpuUsage = CpuUsage,
-                        totalMemory = TotalMemory,
-                        availableMemory = AvailableMemory,
-                        usedMemory = UsedMemory,
-                        runningProceses = RunningProcesses,
-                        upTime = UpTime,
-                        runningAsAdmin = RunningAsAdmin,
-                        drives = Drives
-                    });
-
-            return json;
+            var data = new
+            {
+                cpuUsage = CpuUsage,
+                totalMemory = TotalMemory,
+                availableMemory = AvailableMemory,
+                usedMemory = UsedMemory,
+                runningProceses = RunningProcesses,
+                upTime = UpTime,
+                runningAsAdmin = RunningAsAdmin,
+                drives = Drives
+            };
+            return data;
         }
+   
     }
 }

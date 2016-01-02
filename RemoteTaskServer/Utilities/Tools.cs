@@ -148,6 +148,7 @@ namespace UlteriusServer.Utilities
                     {
                         response = JObject.FromObject(new
                         {
+                            endpoint = "checkForUpdate",
                             update = false,
                             error = errorData,
                             message = "Error retrieving update information: " + errorData
@@ -157,6 +158,7 @@ namespace UlteriusServer.Utilities
                     {
                         response = JObject.FromObject(new
                         {
+                            endpoint = "checkForUpdate",
                             update = true,
                             url = _releasePageURL,
                             newVersion = _newVersion.ToString(),
@@ -167,6 +169,7 @@ namespace UlteriusServer.Utilities
                     {
                         response = JObject.FromObject(new
                         {
+                            endpoint = "checkForUpdate",
                             update = false,
                             message = "You have the latest version."
                         });
@@ -190,6 +193,7 @@ namespace UlteriusServer.Utilities
                 {
                     return JObject.FromObject(new
                     {
+                        endpoint = "checkForUpdate",
                         update = false,
                         error = e.Message,
                         message = "General bad thing has happened: " + e.Message
@@ -198,6 +202,7 @@ namespace UlteriusServer.Utilities
             }
             return JObject.FromObject(new
             {
+                endpoint = "checkForUpdate",
                 update = false,
                 error = "No connection",
                 message = "Unable to connect to the internet to check for update."

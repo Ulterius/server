@@ -75,7 +75,11 @@ namespace UlteriusServer.Windows.Api
                 NetworkInformation.MacAddress = NetworkUtilities.GetMacAddress().ToString();
                 NetworkInformation.InternalIp = NetworkUtilities.GetIPAddress().ToString();
             }
-            return NetworkInformation.ToJson();
+            return new JavaScriptSerializer().Serialize(new
+            {
+                endpoint = "requestNetworkInformation",
+                results = NetworkInformation.ToObject()
+            });
         }
 
         public static string GetEventLogs()
@@ -118,8 +122,11 @@ namespace UlteriusServer.Windows.Api
                         .Replace("    ", " ")
                         .Replace("  ", " ");
             }
-
-            return CpuInformation.ToJson();
+            return new JavaScriptSerializer().Serialize(new
+            {
+                endpoint = "requestCpuInformation",
+                results = CpuInformation.ToObject()
+            });
         }
 
         public static string GetOperatingSystemInformation()
@@ -140,12 +147,20 @@ namespace UlteriusServer.Windows.Api
                 ServerOperatingSystem.SerialNumber = (string) wmi["SerialNumber"];
                 ServerOperatingSystem.Build = (string) wmi["BuildNumber"];
             }
-            return ServerOperatingSystem.ToJson();
+            return new JavaScriptSerializer().Serialize(new
+            {
+                endpoint = "requestOsInformation",
+                results = ServerOperatingSystem.ToObject()
+            });
         }
 
         public static string GetSystemInformation()
         {
-            return SystemInformation.ToJson();
+            return new JavaScriptSerializer().Serialize(new
+            {
+                endpoint = "requestSystemInformation",
+                results = SystemInformation.ToObject()
+            });
         }
 
         /// <summary>
@@ -166,8 +181,6 @@ namespace UlteriusServer.Windows.Api
 
                 foreach (var queryObj in searcher.Get())
                 {
-                    
-
                     //process can be overwritten after select
                     if (queryObj == null) continue;
 
@@ -184,10 +197,19 @@ namespace UlteriusServer.Windows.Api
                     var fullPath = "";
                     var icon = "";
                     Process process = null;
-                    try { process= Process.GetProcessById(processId); }
-                    catch (InvalidOperationException) { continue; }
-                    catch (ArgumentException) { continue; }
-                  
+                    try
+                    {
+                        process = Process.GetProcessById(processId);
+                    }
+                    catch (InvalidOperationException)
+                    {
+                        continue;
+                    }
+                    catch (ArgumentException)
+                    {
+                        continue;
+                    }
+
                     try
                     {
                         fullPath = process.Modules[0].FileName;
@@ -216,10 +238,14 @@ namespace UlteriusServer.Windows.Api
             }
             catch (ManagementException e)
             {
-               Console.WriteLine("13 giga wat");
+                Console.WriteLine("13 giga wat");
             }
-            var json = new JavaScriptSerializer().Serialize(results);
-            return json;
+            return  new JavaScriptSerializer().Serialize(new
+            {
+              endpoint = "requestProcessInformation",
+              results
+            });
+            
         }
     }
 }

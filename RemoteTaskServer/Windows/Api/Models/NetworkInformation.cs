@@ -17,23 +17,16 @@ namespace UlteriusServer.Windows.Api.Models
         public static List<NetworkDevices> NetworkComputers { get; set; }
         public static string InternalIp { get; set; }
 
-
-        public static string ToJson()
+        public static object ToObject()
         {
-            if (string.IsNullOrEmpty(JSON))
+            var data = new
             {
-                var json =
-                    new JavaScriptSerializer().Serialize(
-                        new
-                        {
-                            publicIp = PublicIp.Trim(),
-                            networkDevices = NetworkComputers,
-                            macAddress = MacAddress,
-                            internalIp = InternalIp
-                        });
-                JSON = json;
-            }
-            return JSON;
+                publicIp = PublicIp.Trim(),
+                networkDevices = NetworkComputers,
+                macAddress = MacAddress,
+                internalIp = InternalIp
+            };
+            return data;
         }
     }
 }
