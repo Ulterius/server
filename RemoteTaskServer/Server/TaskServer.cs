@@ -111,159 +111,166 @@ namespace UlteriusServer.Server
                 return;
             }
             var packetType = packets.packetType;
-            switch (packetType)
+            try
             {
-                case PacketType.RequestProcess:
-                    var processData = WebSocketFunctions.EncodeMessageToSend(TaskApi.GetProcessInformation());
-                    clientSocket.Send(processData);
-                    break;
-                case PacketType.RequestCpuInformation:
-                    var cpuData = WebSocketFunctions.EncodeMessageToSend(TaskApi.GetCpuInformation());
-                    clientSocket.Send(cpuData);
-                    break;
-                case PacketType.RequestOsInformation:
-                    var osData = WebSocketFunctions.EncodeMessageToSend(TaskApi.GetOperatingSystemInformation());
-                    clientSocket.Send(osData);
-                    break;
-                case PacketType.RestartServer:
-                    var restartJson =
-                        new JavaScriptSerializer().Serialize(
-                            new
-                            {
-                                endpoint = "restartServer",
-                                results = true
-                            });
-                    var restartData = WebSocketFunctions.EncodeMessageToSend(restartJson);
-                    clientSocket.Send(restartData);
-                    TaskApi.RestartServer();
-                    break;
-                case PacketType.RequestNetworkInformation:
-                    var networkData = WebSocketFunctions.EncodeMessageToSend(TaskApi.GetNetworkInformation());
-                    clientSocket.Send(networkData);
-                    break;
-                case PacketType.UseWebServer:
-                    var useWebServerData =
-                        WebSocketFunctions.EncodeMessageToSend(SettingsApi.ChangeWebServerUse(packets.args));
-                    clientSocket.Send(useWebServerData);
-                    break;
-                case PacketType.ChangeWebServerPort:
-                    var changeWebServerPortData =
-                        WebSocketFunctions.EncodeMessageToSend(SettingsApi.ChangeWebServerPort(packets.args));
-                    clientSocket.Send(changeWebServerPortData);
-                    break;
-                case PacketType.ChangeWebFilePath:
-                    var changeWebFilePathData =
-                        WebSocketFunctions.EncodeMessageToSend(SettingsApi.ChangeWebFilePath(packets.args));
-                    clientSocket.Send(changeWebFilePathData);
-                    break;
-                case PacketType.ChangeTaskServerPort:
-                    var changeTaskServerPortData =
-                        WebSocketFunctions.EncodeMessageToSend(SettingsApi.ChangeTaskServerPort(packets.args));
-                    clientSocket.Send(changeTaskServerPortData);
-                    break;
-                case PacketType.ChangeNetworkResolve:
-                    var changeNetworkResolveData =
-                        WebSocketFunctions.EncodeMessageToSend(SettingsApi.ChangeNetworkResolve(packets.args));
-                    clientSocket.Send(changeNetworkResolveData);
-                    break;
-                case PacketType.GetCurrentSettings:
-                    var currentSettingsData = WebSocketFunctions.EncodeMessageToSend(SettingsApi.GetCurrentSettings());
-                    clientSocket.Send(currentSettingsData);
-                    break;
-                case PacketType.RequestSystemInformation:
-                    var systemData = WebSocketFunctions.EncodeMessageToSend(TaskApi.GetSystemInformation());
-                    clientSocket.Send(systemData);
-                    break;
-                case PacketType.RequestWindowsInformation:
-                    var windowsData = WebSocketFunctions.EncodeMessageToSend(WindowsApi.GetWindowsInformation());
-                    clientSocket.Send(windowsData);
-                    break;
-                case PacketType.VerifyWindowsPassword:
-                    var passwordData = WebSocketFunctions.EncodeMessageToSend(WindowsApi.VerifyPassword(packets.args));
-                    clientSocket.Send(passwordData);
-                    break;
-                case PacketType.GetEventLogs:
-                    var eventData = WebSocketFunctions.EncodeMessageToSend(TaskApi.GetEventLogs());
-                    clientSocket.Send(eventData);
-                    break;
-                case PacketType.StartProcess:
-                    var started = TaskApi.StartProcess(packets.args);
-                    var processJson =
-                        new JavaScriptSerializer().Serialize(
-                            new
+                switch (packetType)
+                {
+                    case PacketType.RequestProcess:
+                        var processData = WebSocketFunctions.EncodeMessageToSend(TaskApi.GetProcessInformation());
+                        clientSocket.Send(processData);
+                        break;
+                    case PacketType.RequestCpuInformation:
+                        var cpuData = WebSocketFunctions.EncodeMessageToSend(TaskApi.GetCpuInformation());
+                        clientSocket.Send(cpuData);
+                        break;
+                    case PacketType.RequestOsInformation:
+                        var osData = WebSocketFunctions.EncodeMessageToSend(TaskApi.GetOperatingSystemInformation());
+                        clientSocket.Send(osData);
+                        break;
+                    case PacketType.RestartServer:
+                        var restartJson =
+                            new JavaScriptSerializer().Serialize(
+                                new
+                                {
+                                    endpoint = "restartServer",
+                                    results = true
+                                });
+                        var restartData = WebSocketFunctions.EncodeMessageToSend(restartJson);
+                        clientSocket.Send(restartData);
+                        TaskApi.RestartServer();
+                        break;
+                    case PacketType.RequestNetworkInformation:
+                        var networkData = WebSocketFunctions.EncodeMessageToSend(TaskApi.GetNetworkInformation());
+                        clientSocket.Send(networkData);
+                        break;
+                    case PacketType.UseWebServer:
+                        var useWebServerData =
+                            WebSocketFunctions.EncodeMessageToSend(SettingsApi.ChangeWebServerUse(packets.args));
+                        clientSocket.Send(useWebServerData);
+                        break;
+                    case PacketType.ChangeWebServerPort:
+                        var changeWebServerPortData =
+                            WebSocketFunctions.EncodeMessageToSend(SettingsApi.ChangeWebServerPort(packets.args));
+                        clientSocket.Send(changeWebServerPortData);
+                        break;
+                    case PacketType.ChangeWebFilePath:
+                        var changeWebFilePathData =
+                            WebSocketFunctions.EncodeMessageToSend(SettingsApi.ChangeWebFilePath(packets.args));
+                        clientSocket.Send(changeWebFilePathData);
+                        break;
+                    case PacketType.ChangeTaskServerPort:
+                        var changeTaskServerPortData =
+                            WebSocketFunctions.EncodeMessageToSend(SettingsApi.ChangeTaskServerPort(packets.args));
+                        clientSocket.Send(changeTaskServerPortData);
+                        break;
+                    case PacketType.ChangeNetworkResolve:
+                        var changeNetworkResolveData =
+                            WebSocketFunctions.EncodeMessageToSend(SettingsApi.ChangeNetworkResolve(packets.args));
+                        clientSocket.Send(changeNetworkResolveData);
+                        break;
+                    case PacketType.GetCurrentSettings:
+                        var currentSettingsData = WebSocketFunctions.EncodeMessageToSend(SettingsApi.GetCurrentSettings());
+                        clientSocket.Send(currentSettingsData);
+                        break;
+                    case PacketType.RequestSystemInformation:
+                        var systemData = WebSocketFunctions.EncodeMessageToSend(TaskApi.GetSystemInformation());
+                        clientSocket.Send(systemData);
+                        break;
+                    case PacketType.RequestWindowsInformation:
+                        var windowsData = WebSocketFunctions.EncodeMessageToSend(WindowsApi.GetWindowsInformation());
+                        clientSocket.Send(windowsData);
+                        break;
+                    case PacketType.VerifyWindowsPassword:
+                        var passwordData = WebSocketFunctions.EncodeMessageToSend(WindowsApi.VerifyPassword(packets.args));
+                        clientSocket.Send(passwordData);
+                        break;
+                    case PacketType.GetEventLogs:
+                        var eventData = WebSocketFunctions.EncodeMessageToSend(TaskApi.GetEventLogs());
+                        clientSocket.Send(eventData);
+                        break;
+                    case PacketType.StartProcess:
+                        var started = TaskApi.StartProcess(packets.args);
+                        var processJson =
+                            new JavaScriptSerializer().Serialize(
+                                new
 
-                            {
-                                endpoint = "startProcess",
-                                processStarted = started
-                            });
-                    var processStartData = WebSocketFunctions.EncodeMessageToSend(processJson);
-                    clientSocket.Send(processStartData);
-                    break;
-                case PacketType.KillProcess:
-                    var killed = TaskApi.KillProcessById(int.Parse(packets.args));
-                    var killedJson =
-                        new JavaScriptSerializer().Serialize(
-                            new
-                            {
-                                endpoint = "killProcess",
-                                processKilled = killed
-                            });
-                    var processKilledData = WebSocketFunctions.EncodeMessageToSend(killedJson);
-                    clientSocket.Send(processKilledData);
-                    break;
-                case PacketType.EmptyApiKey:
-                    var emptyApiKeyStatus =
-                        new JavaScriptSerializer().Serialize(
-                            new
-                            {
-                                endpoint = "emptyApiKey",
-                                emptyApiKey = true,
-                                message = "Please generate an API Key"
-                            });
+                                {
+                                    endpoint = "startProcess",
+                                    processStarted = started
+                                });
+                        var processStartData = WebSocketFunctions.EncodeMessageToSend(processJson);
+                        clientSocket.Send(processStartData);
+                        break;
+                    case PacketType.KillProcess:
+                        var killed = TaskApi.KillProcessById(int.Parse(packets.args));
+                        var killedJson =
+                            new JavaScriptSerializer().Serialize(
+                                new
+                                {
+                                    endpoint = "killProcess",
+                                    processKilled = killed
+                                });
+                        var processKilledData = WebSocketFunctions.EncodeMessageToSend(killedJson);
+                        clientSocket.Send(processKilledData);
+                        break;
+                    case PacketType.EmptyApiKey:
+                        var emptyApiKeyStatus =
+                            new JavaScriptSerializer().Serialize(
+                                new
+                                {
+                                    endpoint = "emptyApiKey",
+                                    emptyApiKey = true,
+                                    message = "Please generate an API Key"
+                                });
 
-                    var emptyApiKeyData = WebSocketFunctions.EncodeMessageToSend(emptyApiKeyStatus);
-                    clientSocket.Send(emptyApiKeyData);
-                    break;
-                case PacketType.InvalidApiKey:
-                    var invalidApiKeyStatus =
-                        new JavaScriptSerializer().Serialize(
-                            new
-                            {
-                                endpoint = "InvalidApiKey",
-                                invalidApiKey = true,
-                                message = "Provided API Key does not match the server key"
-                            });
+                        var emptyApiKeyData = WebSocketFunctions.EncodeMessageToSend(emptyApiKeyStatus);
+                        clientSocket.Send(emptyApiKeyData);
+                        break;
+                    case PacketType.InvalidApiKey:
+                        var invalidApiKeyStatus =
+                            new JavaScriptSerializer().Serialize(
+                                new
+                                {
+                                    endpoint = "InvalidApiKey",
+                                    invalidApiKey = true,
+                                    message = "Provided API Key does not match the server key"
+                                });
 
-                    var invalidOAuthData = WebSocketFunctions.EncodeMessageToSend(invalidApiKeyStatus);
-                    clientSocket.Send(invalidOAuthData);
-                    break;
-                case PacketType.InvalidPacket:
-                    var invalidPacketStatus =
-                        new JavaScriptSerializer().Serialize(
-                            new
-                            {
-                                endpoint = "InvalidPacket",
-                                invalidPacket = true,
-                                message = "This packet does not exisit on the server."
-                            });
+                        var invalidOAuthData = WebSocketFunctions.EncodeMessageToSend(invalidApiKeyStatus);
+                        clientSocket.Send(invalidOAuthData);
+                        break;
+                    case PacketType.InvalidPacket:
+                        var invalidPacketStatus =
+                            new JavaScriptSerializer().Serialize(
+                                new
+                                {
+                                    endpoint = "InvalidPacket",
+                                    invalidPacket = true,
+                                    message = "This packet does not exisit on the server."
+                                });
 
-                    var invalidPacketData = WebSocketFunctions.EncodeMessageToSend(invalidPacketStatus);
-                    clientSocket.Send(invalidPacketData);
-                    break;
-                case PacketType.GenerateNewKey:
-                    var generateNewKeyStatus = SettingsApi.GenerateNewAPiKey(packets.apiKey);
+                        var invalidPacketData = WebSocketFunctions.EncodeMessageToSend(invalidPacketStatus);
+                        clientSocket.Send(invalidPacketData);
+                        break;
+                    case PacketType.GenerateNewKey:
+                        var generateNewKeyStatus = SettingsApi.GenerateNewAPiKey(packets.apiKey);
 
-                    var generateNewKeyData = WebSocketFunctions.EncodeMessageToSend(generateNewKeyStatus);
-                    clientSocket.Send(generateNewKeyData);
-                    break;
-                case PacketType.CheckUpdate:
-                    var checkUpdateData = WebSocketFunctions.EncodeMessageToSend(Tools.CheckForUpdates());
-                    clientSocket.Send(checkUpdateData);
-                    break;
-                case PacketType.GetActiveWindowsSnapshots:
-                    var activeWindowsData = WebSocketFunctions.EncodeMessageToSend(WindowsApi.GetActiveWindowsImages());
-                    clientSocket.Send(activeWindowsData);
-                    break;
+                        var generateNewKeyData = WebSocketFunctions.EncodeMessageToSend(generateNewKeyStatus);
+                        clientSocket.Send(generateNewKeyData);
+                        break;
+                    case PacketType.CheckUpdate:
+                        var checkUpdateData = WebSocketFunctions.EncodeMessageToSend(Tools.CheckForUpdates());
+                        clientSocket.Send(checkUpdateData);
+                        break;
+                    case PacketType.GetActiveWindowsSnapshots:
+                        var activeWindowsData = WebSocketFunctions.EncodeMessageToSend(WindowsApi.GetActiveWindowsImages());
+                        clientSocket.Send(activeWindowsData);
+                        break;
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
             }
         }
 
