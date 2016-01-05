@@ -169,6 +169,8 @@ namespace UlteriusServer.Windows.Api
         /// <returns></returns>
         public static string GetProcessInformation()
         {
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
             var results = new List<SystemProcesses>();
 
             try
@@ -220,7 +222,7 @@ namespace UlteriusServer.Windows.Api
                         fullPath = "null";
                         icon = "null";
                     }
-
+                
                     results.Add(new SystemProcesses
                     {
                         id = processId,
@@ -240,6 +242,8 @@ namespace UlteriusServer.Windows.Api
             {
                 Console.WriteLine("13 giga wat");
             }
+            sw.Stop();
+            Console.WriteLine(sw.Elapsed);
             return  new JavaScriptSerializer().Serialize(new
             {
               endpoint = "requestProcessInformation",

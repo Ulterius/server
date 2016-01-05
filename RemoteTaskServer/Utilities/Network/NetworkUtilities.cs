@@ -163,12 +163,9 @@ namespace UlteriusServer.Utilities.Network
             var strHostName = Dns.GetHostName();
             var ipEntry = Dns.GetHostEntry(strHostName);
             var addr = ipEntry.AddressList;
-            foreach (var ip in addr)
+            foreach (var ip in addr.Where(ip => !ip.IsIPv6LinkLocal))
             {
-                if (!ip.IsIPv6LinkLocal)
-                {
-                    return ip;
-                }
+                return ip;
             }
             return addr.Length > 0 ? addr[0] : null;
         }
@@ -179,16 +176,7 @@ namespace UlteriusServer.Utilities.Network
         /// <returns></returns>
         public static PhysicalAddress GetMacAddress()
         {
-            foreach (var nic in NetworkInterface.GetAllNetworkInterfaces())
-            {
-                // Only consider Ethernet network interfaces
-                if (nic.NetworkInterfaceType == NetworkInterfaceType.Ethernet &&
-                    nic.OperationalStatus == OperationalStatus.Up)
-                {
-                    return nic.GetPhysicalAddress();
-                }
-            }
-            return null;
+            return (from nic in NetworkInterface.GetAllNetworkInterfaces() where nic.NetworkInterfaceType == NetworkInterfaceType.Ethernet && nic.OperationalStatus == OperationalStatus.Up select nic.GetPhysicalAddress()).FirstOrDefault();
         }
 
         /// <summary>
