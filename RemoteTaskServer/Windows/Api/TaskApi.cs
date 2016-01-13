@@ -169,84 +169,76 @@ namespace UlteriusServer.Windows.Api
         /// <returns></returns>
         public static string GetProcessInformation()
         {
-            Stopwatch sw = new Stopwatch();
-            sw.Start();
+        
             var results = new List<SystemProcesses>();
 
             try
             {
 
-                var options = new EnumerationOptions();
-                options.ReturnImmediately = false;
-                var searcher =
-                    new ManagementObjectSearcher("root\\CIMV2",
-                        "SELECT * FROM Win32_PerfFormattedData_PerfProc_Process", options);
-
-
-                foreach (var queryObj in searcher.Get())
+                var options = new EnumerationOptions {ReturnImmediately = false};
+                using (var searcher = new ManagementObjectSearcher("root\\CIMV2", "SELECT * FROM Win32_PerfFormattedData_PerfProc_Process", options))
                 {
-                    //process can be overwritten after select
-                    if (queryObj == null) continue;
+                    foreach (var queryObj in searcher.Get())
+                    {
+                        //process can be overwritten after select
+                        if (queryObj == null) continue;
 
-                    var name = (string) queryObj["Name"];
-                    var processId = int.Parse(queryObj["IDProcess"].ToString());
-                    var handles = int.Parse(queryObj["HandleCount"].ToString());
-                    var threads = int.Parse(queryObj["ThreadCount"].ToString());
-                    var memory = long.Parse(queryObj["WorkingSetPrivate"].ToString());
-                    var cpuUsage = int.Parse(queryObj["PercentProcessorTime"].ToString());
+                        var name = (string) queryObj["Name"];
+                        var processId = int.Parse(queryObj["IDProcess"].ToString());
+                        var handles = int.Parse(queryObj["HandleCount"].ToString());
+                        var threads = int.Parse(queryObj["ThreadCount"].ToString());
+                        var memory = long.Parse(queryObj["WorkingSetPrivate"].ToString());
+                        var cpuUsage = int.Parse(queryObj["PercentProcessorTime"].ToString());
                   
-                    var ioReadOperationsPerSec = int.Parse(queryObj["IOReadOperationsPerSec"].ToString());
-                    var ioWriteOperationsPerSec = int.Parse(queryObj["IOWriteOperationsPerSec"].ToString());
-                    // var ioReadBytesPerSec = int.Parse(queryObj["IOReadBytesPerSec "].ToString());
-                    // var ioWriteBytesPerSec = int.Parse(queryObj["IOWriteBytesPerSec  "].ToString());
-                    var fullPath = "";
-                    var icon = "";
-                    Process process = null;
-                    try
-                    {
-                        process = Process.GetProcessById(processId);
-                    }
-                    catch (InvalidOperationException)
-                    {
-                        continue;
-                    }
-                    catch (ArgumentException)
-                    {
-                        continue;
-                    }
+                        var ioReadOperationsPerSec = int.Parse(queryObj["IOReadOperationsPerSec"].ToString());
+                        var ioWriteOperationsPerSec = int.Parse(queryObj["IOWriteOperationsPerSec"].ToString());
+                        string fullPath;
+                        string icon;
+                        Process process;
+                        try
+                        {
+                            process = Process.GetProcessById(processId);
+                        }
+                        catch (InvalidOperationException)
+                        {
+                            continue;
+                        }
+                        catch (ArgumentException)
+                        {
+                            continue;
+                        }
 
-                    try
-                    {
-                        fullPath = process.Modules[0].FileName;
-                        icon = Tools.GetIconForProcess(fullPath);
-                    }
-                    catch (Win32Exception)
-                    {
-                        fullPath = "null";
-                        icon = "null";
-                    }
+                        try
+                        {
+                            fullPath = process.Modules[0].FileName;
+                            icon = Tools.GetIconForProcess(fullPath);
+                        }
+                        catch (Win32Exception)
+                        {
+                            fullPath = "null";
+                            icon = "null";
+                        }
                 
-                    results.Add(new SystemProcesses
-                    {
-                        id = processId,
-                        path = fullPath,
-                        name = name,
-                        icon = icon,
-                        ramUsage = memory,
-                        cpuUsage = cpuUsage,
-                        threads = threads,
-                        handles = handles,
-                        ioWriteOperationsPerSec = ioWriteOperationsPerSec,
-                        ioReadOperationsPerSec = ioReadOperationsPerSec
-                    });
+                        results.Add(new SystemProcesses
+                        {
+                            id = processId,
+                            path = fullPath,
+                            name = name,
+                            icon = icon,
+                            ramUsage = memory,
+                            cpuUsage = cpuUsage,
+                            threads = threads,
+                            handles = handles,
+                            ioWriteOperationsPerSec = ioWriteOperationsPerSec,
+                            ioReadOperationsPerSec = ioReadOperationsPerSec
+                        });
+                    }
                 }
             }
-            catch (ManagementException e)
+            catch (ManagementException)
             {
-                Console.WriteLine("13 giga wat");
+                
             }
-            sw.Stop();
-            Console.WriteLine(sw.Elapsed);
             return  new JavaScriptSerializer().Serialize(new
             {
               endpoint = "requestProcessInformation",
