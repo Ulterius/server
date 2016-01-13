@@ -20,7 +20,7 @@ namespace UlteriusServer.Utilities.System
     {
         public void Start()
         {
-            Task.Run(() =>
+            Task.Factory.StartNew(() =>
             {
                 while (true)
                 {

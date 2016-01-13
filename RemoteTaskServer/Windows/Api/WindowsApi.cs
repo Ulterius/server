@@ -106,9 +106,11 @@ namespace UlteriusServer.Windows.Api
                         bmp.Save(ms, ImageFormat.Png);
                         var byteImage = ms.ToArray();
                         var base64Window = Convert.ToBase64String(byteImage); //Get Base64
-                        var image = new WindowsImages();
-                        image.imageData = base64Window;
-                        image.windowName = process.ProcessName;
+                        var image = new WindowsImages
+                        {
+                            imageData = base64Window,
+                            windowName = process.ProcessName
+                        };
                         if (!AllOneColor(bmp))
                         {
                             activeWindows.Add(image);

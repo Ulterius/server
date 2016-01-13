@@ -2,7 +2,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Management;
@@ -12,6 +11,7 @@ using UlteriusServer.Utilities;
 using UlteriusServer.Utilities.Network;
 using UlteriusServer.Utilities.System;
 using UlteriusServer.Windows.Api.Models;
+using static System.String;
 
 #endregion
 
@@ -19,6 +19,7 @@ namespace UlteriusServer.Windows.Api
 {
     internal class TaskApi
     {
+        private static ManagementObjectSearcher searcher;
         public string format = "JSON";
 
         public static bool KillProcessById(int id, bool waitForExit = false)
@@ -68,7 +69,7 @@ namespace UlteriusServer.Windows.Api
 
 
         {
-            if (string.IsNullOrEmpty(NetworkInformation.PublicIp))
+            if (IsNullOrEmpty(NetworkInformation.PublicIp))
             {
                 NetworkInformation.PublicIp = NetworkUtilities.GetPublicIp();
                 NetworkInformation.NetworkComputers = NetworkUtilities.ConnectedDevices();
@@ -89,7 +90,7 @@ namespace UlteriusServer.Windows.Api
 
         public static string GetCpuInformation()
         {
-            if (string.IsNullOrEmpty(CpuInformation.Name))
+            if (IsNullOrEmpty(CpuInformation.Name))
             {
                 var cpu =
                     new ManagementObjectSearcher("select * from Win32_Processor")
@@ -131,7 +132,7 @@ namespace UlteriusServer.Windows.Api
 
         public static string GetOperatingSystemInformation()
         {
-            if (string.IsNullOrEmpty(ServerOperatingSystem.Name))
+            if (IsNullOrEmpty(ServerOperatingSystem.Name))
             {
                 var wmi =
                     new ManagementObjectSearcher("select * from Win32_OperatingSystem")
@@ -165,23 +166,42 @@ namespace UlteriusServer.Windows.Api
 
         /// <summary>
         ///     Builds all of the system information and sends it off as JSON
+        ///      This function is literally a cluster fuck of retardation
         /// </summary>
         /// <returns></returns>
         public static string GetProcessInformation()
         {
-        
             var results = new List<SystemProcesses>();
+            var simpleProcesses = new List<SimpleProcessInfo>();
 
             try
             {
+                using (
+                    searcher =
+                        new ManagementObjectSearcher("root\\CIMV2",
+                            "SELECT ExecutablePath, ProcessId FROM Win32_Process"))
+                {
+                    simpleProcesses.AddRange(from ManagementBaseObject info in searcher.Get()
+                        let id = int.Parse(info["ProcessId"].ToString())
+                        let fullPath = (string) info["ExecutablePath"]
+                        select new SimpleProcessInfo
+                        {
+                            path = fullPath,
+                            id = id
+                        });
+                }
 
                 var options = new EnumerationOptions {ReturnImmediately = false};
-                using (var searcher = new ManagementObjectSearcher("root\\CIMV2", "SELECT * FROM Win32_PerfFormattedData_PerfProc_Process", options))
+                using (
+                    searcher =
+                        new ManagementObjectSearcher("root\\CIMV2",
+                            "SELECT * FROM Win32_PerfFormattedData_PerfProc_Process", options))
                 {
                     foreach (var queryObj in searcher.Get())
                     {
                         //process can be overwritten after select
                         if (queryObj == null) continue;
+
 
                         var name = (string) queryObj["Name"];
                         var processId = int.Parse(queryObj["IDProcess"].ToString());
@@ -189,36 +209,21 @@ namespace UlteriusServer.Windows.Api
                         var threads = int.Parse(queryObj["ThreadCount"].ToString());
                         var memory = long.Parse(queryObj["WorkingSetPrivate"].ToString());
                         var cpuUsage = int.Parse(queryObj["PercentProcessorTime"].ToString());
-                  
                         var ioReadOperationsPerSec = int.Parse(queryObj["IOReadOperationsPerSec"].ToString());
                         var ioWriteOperationsPerSec = int.Parse(queryObj["IOWriteOperationsPerSec"].ToString());
-                        string fullPath;
-                        string icon;
-                        Process process;
-                        try
+                        var fullPath = "";
+                        var icon = "";
+                        foreach (var process in simpleProcesses.Where(process => process.id == processId))
                         {
-                            process = Process.GetProcessById(processId);
-                        }
-                        catch (InvalidOperationException)
-                        {
-                            continue;
-                        }
-                        catch (ArgumentException)
-                        {
-                            continue;
-                        }
-
-                        try
-                        {
-                            fullPath = process.Modules[0].FileName;
+                            fullPath = process.path;
+                            if (IsNullOrEmpty(fullPath))
+                            {
+                                fullPath = "null";
+                                icon = "null";
+                                continue;
+                            }
                             icon = Tools.GetIconForProcess(fullPath);
                         }
-                        catch (Win32Exception)
-                        {
-                            fullPath = "null";
-                            icon = "null";
-                        }
-                
                         results.Add(new SystemProcesses
                         {
                             id = processId,
@@ -237,14 +242,20 @@ namespace UlteriusServer.Windows.Api
             }
             catch (ManagementException)
             {
-                
+                Console.WriteLine("Selection failed");
             }
-            return  new JavaScriptSerializer().Serialize(new
+
+            return new JavaScriptSerializer().Serialize(new
             {
-              endpoint = "requestProcessInformation",
-              results
+                endpoint = "requestProcessInformation",
+                results
             });
-            
+        }
+
+        public class SimpleProcessInfo
+        {
+            public int id;
+            public string path;
         }
     }
 }

@@ -8,12 +8,12 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Web.Script.Serialization;
 using UlteriusServer.Utilities;
 using UlteriusServer.Utilities.Network;
 using UlteriusServer.WebSocketAPI;
 using UlteriusServer.Windows.Api;
+using static System.Threading.Tasks.Task;
 
 #endregion
 
@@ -39,8 +39,8 @@ namespace UlteriusServer.Server
             boundPort = port;
             var ip = new IPEndPoint(IPAddress.Parse(NetworkUtilities.GetIPv4Address()), port);
             listenerSocket.Bind(ip);
-            var listenThread = new Thread(ListenThread);
-            listenThread.Start();
+            Factory.StartNew(ListenThread);
+           
         }
 
         /// <summary>
@@ -87,7 +87,7 @@ namespace UlteriusServer.Server
                         {
                             var packet = new Packets(buffer, readBytes);
                             //cheap way to do non-blocking packet handling 
-                            Task.Factory.StartNew(() => { HandlePacket(clientSocket, packet); });
+                            Factory.StartNew(() => { HandlePacket(clientSocket, packet); });
                           
                         }
                     }
