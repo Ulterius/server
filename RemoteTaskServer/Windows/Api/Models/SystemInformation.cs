@@ -27,7 +27,7 @@ namespace UlteriusServer.Windows.Api.Models
                 totalMemory = TotalMemory,
                 availableMemory = AvailableMemory,
                 usedMemory = UsedMemory,
-                runningProceses = RunningProcesses,
+                runningProcesses = RunningProcesses,
                 upTime = UpTime,
                 runningAsAdmin = RunningAsAdmin,
                 drives = Drives
