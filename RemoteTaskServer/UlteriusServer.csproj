@@ -115,7 +115,6 @@
     <Compile Include="Utilities\ExceptionHandler.cs" />
     <Compile Include="Utilities\Network\NetworkUtilities.cs" />
     <Compile Include="Utilities\Settings.cs" />
-    <Compile Include="Utilities\StringHelper.cs" />
     <Compile Include="Utilities\System\SystemUtilities.cs" />
     <Compile Include="Utilities\Tools.cs" />
     <Compile Include="WebServer\HttpServer.cs" />

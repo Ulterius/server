@@ -192,6 +192,10 @@ namespace UlteriusServer.Windows.Api
                     var threads = int.Parse(queryObj["ThreadCount"].ToString());
                     var memory = long.Parse(queryObj["WorkingSetPrivate"].ToString());
                     var cpuUsage = int.Parse(queryObj["PercentProcessorTime"].ToString());
+                    if (cpuUsage > 0)
+                    {
+                        Console.WriteLine(name + " " + cpuUsage);
+                    }
                     var ioReadOperationsPerSec = int.Parse(queryObj["IOReadOperationsPerSec"].ToString());
                     var ioWriteOperationsPerSec = int.Parse(queryObj["IOWriteOperationsPerSec"].ToString());
                     // var ioReadBytesPerSec = int.Parse(queryObj["IOReadBytesPerSec "].ToString());
