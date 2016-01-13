@@ -87,7 +87,8 @@ namespace UlteriusServer.Server
                         {
                             var packet = new Packets(buffer, readBytes);
                             //cheap way to do non-blocking packet handling 
-                            Task.Run(() => { HandlePacket(clientSocket, packet); });
+                            Task.Factory.StartNew(() => { HandlePacket(clientSocket, packet); });
+                          
                         }
                     }
                 }

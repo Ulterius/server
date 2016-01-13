@@ -175,10 +175,12 @@ namespace UlteriusServer.Windows.Api
 
             try
             {
-                Console.WriteLine("Select Now");
+
+                var options = new EnumerationOptions();
+                options.ReturnImmediately = false;
                 var searcher =
                     new ManagementObjectSearcher("root\\CIMV2",
-                        "SELECT * FROM Win32_PerfFormattedData_PerfProc_Process");
+                        "SELECT * FROM Win32_PerfFormattedData_PerfProc_Process", options);
 
 
                 foreach (var queryObj in searcher.Get())
@@ -192,10 +194,7 @@ namespace UlteriusServer.Windows.Api
                     var threads = int.Parse(queryObj["ThreadCount"].ToString());
                     var memory = long.Parse(queryObj["WorkingSetPrivate"].ToString());
                     var cpuUsage = int.Parse(queryObj["PercentProcessorTime"].ToString());
-                    if (cpuUsage > 0)
-                    {
-                        Console.WriteLine(name + " " + cpuUsage);
-                    }
+                  
                     var ioReadOperationsPerSec = int.Parse(queryObj["IOReadOperationsPerSec"].ToString());
                     var ioWriteOperationsPerSec = int.Parse(queryObj["IOWriteOperationsPerSec"].ToString());
                     // var ioReadBytesPerSec = int.Parse(queryObj["IOReadBytesPerSec "].ToString());
