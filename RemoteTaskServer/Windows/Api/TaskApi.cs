@@ -197,46 +197,37 @@ namespace UlteriusServer.Windows.Api
                         new ManagementObjectSearcher("root\\CIMV2",
                             "SELECT * FROM Win32_PerfFormattedData_PerfProc_Process", options))
                 {
-                    foreach (var queryObj in searcher.Get())
-                    {
-                        //process can be overwritten after select
-                        if (queryObj == null) continue;
-
-
-                        var name = (string) queryObj["Name"];
-                        var processId = int.Parse(queryObj["IDProcess"].ToString());
-                        var handles = int.Parse(queryObj["HandleCount"].ToString());
-                        var threads = int.Parse(queryObj["ThreadCount"].ToString());
-                        var memory = long.Parse(queryObj["WorkingSetPrivate"].ToString());
-                        var cpuUsage = int.Parse(queryObj["PercentProcessorTime"].ToString());
-                        var ioReadOperationsPerSec = int.Parse(queryObj["IOReadOperationsPerSec"].ToString());
-                        var ioWriteOperationsPerSec = int.Parse(queryObj["IOWriteOperationsPerSec"].ToString());
-                        var fullPath = "";
-                        var icon = "";
-                        foreach (var process in simpleProcesses.Where(process => process.id == processId))
+                    results.AddRange(from ManagementBaseObject queryObj in searcher.Get()
+                        where queryObj != null
+                        let name = (string) queryObj["Name"]
+                        let processId = int.Parse(queryObj["IDProcess"].ToString())
+                        let handles = int.Parse(queryObj["HandleCount"].ToString())
+                        let threads = int.Parse(queryObj["ThreadCount"].ToString())
+                        let memory = long.Parse(queryObj["WorkingSetPrivate"].ToString())
+                        let cpuUsage = int.Parse(queryObj["PercentProcessorTime"].ToString())
+                        let ioReadOperationsPerSec = int.Parse(queryObj["IOReadOperationsPerSec"].ToString())
+                        let ioWriteOperationsPerSec = int.Parse(queryObj["IOWriteOperationsPerSec"].ToString())
+                        let fullPath = ""
+                        let icon = ""
+                        select new SystemProcesses
                         {
-                            fullPath = process.path;
-                            if (IsNullOrEmpty(fullPath))
-                            {
-                                fullPath = "null";
-                                icon = "null";
-                                continue;
-                            }
-                            icon = Tools.GetIconForProcess(fullPath);
-                        }
-                        results.Add(new SystemProcesses
-                        {
-                            id = processId,
-                            path = fullPath,
-                            name = name,
-                            icon = icon,
-                            ramUsage = memory,
-                            cpuUsage = cpuUsage,
-                            threads = threads,
-                            handles = handles,
-                            ioWriteOperationsPerSec = ioWriteOperationsPerSec,
-                            ioReadOperationsPerSec = ioReadOperationsPerSec
+                            id = processId, path = fullPath, name = name, icon = icon, ramUsage = memory, cpuUsage = cpuUsage, threads = threads, handles = handles, ioWriteOperationsPerSec = ioWriteOperationsPerSec, ioReadOperationsPerSec = ioReadOperationsPerSec
                         });
+                    foreach (var result in results)
+                    {
+                        foreach (var process in simpleProcesses.Where(process => process.id == result.id))
+                        {
+                            result.path = process.path;
+                            if (!IsNullOrEmpty(result.path))
+                            {
+                                result.icon = Tools.GetIconForProcess(result.path);
+                            }
+                            else
+                            {
+                                result.path = "null";
+                                result.icon = "null";
+                            }
+                        }
                     }
                 }
             }
