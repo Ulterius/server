@@ -60,41 +60,39 @@ namespace UlteriusServer.Server
                     buffer = new byte[clientSocket.SendBufferSize];
                     readBytes = clientSocket.Receive(buffer);
 
-                    if (readBytes > 0)
+                    if (readBytes <= 0) continue;
+                    var decodedHeader = Encoding.ASCII.GetString(buffer, 0, readBytes);
+                    if (new Regex("^GET").IsMatch(decodedHeader))
                     {
-                        var decodedHeader = Encoding.ASCII.GetString(buffer, 0, readBytes);
-                        if (new Regex("^GET").IsMatch(decodedHeader))
-                        {
-                            var response =
-                                Encoding.UTF8.GetBytes("HTTP/1.1 101 Switching Protocols" + Environment.NewLine
-                                                       + "Connection: Upgrade" + Environment.NewLine
-                                                       + "Upgrade: websocket" + Environment.NewLine
-                                                       + "Sec-WebSocket-Accept: " + Convert.ToBase64String(
-                                                           SHA1.Create().ComputeHash(
-                                                               Encoding.UTF8.GetBytes(
-                                                                   new Regex("Sec-WebSocket-Key: (.*)").Match(
-                                                                       decodedHeader).Groups[1].Value.Trim() +
-                                                                   "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
-                                                                   )
+                        var response =
+                            Encoding.UTF8.GetBytes("HTTP/1.1 101 Switching Protocols" + Environment.NewLine
+                                                   + "Connection: Upgrade" + Environment.NewLine
+                                                   + "Upgrade: websocket" + Environment.NewLine
+                                                   + "Sec-WebSocket-Accept: " + Convert.ToBase64String(
+                                                       SHA1.Create().ComputeHash(
+                                                           Encoding.UTF8.GetBytes(
+                                                               new Regex("Sec-WebSocket-Key: (.*)").Match(
+                                                                   decodedHeader).Groups[1].Value.Trim() +
+                                                               "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
                                                                )
-                                                           ) + Environment.NewLine
-                                                       + Environment.NewLine);
+                                                           )
+                                                       ) + Environment.NewLine
+                                                   + Environment.NewLine);
 
-                            //Tells the web socket to stay connected
-                            clientSocket.Send(response);
-                        } // first message from the websocket is always its headers; anything else is a message/args
-                        else
-                        {
-                            var packet = new Packets(buffer, readBytes);
-                            //cheap way to do non-blocking packet handling 
-                            Factory.StartNew(() => { HandlePacket(clientSocket, packet); });
+                        //Tells the web socket to stay connected
+                        clientSocket.Send(response);
+                    } // first message from the websocket is always its headers; anything else is a message/args
+                    else
+                    {
+                        var packet = new Packets(buffer, readBytes);
+                        //cheap way to do non-blocking packet handling 
+                        Factory.StartNew(() => { HandlePacket(clientSocket, packet); });
                           
-                        }
                     }
                 }
                 catch (SocketException ex)
                 {
-                    //Console.Write(ex.Message);
+                    clientSocket?.Close();
                 }
             }
         }
@@ -107,10 +105,6 @@ namespace UlteriusServer.Server
         /// <returns></returns>
         public static void HandlePacket(Socket clientSocket, Packets packets)
         {
-            if (packets.action == null) //do nothing if invalid query
-            {
-                return;
-            }
             var packetType = packets.packetType;
             try
             {
@@ -240,22 +234,11 @@ namespace UlteriusServer.Server
                         var invalidOAuthData = WebSocketFunctions.EncodeMessageToSend(invalidApiKeyStatus);
                         clientSocket.Send(invalidOAuthData);
                         break;
-                    case PacketType.InvalidPacket:
-                        var invalidPacketStatus =
-                            new JavaScriptSerializer().Serialize(
-                                new
-                                {
-                                    endpoint = "InvalidPacket",
-                                    invalidPacket = true,
-                                    message = "This packet does not exisit on the server."
-                                });
-
-                        var invalidPacketData = WebSocketFunctions.EncodeMessageToSend(invalidPacketStatus);
-                        clientSocket.Send(invalidPacketData);
+                    case PacketType.InvalidOrEmptyPacket:
+                        //do nothing server won't read it and then the message is pooled forever
                         break;
                     case PacketType.GenerateNewKey:
                         var generateNewKeyStatus = SettingsApi.GenerateNewAPiKey(packets.apiKey);
-
                         var generateNewKeyData = WebSocketFunctions.EncodeMessageToSend(generateNewKeyStatus);
                         clientSocket.Send(generateNewKeyData);
                         break;
@@ -266,6 +249,8 @@ namespace UlteriusServer.Server
                     case PacketType.GetActiveWindowsSnapshots:
                         var activeWindowsData = WebSocketFunctions.EncodeMessageToSend(WindowsApi.GetActiveWindowsImages());
                         clientSocket.Send(activeWindowsData);
+                        break;
+                    default:
                         break;
                 }
             }
