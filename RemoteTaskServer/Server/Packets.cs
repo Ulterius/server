@@ -3,7 +3,6 @@
 using System;
 using Newtonsoft.Json;
 using UlteriusServer.Utilities;
-using UlteriusServer.WebSocketAPI;
 
 #endregion
 
@@ -22,7 +21,6 @@ namespace UlteriusServer.Server
 
         public Packets(string packetJson)
         {
-
             Console.WriteLine(packetJson);
             JsPacket deserializedPacket = null;
             try

@@ -8,7 +8,6 @@ using RemoteTaskServer.WebServer;
 using UlteriusServer.Properties;
 using UlteriusServer.Server;
 using UlteriusServer.Utilities;
-using UlteriusServer.Utilities.Network;
 using UlteriusServer.Utilities.System;
 using UlteriusServer.Windows.Api;
 
@@ -26,7 +25,7 @@ namespace UlteriusServer
             var settings = new Settings();
             if (!File.Exists("UlteriusServer.ini"))
             {
-               SettingsApi.GenerateSettings();
+                SettingsApi.GenerateSettings();
             }
 
 
@@ -38,7 +37,7 @@ namespace UlteriusServer
             }
 
             var useWebServer = settings.Read("WebServer", "UseWebServer", false);
-            if (useWebServer == true)
+            if (useWebServer)
             {
                 var root = settings.Read("WebServer", "WebFilePath", "");
                 var port = settings.Read("WebServer", "WebServerPort", 9999);

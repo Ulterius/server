@@ -166,7 +166,7 @@ namespace UlteriusServer.Windows.Api
 
         /// <summary>
         ///     Builds all of the system information and sends it off as JSON
-        ///      This function is literally a cluster fuck of retardation
+        ///     This function is literally a cluster fuck of retardation
         /// </summary>
         /// <returns></returns>
         public static string GetProcessInformation()
@@ -211,7 +211,16 @@ namespace UlteriusServer.Windows.Api
                         let icon = ""
                         select new SystemProcesses
                         {
-                            id = processId, path = fullPath, name = name, icon = icon, ramUsage = memory, cpuUsage = cpuUsage, threads = threads, handles = handles, ioWriteOperationsPerSec = ioWriteOperationsPerSec, ioReadOperationsPerSec = ioReadOperationsPerSec
+                            id = processId,
+                            path = fullPath,
+                            name = name,
+                            icon = icon,
+                            ramUsage = memory,
+                            cpuUsage = cpuUsage,
+                            threads = threads,
+                            handles = handles,
+                            ioWriteOperationsPerSec = ioWriteOperationsPerSec,
+                            ioReadOperationsPerSec = ioReadOperationsPerSec
                         });
                     foreach (var result in results)
                     {

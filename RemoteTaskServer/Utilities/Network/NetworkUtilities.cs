@@ -7,7 +7,6 @@ using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
-using UlteriusServer.Utilities;
 
 #endregion
 
@@ -176,7 +175,11 @@ namespace UlteriusServer.Utilities.Network
         /// <returns></returns>
         public static PhysicalAddress GetMacAddress()
         {
-            return (from nic in NetworkInterface.GetAllNetworkInterfaces() where nic.NetworkInterfaceType == NetworkInterfaceType.Ethernet && nic.OperationalStatus == OperationalStatus.Up select nic.GetPhysicalAddress()).FirstOrDefault();
+            return (from nic in NetworkInterface.GetAllNetworkInterfaces()
+                where
+                    nic.NetworkInterfaceType == NetworkInterfaceType.Ethernet &&
+                    nic.OperationalStatus == OperationalStatus.Up
+                select nic.GetPhysicalAddress()).FirstOrDefault();
         }
 
         /// <summary>

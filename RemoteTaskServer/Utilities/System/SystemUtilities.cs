@@ -91,7 +91,6 @@ namespace UlteriusServer.Utilities.System
                 {
                     endpoint = "getEventLogs",
                     dictionary
-        
                 });
             return json;
         }
