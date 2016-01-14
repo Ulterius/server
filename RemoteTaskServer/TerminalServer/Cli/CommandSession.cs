@@ -129,7 +129,6 @@ namespace UlteriusServer.TerminalServer.Cli
 
         private async Task ReadAsync()
         {
-            //Push("Please Login to use the Ulterius terminal. (u_login password)");
             while (!_cancel.IsCancellationRequested && !_proc.HasExited)
             {
                 try

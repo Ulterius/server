@@ -20,6 +20,20 @@ namespace UlteriusServer.Authentication
         {
             return Environment.UserName;
         }
+        public bool Login(string password)
+        {
+            var code = 3;
+            if (string.IsNullOrEmpty(password))
+            {
+                code = INVALID_PASSWORD;
+            }
+            using (var context = new PrincipalContext(ContextType.Machine))
+            {
+                code = context.ValidateCredentials(GetUsername(), password) ? 2 : 3;
+            }
+            var authenticated = code == AUTHENTICATED;
+            return authenticated;
+        }
 
         public string Login(string password, WebSocket clientSocket)
         {

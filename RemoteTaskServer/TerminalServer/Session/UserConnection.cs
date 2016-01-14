@@ -29,14 +29,16 @@ namespace UlteriusServer.TerminalServer.Session
             ConnectionId = connectionId;
             UserId = sessionId;
             IsConnected = true;
-            isAuthed = false;
+            IsAuthed = false;
+            TryingAuth = false;
             _cliSessions = new Dictionary<Guid, ICliSession>();
         }
 
         public Guid UserId { get; }
         public Guid ConnectionId { get; }
         public bool IsConnected { get; set; }
-        public bool isAuthed { get; set; }
+        public bool IsAuthed { get; set; }
+        public bool TryingAuth { get; set; }
 
         public void Dispose()
         {

@@ -52,6 +52,11 @@ namespace UlteriusServer.TerminalServer.Messaging.TerminalControl.Handlers
                 CurrentPath = cli.CurrentPath,
                 CorrelationId = message.CorrelationId
             });
+            if (!connection.IsAuthed)
+            {
+                cli.Output("Please Login to continue (ulterius-auth)", 0, true);
+               
+            }
         }
     }
 }

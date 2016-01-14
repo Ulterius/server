@@ -99,6 +99,7 @@ namespace UlteriusServer.TerminalServer.Session
                 (id, con) =>
                 {
 // only attach the session if the user id is the same
+
                     if (con.UserId == ctx.Message.UserId)
                     {
                         con.IsConnected = true;

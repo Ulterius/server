@@ -1,6 +1,7 @@
 ﻿#region
 
 using System;
+using UlteriusServer.Authentication;
 using UlteriusServer.TerminalServer.Infrastructure;
 using UlteriusServer.TerminalServer.Messaging.TerminalControl.Requests;
 using UlteriusServer.TerminalServer.Session;
@@ -33,7 +34,28 @@ namespace UlteriusServer.TerminalServer.Messaging.TerminalControl.Handlers
             var cli = connection.GetTerminalSession(message.TerminalId);
             if (cli == null)
                 throw new ArgumentException("CLI does not exist");
-            cli.Input(message.Input, message.CorrelationId);
+            Console.WriteLine(message.Input + " " + message.CorrelationId);
+            if (!connection.IsAuthed && message.Input.Equals("ulterius-auth"))
+            {
+                connection.TryingAuth = true;
+                cli.Output("Please enter your password", 1, false);
+            }
+            else if (!connection.IsAuthed && connection.TryingAuth)
+            {
+                cli.Output("Logging in please wait...", 1, false);
+                var loginDecoder = new UlteriusLoginDecoder();
+                var authed = loginDecoder.Login(message.Input);
+                cli.Output(authed ? "Login was successfull" : "Login was unsuccessful, enter your password", Convert.ToInt32(authed), authed);
+                connection.IsAuthed = authed;
+            }
+            else if (!connection.IsAuthed)
+            {
+                cli.Output("Please login to use this terminal (ulterius-auth)", 0, true);
+            }
+            else if (connection.IsAuthed)
+            {
+                cli.Input(message.Input, message.CorrelationId);
+            }
         }
     }
 }
