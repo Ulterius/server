@@ -50,8 +50,12 @@ namespace UlteriusServer.Windows.Api
             return JObject.FromObject(new
             {
                 endpoint = "getWindowsData",
-                avatar = GetUserAvatar(),
-                username = GetUsername()
+                results = new
+                {
+                    avatar = GetUserAvatar(),
+                    username = GetUsername()
+                }
+              
             }).ToString();
         }
 

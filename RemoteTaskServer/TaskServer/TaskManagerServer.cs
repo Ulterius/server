@@ -92,6 +92,11 @@ namespace UlteriusServer.TaskServer
                 var authenticationData = loginDecoder.Login(packets.args, clientSocket);
                 clientSocket.WriteStringAsync(authenticationData, CancellationToken.None);
             }
+            if (packetType == PacketType.RequestWindowsInformation)
+            {
+                var windowsData = WindowsApi.GetWindowsInformation();
+                clientSocket.WriteStringAsync(windowsData, CancellationToken.None);
+            }
             if (authClient.Authenticated)
             {
                 try
@@ -161,10 +166,6 @@ namespace UlteriusServer.TaskServer
                         case PacketType.RequestSystemInformation:
                             var systemData = TaskApi.GetSystemInformation();
                             clientSocket.WriteStringAsync(systemData, CancellationToken.None);
-                            break;
-                        case PacketType.RequestWindowsInformation:
-                            var windowsData = WindowsApi.GetWindowsInformation();
-                            clientSocket.WriteStringAsync(windowsData, CancellationToken.None);
                             break;
                         case PacketType.GetEventLogs:
                             var eventData = TaskApi.GetEventLogs();
