@@ -1,14 +1,16 @@
 ﻿#region
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using MassTransit;
-using TerminalServer.Session;
+using UlteriusServer.Authentication;
 using UlteriusServer.TerminalServer.Infrastructure;
 using UlteriusServer.TerminalServer.Messaging.Connection;
 using UlteriusServer.TerminalServer.Messaging.Serialization;
+using UlteriusServer.TerminalServer.Session;
 using vtortola.WebSockets;
 
 #endregion
@@ -17,6 +19,7 @@ namespace UlteriusServer.TerminalServer.Messaging
 {
     public class WebSocketHandler
     {
+        public static ConcurrentDictionary<string, AuthClient> TerminalClients { get; set; }
         private readonly ILogger _log;
         private readonly IServiceBus _queue;
         private readonly IEventSerializator _serializer;
@@ -40,6 +43,7 @@ namespace UlteriusServer.TerminalServer.Messaging
             var sessionId = GetSessionId(_ws);
             try
             {
+               
                 _log.Info("Starting session '{0}' at connection '{1}'", sessionId, connectionId);
                 unsubs.Add(_queue.SubscribeHandler<IConnectionEvent>(msg =>
                 {

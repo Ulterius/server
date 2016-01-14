@@ -33,8 +33,8 @@ namespace UlteriusServer.TerminalServer.Cli
 
     public class ConsoleSession : ICliSession
     {
-        private static readonly string _preCDID = "xx_vtortola_xx";
-        private static readonly string _postCDID = "yy_vtortola_yy";
+        private static readonly string _preCDID = "xx_ulterius_xx";
+        private static readonly string _postCDID = "yy_ulterius_yy";
         public static readonly string TypeName = "cmd.exe";
         private readonly CancellationTokenSource _cancel;
         private readonly List<string> _errorBuffer;
@@ -129,13 +129,14 @@ namespace UlteriusServer.TerminalServer.Cli
 
         private async Task ReadAsync()
         {
+            //Push("Please Login to use the Ulterius terminal. (u_login password)");
             while (!_cancel.IsCancellationRequested && !_proc.HasExited)
             {
                 try
                 {
-                    var line = await _proc.StandardOutput.ReadLineAsync().ConfigureAwait(false);
+                   var line = await _proc.StandardOutput.ReadLineAsync().ConfigureAwait(false);
                     if (line != null)
-                        Push(line);
+                       Push(line);
                 }
                 catch (TaskCanceledException)
                 {

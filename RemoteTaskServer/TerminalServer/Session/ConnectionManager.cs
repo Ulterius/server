@@ -10,10 +10,11 @@ using MassTransit;
 using UlteriusServer.TerminalServer.Infrastructure;
 using UlteriusServer.TerminalServer.Messaging;
 using UlteriusServer.TerminalServer.Messaging.Connection;
+using UlteriusServer.TerminalServer.Session;
 
 #endregion
 
-namespace TerminalServer.Session
+namespace UlteriusServer.TerminalServer.Session
 {
     public class ConnectionManager : IDisposable
     {
@@ -33,11 +34,12 @@ namespace TerminalServer.Session
             _log = log;
             _mBus = mBus;
             _cancel = new CancellationTokenSource();
-            _unsubscribeActions = new List<UnsubscribeAction>();
-            _unsubscribeActions.Add(mBus.Queue.SubscribeContextHandler<ConnectionConnectRequest>(HandleConnectionRequest));
-            _unsubscribeActions.Add(
-                mBus.Queue.SubscribeHandler<ConnectionDisconnectedRequest>(HandleDisconnectionRequest));
-            _unsubscribeActions.Add(mBus.Queue.SubscribeHandler<UserConnectionEvent>(HandleSessionConnection));
+            _unsubscribeActions = new List<UnsubscribeAction>
+            {
+                mBus.Queue.SubscribeContextHandler<ConnectionConnectRequest>(HandleConnectionRequest),
+                mBus.Queue.SubscribeHandler<ConnectionDisconnectedRequest>(HandleDisconnectionRequest),
+                mBus.Queue.SubscribeHandler<UserConnectionEvent>(HandleSessionConnection)
+            };
             Task.Run(CheckForDisconnectedAsync);
         }
 

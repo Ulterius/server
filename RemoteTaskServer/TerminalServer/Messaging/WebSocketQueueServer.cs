@@ -5,10 +5,10 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using MassTransit;
-using TerminalServer.Session;
 using UlteriusServer.TerminalServer.Infrastructure;
 using UlteriusServer.TerminalServer.Messaging.Connection;
 using UlteriusServer.TerminalServer.Messaging.Serialization;
+using UlteriusServer.TerminalServer.Session;
 using vtortola.WebSockets;
 using vtortola.WebSockets.Rfc6455;
 

@@ -3,6 +3,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using UlteriusServer.Authentication;
+using UlteriusServer.TaskServer;
 using UlteriusServer.TerminalServer.Cli;
 using UlteriusServer.TerminalServer.Infrastructure;
 using UlteriusServer.TerminalServer.Messaging;
@@ -11,7 +14,7 @@ using UlteriusServer.TerminalServer.Messaging.TerminalControl.Events;
 
 #endregion
 
-namespace TerminalServer.Session
+namespace UlteriusServer.TerminalServer.Session
 {
     public class UserConnection : IDisposable
     {
@@ -26,20 +29,24 @@ namespace TerminalServer.Session
             ConnectionId = connectionId;
             UserId = sessionId;
             IsConnected = true;
+            isAuthed = false;
             _cliSessions = new Dictionary<Guid, ICliSession>();
         }
 
         public Guid UserId { get; }
         public Guid ConnectionId { get; }
         public bool IsConnected { get; set; }
+        public bool isAuthed { get; set; }
 
         public void Dispose()
         {
-            _log.Debug("UserSession '{0}' disposed", UserId);
+            _log.Debug("UserSession '{0}' dispose", UserId);
             foreach (var cli in _cliSessions)
                 cli.Value.Dispose();
             _cliSessions.Clear();
         }
+
+      
 
         public void Init()
         {

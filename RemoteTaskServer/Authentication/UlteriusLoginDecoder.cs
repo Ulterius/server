@@ -49,7 +49,6 @@ namespace UlteriusServer.Authentication
                 endpoint = "authentication",
                 results = new
                 {
-                    endpoint = "authentication",
                     authenticated,
                     message = authenticated ? "Login was successfull" : "Login was unsuccessful"
                 }

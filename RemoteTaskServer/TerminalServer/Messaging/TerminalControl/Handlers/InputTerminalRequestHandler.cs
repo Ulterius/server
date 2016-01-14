@@ -1,9 +1,9 @@
 ﻿#region
 
 using System;
-using TerminalServer.Session;
 using UlteriusServer.TerminalServer.Infrastructure;
 using UlteriusServer.TerminalServer.Messaging.TerminalControl.Requests;
+using UlteriusServer.TerminalServer.Session;
 
 #endregion
 

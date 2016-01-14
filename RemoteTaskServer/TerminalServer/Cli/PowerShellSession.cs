@@ -19,10 +19,7 @@ namespace UlteriusServer.TerminalServer.Cli
             _log = log;
         }
 
-        public string Type
-        {
-            get { return "powershell"; }
-        }
+        public string Type => "powershell";
 
         public ICliSession Create()
         {
@@ -52,10 +49,7 @@ namespace UlteriusServer.TerminalServer.Cli
                 .Split(new[] {Environment.NewLine}, StringSplitOptions.RemoveEmptyEntries)[2].Trim();
         }
 
-        public string Type
-        {
-            get { return "powershell"; }
-        }
+        public string Type => "powershell";
 
         public string CurrentPath { get; private set; }
 
@@ -77,9 +71,7 @@ namespace UlteriusServer.TerminalServer.Cli
                 _proc.Commands.Clear();
                 _proc.AddCommand(value);
                 _proc.AddCommand("Out-String");
-
-                foreach (var result in _proc.Invoke())
-                    lines.Add(result.ToString());
+                lines.AddRange(_proc.Invoke().Select(result => result.ToString()));
             }
             catch (Exception ex)
             {
