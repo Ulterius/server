@@ -20,9 +20,10 @@ namespace UlteriusServer.Server
         public PacketType packetType;
         public string senderID;
 
-        public Packets(byte[] packetBytes, int readBytes)
+        public Packets(string packetJson)
         {
-            var packetJson = WebSocketFunctions.DecodeMessage(packetBytes, readBytes);
+
+            Console.WriteLine(packetJson);
             JsPacket deserializedPacket = null;
             try
             {

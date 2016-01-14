@@ -1,7 +1,6 @@
 ﻿#region
 
 using System.Collections.Generic;
-using System.Web.Script.Serialization;
 using UlteriusServer.Utilities.Network;
 
 #endregion

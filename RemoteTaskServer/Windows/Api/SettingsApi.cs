@@ -40,7 +40,7 @@ namespace UlteriusServer.Windows.Api
         {
             settings.Write("WebServer", "UseWebServer", false);
             settings.Write("WebServer", "WebServerPort", 9999);
-           settings.Write("WebServer", "WebFilePath", "");
+            settings.Write("WebServer", "WebFilePath", "");
             settings.Write("TaskServer", "TaskServerPort", 8387);
             settings.Write("Network", "SkipHostNameResolve", false);
         }
@@ -51,12 +51,12 @@ namespace UlteriusServer.Windows.Api
             var WebServerPort = settings.Read("WebServer", "WebServerPort", 9999);
             var WebFilePath = settings.Read("WebServer", "WebFilePath", "");
             var TaskServerPort = settings.Read("TaskServer", "TaskServerPort", 8387);
-            var SkipHostNameResolve = settings.Read("Network", "SkipHostNameResolve",  false);
-      
+            var SkipHostNameResolve = settings.Read("Network", "SkipHostNameResolve", false);
+
             return new JavaScriptSerializer().Serialize(
                 new
                 {
-                    endpoint = "getCurrentSettings",                 
+                    endpoint = "getCurrentSettings",
                     UseWebServer,
                     WebServerPort,
                     WebFilePath,
@@ -68,7 +68,7 @@ namespace UlteriusServer.Windows.Api
         public static string ChangeNetworkResolve(string status)
         {
             settings.Write("Network", "SkipHostNameResolve", status);
-            var currentStatus = settings.Read("Network",  "SkipHostNameResolve", false);
+            var currentStatus = settings.Read("Network", "SkipHostNameResolve", false);
             return new JavaScriptSerializer().Serialize(
                 new
                 {
@@ -94,7 +94,7 @@ namespace UlteriusServer.Windows.Api
         public static string ChangeTaskServerPort(string port)
         {
             settings.Write("TaskServer", "TaskServerPort", port);
-            var currentStatus = settings.Read("TaskServer",  "TaskServerPort",  8387);
+            var currentStatus = settings.Read("TaskServer", "TaskServerPort", 8387);
             return new JavaScriptSerializer().Serialize(
                 new
                 {
@@ -120,7 +120,7 @@ namespace UlteriusServer.Windows.Api
         public static string ChangeWebServerUse(string status)
         {
             settings.Write("WebServer", "UseWebServer", status);
-            var currentStatus = settings.Read("WebServer", "UseWebServer",  false);
+            var currentStatus = settings.Read("WebServer", "UseWebServer", false);
             return new JavaScriptSerializer().Serialize(
                 new
                 {

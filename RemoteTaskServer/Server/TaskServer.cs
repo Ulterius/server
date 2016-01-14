@@ -1,19 +1,15 @@
 ﻿#region
 
 using System;
-using System.Collections.Generic;
 using System.Net;
-using System.Net.Sockets;
-using System.Security.Cryptography;
-using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Web.Script.Serialization;
 using UlteriusServer.Utilities;
 using UlteriusServer.Utilities.Network;
 using UlteriusServer.WebSocketAPI;
 using UlteriusServer.Windows.Api;
-using static System.Threading.Tasks.Task;
+using vtortola.WebSockets;
 
 #endregion
 
@@ -21,81 +17,29 @@ namespace UlteriusServer.Server
 {
     internal class TaskServer
     {
-        private static Socket listenerSocket;
-        private static List<ClientData> clients;
-        public static int boundPort;
-
-        /// <summary>
-        ///     Starts the actual server
-        /// </summary>
-        /// <returns></returns>
         public static void Start()
         {
             var settings = new Settings();
-            listenerSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            clients = new List<ClientData>();
-           
             var port = settings.Read("TaskServer", "TaskServerPort", 8387);
-            boundPort = port;
-            var ip = new IPEndPoint(IPAddress.Parse(NetworkUtilities.GetIPv4Address()), port);
-            listenerSocket.Bind(ip);
-            Factory.StartNew(ListenThread);
-           
-        }
-
-        /// <summary>
-        ///     Called when a client connects
-        /// </summary>
-        /// <param name="cSocket"></param>
-        /// <returns></returns>
-        public static void DataReceived(object cSocket)
-        {
-            var clientSocket = (Socket) cSocket;
-            byte[] buffer;
-            int readBytes;
-            while (true)
+            var cancellation = new CancellationTokenSource();
+            var endpoint = new IPEndPoint(IPAddress.Parse(NetworkUtilities.GetIPv4Address()), port);
+            var server = new WebSocketEventListener(endpoint);
+            server.OnConnect += ws => Console.WriteLine("Connection from " + ws.RemoteEndpoint);
+            server.OnDisconnect += ws => Console.WriteLine("Disconnection from " + ws.RemoteEndpoint);
+            server.OnMessage += (ws, msg) =>
             {
-                try
-                {
-                    buffer = new byte[clientSocket.SendBufferSize];
-                    readBytes = clientSocket.Receive(buffer);
-
-                    if (readBytes <= 0) continue;
-                    var decodedHeader = Encoding.ASCII.GetString(buffer, 0, readBytes);
-                    if (new Regex("^GET").IsMatch(decodedHeader))
-                    {
-                        var response =
-                            Encoding.UTF8.GetBytes("HTTP/1.1 101 Switching Protocols" + Environment.NewLine
-                                                   + "Connection: Upgrade" + Environment.NewLine
-                                                   + "Upgrade: websocket" + Environment.NewLine
-                                                   + "Sec-WebSocket-Accept: " + Convert.ToBase64String(
-                                                       SHA1.Create().ComputeHash(
-                                                           Encoding.UTF8.GetBytes(
-                                                               new Regex("Sec-WebSocket-Key: (.*)").Match(
-                                                                   decodedHeader).Groups[1].Value.Trim() +
-                                                               "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
-                                                               )
-                                                           )
-                                                       ) + Environment.NewLine
-                                                   + Environment.NewLine);
-
-                        //Tells the web socket to stay connected
-                        clientSocket.Send(response);
-                    } // first message from the websocket is always its headers; anything else is a message/args
-                    else
-                    {
-                        var packet = new Packets(buffer, readBytes);
-                        //cheap way to do non-blocking packet handling 
-                        Factory.StartNew(() => { HandlePacket(clientSocket, packet); });
-                          
-                    }
-                }
-                catch (SocketException ex)
-                {
-                    clientSocket?.Close();
-                }
-            }
+                var packet = new Packets(msg);
+                //cheap way to do non-blocking packet handling 
+                Task.Factory.StartNew(() => { HandlePacket(ws, packet); }, cancellation.Token);
+            };
+            server.Start();
+            Log("Task Server started at " + endpoint);
+            Console.ReadKey(true);
+            Console.WriteLine("Server stoping");
+            cancellation.Cancel();
+            Console.ReadKey(true);
         }
+
 
         /// <summary>
         ///     Executes certain functions based on a packets job
@@ -103,7 +47,7 @@ namespace UlteriusServer.Server
         /// <param name="clientSocket"></param>
         /// <param name="packets"></param>
         /// <returns></returns>
-        public static void HandlePacket(Socket clientSocket, Packets packets)
+        public static void HandlePacket(WebSocket clientSocket, Packets packets)
         {
             var packetType = packets.packetType;
             try
@@ -111,16 +55,17 @@ namespace UlteriusServer.Server
                 switch (packetType)
                 {
                     case PacketType.RequestProcess:
-                        var processData = WebSocketFunctions.EncodeMessageToSend(TaskApi.GetProcessInformation());
-                        clientSocket.Send(processData);
+                        var processData = TaskApi.GetProcessInformation();
+                        clientSocket.WriteStringAsync(processData, CancellationToken.None);
                         break;
                     case PacketType.RequestCpuInformation:
-                        var cpuData = WebSocketFunctions.EncodeMessageToSend(TaskApi.GetCpuInformation());
-                        clientSocket.Send(cpuData);
+                        var cpuData = TaskApi.GetCpuInformation();
+                        clientSocket.WriteStringAsync(cpuData, CancellationToken.None);
+
                         break;
                     case PacketType.RequestOsInformation:
-                        var osData = WebSocketFunctions.EncodeMessageToSend(TaskApi.GetOperatingSystemInformation());
-                        clientSocket.Send(osData);
+                        var osData = TaskApi.GetOperatingSystemInformation();
+                        clientSocket.WriteStringAsync(osData, CancellationToken.None);
                         break;
                     case PacketType.RestartServer:
                         var restartJson =
@@ -130,58 +75,60 @@ namespace UlteriusServer.Server
                                     endpoint = "restartServer",
                                     results = true
                                 });
-                        var restartData = WebSocketFunctions.EncodeMessageToSend(restartJson);
-                        clientSocket.Send(restartData);
+                        var restartData = restartJson;
+                        clientSocket.WriteStringAsync(restartData, CancellationToken.None);
                         TaskApi.RestartServer();
                         break;
                     case PacketType.RequestNetworkInformation:
-                        var networkData = WebSocketFunctions.EncodeMessageToSend(TaskApi.GetNetworkInformation());
-                        clientSocket.Send(networkData);
+                        var networkData = TaskApi.GetNetworkInformation();
+                        clientSocket.WriteStringAsync(networkData, CancellationToken.None);
                         break;
                     case PacketType.UseWebServer:
                         var useWebServerData =
-                            WebSocketFunctions.EncodeMessageToSend(SettingsApi.ChangeWebServerUse(packets.args));
-                        clientSocket.Send(useWebServerData);
+                            SettingsApi.ChangeWebServerUse(packets.args);
+                        clientSocket.WriteStringAsync(useWebServerData, CancellationToken.None);
                         break;
                     case PacketType.ChangeWebServerPort:
                         var changeWebServerPortData =
-                            WebSocketFunctions.EncodeMessageToSend(SettingsApi.ChangeWebServerPort(packets.args));
-                        clientSocket.Send(changeWebServerPortData);
+                            SettingsApi.ChangeWebServerPort(packets.args);
+                        clientSocket.WriteStringAsync(changeWebServerPortData, CancellationToken.None);
+
                         break;
                     case PacketType.ChangeWebFilePath:
                         var changeWebFilePathData =
-                            WebSocketFunctions.EncodeMessageToSend(SettingsApi.ChangeWebFilePath(packets.args));
-                        clientSocket.Send(changeWebFilePathData);
+                            SettingsApi.ChangeWebFilePath(packets.args);
+                        clientSocket.WriteStringAsync(changeWebFilePathData, CancellationToken.None);
+
                         break;
                     case PacketType.ChangeTaskServerPort:
                         var changeTaskServerPortData =
-                            WebSocketFunctions.EncodeMessageToSend(SettingsApi.ChangeTaskServerPort(packets.args));
-                        clientSocket.Send(changeTaskServerPortData);
+                            SettingsApi.ChangeTaskServerPort(packets.args);
+                        clientSocket.WriteStringAsync(changeTaskServerPortData, CancellationToken.None);
+
                         break;
                     case PacketType.ChangeNetworkResolve:
-                        var changeNetworkResolveData =
-                            WebSocketFunctions.EncodeMessageToSend(SettingsApi.ChangeNetworkResolve(packets.args));
-                        clientSocket.Send(changeNetworkResolveData);
+                        var changeNetworkResolveData = SettingsApi.ChangeNetworkResolve(packets.args);
+                        clientSocket.WriteStringAsync(changeNetworkResolveData, CancellationToken.None);
                         break;
                     case PacketType.GetCurrentSettings:
-                        var currentSettingsData = WebSocketFunctions.EncodeMessageToSend(SettingsApi.GetCurrentSettings());
-                        clientSocket.Send(currentSettingsData);
+                        var currentSettingsData = SettingsApi.GetCurrentSettings();
+                        clientSocket.WriteStringAsync(currentSettingsData, CancellationToken.None);
                         break;
                     case PacketType.RequestSystemInformation:
-                        var systemData = WebSocketFunctions.EncodeMessageToSend(TaskApi.GetSystemInformation());
-                        clientSocket.Send(systemData);
+                        var systemData = TaskApi.GetSystemInformation();
+                        clientSocket.WriteStringAsync(systemData, CancellationToken.None);
                         break;
                     case PacketType.RequestWindowsInformation:
-                        var windowsData = WebSocketFunctions.EncodeMessageToSend(WindowsApi.GetWindowsInformation());
-                        clientSocket.Send(windowsData);
+                        var windowsData = WindowsApi.GetWindowsInformation();
+                        clientSocket.WriteStringAsync(windowsData, CancellationToken.None);
                         break;
                     case PacketType.VerifyWindowsPassword:
-                        var passwordData = WebSocketFunctions.EncodeMessageToSend(WindowsApi.VerifyPassword(packets.args));
-                        clientSocket.Send(passwordData);
+                        var passwordData = WindowsApi.VerifyPassword(packets.args);
+                        clientSocket.WriteStringAsync(passwordData, CancellationToken.None);
                         break;
                     case PacketType.GetEventLogs:
-                        var eventData = WebSocketFunctions.EncodeMessageToSend(TaskApi.GetEventLogs());
-                        clientSocket.Send(eventData);
+                        var eventData = TaskApi.GetEventLogs();
+                        clientSocket.WriteStringAsync(eventData, CancellationToken.None);
                         break;
                     case PacketType.StartProcess:
                         var started = TaskApi.StartProcess(packets.args);
@@ -193,8 +140,8 @@ namespace UlteriusServer.Server
                                     endpoint = "startProcess",
                                     processStarted = started
                                 });
-                        var processStartData = WebSocketFunctions.EncodeMessageToSend(processJson);
-                        clientSocket.Send(processStartData);
+                        var processStartData = processJson;
+                        clientSocket.WriteStringAsync(processStartData, CancellationToken.None);
                         break;
                     case PacketType.KillProcess:
                         var killed = TaskApi.KillProcessById(int.Parse(packets.args));
@@ -205,8 +152,8 @@ namespace UlteriusServer.Server
                                     endpoint = "killProcess",
                                     processKilled = killed
                                 });
-                        var processKilledData = WebSocketFunctions.EncodeMessageToSend(killedJson);
-                        clientSocket.Send(processKilledData);
+                        var processKilledData = killedJson;
+                        clientSocket.WriteStringAsync(processKilledData, CancellationToken.None);
                         break;
                     case PacketType.EmptyApiKey:
                         var emptyApiKeyStatus =
@@ -218,8 +165,8 @@ namespace UlteriusServer.Server
                                     message = "Please generate an API Key"
                                 });
 
-                        var emptyApiKeyData = WebSocketFunctions.EncodeMessageToSend(emptyApiKeyStatus);
-                        clientSocket.Send(emptyApiKeyData);
+                        var emptyApiKeyData = emptyApiKeyStatus;
+                        clientSocket.WriteStringAsync(emptyApiKeyData, CancellationToken.None);
                         break;
                     case PacketType.InvalidApiKey:
                         var invalidApiKeyStatus =
@@ -231,24 +178,24 @@ namespace UlteriusServer.Server
                                     message = "Provided API Key does not match the server key"
                                 });
 
-                        var invalidOAuthData = WebSocketFunctions.EncodeMessageToSend(invalidApiKeyStatus);
-                        clientSocket.Send(invalidOAuthData);
+                        var invalidOAuthData = invalidApiKeyStatus;
+                        clientSocket.WriteStringAsync(invalidOAuthData, CancellationToken.None);
                         break;
                     case PacketType.InvalidOrEmptyPacket:
                         //do nothing server won't read it and then the message is pooled forever
                         break;
                     case PacketType.GenerateNewKey:
                         var generateNewKeyStatus = SettingsApi.GenerateNewAPiKey(packets.apiKey);
-                        var generateNewKeyData = WebSocketFunctions.EncodeMessageToSend(generateNewKeyStatus);
-                        clientSocket.Send(generateNewKeyData);
+                        var generateNewKeyData = generateNewKeyStatus;
+                        clientSocket.WriteStringAsync(generateNewKeyData, CancellationToken.None);
                         break;
                     case PacketType.CheckUpdate:
-                        var checkUpdateData = WebSocketFunctions.EncodeMessageToSend(Tools.CheckForUpdates());
-                        clientSocket.Send(checkUpdateData);
+                        var checkUpdateData = Tools.CheckForUpdates();
+                        clientSocket.WriteStringAsync(checkUpdateData, CancellationToken.None);
                         break;
                     case PacketType.GetActiveWindowsSnapshots:
-                        var activeWindowsData = WebSocketFunctions.EncodeMessageToSend(WindowsApi.GetActiveWindowsImages());
-                        clientSocket.Send(activeWindowsData);
+                        var activeWindowsData = WindowsApi.GetActiveWindowsImages();
+                        clientSocket.WriteStringAsync(activeWindowsData, CancellationToken.None);
                         break;
                     default:
                         break;
@@ -260,16 +207,9 @@ namespace UlteriusServer.Server
             }
         }
 
-        /// <summary>
-        ///     Listens for new connections
-        /// </summary>
-        private static void ListenThread()
+        private static void Log(string message)
         {
-            while (true)
-            {
-                listenerSocket.Listen(0);
-                clients.Add(new ClientData(listenerSocket.Accept()));
-            }
+            Console.WriteLine(message);
         }
     }
 }

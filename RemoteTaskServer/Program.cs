@@ -47,12 +47,12 @@ namespace UlteriusServer
             }
 
             Console.Title = Resources.Program_Title;
-            TaskServer.Start();
-            Console.WriteLine(Resources.Program_Main_Starting_TaskServer_on_ + NetworkUtilities.GetIPv4Address() + ":" +
-                              TaskServer.boundPort);
             var systemUtilities = new SystemUtilities();
             systemUtilities.Start();
             settings.Write("TaskServer", "ApiKey", "test");
+
+            //Keep down here if you actually want a functional program
+            TaskServer.Start();
             Console.ReadLine();
         }
     }

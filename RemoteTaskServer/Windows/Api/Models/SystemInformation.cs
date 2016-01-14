@@ -1,7 +1,6 @@
 ﻿#region
 
 using System.Collections.Generic;
-using System.Web.Script.Serialization;
 
 #endregion
 
@@ -34,6 +33,5 @@ namespace UlteriusServer.Windows.Api.Models
             };
             return data;
         }
-   
     }
 }

@@ -72,11 +72,12 @@ namespace UlteriusServer.Windows.Api
 
         private static bool AllOneColor(Bitmap bmp)
         {
-            BitmapData bmpData = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height), ImageLockMode.ReadOnly, PixelFormat.Format8bppIndexed);
-            byte[] rgbValues = new byte[bmpData.Stride * bmpData.Height];
-            System.Runtime.InteropServices.Marshal.Copy(bmpData.Scan0, rgbValues, 0, rgbValues.Length);
+            var bmpData = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height), ImageLockMode.ReadOnly,
+                PixelFormat.Format8bppIndexed);
+            var rgbValues = new byte[bmpData.Stride*bmpData.Height];
+            Marshal.Copy(bmpData.Scan0, rgbValues, 0, rgbValues.Length);
             bmp.UnlockBits(bmpData);
-            return !rgbValues.Where((v, i) => i % bmpData.Stride < bmp.Width && v != rgbValues[0]).Any();
+            return !rgbValues.Where((v, i) => i%bmpData.Stride < bmp.Width && v != rgbValues[0]).Any();
         }
 
         /// <summary>
@@ -115,7 +116,6 @@ namespace UlteriusServer.Windows.Api
                         {
                             activeWindows.Add(image);
                         }
-                        
                     }
                 }
             }
@@ -123,7 +123,6 @@ namespace UlteriusServer.Windows.Api
             {
                 endpoint = "getActiveWindowsSnapshots",
                 activeWindows
-
             });
         }
 
@@ -153,8 +152,8 @@ namespace UlteriusServer.Windows.Api
 
     public class WindowsImages
     {
-        public string windowName;
         public string imageData;
+        public string windowName;
     }
 
     [StructLayout(LayoutKind.Sequential)]
