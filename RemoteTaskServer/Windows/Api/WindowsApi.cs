@@ -3,7 +3,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.DirectoryServices.AccountManagement;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -55,7 +54,6 @@ namespace UlteriusServer.Windows.Api
                     avatar = GetUserAvatar(),
                     username = GetUsername()
                 }
-              
             }).ToString();
         }
 

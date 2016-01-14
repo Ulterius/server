@@ -38,7 +38,6 @@ namespace UlteriusServer.TerminalServer.Messaging.TerminalControl.Handlers
             var factory = _factories.SingleOrDefault(f => f.Type == message.TerminalType);
             if (factory == null)
                 throw new ArgumentException("There is no factory for this type");
-
             var connection = _connections.GetConnection(message.ConnectionId);
             if (connection == null)
                 throw new ArgumentException("The connection does not exists");

@@ -112,7 +112,7 @@ namespace UlteriusServer.TaskServer
                                 Console.WriteLine("Checking for update");
                                 packetType = PacketType.CheckUpdate;
                                 break;
-                          
+
                             case "restartserver":
                                 Console.WriteLine("Restarting TServer");
                                 packetType = PacketType.RestartServer;
