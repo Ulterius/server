@@ -1,4 +1,4 @@
-﻿namespace UlteriusServer.Server
+﻿namespace UlteriusServer.TaskServer
 {
     public class JsPacket
     {

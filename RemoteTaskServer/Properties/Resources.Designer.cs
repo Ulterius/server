@@ -79,7 +79,7 @@ namespace UlteriusServer.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Starting TaskServer on .
+        ///   Looks up a localized string similar to Starting TaskTServer on .
         /// </summary>
         internal static string Program_Main_Starting_TaskServer_on_ {
             get {
@@ -88,7 +88,7 @@ namespace UlteriusServer.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Web Server is running on this port: .
+        ///   Looks up a localized string similar to Web TServer is running on this port: .
         /// </summary>
         internal static string Program_Main_Web_Server_is_running_on_this_port__ {
             get {
@@ -111,24 +111,6 @@ namespace UlteriusServer.Properties {
         internal static string Settings {
             get {
                 return ResourceManager.GetString("Settings", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to [WebServer]
-        ///UseWebServer=false
-        ///WebServerPort=9999
-        ///WebFilePath=
-        ///[TaskServer]
-        ///TaskServerPort=8387
-        ///ApiKey=
-        ///[Network]
-        ///SkipHostNameResolve=true
-        ///.
-        /// </summary>
-        internal static string UlteriusServer {
-            get {
-                return ResourceManager.GetString("UlteriusServer", resourceCulture);
             }
         }
     }

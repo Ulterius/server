@@ -6,7 +6,8 @@ using System.IO;
 using System.Security.Principal;
 using RemoteTaskServer.WebServer;
 using UlteriusServer.Properties;
-using UlteriusServer.Server;
+using UlteriusServer.TaskServer;
+using UlteriusServer.TerminalServer;
 using UlteriusServer.Utilities;
 using UlteriusServer.Utilities.System;
 using UlteriusServer.Windows.Api;
@@ -28,7 +29,10 @@ namespace UlteriusServer
             var systemUtilities = new SystemUtilities();
             systemUtilities.Start();
             //Keep down here if you actually want a functional program
-            TaskServer.Start();
+            
+            TaskManagerServer.Start();
+            TerminalManagerServer.Start();
+
             Console.ReadLine();
         }
     }

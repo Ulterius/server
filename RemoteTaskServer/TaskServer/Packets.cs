@@ -6,7 +6,7 @@ using UlteriusServer.Utilities;
 
 #endregion
 
-namespace UlteriusServer.Server
+namespace UlteriusServer.TaskServer
 
 {
     [Serializable]
@@ -78,11 +78,11 @@ namespace UlteriusServer.Server
                                 packetType = PacketType.GenerateNewKey;
                                 break;
                             case "togglewebserver":
-                                Console.WriteLine("Toggling Web Server");
+                                Console.WriteLine("Toggling Web TServer");
                                 packetType = PacketType.UseWebServer;
                                 break;
                             case "changewebserverport":
-                                Console.WriteLine("Changing Web Server Port");
+                                Console.WriteLine("Changing Web TServer Port");
                                 packetType = PacketType.ChangeWebServerPort;
                                 break;
                             case "changewebfilepath":
@@ -90,7 +90,7 @@ namespace UlteriusServer.Server
                                 packetType = PacketType.ChangeWebFilePath;
                                 break;
                             case "changetaskserverport":
-                                Console.WriteLine("Changing Task Server Port");
+                                Console.WriteLine("Changing Task TServer Port");
                                 packetType = PacketType.ChangeTaskServerPort;
                                 break;
                             case "changenetworkresolve":
@@ -114,7 +114,7 @@ namespace UlteriusServer.Server
                                 packetType = PacketType.VerifyWindowsPassword;
                                 break;
                             case "restartserver":
-                                Console.WriteLine("Restarting Server");
+                                Console.WriteLine("Restarting TServer");
                                 packetType = PacketType.RestartServer;
                                 break;
                             case "getwindowsdata":

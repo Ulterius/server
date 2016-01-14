@@ -13,9 +13,9 @@ using vtortola.WebSockets;
 
 #endregion
 
-namespace UlteriusServer.Server
+namespace UlteriusServer.TaskServer
 {
-    internal class TaskServer
+    internal class TaskManagerServer
     {
         public static void Start()
         {
@@ -33,11 +33,8 @@ namespace UlteriusServer.Server
                 Task.Factory.StartNew(() => { HandlePacket(ws, packet); }, cancellation.Token);
             };
             server.Start();
-            Log("Task Server started at " + endpoint);
-            Console.ReadKey(true);
-            Console.WriteLine("Server stoping");
-            cancellation.Cancel();
-            Console.ReadKey(true);
+            Log("Task TServer started at " + endpoint);
+            
         }
 
 
