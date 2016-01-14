@@ -7,6 +7,8 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+using UlteriusServer.Properties;
+using UlteriusServer.Utilities;
 
 #endregion
 
@@ -121,6 +123,20 @@ namespace RemoteTaskServer.WebServer
             var port = ((IPEndPoint) l.LocalEndpoint).Port;
             l.Stop();
             Initialize(path, port);
+        }
+
+        public static void Setup()
+        {
+            var settings = new Settings();
+            var useWebServer = settings.Read("WebServer", "UseWebServer", false);
+            if (useWebServer)
+            {
+                var root = settings.Read("WebServer", "WebFilePath", "");
+                var port = settings.Read("WebServer", "WebServerPort", 9999);
+                var httpServer = new HttpServer(root, port);
+                Console.WriteLine(Resources.Program_Main_Web_Server_is_running_on_this_port__ + httpServer.Port);
+            }
+
         }
 
         public int Port

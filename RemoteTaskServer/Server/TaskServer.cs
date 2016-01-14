@@ -138,7 +138,7 @@ namespace UlteriusServer.Server
 
                                 {
                                     endpoint = "startProcess",
-                                    processStarted = started
+                                    results = started
                                 });
                         var processStartData = processJson;
                         clientSocket.WriteStringAsync(processStartData, CancellationToken.None);
@@ -150,32 +150,41 @@ namespace UlteriusServer.Server
                                 new
                                 {
                                     endpoint = "killProcess",
-                                    processKilled = killed
+                                    results = killed
                                 });
+
                         var processKilledData = killedJson;
                         clientSocket.WriteStringAsync(processKilledData, CancellationToken.None);
                         break;
                     case PacketType.EmptyApiKey:
+                        var data = new
+                        {
+                            emptyApiKey = true,
+                            message = "Please generate an API Key"
+                        };
                         var emptyApiKeyStatus =
                             new JavaScriptSerializer().Serialize(
                                 new
                                 {
                                     endpoint = "emptyApiKey",
-                                    emptyApiKey = true,
-                                    message = "Please generate an API Key"
+                                    results = data
                                 });
 
                         var emptyApiKeyData = emptyApiKeyStatus;
                         clientSocket.WriteStringAsync(emptyApiKeyData, CancellationToken.None);
                         break;
                     case PacketType.InvalidApiKey:
+                        var invalidApiData = new
+                        {
+                            invalidApiKey = true,
+                            message = "Provided API Key does not match the server key"
+                        };
                         var invalidApiKeyStatus =
                             new JavaScriptSerializer().Serialize(
                                 new
                                 {
                                     endpoint = "InvalidApiKey",
-                                    invalidApiKey = true,
-                                    message = "Provided API Key does not match the server key"
+                                    resulsts = invalidApiData
                                 });
 
                         var invalidOAuthData = invalidApiKeyStatus;

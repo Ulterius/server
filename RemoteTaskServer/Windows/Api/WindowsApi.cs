@@ -62,11 +62,15 @@ namespace UlteriusServer.Windows.Api
             {
                 valid = context.ValidateCredentials(GetUsername(), password);
             }
+            var windowsLoginData = new
+            {
+                validLogin = valid,
+                message = valid ? "Login was successfull" : "Login was unsuccessful"
+            };
             return JObject.FromObject(new
             {
                 endpoint = "verifyPassword",
-                validLogin = valid,
-                message = valid ? "Login was successfull" : "Login was unsuccessful"
+               results = windowsLoginData
             }).ToString();
         }
 
@@ -122,7 +126,7 @@ namespace UlteriusServer.Windows.Api
             return new JavaScriptSerializer().Serialize(new
             {
                 endpoint = "getActiveWindowsSnapshots",
-                activeWindows
+                results = activeWindows
             });
         }
 

@@ -6,9 +6,12 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Net.NetworkInformation;
 using System.Reflection;
+using System.Security.Principal;
 using System.Web;
 using System.Xml;
 using Newtonsoft.Json.Linq;
+using UlteriusServer.Properties;
+using static System.Security.Principal.WindowsIdentity;
 
 #endregion
 
@@ -56,7 +59,10 @@ namespace UlteriusServer.Utilities
                 })(rnd);
             return res;
         }
-
+        public static bool IsAdmin()
+        {
+            return new WindowsPrincipal(GetCurrent()).IsInRole(WindowsBuiltInRole.Administrator);
+        }
         public static string GetQueryString(string url, string key)
         {
             var query_string = string.Empty;

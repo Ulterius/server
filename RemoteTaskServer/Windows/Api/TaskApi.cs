@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Management;
+using System.Net.Sockets;
 using System.Reflection;
 using System.Web.Script.Serialization;
 using UlteriusServer.Utilities;
@@ -22,7 +23,7 @@ namespace UlteriusServer.Windows.Api
         private static ManagementObjectSearcher searcher;
         public string format = "JSON";
 
-        public static bool KillProcessById(int id, bool waitForExit = false)
+        private static bool KillProcessById(int id, bool waitForExit = false)
         {
             using (var p = Process.GetProcessById(id))
             {
@@ -37,8 +38,20 @@ namespace UlteriusServer.Windows.Api
             }
         }
 
+        public static object KillProcessById(int id)
+        {
+            var isKilled = KillProcessById(id, true);
+            var processName = Process.GetProcessById(id).ProcessName;
+            var data = new
+            {
+                processKilled = isKilled,
+                processId = id, processName
+            };
+            return data;
+        }
 
-        public static bool StartProcess(string processName)
+      
+        private static int StartProcess(string processName,  bool waitForExit = false)
         {
             try
             {
@@ -47,14 +60,28 @@ namespace UlteriusServer.Windows.Api
                 var process = new Process {StartInfo = processStartInfo};
                 if (!process.Start())
                 {
-                    return false;
+                    return -1;
                 }
-                return true;
+                return process.Id;
             }
             catch (Exception)
             {
-                return false;
+                return -1;
             }
+        }
+
+        public static object StartProcess(string processName)
+        {
+            var id = StartProcess(processName, true);
+            var isStarted = id >= 0;
+            
+            var data = new
+            {
+                processStarted = isStarted,
+                processId = id,
+                processName
+            };
+            return data;
         }
 
         public static void RestartServer()
