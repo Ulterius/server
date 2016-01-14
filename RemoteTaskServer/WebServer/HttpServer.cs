@@ -125,6 +125,12 @@ namespace RemoteTaskServer.WebServer
             Initialize(path, port);
         }
 
+        public int Port
+        {
+            get { return _port; }
+            private set { }
+        }
+
         public static void Setup()
         {
             var settings = new Settings();
@@ -136,13 +142,6 @@ namespace RemoteTaskServer.WebServer
                 var httpServer = new HttpServer(root, port);
                 Console.WriteLine(Resources.Program_Main_Web_Server_is_running_on_this_port__ + httpServer.Port);
             }
-
-        }
-
-        public int Port
-        {
-            get { return _port; }
-            private set { }
         }
 
         /// <summary>

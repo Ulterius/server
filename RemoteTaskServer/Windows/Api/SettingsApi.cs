@@ -25,7 +25,7 @@ namespace UlteriusServer.Windows.Api
             {
                 var newKey = Tools.GenerateAPIKey();
                 settings.Write("TaskServer", "ApiKey", newKey);
-               apiKeyData = new
+                apiKeyData = new
                 {
                     keyGenerated = true,
                     key = newKey
@@ -78,7 +78,7 @@ namespace UlteriusServer.Windows.Api
                 new
                 {
                     endpoint = "getCurrentSettings",
-                   results = currentSettingsData
+                    results = currentSettingsData
                 });
         }
 
@@ -147,7 +147,6 @@ namespace UlteriusServer.Windows.Api
                 {
                     endpoint = "changeWebFilePath",
                     results = changeWebFileData
-                  
                 });
         }
 
@@ -165,7 +164,6 @@ namespace UlteriusServer.Windows.Api
                 {
                     endpoint = "toggleWebServer",
                     results = changeWebServerUseData
-                
                 });
         }
     }

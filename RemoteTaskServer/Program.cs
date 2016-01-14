@@ -2,8 +2,6 @@
 
 using System;
 using System.Diagnostics;
-using System.IO;
-using System.Security.Principal;
 using RemoteTaskServer.WebServer;
 using UlteriusServer.Properties;
 using UlteriusServer.TaskServer;
@@ -29,7 +27,7 @@ namespace UlteriusServer
             var systemUtilities = new SystemUtilities();
             systemUtilities.Start();
             //Keep down here if you actually want a functional program
-            
+
             TaskManagerServer.Start();
             TerminalManagerServer.Start();
 

@@ -55,25 +55,6 @@ namespace UlteriusServer.Windows.Api
             }).ToString();
         }
 
-        public static string VerifyPassword(string password)
-        {
-            var valid = false;
-            using (var context = new PrincipalContext(ContextType.Machine))
-            {
-                valid = context.ValidateCredentials(GetUsername(), password);
-            }
-            var windowsLoginData = new
-            {
-                validLogin = valid,
-                message = valid ? "Login was successfull" : "Login was unsuccessful"
-            };
-            return JObject.FromObject(new
-            {
-                endpoint = "verifyPassword",
-               results = windowsLoginData
-            }).ToString();
-        }
-
         private static bool AllOneColor(Bitmap bmp)
         {
             var bmpData = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height), ImageLockMode.ReadOnly,

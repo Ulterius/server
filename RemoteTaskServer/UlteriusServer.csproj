@@ -122,6 +122,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Authentication\AuthClient.cs" />
+    <Compile Include="Authentication\UlteriusLoginDecoder.cs" />
     <Compile Include="TerminalServer\Cli\CommandSession.cs" />
     <Compile Include="TerminalServer\Cli\PowerShellSession.cs" />
     <Compile Include="TerminalServer\Cli\_ICliSession.cs" />

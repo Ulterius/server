@@ -1,10 +1,4 @@
-﻿#region
-
-
-
-#endregion
-
-namespace UlteriusServer.Windows.Api.Models
+﻿namespace UlteriusServer.Windows.Api.Models
 
 {
     public static class CpuInformation

@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Management;
-using System.Net.Sockets;
 using System.Reflection;
 using System.Web.Script.Serialization;
 using UlteriusServer.Utilities;
@@ -45,13 +44,14 @@ namespace UlteriusServer.Windows.Api
             var data = new
             {
                 processKilled = isKilled,
-                processId = id, processName
+                processId = id,
+                processName
             };
             return data;
         }
 
-      
-        private static int StartProcess(string processName,  bool waitForExit = false)
+
+        private static int StartProcess(string processName, bool waitForExit = false)
         {
             try
             {
@@ -74,7 +74,7 @@ namespace UlteriusServer.Windows.Api
         {
             var id = StartProcess(processName, true);
             var isStarted = id >= 0;
-            
+
             var data = new
             {
                 processStarted = isStarted,

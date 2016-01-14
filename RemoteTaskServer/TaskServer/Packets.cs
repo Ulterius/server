@@ -45,6 +45,9 @@ namespace UlteriusServer.TaskServer
                     {
                         switch (action)
                         {
+                            case "authenticate":
+                                packetType = PacketType.Authenticate;
+                                break;
                             case "requestprocessinformation":
                                 Console.WriteLine("Request Process Information");
                                 packetType = PacketType.RequestProcess;
@@ -109,10 +112,7 @@ namespace UlteriusServer.TaskServer
                                 Console.WriteLine("Checking for update");
                                 packetType = PacketType.CheckUpdate;
                                 break;
-                            case "verifypassword":
-                                Console.WriteLine("Verifying Windows Password");
-                                packetType = PacketType.VerifyWindowsPassword;
-                                break;
+                          
                             case "restartserver":
                                 Console.WriteLine("Restarting TServer");
                                 packetType = PacketType.RestartServer;
@@ -167,8 +167,8 @@ namespace UlteriusServer.TaskServer
         GetEventLogs,
         CheckUpdate,
         RequestWindowsInformation,
-        VerifyWindowsPassword,
         RestartServer,
-        GetActiveWindowsSnapshots
+        GetActiveWindowsSnapshots,
+        Authenticate
     }
 }

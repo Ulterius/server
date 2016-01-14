@@ -1,6 +1,4 @@
-﻿using UlteriusServer.TerminalServer.Cli;
-
-namespace UlteriusServer.TerminalServer.Cli
+﻿namespace UlteriusServer.TerminalServer.Cli
 {
     public interface ICliSessionFactory
     {
