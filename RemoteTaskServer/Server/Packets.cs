@@ -21,7 +21,6 @@ namespace UlteriusServer.Server
 
         public Packets(string packetJson)
         {
-            Console.WriteLine(packetJson);
             JsPacket deserializedPacket = null;
             try
             {
@@ -39,7 +38,6 @@ namespace UlteriusServer.Server
                 args = deserializedPacket.args?.Trim() ?? "";
                 senderID = "client";
                 var key = settings.Read("TaskServer", "ApiKey", "");
-                Console.WriteLine(key);
 
                 if (!string.IsNullOrEmpty(key))
                 {

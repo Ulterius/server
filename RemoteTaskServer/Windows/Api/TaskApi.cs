@@ -92,6 +92,9 @@ namespace UlteriusServer.Windows.Api
         {
             if (IsNullOrEmpty(CpuInformation.Name))
             {
+                var opt = new EnumerationOptions();
+                opt.BlockSize = 2000;
+                opt.EnumerateDeep = true;
                 var cpu =
                     new ManagementObjectSearcher("select * from Win32_Processor")
                         .Get()
