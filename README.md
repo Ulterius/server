@@ -18,3 +18,13 @@ This software is under development
 ### Contact
 
 [Twitter](https://twitter.com/andrewmd5)
+
+
+### Libraries and 3rd party code used in this project 
+
+log4net
+Magnum
+MassTransit
+vtortola Web Sockets/Sample terminal
+NewtonSoft
+MiscUtils
