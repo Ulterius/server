@@ -50,13 +50,13 @@ namespace UlteriusServer.TaskServer.Api.Controllers
                 switch (packetType)
                 {
                     case PacketType.RequestProcess:
-                        processController.GetProcessInformation();
+                        processController.RequestProcessInformation();
                         break;
                     case PacketType.StreamProcesses:
-                        //TODO
+                       processController.StreamProcessInformation();
                         break;
                     case PacketType.StopProcessStream:
-                        //TODO
+                        processController.StopProcessStream();
                         break;
                     case PacketType.RequestCpuInformation:
                         cpuController.GetCpuInformation();

@@ -1,11 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿#region
+
 using UlteriusServer.TaskServer.Api.Models;
 using UlteriusServer.TaskServer.Api.Serialization;
 using vtortola.WebSockets;
+
+#endregion
 
 namespace UlteriusServer.TaskServer.Api.Controllers.Impl
 {

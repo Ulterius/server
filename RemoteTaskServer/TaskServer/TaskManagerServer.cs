@@ -22,7 +22,7 @@ namespace UlteriusServer.TaskServer
     {
         public static ConcurrentDictionary<string, AuthClient> AllClients { get; set; }
         public static ConcurrentDictionary<string, ApiController> ApiControllers { get; set; }
- 
+
         public static void Start()
         {
             AllClients = new ConcurrentDictionary<string, AuthClient>();
@@ -36,10 +36,13 @@ namespace UlteriusServer.TaskServer
             server.OnDisconnect += HandleDisconnect;
             server.OnMessage += (ws, msg) =>
             {
-                foreach (var apiController in ApiControllers.Select(controller => controller.Value).Where(apiController => apiController.client == ws))
+                foreach (
+                    var apiController in
+                        ApiControllers.Select(controller => controller.Value)
+                            .Where(apiController => apiController.client == ws))
                 {
                     var packet = new Packets(msg);
-                    Task.Factory.StartNew(() => { apiController.HandlePacket(packet); }, cancellation.Token);
+                   apiController.HandlePacket(packet);
                 }
             };
             server.Start();
@@ -70,7 +73,8 @@ namespace UlteriusServer.TaskServer
                 authClient = client
             };
             AllClients.AddOrUpdate(client.GetHashCode().ToString(), client, (key, value) => value);
-            ApiControllers.AddOrUpdate(apiController.authClient.GetHashCode().ToString(), apiController, (key, value) => value);
+            ApiControllers.AddOrUpdate(apiController.authClient.GetHashCode().ToString(), apiController,
+                (key, value) => value);
             SendWelcomeMessage(clientSocket);
         }
 

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Management;
+using System.Timers;
 using UlteriusServer.TaskServer.Api.Models;
 using UlteriusServer.TaskServer.Api.Serialization;
 using UlteriusServer.Utilities;
@@ -19,6 +20,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
         private readonly WebSocket client;
         private readonly Packets packet;
         private readonly ApiSerializator serializator = new ApiSerializator();
+        private Timer streamTimer;
 
         public ProcessController(WebSocket client, Packets packet)
         {
@@ -79,7 +81,53 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
             serializator.Serialize(client, packet.endpoint, packet.syncKey, data);
         }
 
-        public void GetProcessInformation()
+        public void RequestProcessInformation()
+        {
+            var processInformation = GetProcessInformation();
+            serializator.Serialize(client, packet.endpoint, packet.syncKey, processInformation);
+        }
+
+        public void StreamProcessInformation()
+        {
+            var loopTime = int.Parse(packet.args.First().ToString());
+            streamTimer = new Timer(loopTime)
+            {
+                Enabled = true,
+                AutoReset = true,
+            };
+            streamTimer.Elapsed += StreamInformation;
+        }
+
+
+        private void StreamInformation(object sender, ElapsedEventArgs e)
+        {
+            if (client.IsConnected && API.processState == API.States.StreamingProcessData)
+            {
+                RequestProcessInformation();
+            }
+            else if (client.IsConnected && API.processState == API.States.Standard)
+            {
+                StopProcessStream();
+            }
+            else
+            {
+                StopProcessStream();
+            }
+        }
+
+        public void StopProcessStream()
+        {
+            if (streamTimer != null)
+            {
+                streamTimer.Enabled = false;
+                streamTimer.AutoReset = false;
+                streamTimer.Stop();
+                streamTimer.Dispose();
+            }
+            API.processState = API.States.Standard;
+        }
+
+        private List<SystemProcesses> GetProcessInformation()
         {
             var processInformation = new List<SystemProcesses>();
             var simpleProcesses = new List<SimpleProcessInfo>();
@@ -150,7 +198,8 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
             catch (ManagementException)
             {
             }
-            serializator.Serialize(client, packet.endpoint, packet.syncKey, processInformation);
+
+            return processInformation;
         }
 
         public class SimpleProcessInfo

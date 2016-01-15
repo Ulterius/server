@@ -124,6 +124,7 @@
   <ItemGroup>
     <Compile Include="Authentication\AuthClient.cs" />
     <Compile Include="Authentication\UlteriusLoginDecoder.cs" />
+    <Compile Include="TaskServer\Api\API.cs" />
     <Compile Include="TaskServer\Api\Controllers\ApiController.cs" />
     <Compile Include="TaskServer\Api\Controllers\Impl\ErrorController.cs" />
     <Compile Include="TaskServer\Api\Controllers\Impl\WindowsController.cs" />

@@ -1,14 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
+﻿#region
+
 using System.Linq;
 using System.Management;
-using System.Text;
-using System.Threading.Tasks;
-using System.Web.Script.Serialization;
 using UlteriusServer.TaskServer.Api.Models;
 using UlteriusServer.TaskServer.Api.Serialization;
 using UlteriusServer.TaskServer.Services.System;
 using vtortola.WebSockets;
+
+#endregion
 
 namespace UlteriusServer.TaskServer.Api.Controllers.Impl
 {
@@ -26,8 +25,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
 
         public void GetEventLogs()
         {
-        
-           serializator.Serialize(client, packet.endpoint, packet.syncKey, SystemUtilities.GetEventLogs());
+            serializator.Serialize(client, packet.endpoint, packet.syncKey, SystemUtilities.GetEventLogs());
         }
 
         public void GetOperatingSystemInformation()
@@ -40,15 +38,15 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                         .Cast<ManagementObject>()
                         .First();
 
-                ServerOperatingSystem.Name = ((string)wmi["Caption"]).Trim();
-                ServerOperatingSystem.Version = (string)wmi["Version"];
-                ServerOperatingSystem.MaxProcessCount = (uint)wmi["MaxNumberOfProcesses"];
-                ServerOperatingSystem.MaxProcessRAM = (ulong)wmi["MaxProcessMemorySize"];
-                ServerOperatingSystem.Architecture = (string)wmi["OSArchitecture"];
-                ServerOperatingSystem.SerialNumber = (string)wmi["SerialNumber"];
-                ServerOperatingSystem.Build = (string)wmi["BuildNumber"];
+                ServerOperatingSystem.Name = ((string) wmi["Caption"]).Trim();
+                ServerOperatingSystem.Version = (string) wmi["Version"];
+                ServerOperatingSystem.MaxProcessCount = (uint) wmi["MaxNumberOfProcesses"];
+                ServerOperatingSystem.MaxProcessRAM = (ulong) wmi["MaxProcessMemorySize"];
+                ServerOperatingSystem.Architecture = (string) wmi["OSArchitecture"];
+                ServerOperatingSystem.SerialNumber = (string) wmi["SerialNumber"];
+                ServerOperatingSystem.Build = (string) wmi["BuildNumber"];
             }
-           serializator.Serialize(client, packet.endpoint, packet.syncKey, ServerOperatingSystem.ToObject());
+            serializator.Serialize(client, packet.endpoint, packet.syncKey, ServerOperatingSystem.ToObject());
         }
     }
 }

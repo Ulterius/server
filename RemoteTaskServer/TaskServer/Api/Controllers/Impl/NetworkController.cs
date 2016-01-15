@@ -1,9 +1,5 @@
 ﻿#region
 
-using System;
-using System.Linq;
-using System.Management;
-using System.Web.Script.Serialization;
 using UlteriusServer.TaskServer.Api.Models;
 using UlteriusServer.TaskServer.Api.Serialization;
 using UlteriusServer.TaskServer.Services.Network;
@@ -37,6 +33,5 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
             }
             serializator.Serialize(client, packet.endpoint, packet.syncKey, NetworkInformation.ToObject());
         }
-
     }
 }

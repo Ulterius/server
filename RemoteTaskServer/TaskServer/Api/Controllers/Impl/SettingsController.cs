@@ -51,7 +51,6 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
 
         public void ChangeWebFilePath()
         {
-        
             var path = packet.args.First().ToString();
             settings.Write("WebServer", "WebFilePath", path);
             var currentPath = settings.Read("WebServer", "WebFilePath", "");
@@ -61,13 +60,11 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                 newPath = currentPath
             };
             serializator.Serialize(client, packet.endpoint, packet.syncKey, data);
-
         }
 
         public void ChangeWebServerUse()
         {
-
-            var useServer = (bool)packet.args.First();
+            var useServer = (bool) packet.args.First();
             settings.Write("WebServer", "UseWebServer", useServer);
             var currentStatus = settings.Read("WebServer", "UseWebServer", false);
             var data = new
@@ -76,7 +73,6 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                 useWebServer = currentStatus
             };
             serializator.Serialize(client, packet.endpoint, packet.syncKey, data);
-
         }
 
         public void ChangeNetworkResolve()

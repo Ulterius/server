@@ -10,12 +10,12 @@ using log4net.Config;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 
-[assembly: AssemblyTitle("TerminalServer.CliServer")]
+[assembly: AssemblyTitle("Ulterius Server")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Microsoft")]
-[assembly: AssemblyProduct("TerminalServer.CliServer")]
-[assembly: AssemblyCopyright("Copyright © Microsoft 2014")]
+[assembly: AssemblyCompany("AndrewMD5")]
+[assembly: AssemblyProduct("Ulterius Server")]
+[assembly: AssemblyCopyright("Copyright © Andrew Sampson 2016")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

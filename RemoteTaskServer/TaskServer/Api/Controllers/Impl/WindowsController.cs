@@ -9,7 +9,6 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
-using System.Web.Script.Serialization;
 using UlteriusServer.TaskServer.Api.Serialization;
 using vtortola.WebSockets;
 
@@ -87,7 +86,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
         ///     Experimental function for monitoring active windows on your remote desktop (windows).
         /// </summary>
         /// <returns></returns>
-        public  void GetActiveWindowsImages()
+        public void GetActiveWindowsImages()
         {
             var activeWindows = new List<WindowsImages>();
             foreach (var process in Process.GetProcesses().Where(process => process.MainWindowHandle != IntPtr.Zero))
@@ -117,7 +116,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                     activeWindows.Add(image);
                 }
             }
-           serializator.Serialize(client, packet.endpoint, packet.syncKey, activeWindows);
+            serializator.Serialize(client, packet.endpoint, packet.syncKey, activeWindows);
         }
 
         #region
@@ -137,6 +136,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
 
         #endregion
     }
+
     #region
 
     public class WindowsImages
@@ -251,11 +251,11 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
         {
             if (Object is RECT)
             {
-                return Equals((RECT)Object);
+                return Equals((RECT) Object);
             }
             if (Object is Rectangle)
             {
-                return Equals(new RECT((Rectangle)Object));
+                return Equals(new RECT((Rectangle) Object));
             }
 
             return false;

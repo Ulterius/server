@@ -1,9 +1,7 @@
 ﻿#region
 
-using System;
 using System.Threading;
 using System.Web.Script.Serialization;
-using UlteriusServer.TaskServer.Api.Controllers;
 using vtortola.WebSockets;
 
 #endregion
@@ -17,9 +15,9 @@ namespace UlteriusServer.TaskServer.Api.Serialization
             var serializer = new JavaScriptSerializer {MaxJsonLength = int.MaxValue};
             var json = serializer.Serialize(new
             {
-               endpoint,
-               syncKey,
-               results = data
+                endpoint,
+                syncKey,
+                results = data
             });
 
             Push(client, json);

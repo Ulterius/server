@@ -13,11 +13,11 @@ namespace UlteriusServer.TaskServer
     public class Packets
     {
         private static readonly Settings settings = new Settings();
+        private readonly string serverKey = settings.Read("TaskServer", "ApiKey", "");
         public string apiKey;
         public List<object> args;
         public string endpoint;
         public PacketType packetType;
-        private readonly string serverKey = settings.Read("TaskServer", "ApiKey", "");
         public string syncKey;
 
         public Packets(string packetJson)
