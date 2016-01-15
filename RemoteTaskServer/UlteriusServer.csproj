@@ -172,6 +172,7 @@
   <ItemGroup>
     <Compile Include="TaskServer\TaskManagerServer.cs" />
     <Compile Include="TerminalServer\TerminalManagerServer.cs" />
+    <Compile Include="Utilities\Files\FileTree.cs" />
     <Compile Include="WebSocketAPI\WebSocketEventListener.cs" />
     <Compile Include="TaskServer\Api\Models\DriveInformation.cs" />
     <Compile Include="TaskServer\Api\Models\SystemInformation.cs" />

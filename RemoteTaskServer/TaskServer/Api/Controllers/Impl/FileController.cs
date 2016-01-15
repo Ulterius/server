@@ -1,10 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
+﻿#region
+
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Web.UI.WebControls;
 using UlteriusServer.TaskServer.Api.Serialization;
+using UlteriusServer.Utilities.Files;
 using vtortola.WebSockets;
+
+#endregion
 
 namespace UlteriusServer.TaskServer.Api.Controllers.Impl
 {
@@ -20,9 +22,23 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
             this.packet = packet;
         }
 
-        public void DownloadTestFile()
+        public void CreateFileTree()
         {
-            serializator.PushBinary(client, "D:/Pictures/Saver/kek.jpg");
+            var argumentSize = packet.args.Count;
+            var path = packet.args.First().ToString();
+            var deepWalk = false;
+            if (argumentSize > 1)
+            {
+                deepWalk = (bool) packet.args[1];
+            }
+            var tree = new FileTree(path, deepWalk);
+            serializator.Serialize(client, packet.endpoint, packet.syncKey, tree);
+        }
+
+        public void DownloadFile()
+        {
+            var path = packet.args.First().ToString();
+            serializator.PushBinary(client, path);
         }
     }
 }

@@ -52,7 +52,10 @@ namespace UlteriusServer.TaskServer.Api.Controllers
                 switch (packetType)
                 {
                     case PacketType.DownloadFile:
-                        fileController.DownloadTestFile();
+                        fileController.DownloadFile();
+                        break;
+                    case PacketType.CreateFileTree:
+                        fileController.CreateFileTree();
                         break;
                     case PacketType.RequestProcess:
                         processController.RequestProcessInformation();

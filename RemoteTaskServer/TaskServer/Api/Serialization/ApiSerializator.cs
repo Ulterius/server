@@ -21,6 +21,8 @@ namespace UlteriusServer.TaskServer.Api.Serialization
                 syncKey,
                 results = data
             });
+
+
             if (binary)
             {
                 PushBinary(client, "");
