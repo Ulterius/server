@@ -93,7 +93,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
             streamTimer = new Timer(loopTime)
             {
                 Enabled = true,
-                AutoReset = true,
+                AutoReset = true
             };
             streamTimer.Elapsed += StreamInformation;
         }

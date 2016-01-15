@@ -2,10 +2,10 @@
 
 using System;
 using System.Collections.Concurrent;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Web.Script.Serialization;
 using UlteriusServer.Authentication;
 using UlteriusServer.TaskServer.Api.Controllers;
@@ -34,21 +34,22 @@ namespace UlteriusServer.TaskServer
             var server = new WebSocketEventListener(endpoint);
             server.OnConnect += HandleConnect;
             server.OnDisconnect += HandleDisconnect;
-            server.OnMessage += (ws, msg) =>
-            {
-                foreach (
-                    var apiController in
-                        ApiControllers.Select(controller => controller.Value)
-                            .Where(apiController => apiController.client == ws))
-                {
-                    var packet = new Packets(msg);
-                   apiController.HandlePacket(packet);
-                }
-            };
+            server.OnMessage += HandleMessage;
             server.Start();
             Log("Task TServer started at " + endpoint);
         }
 
+        private static void HandleMessage(WebSocket websocket, string message)
+        {
+
+            foreach (var apiController in
+                        ApiControllers.Select(controller => controller.Value)
+                            .Where(apiController => apiController.client == websocket))
+            {
+                var packet = new Packets(message);
+                apiController.HandlePacket(packet);
+            }
+        }
         private static void HandleDisconnect(WebSocket clientSocket)
         {
             foreach (var client in AllClients)

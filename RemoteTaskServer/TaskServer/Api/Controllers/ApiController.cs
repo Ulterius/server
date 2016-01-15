@@ -29,6 +29,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers
         public void HandlePacket(Packets packet)
         {
             var packetType = packet.packetType;
+       
             var errorController = new ErrorController(client, packet);
             var windowsController = new WindowsController(client, packet);
             HandleAuth(packet, packetType, windowsController);
@@ -37,6 +38,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers
                 #region
 
                 //Build a controller workshop!
+                var fileController = new FileController(client, packet);
                 var processController = new ProcessController(client, packet);
                 var cpuController = new CpuController(client, packet);
                 var systemController = new SystemController(client, packet);
@@ -49,11 +51,14 @@ namespace UlteriusServer.TaskServer.Api.Controllers
 
                 switch (packetType)
                 {
+                    case PacketType.DownloadFile:
+                        fileController.DownloadTestFile();
+                        break;
                     case PacketType.RequestProcess:
                         processController.RequestProcessInformation();
                         break;
                     case PacketType.StreamProcesses:
-                       processController.StreamProcessInformation();
+                        processController.StreamProcessInformation();
                         break;
                     case PacketType.StopProcessStream:
                         processController.StopProcessStream();

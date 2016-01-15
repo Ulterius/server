@@ -127,6 +127,7 @@
     <Compile Include="TaskServer\Api\API.cs" />
     <Compile Include="TaskServer\Api\Controllers\ApiController.cs" />
     <Compile Include="TaskServer\Api\Controllers\Impl\ErrorController.cs" />
+    <Compile Include="TaskServer\Api\Controllers\Impl\FileController.cs" />
     <Compile Include="TaskServer\Api\Controllers\Impl\WindowsController.cs" />
     <Compile Include="TaskServer\Api\Controllers\Impl\SettingsController.cs" />
     <Compile Include="TaskServer\Api\Controllers\Impl\NetworkController.cs" />

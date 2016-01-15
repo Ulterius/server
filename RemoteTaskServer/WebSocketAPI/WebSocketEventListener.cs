@@ -77,17 +77,15 @@ namespace UlteriusServer.WebSocketAPI
                 {
                     var message = await websocket.ReadStringAsync(CancellationToken.None)
                         .ConfigureAwait(false);
-                    if (message != null && OnMessage != null)
-                        OnMessage.Invoke(websocket, message);
+                    if (message != null)
+                        OnMessage?.Invoke(websocket, message);
                 }
 
-                if (OnDisconnect != null)
-                    OnDisconnect.Invoke(websocket);
+                OnDisconnect?.Invoke(websocket);
             }
             catch (Exception ex)
             {
-                if (OnError != null)
-                    OnError.Invoke(websocket, ex);
+                OnError?.Invoke(websocket, ex);
             }
             finally
             {

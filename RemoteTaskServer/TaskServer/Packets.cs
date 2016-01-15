@@ -56,6 +56,9 @@ namespace UlteriusServer.TaskServer
                             case "stopprocessinformationstream":
                                 packetType = PacketType.StopProcessStream;
                                 break;
+                            case "downloadfile":
+                                packetType = PacketType.DownloadFile;
+                                break;
                             case "requestcpuinformation":
                                 packetType = PacketType.RequestCpuInformation;
                                 break;
@@ -162,6 +165,7 @@ namespace UlteriusServer.TaskServer
         GetActiveWindowsSnapshots,
         Authenticate,
         StreamProcesses,
-        StopProcessStream
+        StopProcessStream,
+        DownloadFile
     }
 }
