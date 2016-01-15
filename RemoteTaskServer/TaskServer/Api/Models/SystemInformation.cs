@@ -3,8 +3,7 @@
 using System.Collections.Generic;
 
 #endregion
-
-namespace UlteriusServer.Windows.Api.Models
+namespace UlteriusServer.TaskServer.Api.Models
 
 {
     public static class SystemInformation

@@ -1,6 +1,7 @@
 ﻿#region
 
 using System;
+using System.Collections.Generic;
 using Newtonsoft.Json;
 using UlteriusServer.Utilities;
 
@@ -9,15 +10,15 @@ using UlteriusServer.Utilities;
 namespace UlteriusServer.TaskServer
 
 {
-    [Serializable]
     public class Packets
     {
-        private readonly Settings settings = new Settings();
-        public string action;
+        private static readonly Settings settings = new Settings();
         public string apiKey;
-        public string args;
+        public List<object> args;
+        public string endpoint;
         public PacketType packetType;
-        public string senderID;
+        private readonly string serverKey = settings.Read("TaskServer", "ApiKey", "");
+        public string syncKey;
 
         public Packets(string packetJson)
         {
@@ -34,95 +35,79 @@ namespace UlteriusServer.TaskServer
             if (deserializedPacket != null)
             {
                 apiKey = deserializedPacket.apiKey.Trim();
-                action = deserializedPacket.action.Trim().ToLower();
-                args = deserializedPacket.args?.Trim() ?? "";
-                senderID = "client";
-                var key = settings.Read("TaskServer", "ApiKey", "");
-
-                if (!string.IsNullOrEmpty(key))
+                endpoint = deserializedPacket.endpoint.Trim().ToLower();
+                args = deserializedPacket.args;
+                syncKey = deserializedPacket.syncKey.Trim();
+                if (!string.IsNullOrEmpty(apiKey))
                 {
-                    if (key.Equals(apiKey))
+                    if (serverKey.Equals(apiKey))
                     {
-                        switch (action)
+                        switch (endpoint)
                         {
                             case "authenticate":
                                 packetType = PacketType.Authenticate;
                                 break;
                             case "requestprocessinformation":
-                                Console.WriteLine("Request Process Information");
                                 packetType = PacketType.RequestProcess;
                                 break;
+                            case "streamprocessinformation":
+                                packetType = PacketType.StreamProcesses;
+                                break;
+                            case "stopprocessinformationstream":
+                                packetType = PacketType.StopProcessStream;
+                                break;
                             case "requestcpuinformation":
-                                Console.WriteLine("Request CPU Information");
                                 packetType = PacketType.RequestCpuInformation;
                                 break;
                             case "requestosinformation":
-                                Console.WriteLine("Request OS Information");
                                 packetType = PacketType.RequestOsInformation;
                                 break;
                             case "requestnetworkinformation":
-                                Console.WriteLine("Request Network Information");
                                 packetType = PacketType.RequestNetworkInformation;
                                 break;
                             case "requestsysteminformation":
-                                Console.WriteLine("Request System Information");
                                 packetType = PacketType.RequestSystemInformation;
                                 break;
                             case "startprocess":
-                                Console.WriteLine("Starting Process " + args);
                                 packetType = PacketType.StartProcess;
                                 break;
                             case "killprocess":
-                                Console.WriteLine("Killing Process " + args);
                                 packetType = PacketType.KillProcess;
                                 break;
                             case "generatenewkey":
-                                Console.WriteLine("Creating New Api Key");
                                 packetType = PacketType.GenerateNewKey;
                                 break;
                             case "togglewebserver":
-                                Console.WriteLine("Toggling Web TServer");
                                 packetType = PacketType.UseWebServer;
                                 break;
                             case "changewebserverport":
-                                Console.WriteLine("Changing Web TServer Port");
                                 packetType = PacketType.ChangeWebServerPort;
                                 break;
                             case "changewebfilepath":
-                                Console.WriteLine("Changing Web File Path");
                                 packetType = PacketType.ChangeWebFilePath;
                                 break;
                             case "changetaskserverport":
-                                Console.WriteLine("Changing Task TServer Port");
                                 packetType = PacketType.ChangeTaskServerPort;
                                 break;
                             case "changenetworkresolve":
-                                Console.WriteLine("Changing Network Resolve");
                                 packetType = PacketType.ChangeNetworkResolve;
                                 break;
                             case "getcurrentsettings":
-                                Console.WriteLine("Getting Current Settings");
                                 packetType = PacketType.GetCurrentSettings;
                                 break;
                             case "geteventlogs":
-                                Console.WriteLine("Getting Event Logs");
                                 packetType = PacketType.GetEventLogs;
                                 break;
                             case "checkforupdate":
-                                Console.WriteLine("Checking for update");
                                 packetType = PacketType.CheckUpdate;
                                 break;
-
                             case "restartserver":
-                                Console.WriteLine("Restarting TServer");
                                 packetType = PacketType.RestartServer;
                                 break;
                             case "getwindowsdata":
-                                Console.WriteLine("Getting Windows Account Data");
                                 packetType = PacketType.RequestWindowsInformation;
                                 break;
                             case "getactivewindowssnapshots":
-                                Console.WriteLine("Getting Active Windows Snapshots");
                                 packetType = PacketType.GetActiveWindowsSnapshots;
                                 break;
                             default:
@@ -132,16 +117,22 @@ namespace UlteriusServer.TaskServer
                     }
                     else
                     {
-                        Console.WriteLine("Invalid API Key " + apiKey);
                         packetType = PacketType.InvalidApiKey;
                     }
                 }
                 else
                 {
-                    Console.WriteLine("No API Key Detected - Generated");
                     packetType = PacketType.GenerateNewKey;
                 }
             }
+        }
+
+        public class JsPacket
+        {
+            public string apiKey;
+            public List<object> args;
+            public string endpoint;
+            public string syncKey;
         }
     }
 
@@ -169,6 +160,8 @@ namespace UlteriusServer.TaskServer
         RequestWindowsInformation,
         RestartServer,
         GetActiveWindowsSnapshots,
-        Authenticate
+        Authenticate,
+        StreamProcesses,
+        StopProcessStream
     }
 }

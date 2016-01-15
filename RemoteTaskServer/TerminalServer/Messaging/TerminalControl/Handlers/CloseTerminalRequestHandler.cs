@@ -1,6 +1,5 @@
 ﻿#region
 
-
 using UlteriusServer.TerminalServer.Infrastructure;
 using UlteriusServer.TerminalServer.Messaging.TerminalControl.Events;
 using UlteriusServer.TerminalServer.Messaging.TerminalControl.Requests;

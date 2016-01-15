@@ -3,7 +3,6 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using MassTransit;
@@ -20,7 +19,6 @@ namespace UlteriusServer.TerminalServer.Messaging
 {
     public class WebSocketHandler
     {
-        private static ConcurrentDictionary<string, AuthClient> TerminalClients { get; set; }
         private readonly ILogger _log;
         private readonly IServiceBus _queue;
         private readonly IEventSerializator _serializer;
@@ -37,6 +35,8 @@ namespace UlteriusServer.TerminalServer.Messaging
             TerminalClients = new ConcurrentDictionary<string, AuthClient>();
         }
 
+        private static ConcurrentDictionary<string, AuthClient> TerminalClients { get; set; }
+
         public async Task HandleConnectionAsync(CancellationToken cancellation)
         {
             _cancellation = cancellation;
@@ -46,17 +46,14 @@ namespace UlteriusServer.TerminalServer.Messaging
             var authClient = AddTerminalClient(_ws);
             try
             {
-               
                 _log.Info("Starting session '{0}' at connection '{1}'", sessionId, connectionId);
-              
+
                 unsubs.Add(_queue.SubscribeHandler<IConnectionEvent>(msg =>
                 {
                     lock (_ws)
                     {
-                       
                         using (var wsmsg = _ws.CreateMessageWriter(WebSocketMessageType.Text))
                             _serializer.Serialize(msg, wsmsg);
-                            
                     }
                 }, con => _ws.IsConnected && con.ConnectionId == connectionId));
 
@@ -64,7 +61,6 @@ namespace UlteriusServer.TerminalServer.Messaging
 
                 while (_ws.IsConnected && !_cancellation.IsCancellationRequested)
                 {
-                    
                     Console.WriteLine(authClient.Authenticated);
                     var msg = await _ws.ReadMessageAsync(_cancellation).ConfigureAwait(false);
                     if (msg == null) continue;
@@ -72,7 +68,7 @@ namespace UlteriusServer.TerminalServer.Messaging
                     var queueRequest = _serializer.Deserialize(msg, out type);
                     Console.WriteLine(queueRequest);
                     queueRequest.ConnectionId = connectionId;
-                    
+
                     _queue.Publish(queueRequest, type);
                 }
             }
@@ -102,7 +98,6 @@ namespace UlteriusServer.TerminalServer.Messaging
                     unsub();
                 _ws.Dispose();
                 _queue.Publish(new ConnectionDisconnectedRequest(connectionId, sessionId));
-
             }
         }
 

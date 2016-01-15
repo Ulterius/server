@@ -10,7 +10,6 @@ using MassTransit;
 using UlteriusServer.TerminalServer.Infrastructure;
 using UlteriusServer.TerminalServer.Messaging;
 using UlteriusServer.TerminalServer.Messaging.Connection;
-using UlteriusServer.TerminalServer.Session;
 
 #endregion
 

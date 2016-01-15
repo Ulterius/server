@@ -1,4 +1,4 @@
-﻿namespace UlteriusServer.Windows.Api.Models
+﻿namespace UlteriusServer.TaskServer.Api.Models
 
 {
     public class SystemProcesses

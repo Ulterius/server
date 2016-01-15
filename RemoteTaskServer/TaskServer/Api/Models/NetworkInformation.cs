@@ -1,11 +1,11 @@
 ﻿#region
 
 using System.Collections.Generic;
-using UlteriusServer.Utilities.Network;
+using UlteriusServer.TaskServer.Services.Network;
 
 #endregion
 
-namespace UlteriusServer.Windows.Api.Models
+namespace UlteriusServer.TaskServer.Api.Models
 
 {
     public static class NetworkInformation

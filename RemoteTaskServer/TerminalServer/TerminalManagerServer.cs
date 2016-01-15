@@ -3,12 +3,12 @@
 using System;
 using System.Net;
 using MassTransit;
+using UlteriusServer.TaskServer.Services.Network;
 using UlteriusServer.TerminalServer.Cli;
 using UlteriusServer.TerminalServer.Infrastructure;
 using UlteriusServer.TerminalServer.Messaging;
 using UlteriusServer.TerminalServer.Messaging.TerminalControl.Handlers;
 using UlteriusServer.TerminalServer.Session;
-using UlteriusServer.Utilities.Network;
 
 #endregion
 

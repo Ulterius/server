@@ -8,13 +8,12 @@ using System.Runtime.InteropServices;
 using System.Security.Principal;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Web.Script.Serialization;
 using Microsoft.VisualBasic.Devices;
-using UlteriusServer.Windows.Api.Models;
+using UlteriusServer.TaskServer.Api.Models;
 
 #endregion
 
-namespace UlteriusServer.Utilities.System
+namespace UlteriusServer.TaskServer.Services.System
 {
     internal class SystemUtilities
     {
@@ -68,7 +67,7 @@ namespace UlteriusServer.Utilities.System
         }
 
 
-        public static string GetEventLogs()
+        public static Dictionary<string, List<EventLogEntry>> GetEventLogs()
         {
             var dictionary = new Dictionary<string, List<EventLogEntry>>();
             var d = EventLog.GetEventLogs();
@@ -83,16 +82,7 @@ namespace UlteriusServer.Utilities.System
                     dictionary[categoryName].Add(entry);
                 }
             }
-
-            var serializer = new JavaScriptSerializer();
-            serializer.MaxJsonLength = int.MaxValue;
-            var json =
-                serializer.Serialize(new
-                {
-                    endpoint = "getEventLogs",
-                    dictionary
-                });
-            return json;
+            return dictionary;
         }
 
         public List<DriveInformation> GetDriveInformation()

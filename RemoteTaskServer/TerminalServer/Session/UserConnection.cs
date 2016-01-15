@@ -3,9 +3,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
-using UlteriusServer.Authentication;
-using UlteriusServer.TaskServer;
 using UlteriusServer.TerminalServer.Cli;
 using UlteriusServer.TerminalServer.Infrastructure;
 using UlteriusServer.TerminalServer.Messaging;
@@ -48,7 +45,6 @@ namespace UlteriusServer.TerminalServer.Session
             _cliSessions.Clear();
         }
 
-      
 
         public void Init()
         {

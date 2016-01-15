@@ -20,6 +20,7 @@ namespace UlteriusServer.Authentication
         {
             return Environment.UserName;
         }
+
         public bool Login(string password)
         {
             var code = 3;

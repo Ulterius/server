@@ -5,11 +5,8 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Net.NetworkInformation;
-using System.Reflection;
 using System.Security.Principal;
 using System.Web;
-using System.Xml;
-using Newtonsoft.Json.Linq;
 using static System.Security.Principal.WindowsIdentity;
 
 #endregion
@@ -18,7 +15,7 @@ namespace UlteriusServer.Utilities
 {
     internal class Tools
     {
-        private static bool HasInternetConnection
+        public static bool HasInternetConnection
         {
             // There is no way you can reliably check if there is an internet connection, but we can come close
             get
@@ -46,17 +43,18 @@ namespace UlteriusServer.Utilities
             }
         }
 
-        public static string GenerateAPIKey()
+        public static void GenerateSettings()
         {
-            var res = "";
-            var rnd = new Random();
-            while (res.Length < 35)
-                res += new Func<Random, string>(r =>
-                {
-                    var c = (char) (r.Next(123)*DateTime.Now.Millisecond%123);
-                    return char.IsLetterOrDigit(c) ? c.ToString() : "";
-                })(rnd);
-            return res;
+            if (!File.Exists("UlteriusServer.ini"))
+            {
+                var settings = new Settings();
+
+                settings.Write("WebServer", "UseWebServer", false);
+                settings.Write("WebServer", "WebServerPort", 9999);
+                settings.Write("WebServer", "WebFilePath", "");
+                settings.Write("TaskServer", "TaskServerPort", 8387);
+                settings.Write("Network", "SkipHostNameResolve", false);
+            }
         }
 
         public static bool IsAdmin()
@@ -92,128 +90,6 @@ namespace UlteriusServer.Utilities
             var byteImage = ms.ToArray();
             var SigBase64 = Convert.ToBase64String(byteImage); //Get Base64
             return SigBase64;
-        }
-
-        public static string CheckForUpdates()
-        {
-            var isError = false;
-            var errorData = "";
-            if (HasInternetConnection)
-            {
-                try
-                {
-                    var _releasePageURL = "";
-                    Version _newVersion = null;
-                    const string _versionConfig = "https://raw.github.com/StrikeOrg/ulterius-server/master/version.xml";
-                    var _reader = new XmlTextReader(_versionConfig);
-                    _reader.MoveToContent();
-                    var _elementName = "";
-                    try
-                    {
-                        if ((_reader.NodeType == XmlNodeType.Element) && (_reader.Name == "ulteriusserver"))
-                        {
-                            while (_reader.Read())
-                            {
-                                switch (_reader.NodeType)
-                                {
-                                    case XmlNodeType.Element:
-                                        _elementName = _reader.Name;
-                                        break;
-                                    default:
-                                        if ((_reader.NodeType == XmlNodeType.Text) && _reader.HasValue)
-                                        {
-                                            switch (_elementName)
-                                            {
-                                                case "version":
-                                                    _newVersion = new Version(_reader.Value);
-                                                    break;
-                                                case "url":
-                                                    _releasePageURL = _reader.Value;
-                                                    break;
-                                            }
-                                        }
-                                        break;
-                                }
-                            }
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        //MessageBox.Show(Resources.ErrorUpdates, Resources.ErrorHeader, MessageBoxButtons.OK,
-                        //    MessageBoxIcon.Error);
-                        isError = true;
-                        errorData = e.Message;
-                    }
-                    finally
-                    {
-                        _reader.Close();
-                    }
-
-                    var applicationVersion = Assembly.GetExecutingAssembly().GetName().Version;
-                    JObject response;
-                    if (isError)
-                    {
-                        response = JObject.FromObject(new
-                        {
-                            endpoint = "checkForUpdate",
-                            update = false,
-                            error = errorData,
-                            message = "Error retrieving update information: " + errorData
-                        });
-                    }
-                    else if (applicationVersion.CompareTo(_newVersion) < 0)
-                    {
-                        response = JObject.FromObject(new
-                        {
-                            endpoint = "checkForUpdate",
-                            update = true,
-                            url = _releasePageURL,
-                            newVersion = _newVersion.ToString(),
-                            message = "New version available: " + _newVersion
-                        });
-                    }
-                    else
-                    {
-                        response = JObject.FromObject(new
-                        {
-                            endpoint = "checkForUpdate",
-                            update = false,
-                            message = "You have the latest version."
-                        });
-                    }
-
-                    return response.ToString();
-
-                    /*
-                    if (applicationVersion.CompareTo(_newVersion) < 0)
-                    {
-
-                        if (MessageBox.Show(System.Resources.InfoUpdateAvailable, Resources.InfoUpdatesHeader,
-                            MessageBoxButtons.YesNo, MessageBoxIcon.Information) == DialogResult.Yes)
-                        {
-                            Tools.GotoSite(_releasePageURL);
-                        }
-                    }
-                    */
-                }
-                catch (Exception e)
-                {
-                    return JObject.FromObject(new
-                    {
-                        endpoint = "checkForUpdate",
-                        update = false,
-                        error = e.Message,
-                        message = "General bad thing has happened: " + e.Message
-                    }).ToString();
-                }
-            }
-            return JObject.FromObject(new
-            {
-                endpoint = "checkForUpdate",
-                update = false,
-                error = "No connection",
-                message = "Unable to connect to the internet to check for update."
-            }).ToString();
         }
     }
 }

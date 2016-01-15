@@ -5,10 +5,9 @@ using System.Diagnostics;
 using RemoteTaskServer.WebServer;
 using UlteriusServer.Properties;
 using UlteriusServer.TaskServer;
+using UlteriusServer.TaskServer.Services.System;
 using UlteriusServer.TerminalServer;
 using UlteriusServer.Utilities;
-using UlteriusServer.Utilities.System;
-using UlteriusServer.Windows.Api;
 
 #endregion
 
@@ -22,7 +21,7 @@ namespace UlteriusServer
             if (!Debugger.IsAttached)
                 ExceptionHandler.AddGlobalHandlers();
 
-            SettingsApi.GenerateSettings();
+            Tools.GenerateSettings();
             HttpServer.Setup();
             var systemUtilities = new SystemUtilities();
             systemUtilities.Start();

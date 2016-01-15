@@ -133,9 +133,9 @@ namespace UlteriusServer.TerminalServer.Cli
             {
                 try
                 {
-                   var line = await _proc.StandardOutput.ReadLineAsync().ConfigureAwait(false);
+                    var line = await _proc.StandardOutput.ReadLineAsync().ConfigureAwait(false);
                     if (line != null)
-                       Push(line);
+                        Push(line);
                 }
                 catch (TaskCanceledException)
                 {
