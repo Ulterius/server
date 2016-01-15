@@ -1,10 +1,11 @@
 ﻿#region
 
+using System.IO;
 using System.Linq;
-using System.Web.UI.WebControls;
 using UlteriusServer.TaskServer.Api.Serialization;
 using UlteriusServer.Utilities.Files;
 using vtortola.WebSockets;
+using File = System.IO.File;
 
 #endregion
 
@@ -38,7 +39,27 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
         public void DownloadFile()
         {
             var path = packet.args.First().ToString();
-            serializator.PushBinary(client, path);
+            if (File.Exists(path))
+            {
+                var fileName = Path.GetFileName(path);
+                var size = new FileInfo(path).Length;
+                var data = new
+                {
+                    fileValid = true,
+                    fileName,
+                    size
+                };
+                serializator.Serialize(client, packet.endpoint, packet.syncKey, data);
+                serializator.PushBinary(client, path);
+            }
+            else
+            {
+                var data = new
+                {
+                    fileValid = false
+                };
+                serializator.Serialize(client, packet.endpoint, packet.syncKey, data);
+            }
         }
     }
 }

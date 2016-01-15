@@ -5,6 +5,7 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using vtortola.WebSockets;
+using vtortola.WebSockets.Deflate;
 using vtortola.WebSockets.Rfc6455;
 
 #endregion
@@ -31,7 +32,9 @@ namespace UlteriusServer.WebSocketAPI
         public WebSocketEventListener(IPEndPoint endpoint, WebSocketListenerOptions options)
         {
             _listener = new WebSocketListener(endpoint, options);
-            _listener.Standards.RegisterStandard(new WebSocketFactoryRfc6455(_listener));
+            var rfc6455 = new WebSocketFactoryRfc6455(_listener);
+            rfc6455.MessageExtensions.RegisterExtension(new WebSocketDeflateExtension());
+            _listener.Standards.RegisterStandard(rfc6455);
         }
 
         public void Dispose()
@@ -46,7 +49,7 @@ namespace UlteriusServer.WebSocketAPI
 
         public void Start()
         {
-            _listener.Start();
+                       _listener.Start();
             Task.Run(ListenAsync);
         }
 

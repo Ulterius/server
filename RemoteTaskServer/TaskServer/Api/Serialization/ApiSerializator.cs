@@ -3,6 +3,7 @@
 using System;
 using System.IO;
 using System.Text;
+using System.Threading;
 using System.Web.Script.Serialization;
 using vtortola.WebSockets;
 
@@ -36,6 +37,7 @@ namespace UlteriusServer.TaskServer.Api.Serialization
 
         public async void PushBinary(WebSocket client, string filePath)
         {
+
             using (var messageWriter = client.CreateMessageWriter(WebSocketMessageType.Binary))
             using (var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read))
             {
@@ -45,13 +47,7 @@ namespace UlteriusServer.TaskServer.Api.Serialization
         }
         private async void Push(WebSocket client, string data)
         {
-            using (var messageWriterStream = client.CreateMessageWriter(WebSocketMessageType.Text))
-            {
-                using (var sw = new StreamWriter(messageWriterStream, Encoding.UTF8))
-                {
-                    await sw.WriteAsync(data);
-                }
-            }
+            client.WriteStringAsync(data, CancellationToken.None);
         }
     }
 }
