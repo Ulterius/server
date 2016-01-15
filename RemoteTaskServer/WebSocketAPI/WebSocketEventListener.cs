@@ -4,6 +4,7 @@ using System;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using UlteriusServer.Utilities.Security;
 using vtortola.WebSockets;
 using vtortola.WebSockets.Deflate;
 using vtortola.WebSockets.Rfc6455;
@@ -35,6 +36,8 @@ namespace UlteriusServer.WebSocketAPI
             var rfc6455 = new WebSocketFactoryRfc6455(_listener);
             rfc6455.MessageExtensions.RegisterExtension(new WebSocketDeflateExtension());
             _listener.Standards.RegisterStandard(rfc6455);
+            //TODO ALLOW PEOPLE TO SET THEIR SERTS FOR WSS
+            //_listener.ConnectionExtensions.RegisterExtension(new WebSocketSecureConnectionExtension(ca2));
         }
 
         public void Dispose()

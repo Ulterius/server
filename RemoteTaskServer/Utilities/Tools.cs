@@ -15,6 +15,7 @@ namespace UlteriusServer.Utilities
 {
     internal class Tools
     {
+
         public static bool HasInternetConnection
         {
             // There is no way you can reliably check if there is an internet connection, but we can come close
