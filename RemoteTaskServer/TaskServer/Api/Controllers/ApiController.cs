@@ -1,5 +1,6 @@
 ﻿#region
 
+using System;
 using System.Linq;
 using System.Threading;
 using UlteriusServer.Authentication;
@@ -32,7 +33,26 @@ namespace UlteriusServer.TaskServer.Api.Controllers
        
             var errorController = new ErrorController(client, packet);
             var windowsController = new WindowsController(client, packet);
-            HandleAuth(packet, packetType, windowsController);
+
+            if (packetType == PacketType.InvalidOrEmptyPacket)
+            {
+                errorController.InvalidPacket();
+                return;
+            }
+            if (!authClient.Authenticated && packetType == PacketType.Authenticate)
+            {
+               
+                var loginDecoder = new UlteriusLoginDecoder();
+                var password = packet.args.First().ToString();
+                var authenticationData = loginDecoder.Login(password, client);
+                client.WriteStringAsync(authenticationData, CancellationToken.None);
+
+
+            }
+            if (packetType == PacketType.RequestWindowsInformation)
+            {
+                windowsController.GetWindowsInformation();
+            }
             if (authClient.Authenticated)
             {
                 #region
@@ -136,19 +156,6 @@ namespace UlteriusServer.TaskServer.Api.Controllers
             }
         }
 
-        private void HandleAuth(Packets packet, PacketType packetType, WindowsController windowsController)
-        {
-            if (!authClient.Authenticated && packetType == PacketType.Authenticate)
-            {
-                var loginDecoder = new UlteriusLoginDecoder();
-                var password = packet.args.First().ToString();
-                var authenticationData = loginDecoder.Login(password, client);
-                client.WriteStringAsync(authenticationData, CancellationToken.None);
-            }
-            if (packetType == PacketType.RequestWindowsInformation)
-            {
-                windowsController.GetWindowsInformation();
-            }
-        }
+       
     }
 }
