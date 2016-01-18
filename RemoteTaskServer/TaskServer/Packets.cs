@@ -38,17 +38,18 @@ namespace UlteriusServer.TaskServer
             {
                 try
                 {
-                    apiKey = deserializedPacket.apiKey.Trim();
-                    endpoint = deserializedPacket.endpoint.Trim().ToLower();
-                    args = deserializedPacket.args;
-                    syncKey = deserializedPacket.syncKey.Trim();
+                    apiKey = deserializedPacket?.apiKey?.Trim();
+                    endpoint = deserializedPacket?.endpoint?.Trim()?.ToLower();
                 }
-                catch (Exception )
+                catch (Exception e)
                 {
-
+                    Console.WriteLine(e.Message);
                     packetType = PacketType.InvalidOrEmptyPacket;
                     return;
                 }
+                args = deserializedPacket?.args ?? null;
+                    syncKey = deserializedPacket?.syncKey?.Trim() ?? null;
+               
                 if (!string.IsNullOrEmpty(apiKey))
                 {
                     if (serverKey.Equals(apiKey))
