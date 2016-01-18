@@ -4,7 +4,7 @@
 
 ### What is it?
 
-Ulteris is an application that allows you to manipulate processes on your computer, this includes restarting, killing, starting and priority changes.
+Ulteris is an application that allows you to manipulate processes on your computer, this includes starting, restarting, killing, and priority changes.
 
 This software is under development 
 
