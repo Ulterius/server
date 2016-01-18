@@ -26,7 +26,7 @@ namespace UlteriusServer.TaskServer.Api.Serialization
 
             if (binary)
             {
-                PushBinary(client, "");
+                PushFile(client, "");
             }
             else
             {
@@ -35,7 +35,28 @@ namespace UlteriusServer.TaskServer.Api.Serialization
            
         }
 
-        public async void PushBinary(WebSocket client, string filePath)
+        public async void PushBinary(WebSocket client, string endpoint, string syncKey, byte[] data)
+        {
+
+            try
+            {
+                using (var messageWriter = client.CreateMessageWriter(WebSocketMessageType.Binary))
+                {
+                    using (var stream = new MemoryStream(data))
+                    {
+                        await stream.CopyToAsync(messageWriter);
+
+                    }
+                }
+            }
+            catch (Exception)
+            {
+
+              //should never happen
+            }
+        }
+
+        public async void PushFile(WebSocket client, string filePath)
         {
 
             using (var messageWriter = client.CreateMessageWriter(WebSocketMessageType.Binary))
@@ -49,5 +70,7 @@ namespace UlteriusServer.TaskServer.Api.Serialization
         {
             client.WriteStringAsync(data, CancellationToken.None);
         }
+
+        
     }
 }

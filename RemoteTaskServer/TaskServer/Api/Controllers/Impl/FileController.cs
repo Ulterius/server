@@ -50,7 +50,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                     size
                 };
                 serializator.Serialize(client, packet.endpoint, packet.syncKey, data);
-                serializator.PushBinary(client, path);
+                serializator.PushFile(client, path);
             }
             else
             {

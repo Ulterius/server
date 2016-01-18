@@ -17,6 +17,8 @@ namespace UlteriusServer
     {
         private static void Main(string[] args)
         {
+
+
             Console.Title = Resources.Program_Title;
             if (!Debugger.IsAttached)
                 ExceptionHandler.AddGlobalHandlers();

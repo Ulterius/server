@@ -29,15 +29,26 @@ namespace UlteriusServer.TaskServer
             }
             catch (Exception)
             {
+               
                 packetType = PacketType.InvalidOrEmptyPacket;
+                return;
             }
 
             if (deserializedPacket != null)
             {
-                apiKey = deserializedPacket.apiKey.Trim();
-                endpoint = deserializedPacket.endpoint.Trim().ToLower();
-                args = deserializedPacket.args;
-                syncKey = deserializedPacket.syncKey.Trim();
+                try
+                {
+                    apiKey = deserializedPacket.apiKey.Trim();
+                    endpoint = deserializedPacket.endpoint.Trim().ToLower();
+                    args = deserializedPacket.args;
+                    syncKey = deserializedPacket.syncKey.Trim();
+                }
+                catch (Exception )
+                {
+
+                    packetType = PacketType.InvalidOrEmptyPacket;
+                    return;
+                }
                 if (!string.IsNullOrEmpty(apiKey))
                 {
                     if (serverKey.Equals(apiKey))
