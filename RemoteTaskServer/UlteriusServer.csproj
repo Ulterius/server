@@ -132,6 +132,7 @@
     <Compile Include="TaskServer\Api\Controllers\ApiController.cs" />
     <Compile Include="TaskServer\Api\Controllers\Impl\ErrorController.cs" />
     <Compile Include="TaskServer\Api\Controllers\Impl\FileController.cs" />
+    <Compile Include="TaskServer\Api\Controllers\Impl\GpuController.cs" />
     <Compile Include="TaskServer\Api\Controllers\Impl\WindowsController.cs" />
     <Compile Include="TaskServer\Api\Controllers\Impl\SettingsController.cs" />
     <Compile Include="TaskServer\Api\Controllers\Impl\NetworkController.cs" />
@@ -140,6 +141,7 @@
     <Compile Include="TaskServer\Api\Controllers\Impl\ProcessController.cs" />
     <Compile Include="TaskServer\Api\Controllers\Impl\ServerController.cs" />
     <Compile Include="TaskServer\Api\Controllers\Impl\SystemController.cs" />
+    <Compile Include="TaskServer\Api\Models\GpuInformation.cs" />
     <Compile Include="TaskServer\Api\Serialization\ApiSerializator.cs" />
     <Compile Include="TerminalServer\Cli\CommandSession.cs" />
     <Compile Include="TerminalServer\Cli\PowerShellSession.cs" />
@@ -226,7 +228,9 @@
     <Content Include="favicon %281%29.ico" />
     <Content Include="FodyWeavers.xml" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <WCFMetadata Include="Service References\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>

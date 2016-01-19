@@ -22,7 +22,8 @@ namespace UlteriusServer
             Console.Title = Resources.Program_Title;
             if (!Debugger.IsAttached)
                 ExceptionHandler.AddGlobalHandlers();
-
+          
+            
             Tools.GenerateSettings();
             HttpServer.Setup();
             var systemUtilities = new SystemUtilities();

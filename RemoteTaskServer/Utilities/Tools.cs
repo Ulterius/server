@@ -4,6 +4,7 @@ using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Management;
 using System.Net.NetworkInformation;
 using System.Security.Principal;
 using System.Web;
@@ -15,7 +16,6 @@ namespace UlteriusServer.Utilities
 {
     internal class Tools
     {
-
         public static bool HasInternetConnection
         {
             // There is no way you can reliably check if there is an internet connection, but we can come close
@@ -42,6 +42,12 @@ namespace UlteriusServer.Utilities
 
                 return result;
             }
+        }
+
+
+        public static void PrintAllGpus()
+        {
+           
         }
 
         public static void GenerateSettings()

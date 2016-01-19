@@ -1,6 +1,5 @@
 ﻿#region
 
-using System;
 using System.Linq;
 using System.Threading;
 using UlteriusServer.Authentication;
@@ -30,7 +29,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers
         public void HandlePacket(Packets packet)
         {
             var packetType = packet.packetType;
-       
+
             var errorController = new ErrorController(client, packet);
             var windowsController = new WindowsController(client, packet);
 
@@ -41,13 +40,10 @@ namespace UlteriusServer.TaskServer.Api.Controllers
             }
             if (!authClient.Authenticated && packetType == PacketType.Authenticate)
             {
-               
                 var loginDecoder = new UlteriusLoginDecoder();
                 var password = packet.args.First().ToString();
                 var authenticationData = loginDecoder.Login(password, client);
                 client.WriteStringAsync(authenticationData, CancellationToken.None);
-
-
             }
             if (packetType == PacketType.RequestWindowsInformation)
             {
@@ -66,6 +62,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers
                 var networkController = new NetworkController(client, packet);
                 var serverController = new ServerController(client, packet);
                 var settingsController = new SettingsController(client, packet);
+                var gpuController = new GpuController(client, packet);
 
                 #endregion
 
@@ -73,6 +70,9 @@ namespace UlteriusServer.TaskServer.Api.Controllers
                 {
                     case PacketType.DownloadFile:
                         fileController.DownloadFile();
+                        break;
+                    case PacketType.RequestGpuInformation:
+                        gpuController.GetGpuInformation();
                         break;
                     case PacketType.CreateFileTree:
                         fileController.CreateFileTree();
@@ -155,7 +155,5 @@ namespace UlteriusServer.TaskServer.Api.Controllers
                 errorController.NoAuth();
             }
         }
-
-       
     }
 }

@@ -17,6 +17,9 @@ namespace UlteriusServer.TaskServer.Api.Models
         public static double UpTime { get; set; }
         public static bool RunningAsAdmin { get; set; }
         public static List<DriveInformation> Drives { get; set; }
+        public static string MotherBoard { get; set; }
+        public static string CdRom { get; set; }
+        public static object Bios { get; set; }
 
         public static object ToObject()
         {
@@ -29,7 +32,10 @@ namespace UlteriusServer.TaskServer.Api.Models
                 runningProcesses = RunningProcesses,
                 upTime = UpTime,
                 runningAsAdmin = RunningAsAdmin,
-                drives = Drives
+                drives = Drives,
+                cdRom = CdRom,
+                motherBoard = MotherBoard,
+                biosInfo = Bios
             };
             return data;
         }

@@ -17,6 +17,8 @@
         public static uint Threads { get; set; }
         public static string Architecture { get; set; }
         public static string JSON { get; set; }
+        public static uint CurrentClockSpeed { get; set; }
+        public static uint CurrentVoltage { get; set; }
 
         public static object ToObject()
         {
@@ -34,7 +36,9 @@
                 l3Cache = L3Cache,
                 cores = Cores,
                 threads = Threads,
-                architecture = Architecture
+                architecture = Architecture,
+                currentClockSpeed = CurrentClockSpeed,
+                currentVoltage = CurrentVoltage
             };
             return data;
         }

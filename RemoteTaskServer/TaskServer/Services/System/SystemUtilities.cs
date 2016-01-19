@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Management;
 using System.Runtime.InteropServices;
 using System.Security.Principal;
 using System.Threading;
@@ -17,6 +18,12 @@ namespace UlteriusServer.TaskServer.Services.System
 {
     internal class SystemUtilities
     {
+        private string biosCaption;
+        private string biosManufacturer;
+        private string biosSerial;
+        private string cdRom;
+        private string motherBoard;
+
         public void Start()
         {
             Task.Factory.StartNew(() =>
@@ -31,6 +38,9 @@ namespace UlteriusServer.TaskServer.Services.System
                     SystemInformation.UpTime = GetUpTime().TotalMilliseconds;
                     SystemInformation.RunningAsAdmin = IsRunningAsAdministrator();
                     SystemInformation.CpuUsage = GetPerformanceCounters();
+                    SystemInformation.MotherBoard = GetMotherBoard();
+                    SystemInformation.CdRom = GetCdRom();
+                    SystemInformation.Bios = GetBiosInfo();
                 }
             });
         }
@@ -39,6 +49,122 @@ namespace UlteriusServer.TaskServer.Services.System
         {
             return new ComputerInfo().AvailablePhysicalMemory;
         }
+
+        public string GetMotherBoard()
+        {
+            if (!string.IsNullOrEmpty(motherBoard)) return motherBoard;
+            var searcher = new ManagementObjectSearcher("root\\CIMV2", "SELECT * FROM Win32_BaseBoard");
+            foreach (var wmi in searcher.Get())
+            {
+                try
+                {
+                    motherBoard = wmi.GetPropertyValue("Product").ToString();
+                    return motherBoard;
+                }
+
+                catch
+                {
+                    motherBoard = "Board Unknown";
+                }
+            }
+            return motherBoard;
+        }
+
+        public string GetCdRom()
+        {
+            if (!string.IsNullOrEmpty(cdRom)) return cdRom;
+            var searcher = new ManagementObjectSearcher("root\\CIMV2", "SELECT * FROM Win32_CDROMDrive");
+
+            foreach (var wmi in searcher.Get())
+            {
+                try
+                {
+                    cdRom = wmi.GetPropertyValue("Drive").ToString();
+                    return cdRom;
+                }
+
+                catch
+                {
+                    cdRom = "CD ROM Unknown";
+                }
+            }
+            return cdRom;
+        }
+
+        private object GetBiosInfo()
+        {
+            var data = new
+            {
+                biosManufacturer = GetBiosManufacturer(),
+                biosSerial = GetBiosSerial(),
+                biosCaption = GetBiosCaption()
+            };
+            return data;
+        }
+        private string GetBiosSerial()
+        {
+            if (!string.IsNullOrEmpty(biosSerial)) return biosSerial;
+            var searcher = new ManagementObjectSearcher("root\\CIMV2", "SELECT * FROM Win32_BIOS");
+
+            foreach (ManagementObject wmi in searcher.Get())
+            {
+                try
+                {
+                    biosSerial = wmi.GetPropertyValue("SerialNumber").ToString();
+                    return biosSerial;
+                }
+
+                catch
+                {
+                    biosSerial = "Unknown BIOS Serial";
+                }
+            }
+
+            return biosSerial;
+        }
+
+        private string GetBiosCaption()
+        {
+            if (!string.IsNullOrEmpty(biosCaption)) return biosCaption;
+            var searcher = new ManagementObjectSearcher("root\\CIMV2", "SELECT * FROM Win32_BIOS");
+
+            foreach (var wmi in searcher.Get())
+            {
+                try
+                {
+                    biosCaption = wmi.GetPropertyValue("Caption").ToString();
+                    return biosCaption;
+                }
+                catch
+                {
+                    biosCaption = "Unknown BIOS Caption";
+                }
+            }
+            return biosCaption;
+        }
+
+        private string GetBiosManufacturer()
+        {
+            if (!string.IsNullOrEmpty(biosManufacturer)) return biosManufacturer;
+            var searcher = new ManagementObjectSearcher("root\\CIMV2", "SELECT * FROM Win32_BIOS");
+
+            foreach (var wmi in searcher.Get())
+            {
+                try
+                {
+                    biosManufacturer = wmi.GetPropertyValue("Manufacturer").ToString();
+                    return biosManufacturer;
+                }
+
+                catch
+                {
+                    biosManufacturer = "BIOS Manufacturer Unknown";
+                }
+            }
+
+            return biosManufacturer;
+        }
+
 
         private ulong GetUsedMemory()
         {
@@ -126,10 +252,12 @@ namespace UlteriusServer.TaskServer.Services.System
 
         private float GetCurrentCpuUsage()
         {
-            var cpuCounter = new PerformanceCounter();
-            cpuCounter.CategoryName = "Processor";
-            cpuCounter.CounterName = "% Processor Time";
-            cpuCounter.InstanceName = "_Total";
+            var cpuCounter = new PerformanceCounter
+            {
+                CategoryName = "Processor",
+                CounterName = "% Processor Time",
+                InstanceName = "_Total"
+            };
             // will always start at 0
             dynamic firstValue = cpuCounter.NextValue();
             Thread.Sleep(1000);

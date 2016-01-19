@@ -59,6 +59,9 @@ namespace UlteriusServer.TaskServer
                             case "authenticate":
                                 packetType = PacketType.Authenticate;
                                 break;
+                            case "requestgpuinfomation":
+                                packetType = PacketType.RequestGpuInformation;
+                                break;
                             case "createfiletree":
                                 packetType = PacketType.CreateFileTree;
                                 break;
@@ -182,6 +185,7 @@ namespace UlteriusServer.TaskServer
         StreamProcesses,
         StopProcessStream,
         DownloadFile,
-        CreateFileTree
+        CreateFileTree,
+        RequestGpuInformation
     }
 }
