@@ -28,7 +28,6 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                 new ManagementObjectSearcher("SELECT * FROM Win32_VideoController");
 
             var gpus = (from ManagementBaseObject mo in searcher.Get()
-                where mo["CurrentBitsPerPixel"] != null
                 select new GpuInformation
                 {
                     Name = mo["Name"]?.ToString(),
