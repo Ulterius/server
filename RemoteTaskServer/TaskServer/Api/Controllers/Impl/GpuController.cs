@@ -38,7 +38,8 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                     VideoArchitecture = int.Parse(mo["VideoArchitecture"]?.ToString() ?? "0"),
                     VideoMemoryType = int.Parse(mo["VideoMemoryType"]?.ToString() ?? "0"),
                     InstalledDisplayDrivers = mo["InstalledDisplayDrivers"]?.ToString()?.Split(','),
-                    AdapterCompatibility = mo["AdapterCompatibility"]?.ToString()
+                    AdapterCompatibility = mo["AdapterCompatibility"]?.ToString(),
+                    Status = mo["Status"]?.ToString()
                 }).ToList();
             var data = new
             {

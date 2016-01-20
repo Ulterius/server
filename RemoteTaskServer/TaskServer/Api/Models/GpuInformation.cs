@@ -12,6 +12,7 @@
         public int VideoMemoryType { get; set; }
         public string[] InstalledDisplayDrivers { get; set; }
         public string AdapterCompatibility { get; set; }
+        public string Status { get; set; }
 
         public object ToObject()
         {
