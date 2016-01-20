@@ -184,8 +184,9 @@ namespace RemoteTaskServer.WebServer
                     var context = _listener.GetContext();
                     Process(context);
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
+                    //ignore
                 }
             }
         }
@@ -233,7 +234,7 @@ namespace RemoteTaskServer.WebServer
 
                     context.Response.StatusCode = (int) HttpStatusCode.OK;
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     context.Response.StatusCode = (int) HttpStatusCode.InternalServerError;
                 }

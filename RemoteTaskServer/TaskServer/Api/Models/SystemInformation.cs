@@ -20,6 +20,7 @@ namespace UlteriusServer.TaskServer.Api.Models
         public static string MotherBoard { get; set; }
         public static string CdRom { get; set; }
         public static object Bios { get; set; }
+        public static object NetworkInfo { get; set; }
 
         public static object ToObject()
         {
@@ -34,6 +35,7 @@ namespace UlteriusServer.TaskServer.Api.Models
                 runningAsAdmin = RunningAsAdmin,
                 drives = Drives,
                 cdRom = CdRom,
+                networkInfo = NetworkInfo,
                 motherBoard = MotherBoard,
                 biosInfo = Bios
             };

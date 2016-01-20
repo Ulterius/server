@@ -101,11 +101,11 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
 
         private void StreamInformation(object sender, ElapsedEventArgs e)
         {
-            if (client.IsConnected && API.processState == API.States.StreamingProcessData)
+            if (client.IsConnected && API.ProcessState == API.States.StreamingProcessData)
             {
                 RequestProcessInformation();
             }
-            else if (client.IsConnected && API.processState == API.States.Standard)
+            else if (client.IsConnected && API.ProcessState == API.States.Standard)
             {
                 StopProcessStream();
             }
@@ -124,7 +124,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                 streamTimer.Stop();
                 streamTimer.Dispose();
             }
-            API.processState = API.States.Standard;
+            API.ProcessState = API.States.Standard;
         }
 
         private List<SystemProcesses> GetProcessInformation()

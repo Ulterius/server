@@ -45,7 +45,7 @@ namespace UlteriusServer.TaskServer.Services.Network
                         var hostEntry = Dns.GetHostEntry(device.Key);
                         name = hostEntry.HostName;
                     }
-                    catch (SocketException ex)
+                    catch (SocketException)
                     {
                         name = "null";
                     }

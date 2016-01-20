@@ -50,6 +50,7 @@ namespace UlteriusServer.TaskServer
                 args = deserializedPacket?.args ?? null;
                     syncKey = deserializedPacket?.syncKey?.Trim() ?? null;
                
+    
                 if (!string.IsNullOrEmpty(apiKey))
                 {
                     if (serverKey.Equals(apiKey))
@@ -57,6 +58,7 @@ namespace UlteriusServer.TaskServer
                         switch (endpoint)
                         {
                             case "authenticate":
+
                                 packetType = PacketType.Authenticate;
                                 break;
                             case "requestgpuinfomation":

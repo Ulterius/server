@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Management;
+using System.Net.NetworkInformation;
 using System.Runtime.InteropServices;
 using System.Security.Principal;
 using System.Threading;
@@ -19,10 +20,13 @@ namespace UlteriusServer.TaskServer.Services.System
     internal class SystemUtilities
     {
         private string biosCaption;
-        private string biosManufacturer;
+        private string biosManufacturer; 
         private string biosSerial;
         private string cdRom;
         private string motherBoard;
+        static PerformanceCounterCategory performanceCounterCategory = new PerformanceCounterCategory("Network Interface");
+         string instance = performanceCounterCategory.GetInstanceNames()[0]; // 1st NIC !
+           
 
         public void Start()
         {
@@ -37,9 +41,11 @@ namespace UlteriusServer.TaskServer.Services.System
                     SystemInformation.RunningProcesses = GetTotalProcesses();
                     SystemInformation.UpTime = GetUpTime().TotalMilliseconds;
                     SystemInformation.RunningAsAdmin = IsRunningAsAdministrator();
+                    SystemInformation.NetworkInfo = GetNetworkInfo();
                     SystemInformation.CpuUsage = GetPerformanceCounters();
                     SystemInformation.MotherBoard = GetMotherBoard();
                     SystemInformation.CdRom = GetCdRom();
+                  
                     SystemInformation.Bios = GetBiosInfo();
                 }
             });
@@ -68,6 +74,36 @@ namespace UlteriusServer.TaskServer.Services.System
                 }
             }
             return motherBoard;
+        }
+
+        
+
+        private object GetNetworkInfo()
+        {
+            long totalBytesReceived = 0;
+            long totalBytesSent = 0;
+
+            foreach (var networkInterface in NetworkInterface.GetAllNetworkInterfaces())
+            {
+                totalBytesReceived += networkInterface.GetIPv4Statistics().BytesReceived;
+                totalBytesSent += networkInterface.GetIPv4Statistics().BytesSent;
+
+            }
+
+
+            var data = new
+            {
+                totalNetworkInterfaces = NetworkInterface.GetAllNetworkInterfaces().Length,
+                networkInterfaces = NetworkInterface.GetAllNetworkInterfaces(),
+                totalBytesReceived,
+                totalBytesSent,
+
+            };
+
+           
+
+         
+            return data;
         }
 
         public string GetCdRom()
@@ -101,6 +137,7 @@ namespace UlteriusServer.TaskServer.Services.System
             };
             return data;
         }
+
         private string GetBiosSerial()
         {
             if (!string.IsNullOrEmpty(biosSerial)) return biosSerial;

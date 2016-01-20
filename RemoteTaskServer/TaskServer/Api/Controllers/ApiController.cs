@@ -1,5 +1,6 @@
 ﻿#region
 
+using System;
 using System.Linq;
 using System.Threading;
 using UlteriusServer.Authentication;
@@ -29,13 +30,18 @@ namespace UlteriusServer.TaskServer.Api.Controllers
         public void HandlePacket(Packets packet)
         {
             var packetType = packet.packetType;
-
+            Console.WriteLine(packetType);
             var errorController = new ErrorController(client, packet);
             var windowsController = new WindowsController(client, packet);
 
             if (packetType == PacketType.InvalidOrEmptyPacket)
             {
                 errorController.InvalidPacket();
+                return;
+            }
+            if (packetType == PacketType.InvalidApiKey)
+            {
+                errorController.InvalidApiKey();
                 return;
             }
             if (!authClient.Authenticated && packetType == PacketType.Authenticate)
@@ -152,6 +158,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers
             }
             else
             {
+                
                 errorController.NoAuth();
             }
         }

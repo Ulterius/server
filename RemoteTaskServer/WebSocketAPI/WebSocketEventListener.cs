@@ -68,7 +68,7 @@ namespace UlteriusServer.WebSocketAPI
                 var websocket = await _listener.AcceptWebSocketAsync(CancellationToken.None)
                     .ConfigureAwait(false);
                 if (websocket != null)
-                    Task.Run(() => HandleWebSocketAsync(websocket));
+                    await Task.Run(() => HandleWebSocketAsync(websocket));
             }
         }
 
@@ -76,8 +76,7 @@ namespace UlteriusServer.WebSocketAPI
         {
             try
             {
-                if (OnConnect != null)
-                    OnConnect.Invoke(websocket);
+                OnConnect?.Invoke(websocket);
 
                 while (websocket.IsConnected)
                 {

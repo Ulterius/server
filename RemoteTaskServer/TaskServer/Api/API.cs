@@ -9,7 +9,7 @@
             Standard
         }
 
-        public static States processState;
-        public static States systemState;
+        public static States ProcessState { get; set; }
+        public static States SystemState { get; }
     }
 }

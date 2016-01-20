@@ -108,11 +108,9 @@ namespace UlteriusServer.TerminalServer.Messaging
                 try
                 {
                     var ws = await server.AcceptWebSocketAsync(_cancellation.Token).ConfigureAwait(false);
-                    if (ws != null)
-                    {
-                        var handler = new WebSocketHandler(Queue, ws, _serializator, _log);
-                        Task.Run(() => handler.HandleConnectionAsync(_cancellation.Token));
-                    }
+                    if (ws == null) continue;
+                    var handler = new WebSocketHandler(Queue, ws, _serializator, _log);
+                    Task.Run(() => handler.HandleConnectionAsync(_cancellation.Token));
                 }
                 catch (TaskCanceledException)
                 {
