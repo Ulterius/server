@@ -13,6 +13,7 @@
         public string[] InstalledDisplayDrivers { get; set; }
         public string AdapterCompatibility { get; set; }
         public string Status { get; set; }
+        public int Availability { get; set; }
 
         public object ToObject()
         {
