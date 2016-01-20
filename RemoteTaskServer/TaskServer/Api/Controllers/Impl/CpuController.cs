@@ -13,13 +13,13 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
 {
     public class CpuController : ApiController
     {
-        private readonly WebSocket client;
+        private readonly WebSocket _client;
         private readonly Packets packet;
         private readonly ApiSerializator serializator = new ApiSerializator();
 
         public CpuController(WebSocket client, Packets packet)
         {
-            this.client = client;
+            this._client = client;
             this.packet = packet;
         }
 
@@ -58,7 +58,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                         .Replace("    ", " ")
                         .Replace("  ", " ");
             }
-            serializator.Serialize(client, packet.endpoint, packet.syncKey, CpuInformation.ToObject());
+            serializator.Serialize(_client, packet.endpoint, packet.syncKey, CpuInformation.ToObject());
         }
     }
 }

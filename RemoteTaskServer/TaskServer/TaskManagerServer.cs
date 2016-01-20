@@ -49,7 +49,7 @@ namespace UlteriusServer.TaskServer
         {
             foreach (var apiController in
                 ApiControllers.Select(controller => controller.Value)
-                    .Where(apiController => apiController.client == websocket))
+                    .Where(apiController => apiController.Client == websocket))
             {
                 var packet = new Packets(message);
                 apiController.HandlePacket(packet);
@@ -76,7 +76,7 @@ namespace UlteriusServer.TaskServer
             var client = new AuthClient(clientSocket);
             var apiController = new ApiController(clientSocket)
             {
-                //set the auth client so we can use it later
+                //set the auth Client so we can use it later
                 authClient = client
             };
             AllClients.AddOrUpdate(client.GetHashCode().ToString(), client, (key, value) => value);

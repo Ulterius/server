@@ -13,14 +13,14 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
 {
     internal class VncController : ApiController
     {
-        private readonly WebSocket client;
+        private readonly WebSocket _client;
         private readonly Packets packet;
         private readonly ApiSerializator serializator = new ApiSerializator();
         private VncServer vncServer;
 
         public VncController(WebSocket client, Packets packet)
         {
-            this.client = client;
+            this._client = client;
             this.packet = packet;
         }
 
@@ -43,7 +43,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                     port = vncPort,
                     message = "VNC Server Started"
                 };
-                serializator.Serialize(client, packet.endpoint, packet.syncKey, endData);
+                serializator.Serialize(_client, packet.endpoint, packet.syncKey, endData);
             }
             catch (ArgumentNullException)
             {

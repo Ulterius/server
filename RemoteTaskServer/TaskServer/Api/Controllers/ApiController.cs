@@ -14,11 +14,11 @@ namespace UlteriusServer.TaskServer.Api.Controllers
     public class ApiController
     {
         public AuthClient authClient;
-        public WebSocket client;
+        public WebSocket Client;
 
         public ApiController(WebSocket client)
         {
-            this.client = client;
+            this.Client = client;
         }
 
         public ApiController()
@@ -31,8 +31,8 @@ namespace UlteriusServer.TaskServer.Api.Controllers
         {
             var packetType = packet.packetType;
             Console.WriteLine(packetType);
-            var errorController = new ErrorController(client, packet);
-            var windowsController = new WindowsController(client, packet);
+            var errorController = new ErrorController(Client, packet);
+            var windowsController = new WindowsController(Client, packet);
 
             if (packetType == PacketType.InvalidOrEmptyPacket)
             {
@@ -48,8 +48,8 @@ namespace UlteriusServer.TaskServer.Api.Controllers
             {
                 var loginDecoder = new UlteriusLoginDecoder();
                 var password = packet.args.First().ToString();
-                var authenticationData = loginDecoder.Login(password, client);
-                client.WriteStringAsync(authenticationData, CancellationToken.None);
+                var authenticationData = loginDecoder.Login(password, Client);
+                Client.WriteStringAsync(authenticationData, CancellationToken.None);
             }
             if (packetType == PacketType.RequestWindowsInformation)
             {
@@ -60,16 +60,16 @@ namespace UlteriusServer.TaskServer.Api.Controllers
                 #region
 
                 //Build a controller workshop!
-                var fileController = new FileController(client, packet);
-                var processController = new ProcessController(client, packet);
-                var cpuController = new CpuController(client, packet);
-                var systemController = new SystemController(client, packet);
-                var operatingSystemController = new OperatingSystemController(client, packet);
-                var networkController = new NetworkController(client, packet);
-                var serverController = new ServerController(client, packet);
-                var settingsController = new SettingsController(client, packet);
-                var gpuController = new GpuController(client, packet);
-                var vncController = new VncController(client, packet);
+                var fileController = new FileController(Client, packet);
+                var processController = new ProcessController(Client, packet);
+                var cpuController = new CpuController(Client, packet);
+                var systemController = new SystemController(Client, packet);
+                var operatingSystemController = new OperatingSystemController(Client, packet);
+                var networkController = new NetworkController(Client, packet);
+                var serverController = new ServerController(Client, packet);
+                var settingsController = new SettingsController(Client, packet);
+                var gpuController = new GpuController(Client, packet);
+                var vncController = new VncController(Client, packet);
 
                 #endregion
 
@@ -86,7 +86,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers
                         catch (Exception e)
                         {
 
-                            throw e;
+                           Console.WriteLine(e.Message);
                         }
                         break;
                     case PacketType.CreateFileTree:

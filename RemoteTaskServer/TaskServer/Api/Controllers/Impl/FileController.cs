@@ -13,13 +13,13 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
 {
     public class FileController : ApiController
     {
-        private readonly WebSocket client;
+        private readonly WebSocket _client;
         private readonly Packets packet;
         private readonly ApiSerializator serializator = new ApiSerializator();
 
         public FileController(WebSocket client, Packets packet)
         {
-            this.client = client;
+            this._client = client;
             this.packet = packet;
         }
 
@@ -33,7 +33,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                 deepWalk = (bool) packet.args[1];
             }
             var tree = new FileTree(path, deepWalk);
-            serializator.Serialize(client, packet.endpoint, packet.syncKey, tree);
+            serializator.Serialize(_client, packet.endpoint, packet.syncKey, tree);
         }
 
         public void DownloadFile()
@@ -49,8 +49,8 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                     fileName,
                     size
                 };
-                serializator.Serialize(client, packet.endpoint, packet.syncKey, data);
-                serializator.PushFile(client, path);
+                serializator.Serialize(_client, packet.endpoint, packet.syncKey, data);
+                serializator.PushFile(_client, path);
             }
             else
             {
@@ -58,7 +58,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                 {
                     fileValid = false
                 };
-                serializator.Serialize(client, packet.endpoint, packet.syncKey, data);
+                serializator.Serialize(_client, packet.endpoint, packet.syncKey, data);
             }
         }
     }

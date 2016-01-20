@@ -65,7 +65,7 @@ namespace UlteriusServer.WebSocketAPI
         }
 
         /// <summary>
-        ///     Method to encode the message before sending to the client.
+        ///     Method to encode the message before sending to the Client.
         /// </summary>
         /// <param name="message"></param>
         /// <returns></returns>
