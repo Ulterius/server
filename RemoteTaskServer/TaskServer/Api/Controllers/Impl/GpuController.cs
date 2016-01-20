@@ -33,10 +33,10 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                     Name = mo["Name"]?.ToString(),
                     ScreenInfo = mo["VideoModeDescription"]?.ToString(),
                     DriverVersion = mo["DriverVersion"]?.ToString(),
-                    RefreshRate = int.Parse(mo["CurrentRefreshRate"]?.ToString()),
+                    RefreshRate = int.Parse(mo["CurrentRefreshRate"]?.ToString() ?? "0"),
                     AdapterRam = mo["AdapterRAM"]?.ToString(),
-                    VideoArchitecture = int.Parse(mo["VideoArchitecture"]?.ToString()),
-                    VideoMemoryType = int.Parse(mo["VideoMemoryType"]?.ToString()),
+                    VideoArchitecture = int.Parse(mo["VideoArchitecture"]?.ToString() ?? "0"),
+                    VideoMemoryType = int.Parse(mo["VideoMemoryType"]?.ToString() ?? "0"),
                     InstalledDisplayDrivers = mo["InstalledDisplayDrivers"]?.ToString()?.Split(','),
                     AdapterCompatibility = mo["AdapterCompatibility"]?.ToString()
                 }).ToList();
