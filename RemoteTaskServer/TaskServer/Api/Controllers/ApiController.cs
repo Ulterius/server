@@ -79,7 +79,15 @@ namespace UlteriusServer.TaskServer.Api.Controllers
                         fileController.DownloadFile();
                         break;
                     case PacketType.RequestGpuInformation:
-                        gpuController.GetGpuInformation();
+                        try
+                        {
+                            gpuController.GetGpuInformation();
+                        }
+                        catch (Exception e)
+                        {
+
+                            throw e;
+                        }
                         break;
                     case PacketType.CreateFileTree:
                         fileController.CreateFileTree();
