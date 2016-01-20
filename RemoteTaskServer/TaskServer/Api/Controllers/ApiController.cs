@@ -116,6 +116,12 @@ namespace UlteriusServer.TaskServer.Api.Controllers
                     case PacketType.ChangeTaskServerPort:
                         settingsController.ChangeTaskServerPort();
                         break;
+                    case PacketType.ChangeVncPort:
+                        settingsController.ChangeVncPort();
+                        break;
+                    case PacketType.ChangeVncProxyPort:
+                        settingsController.ChangeVncProxyPort();
+                        break;
                     case PacketType.ChangeNetworkResolve:
                         settingsController.ChangeNetworkResolve();
                         break;

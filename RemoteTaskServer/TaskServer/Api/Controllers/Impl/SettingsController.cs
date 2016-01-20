@@ -62,6 +62,31 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
             serializator.Serialize(client, packet.endpoint, packet.syncKey, data);
         }
 
+        public void ChangeVncPort()
+        {
+            var port = int.Parse(packet.args.First().ToString());
+            settings.Write("Vnc", "VncPort", port);
+            var currentPort = settings.Read("Vnc", "VncPort", 5900);
+            var data = new
+            {
+                changedStatus = true,
+                newPort = currentPort
+            };
+            serializator.Serialize(client, packet.endpoint, packet.syncKey, data);
+        }
+        public void ChangeVncProxyPort()
+        {
+            var port = int.Parse(packet.args.First().ToString());
+            settings.Write("Vnc", "VncProxyPort", port);
+            var currentPort = settings.Read("Vnc", "VncProxyPort", 5900);
+            var data = new
+            {
+                changedStatus = true,
+                newPort = currentPort
+            };
+            serializator.Serialize(client, packet.endpoint, packet.syncKey, data);
+        }
+
         public void ChangeWebServerUse()
         {
             var useServer = (bool) packet.args.First();

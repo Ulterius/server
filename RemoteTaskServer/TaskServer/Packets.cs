@@ -61,7 +61,7 @@ namespace UlteriusServer.TaskServer
 
                                 packetType = PacketType.Authenticate;
                                 break;
-                            case "requestgpuinfomation":
+                            case "requestgpuinformation":
                                 packetType = PacketType.RequestGpuInformation;
                                 break;
                             case "createfiletree":
@@ -109,8 +109,17 @@ namespace UlteriusServer.TaskServer
                             case "changewebfilepath":
                                 packetType = PacketType.ChangeWebFilePath;
                                 break;
+                            case "startvncserver":
+                                packetType = PacketType.StartVncServer;
+                                break;
                             case "changetaskserverport":
                                 packetType = PacketType.ChangeTaskServerPort;
+                                break;
+                            case "changevncport":
+                                packetType = PacketType.ChangeVncPort;
+                                break;
+                            case "changevncproxyport":
+                                packetType = PacketType.ChangeVncProxyPort;
                                 break;
                             case "changenetworkresolve":
                                 packetType = PacketType.ChangeNetworkResolve;
@@ -188,6 +197,9 @@ namespace UlteriusServer.TaskServer
         StopProcessStream,
         DownloadFile,
         CreateFileTree,
-        RequestGpuInformation
+        RequestGpuInformation,
+        ChangeVncPort,
+        ChangeVncProxyPort,
+        StartVncServer
     }
 }
