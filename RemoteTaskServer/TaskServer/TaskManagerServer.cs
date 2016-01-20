@@ -52,7 +52,7 @@ namespace UlteriusServer.TaskServer
                     .Where(apiController => apiController.client == websocket))
             {
                 var packet = new Packets(message);
-                Task.Factory.StartNew(() => { apiController.HandlePacket(packet); });
+                apiController.HandlePacket(packet);
             }
         }
 

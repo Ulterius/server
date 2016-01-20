@@ -2,7 +2,6 @@
 
 using System;
 using System.IO;
-using System.Text;
 using System.Threading;
 using System.Web.Script.Serialization;
 using vtortola.WebSockets;
@@ -32,13 +31,10 @@ namespace UlteriusServer.TaskServer.Api.Serialization
             {
                 Push(client, json);
             }
-         
-           
         }
 
         public async void PushBinary(WebSocket client, string endpoint, string syncKey, byte[] data)
         {
-
             try
             {
                 using (var messageWriter = client.CreateMessageWriter(WebSocketMessageType.Binary))
@@ -46,32 +42,27 @@ namespace UlteriusServer.TaskServer.Api.Serialization
                     using (var stream = new MemoryStream(data))
                     {
                         await stream.CopyToAsync(messageWriter);
-
                     }
                 }
             }
             catch (Exception)
             {
-
-              //should never happen
+                //should never happen
             }
         }
 
         public async void PushFile(WebSocket client, string filePath)
         {
-
             using (var messageWriter = client.CreateMessageWriter(WebSocketMessageType.Binary))
             using (var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read))
             {
                 await fs.CopyToAsync(messageWriter);
-
             }
         }
-        private  void Push(WebSocket client, string data)
+
+        private void Push(WebSocket client, string data)
         {
             client.WriteStringAsync(data, CancellationToken.None);
         }
-
-        
     }
 }
