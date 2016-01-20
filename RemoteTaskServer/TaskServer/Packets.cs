@@ -58,7 +58,6 @@ namespace UlteriusServer.TaskServer
                         switch (endpoint)
                         {
                             case "authenticate":
-
                                 packetType = PacketType.Authenticate;
                                 break;
                             case "requestgpuinformation":
@@ -111,6 +110,9 @@ namespace UlteriusServer.TaskServer
                                 break;
                             case "startvncserver":
                                 packetType = PacketType.StartVncServer;
+                                break;
+                                case "changevncpass":
+                                packetType = PacketType.ChangeVncPass;
                                 break;
                             case "changetaskserverport":
                                 packetType = PacketType.ChangeTaskServerPort;
@@ -200,6 +202,7 @@ namespace UlteriusServer.TaskServer
         RequestGpuInformation,
         ChangeVncPort,
         ChangeVncProxyPort,
-        StartVncServer
+        StartVncServer,
+        ChangeVncPass
     }
 }

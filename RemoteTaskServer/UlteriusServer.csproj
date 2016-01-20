@@ -88,6 +88,9 @@
     <Reference Include="MiscUtil">
       <HintPath>..\packages\JonSkeet.MiscUtil.0.1\lib\net35-Client\MiscUtil.dll</HintPath>
     </Reference>
+    <Reference Include="NVNC">
+      <HintPath>..\..\NO-NVNC\NVNC Example\bin\Debug\NVNC.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.DirectoryServices" />
@@ -133,6 +136,7 @@
     <Compile Include="TaskServer\Api\Controllers\Impl\ErrorController.cs" />
     <Compile Include="TaskServer\Api\Controllers\Impl\FileController.cs" />
     <Compile Include="TaskServer\Api\Controllers\Impl\GpuController.cs" />
+    <Compile Include="TaskServer\Api\Controllers\Impl\VncController.cs" />
     <Compile Include="TaskServer\Api\Controllers\Impl\WindowsController.cs" />
     <Compile Include="TaskServer\Api\Controllers\Impl\SettingsController.cs" />
     <Compile Include="TaskServer\Api\Controllers\Impl\NetworkController.cs" />

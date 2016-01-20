@@ -62,6 +62,19 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
             serializator.Serialize(client, packet.endpoint, packet.syncKey, data);
         }
 
+        public void ChangeVncPassword()
+        {
+            var pass = packet.args.First().ToString();
+            settings.Write("Vnc", "VncPass", pass);
+            var currentPass = settings.Read("Vnc", "VncPass", "");
+            var data = new
+            {
+                changedStatus = true,
+                newPass = currentPass
+            };
+            serializator.Serialize(client, packet.endpoint, packet.syncKey, data);
+        }
+
         public void ChangeVncPort()
         {
             var port = int.Parse(packet.args.First().ToString());
@@ -133,13 +146,19 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
             var WebFilePath = settings.Read("WebServer", "WebFilePath", "");
             var TaskServerPort = settings.Read("TaskServer", "TaskServerPort", 8387);
             var SkipHostNameResolve = settings.Read("Network", "SkipHostNameResolve", false);
+            var VncProxyPort = settings.Read("Vnc", "VncProxyPort", 5901);
+            var VncPort = settings.Read("Vnc", "VncPort", 5900);
+            var VncPass = settings.Read("Vnc", "VncPass", "");
             var currentSettingsData = new
             {
                 UseWebServer,
                 WebServerPort,
                 WebFilePath,
                 TaskServerPort,
-                SkipHostNameResolve
+                SkipHostNameResolve,
+                VncPort,
+                VncProxyPort,
+                VncPass
             };
             serializator.Serialize(client, packet.endpoint, packet.syncKey, currentSettingsData);
         }

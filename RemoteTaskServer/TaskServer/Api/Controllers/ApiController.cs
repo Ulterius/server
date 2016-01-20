@@ -69,6 +69,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers
                 var serverController = new ServerController(client, packet);
                 var settingsController = new SettingsController(client, packet);
                 var gpuController = new GpuController(client, packet);
+                var vncController = new VncController(client, packet);
 
                 #endregion
 
@@ -119,6 +120,9 @@ namespace UlteriusServer.TaskServer.Api.Controllers
                     case PacketType.ChangeVncPort:
                         settingsController.ChangeVncPort();
                         break;
+                    case PacketType.ChangeVncPass:
+                        settingsController.ChangeVncPassword();
+                        break;
                     case PacketType.ChangeVncProxyPort:
                         settingsController.ChangeVncProxyPort();
                         break;
@@ -133,6 +137,9 @@ namespace UlteriusServer.TaskServer.Api.Controllers
                         break;
                     case PacketType.GetEventLogs:
                         operatingSystemController.GetEventLogs();
+                        break;
+                    case PacketType.StartVncServer:
+                        vncController.StartVncServer();
                         break;
                     case PacketType.StartProcess:
                         processController.StartProcess();
