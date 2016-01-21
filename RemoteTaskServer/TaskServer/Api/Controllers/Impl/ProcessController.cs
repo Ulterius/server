@@ -195,8 +195,14 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                     }
                 }
             }
-            catch (ManagementException)
+            catch (ManagementException e)
             {
+                var data = new
+                {
+                    managementException = true,
+                    message  = e.Message
+                };
+                serializator.Serialize(client, packet.endpoint, packet.syncKey, data);
             }
 
             return processInformation;
