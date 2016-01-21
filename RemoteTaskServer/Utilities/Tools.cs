@@ -1,6 +1,7 @@
 ﻿#region
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -10,6 +11,7 @@ using System.Net.NetworkInformation;
 using System.Security.Principal;
 using System.Threading;
 using System.Web;
+using OpenHardwareMonitor.Hardware;
 using static System.Security.Principal.WindowsIdentity;
 
 #endregion
@@ -30,6 +32,35 @@ namespace UlteriusServer.Utilities
                 Console.WriteLine("bytes sent: {0}k\tbytes received: {1}k", performanceCounterSent.NextValue() / 1024, performanceCounterReceived.NextValue() / 1024);
                 Thread.Sleep(500);
             }
+        }
+
+        public static void GetTemps()
+        {
+            var myComputer = new Computer();
+           
+            myComputer.Open();
+            myComputer.GPUEnabled = true;
+            myComputer.CPUEnabled = true;
+            myComputer.HDDEnabled = true;
+            myComputer.RAMEnabled = true;
+        
+            foreach (var hardward in myComputer.Hardware)
+            {
+                if (hardward.HardwareType == HardwareType.GpuNvidia)
+                {
+                    Console.WriteLine(hardward.Name);
+                    foreach (var subWare in hardward.SubHardware)
+                    {
+                       
+                    }
+                }
+                
+            }
+            
+               
+
+            
+    
         }
         public static bool HasInternetConnection
         {

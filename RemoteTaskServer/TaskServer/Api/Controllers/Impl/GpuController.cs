@@ -1,7 +1,10 @@
 ﻿#region
 
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Management;
+using OpenHardwareMonitor.Hardware;
 using UlteriusServer.TaskServer.Api.Models;
 using UlteriusServer.TaskServer.Api.Serialization;
 using vtortola.WebSockets;
@@ -24,7 +27,10 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
 
         public void GetGpuInformation()
         {
-            var searcher =
+
+            
+
+                var searcher =
                 new ManagementObjectSearcher("SELECT * FROM Win32_VideoController");
 
             var gpus = (from ManagementBaseObject mo in searcher.Get()
@@ -40,13 +46,41 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                     InstalledDisplayDrivers = mo["InstalledDisplayDrivers"]?.ToString()?.Split(','),
                     AdapterCompatibility = mo["AdapterCompatibility"]?.ToString(),
                     Status = mo["Status"]?.ToString(),
-                    Availability = int.Parse(mo["Availability"]?.ToString() ?? "0")
+                    Availability = int.Parse(mo["Availability"]?.ToString() ?? "0"),
+                    Temperature = GetGpuTemp(mo["Name"]?.ToString())
                 }).ToList();
-            var data = new
+            serializator.Serialize(client, packet.endpoint, packet.syncKey, new
             {
                 gpus
-            };
-            serializator.Serialize(client, packet.endpoint, packet.syncKey, data);
+            });
+        }
+
+        private float? GetGpuTemp(string gpuName)
+        {
+            var myComputer = new Computer();
+
+            myComputer.Open();
+            myComputer.GPUEnabled = true;
+            var gpuTemps = new List<Object>();
+            foreach (var hardwareItem in myComputer.Hardware)
+            {
+                switch (hardwareItem.HardwareType)
+                {
+                    case HardwareType.GpuNvidia:
+                        foreach (var sensor in hardwareItem.Sensors.Where(sensor => sensor.SensorType == SensorType.Temperature && hardwareItem.Name.Contains(gpuName)))
+                        {
+                            return sensor.Value;
+                        }
+                        break;
+                    case HardwareType.GpuAti:
+                        foreach (var sensor in hardwareItem.Sensors.Where(sensor => sensor.SensorType == SensorType.Temperature && hardwareItem.Name.Contains(gpuName)))
+                        {
+                            return sensor.Value;
+                        }
+                        break;
+                }
+            }
+            return -1;
         }
     }
 }
