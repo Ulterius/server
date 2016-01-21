@@ -12,5 +12,6 @@
         //Convert to strings or we get recurrsion errors 
         public string DriveType { get; set; }
         public string RootDirectory { get; set; }
+        public string Model { get; set; }
     }
 }

@@ -23,12 +23,11 @@ namespace UlteriusServer.TaskServer.Services.System
     internal class SystemUtilities
     {
         private string biosCaption;
-        private string biosManufacturer; 
+        private string biosManufacturer;
         private string biosSerial;
         private string cdRom;
         private string motherBoard;
-     
-           
+
 
         public void Start()
         {
@@ -78,7 +77,6 @@ namespace UlteriusServer.TaskServer.Services.System
             return motherBoard;
         }
 
-        
 
         private object GetNetworkInfo()
         {
@@ -89,7 +87,6 @@ namespace UlteriusServer.TaskServer.Services.System
             {
                 totalBytesReceived += networkInterface.GetIPv4Statistics().BytesReceived;
                 totalBytesSent += networkInterface.GetIPv4Statistics().BytesSent;
-
             }
 
 
@@ -98,13 +95,10 @@ namespace UlteriusServer.TaskServer.Services.System
                 totalNetworkInterfaces = NetworkInterface.GetAllNetworkInterfaces().Length,
                 networkInterfaces = NetworkInterface.GetAllNetworkInterfaces(),
                 totalBytesReceived,
-                totalBytesSent,
-
+                totalBytesSent
             };
 
-           
 
-         
             return data;
         }
 
@@ -252,12 +246,17 @@ namespace UlteriusServer.TaskServer.Services.System
 
         public List<DriveInformation> GetDriveInformation()
         {
+            var q = new WqlObjectQuery("SELECT * FROM Win32_DiskDrive");
+            var res = new ManagementObjectSearcher(q);
+            var driveNames = (from ManagementBaseObject o in res.Get() select o["Model"]?.ToString()).ToList();
             var driveList = new List<DriveInformation>();
             var drives = DriveInfo.GetDrives();
-            foreach (var drive in drives)
+            for (var index = 0; index < drives.Length; index++)
             {
+                var drive = drives[index];
                 var driveInfo = new DriveInformation();
                 if (!drive.IsReady) continue;
+                driveInfo.Model = driveNames[index];
                 driveInfo.Name = drive.Name;
                 driveInfo.FreeSpace = drive.TotalFreeSpace;
                 driveInfo.TotalSize = drive.TotalSize;
@@ -294,7 +293,12 @@ namespace UlteriusServer.TaskServer.Services.System
             var myComputer = new Computer();
             myComputer.Open();
             myComputer.CPUEnabled = true;
-            return (from hardwareItem in myComputer.Hardware where hardwareItem.HardwareType == HardwareType.CPU from sensor in hardwareItem.Sensors where sensor.SensorType == SensorType.Temperature where sensor.Value != null select (float) sensor.Value).ToList();
+            return (from hardwareItem in myComputer.Hardware
+                where hardwareItem.HardwareType == HardwareType.CPU
+                from sensor in hardwareItem.Sensors
+                where sensor.SensorType == SensorType.Temperature
+                where sensor.Value != null
+                select (float) sensor.Value).ToList();
         }
 
 
