@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Management;
 using System.Net.NetworkInformation;
 using System.Runtime.InteropServices;
@@ -11,7 +12,9 @@ using System.Security.Principal;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.VisualBasic.Devices;
+using OpenHardwareMonitor.Hardware;
 using UlteriusServer.TaskServer.Api.Models;
+using Computer = OpenHardwareMonitor.Hardware.Computer;
 
 #endregion
 
@@ -43,6 +46,7 @@ namespace UlteriusServer.TaskServer.Services.System
                     SystemInformation.RunningAsAdmin = IsRunningAsAdministrator();
                     SystemInformation.NetworkInfo = GetNetworkInfo();
                     SystemInformation.CpuUsage = GetPerformanceCounters();
+                    SystemInformation.CpuTemps = GetCpuTemps();
                     SystemInformation.MotherBoard = GetMotherBoard();
                     SystemInformation.CdRom = GetCdRom();
                   
@@ -284,6 +288,15 @@ namespace UlteriusServer.TaskServer.Services.System
                 performanceCounters.Add(secondValue);
             }
             return performanceCounters;
+        }
+
+
+        public List<float> GetCpuTemps()
+        {
+            var myComputer = new Computer();
+            myComputer.Open();
+            myComputer.CPUEnabled = true;
+            return (from hardwareItem in myComputer.Hardware where hardwareItem.HardwareType == HardwareType.CPU from sensor in hardwareItem.Sensors where sensor.SensorType == SensorType.Temperature select (float)sensor.Value).ToList();
         }
 
 

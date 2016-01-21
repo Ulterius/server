@@ -34,34 +34,8 @@ namespace UlteriusServer.Utilities
             }
         }
 
-        public static void GetTemps()
-        {
-            var myComputer = new Computer();
-           
-            myComputer.Open();
-            myComputer.GPUEnabled = true;
-            myComputer.CPUEnabled = true;
-            myComputer.HDDEnabled = true;
-            myComputer.RAMEnabled = true;
-        
-            foreach (var hardward in myComputer.Hardware)
-            {
-                if (hardward.HardwareType == HardwareType.GpuNvidia)
-                {
-                    Console.WriteLine(hardward.Name);
-                    foreach (var subWare in hardward.SubHardware)
-                    {
-                       
-                    }
-                }
-                
-            }
-            
-               
-
-            
-    
-        }
+      
+   
         public static bool HasInternetConnection
         {
             // There is no way you can reliably check if there is an internet connection, but we can come close

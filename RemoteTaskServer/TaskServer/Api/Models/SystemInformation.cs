@@ -21,12 +21,14 @@ namespace UlteriusServer.TaskServer.Api.Models
         public static string CdRom { get; set; }
         public static object Bios { get; set; }
         public static object NetworkInfo { get; set; }
+        public static List<float> CpuTemps { get; set; }
 
         public static object ToObject()
         {
             var data = new
             {
                 cpuUsage = CpuUsage,
+                cpuTemps = CpuTemps,
                 totalMemory = TotalMemory,
                 availableMemory = AvailableMemory,
                 usedMemory = UsedMemory,
