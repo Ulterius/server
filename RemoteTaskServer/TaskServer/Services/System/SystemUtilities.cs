@@ -27,8 +27,7 @@ namespace UlteriusServer.TaskServer.Services.System
         private string biosSerial;
         private string cdRom;
         private string motherBoard;
-        static PerformanceCounterCategory performanceCounterCategory = new PerformanceCounterCategory("Network Interface");
-         string instance = performanceCounterCategory.GetInstanceNames()[0]; // 1st NIC !
+     
            
 
         public void Start()
@@ -49,7 +48,6 @@ namespace UlteriusServer.TaskServer.Services.System
                     SystemInformation.CpuTemps = GetCpuTemps();
                     SystemInformation.MotherBoard = GetMotherBoard();
                     SystemInformation.CdRom = GetCdRom();
-                  
                     SystemInformation.Bios = GetBiosInfo();
                 }
             });
@@ -296,7 +294,7 @@ namespace UlteriusServer.TaskServer.Services.System
             var myComputer = new Computer();
             myComputer.Open();
             myComputer.CPUEnabled = true;
-            return (from hardwareItem in myComputer.Hardware where hardwareItem.HardwareType == HardwareType.CPU from sensor in hardwareItem.Sensors where sensor.SensorType == SensorType.Temperature select (float)sensor.Value).ToList();
+            return (from hardwareItem in myComputer.Hardware where hardwareItem.HardwareType == HardwareType.CPU from sensor in hardwareItem.Sensors where sensor.SensorType == SensorType.Temperature where sensor.Value != null select (float) sensor.Value).ToList();
         }
 
 
