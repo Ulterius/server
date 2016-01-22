@@ -253,10 +253,10 @@ namespace UlteriusServer.TaskServer.Services.System
             var drives = DriveInfo.GetDrives();
             for (var index = 0; index < drives.Length; index++)
             {
-                var drive = drives[index] ?? null;
+                var drive = drives[index];
                 var driveInfo = new DriveInformation();
                 if (!drive.IsReady) continue;
-                driveInfo.Model = driveNames[index];
+                driveInfo.Model = driveNames[index] ?? "Unknown:";
                 driveInfo.Name = drive.Name;
                 driveInfo.FreeSpace = drive.TotalFreeSpace;
                 driveInfo.TotalSize = drive.TotalSize;
