@@ -13,7 +13,7 @@ namespace UlteriusServer.Plugins
     public static class PluginLoader<T>
     {
         private static string path = "./data/plugins/";
-        public static List<string> brokenPlugins = new List<string>(); 
+        public static List<string> BrokenPlugins = new List<string>(); 
 
         public static ICollection<IPlugin> LoadPlugins()
         {
@@ -41,7 +41,7 @@ namespace UlteriusServer.Plugins
             catch (Exception)
             {
                 //swallow it baby
-                brokenPlugins.Add(assembly.FullName);
+                BrokenPlugins.Add(assembly.FullName);
                 return Type.EmptyTypes;
             }
         }
