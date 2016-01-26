@@ -29,7 +29,6 @@ namespace UlteriusServer.TaskServer
             }
             catch (Exception)
             {
-               
                 packetType = PacketType.InvalidOrEmptyPacket;
                 return;
             }
@@ -48,9 +47,9 @@ namespace UlteriusServer.TaskServer
                     return;
                 }
                 args = deserializedPacket?.args ?? null;
-                    syncKey = deserializedPacket?.syncKey?.Trim() ?? null;
-               
-    
+                syncKey = deserializedPacket?.syncKey?.Trim() ?? null;
+
+
                 if (!string.IsNullOrEmpty(apiKey))
                 {
                     if (serverKey.Equals(apiKey))
@@ -111,7 +110,7 @@ namespace UlteriusServer.TaskServer
                             case "startvncserver":
                                 packetType = PacketType.StartVncServer;
                                 break;
-                                case "changevncpass":
+                            case "changevncpass":
                                 packetType = PacketType.ChangeVncPass;
                                 break;
                             case "changetaskserverport":
@@ -143,6 +142,15 @@ namespace UlteriusServer.TaskServer
                                 break;
                             case "getactivewindowssnapshots":
                                 packetType = PacketType.GetActiveWindowsSnapshots;
+                                break;
+                            case "plugin":
+                                packetType = PacketType.Plugin;
+                                break;
+                            case "getplugins":
+                                packetType = PacketType.GetPlugins;
+                                break;
+                            case "getbadplugins":
+                                packetType = PacketType.GetBadPlugins;
                                 break;
                             default:
                                 packetType = PacketType.InvalidOrEmptyPacket;
@@ -200,9 +208,12 @@ namespace UlteriusServer.TaskServer
         DownloadFile,
         CreateFileTree,
         RequestGpuInformation,
+        Plugin,
         ChangeVncPort,
         ChangeVncProxyPort,
         StartVncServer,
-        ChangeVncPass
+        ChangeVncPass,
+        GetPlugins,
+        GetBadPlugins
     }
 }

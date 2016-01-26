@@ -119,6 +119,9 @@
     <Reference Include="Newtonsoft.Json, Version=7.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed">
       <HintPath>..\packages\Newtonsoft.Json.7.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
+    <Reference Include="UlteriusPlugins">
+      <HintPath>extensions\UlteriusPlugins.dll</HintPath>
+    </Reference>
     <Reference Include="vtortola.WebSockets, Version=2.1.9.0, Culture=neutral, PublicKeyToken=7f78616efb4a208d, processorArchitecture=MSIL">
       <HintPath>..\packages\vtortola.WebSocketListener.2.1.9.0\lib\net45\vtortola.WebSockets.dll</HintPath>
       <Private>True</Private>
@@ -135,8 +138,11 @@
   <ItemGroup>
     <Compile Include="Authentication\AuthClient.cs" />
     <Compile Include="Authentication\UlteriusLoginDecoder.cs" />
+    <Compile Include="Plugins\PluginLoader.cs" />
+    <Compile Include="Plugins\PluginManager.cs" />
     <Compile Include="TaskServer\Api\API.cs" />
     <Compile Include="TaskServer\Api\Controllers\ApiController.cs" />
+    <Compile Include="TaskServer\Api\Controllers\Impl\PluginController.cs" />
     <Compile Include="TaskServer\Api\Controllers\Impl\ErrorController.cs" />
     <Compile Include="TaskServer\Api\Controllers\Impl\FileController.cs" />
     <Compile Include="TaskServer\Api\Controllers\Impl\GpuController.cs" />

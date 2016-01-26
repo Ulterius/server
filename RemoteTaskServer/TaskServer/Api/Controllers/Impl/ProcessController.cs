@@ -200,7 +200,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                 var data = new
                 {
                     managementException = true,
-                    message  = e.Message
+                    message = e.Message
                 };
                 serializator.Serialize(client, packet.endpoint, packet.syncKey, data);
             }

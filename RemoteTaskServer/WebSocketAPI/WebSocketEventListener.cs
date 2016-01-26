@@ -52,7 +52,7 @@ namespace UlteriusServer.WebSocketAPI
 
         public void Start()
         {
-                       _listener.Start();
+            _listener.Start();
             Task.Run(ListenAsync);
         }
 

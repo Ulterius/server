@@ -33,9 +33,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                 var vncPort = settings.Read("Vnc", "VncPort", 5900);
                 var vncPass = settings.Read("Vnc", "VncPass", "");
                 vncServer = new VncServer(vncPass, vncProxyPort, vncPort, "Ulterius VNC");
-                Task.Run(() => {
-                    vncServer.Start();
-                });
+                Task.Run(() => { vncServer.Start(); });
                 var endData = new
                 {
                     vncStarted = true,
@@ -50,6 +48,5 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                 vncServer?.Stop();
             }
         }
-
     }
 }

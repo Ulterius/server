@@ -87,6 +87,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
             };
             serializator.Serialize(client, packet.endpoint, packet.syncKey, data);
         }
+
         public void ChangeVncProxyPort()
         {
             var port = int.Parse(packet.args.First().ToString());

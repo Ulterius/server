@@ -46,7 +46,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                 CpuInformation.L3Cache = (uint) cpu["L3CacheSize"]*(ulong) 1024;
                 CpuInformation.Cores = (uint) cpu["NumberOfCores"];
                 CpuInformation.Threads = (uint) cpu["NumberOfLogicalProcessors"];
-               
+
                 CpuInformation.Name =
                     CpuInformation.Name
                         .Replace("(TM)", "™")

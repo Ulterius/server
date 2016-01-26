@@ -27,10 +27,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
 
         public void GetGpuInformation()
         {
-
-            
-
-                var searcher =
+            var searcher =
                 new ManagementObjectSearcher("SELECT * FROM Win32_VideoController");
 
             var gpus = (from ManagementBaseObject mo in searcher.Get()
@@ -67,13 +64,23 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                 switch (hardwareItem.HardwareType)
                 {
                     case HardwareType.GpuNvidia:
-                        foreach (var sensor in hardwareItem.Sensors.Where(sensor => sensor.SensorType == SensorType.Temperature && hardwareItem.Name.Contains(gpuName)))
+                        foreach (
+                            var sensor in
+                                hardwareItem.Sensors.Where(
+                                    sensor =>
+                                        sensor.SensorType == SensorType.Temperature &&
+                                        hardwareItem.Name.Contains(gpuName)))
                         {
                             return sensor.Value;
                         }
                         break;
                     case HardwareType.GpuAti:
-                        foreach (var sensor in hardwareItem.Sensors.Where(sensor => sensor.SensorType == SensorType.Temperature && hardwareItem.Name.Contains(gpuName)))
+                        foreach (
+                            var sensor in
+                                hardwareItem.Sensors.Where(
+                                    sensor =>
+                                        sensor.SensorType == SensorType.Temperature &&
+                                        hardwareItem.Name.Contains(gpuName)))
                         {
                             return sensor.Value;
                         }

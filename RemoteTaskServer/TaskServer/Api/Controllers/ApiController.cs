@@ -70,6 +70,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers
                 var settingsController = new SettingsController(Client, packet);
                 var gpuController = new GpuController(Client, packet);
                 var vncController = new VncController(Client, packet);
+                var pluginController = new PluginController(Client, packet);
 
                 #endregion
 
@@ -79,8 +80,16 @@ namespace UlteriusServer.TaskServer.Api.Controllers
                         fileController.DownloadFile();
                         break;
                     case PacketType.RequestGpuInformation:
-                            gpuController.GetGpuInformation();
-                        
+                        gpuController.GetGpuInformation();
+                        break;
+                    case PacketType.Plugin:
+                        pluginController.StartPlugin();
+                        break;
+                    case PacketType.GetPlugins:
+                        pluginController.ListPlugins();
+                        break;
+                    case PacketType.GetBadPlugins:
+                        pluginController.ListBadPlugins();
                         break;
                     case PacketType.CreateFileTree:
                         fileController.CreateFileTree();
@@ -172,7 +181,6 @@ namespace UlteriusServer.TaskServer.Api.Controllers
             }
             else
             {
-                
                 errorController.NoAuth();
             }
         }

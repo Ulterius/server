@@ -32,7 +32,7 @@ namespace UlteriusServer.TaskServer
             var cancellation = new CancellationTokenSource();
             var endpoint = new IPEndPoint(IPAddress.Parse(NetworkUtilities.GetIPv4Address()), port);
             var server = new WebSocketEventListener(endpoint);
-        
+
             server.OnConnect += HandleConnect;
             server.OnDisconnect += HandleDisconnect;
             server.OnMessage += HandleMessage;
@@ -43,6 +43,7 @@ namespace UlteriusServer.TaskServer
 
         private static void HandleError(WebSocket websocket, Exception error)
         {
+            Console.WriteLine(error.StackTrace + " " + error.Message);
         }
 
         private static void HandleMessage(WebSocket websocket, string message)
