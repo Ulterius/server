@@ -34,11 +34,15 @@ namespace UlteriusServer.Plugins
         {
             _Plugins = new Dictionary<string, IPlugin>();
             var plugins = PluginLoader<IPlugin>.LoadPlugins();
-            BadPlugins.AddRange(PluginLoader<IPlugin>.brokenPlugins);
-            foreach (var plugin in plugins)
+            if (plugins != null)
             {
-                _Plugins.Add(plugin.GUID.ToString(), plugin);
+                BadPlugins.AddRange(PluginLoader<IPlugin>.brokenPlugins);
+                foreach (var plugin in plugins)
+                {
+                    _Plugins.Add(plugin.GUID.ToString(), plugin);
+                }
             }
+           
         }
     }
 }
