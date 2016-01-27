@@ -1,30 +1,15 @@
-# Ulterius 
+# Ulterius: All in one Windows Management Server 
 
-![images](http://i.andrew.im/12bruk.png)
 
-### What is it?
 
-Ulteris is an application that allows you to manipulate processes on your computer, this includes starting, restarting, killing, and priority changes.
+### Description
 
-This software is under development 
+Ulteris a windows based server that allows you to interact with various parts of your system, all remotely through an HTML5 interface. You can start/kill processes, use powershell/cmd, monitor system peformance and healthy, browse your local files, download them to a remote device, and much, much more all from your web browser.
 
-### ROAD MAP
 
-- [ ] Build a solid frontend
-
-- [ ] Linux/Mac Support
 
 
 ### Contact
 
 [Twitter](https://twitter.com/andrewmd5)
 
-
-### Libraries and 3rd party code used in this project 
-
-- log4net
-- Magnum
-- MassTransit
-- vtortola Web Sockets/Sample terminal
-- NewtonSoft
-- MiscUtils
