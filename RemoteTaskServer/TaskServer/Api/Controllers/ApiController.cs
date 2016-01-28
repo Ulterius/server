@@ -71,6 +71,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers
                 var gpuController = new GpuController(Client, packet);
                 var vncController = new VncController(Client, packet);
                 var pluginController = new PluginController(Client, packet);
+                var webcamController = new WebCamController(Client, packet);
 
                 #endregion
 
@@ -93,6 +94,21 @@ namespace UlteriusServer.TaskServer.Api.Controllers
                         break;
                     case PacketType.CreateFileTree:
                         fileController.CreateFileTree();
+                        break;
+                    case PacketType.StartWebCam:
+                       webcamController.StartCamera();
+                        break;
+                    case PacketType.StopWebCam:
+                       webcamController.StopCamera();
+                        break;
+                    case PacketType.PauseWebCam:
+                        webcamController.PauseCamera();
+                        break;
+                    case PacketType.GetCameras:
+                        webcamController.GetCameras();
+                        break;
+                    case PacketType.GetCameraFrame:
+                        webcamController.GetWebCamFrame();
                         break;
                     case PacketType.RequestProcess:
                         processController.RequestProcessInformation();

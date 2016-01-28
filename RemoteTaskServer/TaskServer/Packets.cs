@@ -152,6 +152,21 @@ namespace UlteriusServer.TaskServer
                             case "getbadplugins":
                                 packetType = PacketType.GetBadPlugins;
                                 break;
+                            case "startwebcam":
+                                packetType = PacketType.StartWebCam;
+                                break;
+                            case "stopwebcam":
+                                packetType = PacketType.StopWebCam;
+                                break;
+                            case "pausewebcam":
+                                packetType = PacketType.PauseWebCam;
+                                break;
+                            case "getcameras":
+                                packetType = PacketType.GetCameras;
+                                break;
+                            case "getcameraframe":
+                                packetType = PacketType.GetCameraFrame;
+                                break;
                             default:
                                 packetType = PacketType.InvalidOrEmptyPacket;
                                 break;
@@ -214,6 +229,11 @@ namespace UlteriusServer.TaskServer
         StartVncServer,
         ChangeVncPass,
         GetPlugins,
-        GetBadPlugins
+        GetBadPlugins,
+        PauseWebCam,
+        StopWebCam,
+        StartWebCam,
+        GetCameras,
+        GetCameraFrame
     }
 }

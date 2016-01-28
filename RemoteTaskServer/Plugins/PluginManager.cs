@@ -36,7 +36,7 @@ namespace UlteriusServer.Plugins
             var plugins = PluginLoader<IPlugin>.LoadPlugins();
             if (plugins != null)
             {
-                BadPlugins.AddRange(PluginLoader<IPlugin>.brokenPlugins);
+                BadPlugins.AddRange(PluginLoader<IPlugin>.BrokenPlugins);
                 foreach (var plugin in plugins)
                 {
                     _Plugins.Add(plugin.GUID.ToString(), plugin);

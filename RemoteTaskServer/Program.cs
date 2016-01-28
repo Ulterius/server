@@ -11,6 +11,7 @@ using UlteriusServer.TaskServer;
 using UlteriusServer.TaskServer.Services.System;
 using UlteriusServer.TerminalServer;
 using UlteriusServer.Utilities;
+using UlteriusServer.WebCams;
 
 #endregion
 
@@ -23,12 +24,13 @@ namespace UlteriusServer
             Console.Title = Resources.Program_Title;
             if (!Debugger.IsAttached)
                 ExceptionHandler.AddGlobalHandlers();
-
+            WebCamManager.LoadWebcams();
             PluginManager.LoadPlugins();
             Tools.GenerateSettings();
             HttpServer.Setup();
             var systemUtilities = new SystemUtilities();
             systemUtilities.Start();
+            
             //Keep down here if you actually want a functional program
             TaskManagerServer.Start();
             TerminalManagerServer.Start();
