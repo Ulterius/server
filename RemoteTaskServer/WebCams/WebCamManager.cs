@@ -3,12 +3,10 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
+using System.Windows.Forms;
 using M1.Video;
 
 #endregion
@@ -31,15 +29,33 @@ namespace UlteriusServer.WebCams
             return true;
         }
 
+        public static void StopAllCameras()
+        {
+            foreach (var camera in _Cameras)
+            {
+                StopCamera(camera.Value.CameraInfo.Id);
+            }
+        }
+
+        public static void StartAllCameras()
+        {
+            foreach (var camera in _Cameras)
+            {
+                StartCamera(camera.Value.CameraInfo.Id);
+            }
+        }
+
         public static List<Cameras> GetCameras()
         {
-            var cameras = CameraInfo.GetCameraInfos();
+            var cameras = _Cameras;
             var cameraInfo = cameras.Select(currentCamera => new Cameras
             {
-                Id = currentCamera.Id,
-                Name = currentCamera.FriendlyName,
-                DisplayName = currentCamera.DisplayName,
-                DevicePath = currentCamera.DevicePath
+                Id = currentCamera.Value.CameraInfo.Id,
+                Name = currentCamera.Value.CameraInfo.FriendlyName,
+                DisplayName = currentCamera.Value.CameraInfo.DisplayName,
+                DevicePath = currentCamera.Value.CameraInfo.DevicePath,
+                CameraStatus = currentCamera.Value.CameraState.ToString()
+
             }).ToList();
             return cameraInfo;
         }
@@ -88,7 +104,6 @@ namespace UlteriusServer.WebCams
                     var imageBytes = ms.ToArray();
                     _Frames[webcamIdHash] = imageBytes;
                 }
-                        
             }
         }
 
@@ -98,6 +113,7 @@ namespace UlteriusServer.WebCams
             public string Name { get; set; }
             public string DisplayName { get; set; }
             public string DevicePath { get; set; }
+            public string CameraStatus { get; set; }
         }
     }
 }

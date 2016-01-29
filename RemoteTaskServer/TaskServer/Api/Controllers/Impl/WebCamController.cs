@@ -25,6 +25,16 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
             this.packet = packet;
         }
 
+        public void RefreshCameras()
+        {
+            WebCamManager.LoadWebcams();
+            var data = new
+            {
+                cameraFresh = true,
+                message = "Cameras have been refreshed!"
+            };
+            serializator.Serialize(client, packet.endpoint, packet.syncKey, data);
+        }
         public void GetCameras()
         {
             var cameras = WebCamManager.GetCameras();
@@ -34,6 +44,8 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
             };
             serializator.Serialize(client, packet.endpoint, packet.syncKey, data);
         }
+
+      
 
         public void StartCamera()
         {

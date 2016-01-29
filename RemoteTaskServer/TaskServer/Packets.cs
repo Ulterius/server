@@ -22,6 +22,7 @@ namespace UlteriusServer.TaskServer
 
         public Packets(string packetJson)
         {
+            Console.WriteLine(packetJson);
             JsPacket deserializedPacket = null;
             try
             {
@@ -167,6 +168,9 @@ namespace UlteriusServer.TaskServer
                             case "getcameraframe":
                                 packetType = PacketType.GetCameraFrame;
                                 break;
+                            case "refreshcameras":
+                                packetType = PacketType.RefreshCameras;
+                                break;
                             default:
                                 packetType = PacketType.InvalidOrEmptyPacket;
                                 break;
@@ -234,6 +238,7 @@ namespace UlteriusServer.TaskServer
         StopWebCam,
         StartWebCam,
         GetCameras,
-        GetCameraFrame
+        GetCameraFrame,
+        RefreshCameras
     }
 }
