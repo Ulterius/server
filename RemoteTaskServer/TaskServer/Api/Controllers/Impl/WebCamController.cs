@@ -1,11 +1,8 @@
 ﻿#region
 
 using System;
-using System.Drawing.Imaging;
-using System.IO;
 using System.Linq;
 using System.Threading;
-using M1.Video;
 using UlteriusServer.TaskServer.Api.Serialization;
 using UlteriusServer.WebCams;
 using vtortola.WebSockets;
@@ -37,6 +34,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
             };
             serializator.Serialize(client, packet.endpoint, packet.syncKey, data);
         }
+
         public void GetCameras()
         {
             var cameras = WebCamManager.GetCameras();
@@ -47,7 +45,6 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
             serializator.Serialize(client, packet.endpoint, packet.syncKey, data);
         }
 
-      
 
         public void StartCamera()
         {
@@ -90,7 +87,6 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
 
         public void StartStream()
         {
-           
             var cameraId = packet.args.First().ToString();
             var streamThread = new Thread(() => GetWebCamFrame(cameraId));
             WebCamManager._Streams[cameraId.GetHashCode().ToString()] = streamThread;
@@ -102,7 +98,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                 cameraId,
                 cameraStreamStarted = true
             };
-           
+
             serializator.Serialize(client, packet.endpoint, packet.syncKey, data);
         }
 
@@ -124,12 +120,10 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                     };
                     serializator.Serialize(client, packet.endpoint, packet.syncKey, data);
                 }
-               
             }
         }
 
-            
-        
+
         public void GetWebCamFrame(string cameraId)
         {
             while (client.IsConnected)
@@ -145,7 +139,6 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                     };
 
                     serializator.Serialize(client, "getcameraframe", packet.syncKey, data);
-
                 }
                 catch (Exception e)
                 {
@@ -159,7 +152,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                     serializator.Serialize(client, "getcameraframe", packet.syncKey, data);
                 }
             }
-           StopStream();
+            StopStream();
         }
 
         public class Cameras

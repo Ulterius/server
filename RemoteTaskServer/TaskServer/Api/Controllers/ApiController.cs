@@ -96,13 +96,13 @@ namespace UlteriusServer.TaskServer.Api.Controllers
                     case PacketType.CreateFileTree:
                         fileController.CreateFileTree();
                         break;
-                    case PacketType.StartWebCam:
+                    case PacketType.StartCamera:
                        webcamController.StartCamera();
                         break;
-                    case PacketType.StopWebCam:
+                    case PacketType.StopCamera:
                        webcamController.StopCamera();
                         break;
-                    case PacketType.PauseWebCam:
+                    case PacketType.PauseCamera:
                         webcamController.PauseCamera();
                         break;
                     case PacketType.GetCameras:
