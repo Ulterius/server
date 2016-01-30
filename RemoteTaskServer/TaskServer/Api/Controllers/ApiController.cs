@@ -108,8 +108,11 @@ namespace UlteriusServer.TaskServer.Api.Controllers
                     case PacketType.GetCameras:
                         webcamController.GetCameras();
                         break;
-                    case PacketType.GetCameraFrame:
-                        webcamController.GetWebCamFrame();
+                    case PacketType.StartCameraStream:
+                        webcamController.StartStream();
+                        break;
+                    case PacketType.StopCameraStream:
+                        webcamController.StopStream();
                         break;
                     case PacketType.RequestProcess:
                         processController.RequestProcessInformation();

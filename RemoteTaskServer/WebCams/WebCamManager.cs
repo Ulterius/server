@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using M1.Video;
 
@@ -18,6 +20,7 @@ namespace UlteriusServer.WebCams
         //TODO TURN INTO AN MJPEG STREAMING SERVER
         public static Dictionary<string, Camera> _Cameras;
         public static ConcurrentDictionary<string, byte[]> _Frames { get; set; }
+        public static ConcurrentDictionary<string, Thread> _Streams { get; set; }
 
 
         public static bool StartCamera(string cameraId)
@@ -84,6 +87,7 @@ namespace UlteriusServer.WebCams
             try
             {
                 _Cameras = new Dictionary<string, Camera>();
+                _Streams = new ConcurrentDictionary<string, Thread>();
                 _Frames = new ConcurrentDictionary<string, byte[]>();
                 foreach (var hardwareCamera in CameraInfo.GetCameraInfos())
                 {

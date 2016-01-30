@@ -153,20 +153,26 @@ namespace UlteriusServer.TaskServer
                             case "getbadplugins":
                                 packetType = PacketType.GetBadPlugins;
                                 break;
-                            case "startwebcam":
-                                packetType = PacketType.StartWebCam;
+                            case "startcamera":
+                                packetType = PacketType.StartCamera;
                                 break;
-                            case "stopwebcam":
-                                packetType = PacketType.StopWebCam;
+                            case "stopcamera":
+                                packetType = PacketType.StopCamera;
                                 break;
-                            case "pausewebcam":
-                                packetType = PacketType.PauseWebCam;
+                            case "pausecamera":
+                                packetType = PacketType.PauseCamera;
                                 break;
                             case "getcameras":
                                 packetType = PacketType.GetCameras;
                                 break;
                             case "getcameraframe":
                                 packetType = PacketType.GetCameraFrame;
+                                break;
+                            case "startcamerastream":
+                                packetType = PacketType.StartCameraStream;
+                                break;
+                            case "stopcamerastream":
+                                packetType = PacketType.StopCameraStream;
                                 break;
                             case "refreshcameras":
                                 packetType = PacketType.RefreshCameras;
@@ -234,11 +240,13 @@ namespace UlteriusServer.TaskServer
         ChangeVncPass,
         GetPlugins,
         GetBadPlugins,
-        PauseWebCam,
-        StopWebCam,
-        StartWebCam,
+        PauseCamera,
+        StopCamera,
+        StartCamera,
         GetCameras,
         GetCameraFrame,
-        RefreshCameras
+        RefreshCameras,
+        StartCameraStream,
+        StopCameraStream
     }
 }

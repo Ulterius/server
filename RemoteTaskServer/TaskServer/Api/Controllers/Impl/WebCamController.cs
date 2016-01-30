@@ -4,6 +4,7 @@ using System;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using M1.Video;
 using UlteriusServer.TaskServer.Api.Serialization;
 using UlteriusServer.WebCams;
@@ -87,33 +88,78 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
             serializator.Serialize(client, packet.endpoint, packet.syncKey, data);
         }
 
-
-        public void GetWebCamFrame()
+        public void StartStream()
         {
+           
             var cameraId = packet.args.First().ToString();
-            try
+            var streamThread = new Thread(() => GetWebCamFrame(cameraId));
+            WebCamManager._Streams[cameraId.GetHashCode().ToString()] = streamThread;
+            WebCamManager._Streams[cameraId.GetHashCode().ToString()].IsBackground = true;
+            WebCamManager._Streams[cameraId.GetHashCode().ToString()].Start();
+
+            var data = new
             {
-                var cameraHash = cameraId.GetHashCode().ToString();
-                var imageBytes = WebCamManager._Frames[cameraHash];
+                cameraId,
+                cameraStreamStarted = true
+            };
+           
+            serializator.Serialize(client, packet.endpoint, packet.syncKey, data);
+        }
+
+
+        public void StopStream()
+        {
+            Console.WriteLine("Stream stopped");
+            var cameraId = packet.args.First().ToString();
+            var streamThread = WebCamManager._Streams[cameraId.GetHashCode().ToString()];
+            if (streamThread != null)
+            {
+                WebCamManager._Streams[cameraId.GetHashCode().ToString()].Abort();
+                if (client.IsConnected)
+                {
+                    var data = new
+                    {
+                        cameraId,
+                        cameraStreamStopped = true
+                    };
+                    serializator.Serialize(client, packet.endpoint, packet.syncKey, data);
+                }
+               
+            }
+        }
+
+            
+        
+        public void GetWebCamFrame(string cameraId)
+        {
+            while (client.IsConnected)
+            {
+                try
+                {
+                    var cameraHash = cameraId.GetHashCode().ToString();
+                    var imageBytes = WebCamManager._Frames[cameraHash];
                     var data = new
                     {
                         cameraId,
                         cameraFrame = imageBytes
                     };
-                    serializator.Serialize(client, packet.endpoint, packet.syncKey, data);
-                
-            }
-            catch (Exception e)
-            {
-                var data = new
+
+                    serializator.Serialize(client, "getcameraframe", packet.syncKey, data);
+
+                }
+                catch (Exception e)
                 {
-                    cameraFrameFailed = true,
-                    cameraId,
-                    message = "Something went wrong and we were unable to get a feed from this camera!",
-                    exceptionMessage = e.StackTrace
-                };
-                serializator.Serialize(client, packet.endpoint, packet.syncKey, data);
+                    var data = new
+                    {
+                        cameraFrameFailed = true,
+                        cameraId,
+                        message = "Something went wrong and we were unable to get a feed from this camera!",
+                        exceptionMessage = e.StackTrace
+                    };
+                    serializator.Serialize(client, "getcameraframe", packet.syncKey, data);
+                }
             }
+           StopStream();
         }
 
         public class Cameras
