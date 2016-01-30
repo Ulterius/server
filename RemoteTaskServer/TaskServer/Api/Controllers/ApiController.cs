@@ -163,7 +163,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers
                         systemController.GetSystemInformation();
                         break;
                     case PacketType.GetEventLogs:
-                        Task.Factory.StartNew(() => operatingSystemController.GetEventLogs());           
+                        Task.Factory.StartNew(() => operatingSystemController.GetEventLogs());                                   
                         break;
                     case PacketType.StartVncServer:
                         vncController.StartVncServer();

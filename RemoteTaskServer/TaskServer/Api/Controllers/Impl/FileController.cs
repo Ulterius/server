@@ -36,6 +36,10 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
             serializator.Serialize(_client, packet.endpoint, packet.syncKey, tree);
         }
 
+        public void SearchFile()
+        {
+            
+        }
         public void DownloadFile()
         {
             var path = packet.args.First().ToString();

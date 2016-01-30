@@ -4,6 +4,7 @@ using System;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using M1.Video;
 using UlteriusServer.TaskServer.Api.Serialization;
 using UlteriusServer.WebCams;
 using vtortola.WebSockets;
@@ -50,11 +51,12 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
         public void StartCamera()
         {
             var cameraId = packet.args.First().ToString();
-            var cameraStatus = WebCamManager.StartCamera(cameraId);
+            var cameraStarted = WebCamManager.StartCamera(cameraId);
+            var camera = WebCamManager._Cameras[cameraId.GetHashCode().ToString()];
             var data = new
             {
-                cameraStatus,
-                cameraStarted = cameraStatus
+                cameraStatus = camera.CameraState.ToString(),
+                cameraStarted
             };
             serializator.Serialize(client, packet.endpoint, packet.syncKey, data);
         }
@@ -62,11 +64,12 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
         public void StopCamera()
         {
             var cameraId = packet.args.First().ToString();
-            var cameraStatus = WebCamManager.StopCamera(cameraId);
+            var cameraStopped = WebCamManager.StopCamera(cameraId);
+            var camera = WebCamManager._Cameras[cameraId.GetHashCode().ToString()];
             var data = new
             {
-                cameraStatus,
-                cameraStopped = cameraStatus
+                cameraStatus = camera.CameraState.ToString(),
+                cameraStopped
             };
             serializator.Serialize(client, packet.endpoint, packet.syncKey, data);
         }
@@ -74,11 +77,12 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
         public void PauseCamera()
         {
             var cameraId = packet.args.First().ToString();
-            var cameraStatus = WebCamManager.PauseCamera(cameraId);
+            var cameraPaused = WebCamManager.PauseCamera(cameraId);
+            var camera = WebCamManager._Cameras[cameraId.GetHashCode().ToString()];
             var data = new
             {
-                cameraStatus,
-                cameraPaused = cameraStatus
+                cameraStatus = camera.CameraState.ToString(),
+                cameraPaused
             };
             serializator.Serialize(client, packet.endpoint, packet.syncKey, data);
         }
