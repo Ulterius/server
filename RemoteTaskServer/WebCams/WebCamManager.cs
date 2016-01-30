@@ -81,17 +81,25 @@ namespace UlteriusServer.WebCams
 
         public static void LoadWebcams()
         {
-            _Cameras = new Dictionary<string, Camera>();
-            _Frames = new ConcurrentDictionary<string, byte[]>();
-            foreach (var hardwareCamera in CameraInfo.GetCameraInfos())
+            try
             {
-                var camera = new Camera(CameraInfo.GetCameraInfo(hardwareCamera.Id), hardwareCamera.VideoFormats[0]);
-                camera.Capture +=
-                    (sender, e) =>
-                        HandleFrame(sender, e, hardwareCamera.Id.GetHashCode().ToString());
-                _Cameras.Add(hardwareCamera.Id.GetHashCode().ToString(), camera);
+                _Cameras = new Dictionary<string, Camera>();
+                _Frames = new ConcurrentDictionary<string, byte[]>();
+                foreach (var hardwareCamera in CameraInfo.GetCameraInfos())
+                {
+                    var camera = new Camera(CameraInfo.GetCameraInfo(hardwareCamera.Id), hardwareCamera.VideoFormats[0]);
+                    camera.Capture +=
+                        (sender, e) =>
+                            HandleFrame(sender, e, hardwareCamera.Id.GetHashCode().ToString());
+                    _Cameras.Add(hardwareCamera.Id.GetHashCode().ToString(), camera);
+                }
+                Console.WriteLine(_Cameras.Count + " cameras loaded");
             }
-            Console.WriteLine(_Cameras.Count + " cameras loaded");
+            catch (Exception)
+            {
+
+                // Eat it whole!
+            }
         }
 
         private static void HandleFrame(object sender, NewFrameEventArgs camera, string webcamIdHash)
