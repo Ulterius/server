@@ -3,6 +3,7 @@
 using System;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using UlteriusServer.Authentication;
 using UlteriusServer.TaskServer.Api.Controllers.Impl;
 using vtortola.WebSockets;
@@ -162,7 +163,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers
                         systemController.GetSystemInformation();
                         break;
                     case PacketType.GetEventLogs:
-                        operatingSystemController.GetEventLogs();
+                        Task.Factory.StartNew(() => operatingSystemController.GetEventLogs());           
                         break;
                     case PacketType.StartVncServer:
                         vncController.StartVncServer();

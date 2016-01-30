@@ -26,6 +26,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
         public void GetEventLogs()
         {
             serializator.Serialize(client, packet.endpoint, packet.syncKey, SystemUtilities.GetEventLogs());
+            System.GC.Collect();
         }
 
         public void GetOperatingSystemInformation()
