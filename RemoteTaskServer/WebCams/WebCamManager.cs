@@ -5,6 +5,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Threading;
 using AForge.Video;
 using AForge.Video.DirectShow;
@@ -23,6 +24,10 @@ namespace UlteriusServer.WebCams
 
         public static bool StartCamera(string cameraId)
         {
+            if (Marshal.IsComObject(cameraId))
+            {
+                Marshal.ReleaseComObject(cameraId);
+            }
             try
             {
                 var camera = _Cameras[cameraId];
@@ -76,6 +81,10 @@ namespace UlteriusServer.WebCams
 
         public static bool StopCamera(string cameraId)
         {
+            if (Marshal.IsComObject(cameraId))
+            {
+                Marshal.ReleaseComObject(cameraId);
+            }
             try
             {
                 var camera = _Cameras[cameraId];
