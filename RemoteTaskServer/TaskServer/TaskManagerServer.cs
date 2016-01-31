@@ -51,10 +51,9 @@ namespace UlteriusServer.TaskServer
             foreach (var apiController in
                 ApiControllers.Select(controller => controller.Value)
                     .Where(apiController => apiController.Client == websocket))
-            {;
+            {
                 var packet = new Packets(message);
-                Task task = new Task(delegate { apiController.HandlePacket(packet); });
-                task.Start();
+                apiController.HandlePacket(packet);
             }
         }
 
