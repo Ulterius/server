@@ -214,7 +214,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                         cameraFrameFailed = true,
                         cameraId,
                         message = "Something went wrong and we were unable to get a feed from this camera!",
-                        exceptionMessage = e.StackTrace
+                        exceptionMessage = e.Message
                     };
                     serializator.Serialize(client, "getcameraframe", packet.syncKey, data);
                 }
