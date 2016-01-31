@@ -205,6 +205,10 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                 }
                 catch (Exception e)
                 {
+                    if (!WebCamManager._Streams[cameraId].IsAlive)
+                    {
+                        return;
+                    }
                     var data = new
                     {
                         cameraFrameFailed = true,
