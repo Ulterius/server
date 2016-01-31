@@ -76,13 +76,15 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
 
         public void StopCamera()
         {
+            var cameraId = packet.args.First().ToString();
             try
             {
-                var cameraId = packet.args.First().ToString();
+               
                 var cameraStopped = WebCamManager.StopCamera(cameraId);
                 var camera = WebCamManager._Cameras[cameraId];
                 var data = new
                 {
+                    cameraId,
                     cameraRunning = camera.IsRunning,
                     cameraStopped
                 };
@@ -93,6 +95,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
 
                 var data = new
                 {
+                    cameraId,
                     cameraRunning = false,
                     cameraStarted = false
                 };
