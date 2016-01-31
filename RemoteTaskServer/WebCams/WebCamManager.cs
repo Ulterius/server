@@ -24,10 +24,6 @@ namespace UlteriusServer.WebCams
 
         public static bool StartCamera(string cameraId)
         {
-            if (Marshal.IsComObject(cameraId))
-            {
-                Marshal.ReleaseComObject(cameraId);
-            }
             try
             {
                 var camera = _Cameras[cameraId];
@@ -81,10 +77,6 @@ namespace UlteriusServer.WebCams
 
         public static bool StopCamera(string cameraId)
         {
-            if (Marshal.IsComObject(cameraId))
-            {
-                Marshal.ReleaseComObject(cameraId);
-            }
             try
             {
                 var camera = _Cameras[cameraId];

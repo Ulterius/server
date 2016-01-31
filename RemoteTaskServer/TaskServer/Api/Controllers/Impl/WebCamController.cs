@@ -49,27 +49,55 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
         public void StartCamera()
         {
             var cameraId = packet.args.First().ToString();
-            var cameraStarted = WebCamManager.StartCamera(cameraId);
-            var camera = WebCamManager._Cameras[cameraId];
-            var data = new
+            try
             {
-                cameraRunning = camera.IsRunning,
-                cameraStarted
-            };
-            serializator.Serialize(client, packet.endpoint, packet.syncKey, data);
+                var cameraStarted = WebCamManager.StartCamera(cameraId);
+                var camera = WebCamManager._Cameras[cameraId];
+                var data = new
+                {
+                    cameraId = cameraId,
+                    cameraRunning = camera.IsRunning,
+                    cameraStarted
+                };
+                serializator.Serialize(client, packet.endpoint, packet.syncKey, data);
+            }
+            catch (Exception)
+            {
+
+                var data = new
+                {
+                    cameraId = cameraId,
+                    cameraRunning = false,
+                    cameraStarted = false
+                };
+                serializator.Serialize(client, packet.endpoint, packet.syncKey, data);
+            }
         }
 
         public void StopCamera()
         {
-            var cameraId = packet.args.First().ToString();
-            var cameraStopped = WebCamManager.StopCamera(cameraId);
-            var camera = WebCamManager._Cameras[cameraId];
-            var data = new
+            try
             {
-                cameraRunning = camera.IsRunning,
-                cameraStopped
-            };
-            serializator.Serialize(client, packet.endpoint, packet.syncKey, data);
+                var cameraId = packet.args.First().ToString();
+                var cameraStopped = WebCamManager.StopCamera(cameraId);
+                var camera = WebCamManager._Cameras[cameraId];
+                var data = new
+                {
+                    cameraRunning = camera.IsRunning,
+                    cameraStopped
+                };
+                serializator.Serialize(client, packet.endpoint, packet.syncKey, data);
+            }
+            catch (Exception)
+            {
+
+                var data = new
+                {
+                    cameraRunning = false,
+                    cameraStarted = false
+                };
+                serializator.Serialize(client, packet.endpoint, packet.syncKey, data);
+            }
         }
 
         public void PauseCamera()
