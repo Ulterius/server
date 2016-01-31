@@ -50,10 +50,10 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
         {
             var cameraId = packet.args.First().ToString();
             var cameraStarted = WebCamManager.StartCamera(cameraId);
-            var camera = WebCamManager._Cameras[cameraId.GetHashCode().ToString()];
+            var camera = WebCamManager._Cameras[cameraId];
             var data = new
             {
-                cameraStatus = camera.CameraState.ToString(),
+                cameraRunning = camera.IsRunning,
                 cameraStarted
             };
             serializator.Serialize(client, packet.endpoint, packet.syncKey, data);
@@ -63,10 +63,10 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
         {
             var cameraId = packet.args.First().ToString();
             var cameraStopped = WebCamManager.StopCamera(cameraId);
-            var camera = WebCamManager._Cameras[cameraId.GetHashCode().ToString()];
+            var camera = WebCamManager._Cameras[cameraId];
             var data = new
             {
-                cameraStatus = camera.CameraState.ToString(),
+                cameraRunning = camera.IsRunning,
                 cameraStopped
             };
             serializator.Serialize(client, packet.endpoint, packet.syncKey, data);
@@ -76,10 +76,10 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
         {
             var cameraId = packet.args.First().ToString();
             var cameraPaused = WebCamManager.PauseCamera(cameraId);
-            var camera = WebCamManager._Cameras[cameraId.GetHashCode().ToString()];
+            var camera = WebCamManager._Cameras[cameraId];
             var data = new
             {
-                cameraStatus = camera.CameraState.ToString(),
+                cameraRunning = camera.IsRunning,
                 cameraPaused
             };
             serializator.Serialize(client, packet.endpoint, packet.syncKey, data);
@@ -89,9 +89,9 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
         {
             var cameraId = packet.args.First().ToString();
             var streamThread = new Thread(() => GetWebCamFrame(cameraId));
-            WebCamManager._Streams[cameraId.GetHashCode().ToString()] = streamThread;
-            WebCamManager._Streams[cameraId.GetHashCode().ToString()].IsBackground = true;
-            WebCamManager._Streams[cameraId.GetHashCode().ToString()].Start();
+            WebCamManager._Streams[cameraId] = streamThread;
+            WebCamManager._Streams[cameraId].IsBackground = true;
+            WebCamManager._Streams[cameraId].Start();
 
             var data = new
             {
@@ -107,10 +107,10 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
         {
             Console.WriteLine("Stream stopped");
             var cameraId = packet.args.First().ToString();
-            var streamThread = WebCamManager._Streams[cameraId.GetHashCode().ToString()];
+            var streamThread = WebCamManager._Streams[cameraId];
             if (streamThread != null)
             {
-                WebCamManager._Streams[cameraId.GetHashCode().ToString()].Abort();
+                WebCamManager._Streams[cameraId].Abort();
                 if (client.IsConnected)
                 {
                     var data = new
@@ -130,7 +130,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
             {
                 try
                 {
-                    var cameraHash = cameraId.GetHashCode().ToString();
+                    var cameraHash = cameraId;
                     var imageBytes = WebCamManager._Frames[cameraHash];
                     var data = new
                     {

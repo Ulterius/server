@@ -5,11 +5,9 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Drawing.Imaging;
 using System.IO;
-using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using M1.Video;
+using AForge.Video;
+using AForge.Video.DirectShow;
 
 #endregion
 
@@ -18,16 +16,16 @@ namespace UlteriusServer.WebCams
     public class WebCamManager
     {
         //TODO TURN INTO AN MJPEG STREAMING SERVER
-        public static Dictionary<string, Camera> _Cameras;
+        public static Dictionary<string, VideoCaptureDevice> _Cameras;
         public static ConcurrentDictionary<string, byte[]> _Frames { get; set; }
         public static ConcurrentDictionary<string, Thread> _Streams { get; set; }
 
 
         public static bool StartCamera(string cameraId)
         {
-            var camera = _Cameras[cameraId.GetHashCode().ToString()];
+            var camera = _Cameras[cameraId];
             if (camera == null) return false;
-            if (camera.CameraState == CameraState.Started) return false;
+            if (camera.IsRunning) return false;
             camera.Start();
             return true;
         }
@@ -36,7 +34,7 @@ namespace UlteriusServer.WebCams
         {
             foreach (var camera in _Cameras)
             {
-                StopCamera(camera.Value.CameraInfo.Id);
+                StopCamera(camera.Key);
             }
         }
 
@@ -44,40 +42,40 @@ namespace UlteriusServer.WebCams
         {
             foreach (var camera in _Cameras)
             {
-                StartCamera(camera.Value.CameraInfo.Id);
+                StartCamera(camera.Key);
             }
         }
 
         public static List<Cameras> GetCameras()
         {
             var cameras = _Cameras;
-            var cameraInfo = cameras.Select(currentCamera => new Cameras
+            var index = 0;
+            var cameraInfo = new List<Cameras>();
+            foreach (var currentCamera in cameras)
             {
-                Id = currentCamera.Value.CameraInfo.Id,
-                Name = currentCamera.Value.CameraInfo.FriendlyName,
-                DisplayName = currentCamera.Value.CameraInfo.DisplayName,
-                DevicePath = currentCamera.Value.CameraInfo.DevicePath,
-                CameraStatus = currentCamera.Value.CameraState.ToString()
-
-            }).ToList();
+                var camera = new Cameras
+                {
+                    Id = currentCamera.Key,
+                    Name = new FilterInfoCollection(FilterCategory.VideoInputDevice)[index].Name,
+                    CameraStatus = currentCamera.Value.IsRunning
+                };
+                cameraInfo.Add(camera);
+                index++;
+            }
             return cameraInfo;
         }
 
         public static bool StopCamera(string cameraId)
         {
-            var camera = _Cameras[cameraId.GetHashCode().ToString()];
+            var camera = _Cameras[cameraId];
             if (camera == null) return false;
-            if (camera.CameraState == CameraState.None) return false;
+            if (camera.IsRunning == false) return false;
             camera.Stop();
             return true;
         }
 
         public static bool PauseCamera(string cameraId)
         {
-            var camera = _Cameras[cameraId.GetHashCode().ToString()];
-            if (camera == null) return false;
-            if (camera.CameraState == CameraState.None) return false;
-            camera.Pause();
             return true;
         }
 
@@ -86,22 +84,23 @@ namespace UlteriusServer.WebCams
         {
             try
             {
-                _Cameras = new Dictionary<string, Camera>();
+                _Cameras = new Dictionary<string, VideoCaptureDevice>();
                 _Streams = new ConcurrentDictionary<string, Thread>();
                 _Frames = new ConcurrentDictionary<string, byte[]>();
-                foreach (var hardwareCamera in CameraInfo.GetCameraInfos())
+                var videoDevices = new FilterInfoCollection(FilterCategory.VideoInputDevice);
+                for (var i = 0; i < videoDevices.Count; i++)
                 {
-                    var camera = new Camera(CameraInfo.GetCameraInfo(hardwareCamera.Id), hardwareCamera.VideoFormats[0]);
-                    camera.Capture +=
+                    var camera = new VideoCaptureDevice(videoDevices[i].MonikerString);
+                    var cameraId = videoDevices[i].MonikerString.GetHashCode().ToString();
+                    camera.NewFrame +=
                         (sender, e) =>
-                            HandleFrame(sender, e, hardwareCamera.Id.GetHashCode().ToString());
-                    _Cameras.Add(hardwareCamera.Id.GetHashCode().ToString(), camera);
+                            HandleFrame(sender, e, cameraId);
+                    _Cameras.Add(cameraId, camera);
                 }
                 Console.WriteLine(_Cameras.Count + " cameras loaded");
             }
             catch (Exception)
             {
-
                 // Eat it whole!
             }
         }
@@ -119,13 +118,14 @@ namespace UlteriusServer.WebCams
             }
         }
 
+
         public class Cameras
         {
             public string Id { get; set; }
             public string Name { get; set; }
             public string DisplayName { get; set; }
             public string DevicePath { get; set; }
-            public string CameraStatus { get; set; }
+            public bool CameraStatus { get; set; }
         }
     }
 }
