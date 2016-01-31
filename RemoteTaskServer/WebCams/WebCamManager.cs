@@ -23,11 +23,20 @@ namespace UlteriusServer.WebCams
 
         public static bool StartCamera(string cameraId)
         {
-            var camera = _Cameras[cameraId];
-            if (camera == null) return false;
-            if (camera.IsRunning) return false;
-            camera.Start();
-            return true;
+            try
+            {
+                var camera = _Cameras[cameraId];
+                if (camera == null) return false;
+                if (camera.IsRunning) return false;
+                camera.Start();
+                return true;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+
+                return false;
+            }
         }
 
         public static void StopAllCameras()
@@ -67,11 +76,20 @@ namespace UlteriusServer.WebCams
 
         public static bool StopCamera(string cameraId)
         {
-            var camera = _Cameras[cameraId];
-            if (camera == null) return false;
-            if (camera.IsRunning == false) return false;
-            camera.Stop();
-            return true;
+            try
+            {
+                var camera = _Cameras[cameraId];
+                if (camera == null) return false;
+                if (camera.IsRunning == false) return false;
+                camera.Stop();
+                return true;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+
+                return false;
+            }
         }
 
         public static bool PauseCamera(string cameraId)
