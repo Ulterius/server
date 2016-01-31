@@ -116,36 +116,68 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
         public void StartStream()
         {
             var cameraId = packet.args.First().ToString();
-            var streamThread = new Thread(() => GetWebCamFrame(cameraId));
-            WebCamManager._Streams[cameraId] = streamThread;
-            WebCamManager._Streams[cameraId].IsBackground = true;
-            WebCamManager._Streams[cameraId].Start();
-
-            var data = new
+            try
             {
-                cameraId,
-                cameraStreamStarted = true
-            };
+                
+                var streamThread = new Thread(() => GetWebCamFrame(cameraId));
+                WebCamManager._Streams[cameraId] = streamThread;
+                WebCamManager._Streams[cameraId].IsBackground = true;
+                WebCamManager._Streams[cameraId].Start();
 
-            serializator.Serialize(client, packet.endpoint, packet.syncKey, data);
+                var data = new
+                {
+                    cameraId,
+                    cameraStreamStarted = true
+                };
+
+                serializator.Serialize(client, packet.endpoint, packet.syncKey, data);
+            }
+            catch (Exception)
+            {
+
+                var data = new
+                {
+                    cameraId,
+                    cameraStreamStarted = false
+                };
+
+                serializator.Serialize(client, packet.endpoint, packet.syncKey, data);
+            }
         }
 
 
         public void StopStream()
         {
-            Console.WriteLine("Stream stopped");
             var cameraId = packet.args.First().ToString();
-            var streamThread = WebCamManager._Streams[cameraId];
-            if (streamThread != null)
+            try
             {
-                WebCamManager._Streams[cameraId].Abort();
+                
+                var streamThread = WebCamManager._Streams[cameraId];
+                if (streamThread != null)
+                {
+                    WebCamManager._Streams[cameraId].Abort();
+                    if (client.IsConnected)
+                    {
+                        var data = new
+                        {
+                            cameraId,
+                            cameraStreamStopped = true
+                        };
+                        serializator.Serialize(client, packet.endpoint, packet.syncKey, data);
+                    }
+                }
+            }
+            catch (Exception)
+            {
                 if (client.IsConnected)
                 {
+
                     var data = new
                     {
                         cameraId,
-                        cameraStreamStopped = true
+                        cameraStreamStopped = false
                     };
+
                     serializator.Serialize(client, packet.endpoint, packet.syncKey, data);
                 }
             }
