@@ -45,6 +45,11 @@ namespace UlteriusServer.TaskServer.Api.Controllers
                 errorController.InvalidApiKey();
                 return;
             }
+            if (packetType == PacketType.RequestWindowsInformation)
+            {
+                windowsController.GetWindowsInformation();
+                return;
+            }
             if (!authClient.Authenticated && packetType == PacketType.Authenticate)
             {
                 var loginDecoder = new UlteriusLoginDecoder();
@@ -52,10 +57,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers
                 var authenticationData = loginDecoder.Login(password, Client);
                 Client.WriteStringAsync(authenticationData, CancellationToken.None);
             }
-            if (packetType == PacketType.RequestWindowsInformation)
-            {
-                windowsController.GetWindowsInformation();
-            }
+           
             if (authClient.Authenticated)
             {
                 #region
