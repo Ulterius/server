@@ -35,19 +35,28 @@ namespace UlteriusServer.TaskServer.Services.System
             {
                 while (true)
                 {
-                    SystemInformation.AvailableMemory = GetAvailablePhysicalMemory();
-                    SystemInformation.Drives = GetDriveInformation();
-                    SystemInformation.UsedMemory = GetUsedMemory();
-                    SystemInformation.TotalMemory = GetTotalPhysicalMemory();
-                    SystemInformation.RunningProcesses = GetTotalProcesses();
-                    SystemInformation.UpTime = GetUpTime().TotalMilliseconds;
-                    SystemInformation.RunningAsAdmin = IsRunningAsAdministrator();
-                    SystemInformation.NetworkInfo = GetNetworkInfo();
-                    SystemInformation.CpuUsage = GetPerformanceCounters();
-                    SystemInformation.CpuTemps = GetCpuTemps();
-                    SystemInformation.MotherBoard = GetMotherBoard();
-                    SystemInformation.CdRom = GetCdRom();
-                    SystemInformation.Bios = GetBiosInfo();
+                    try
+                    {
+                        SystemInformation.AvailableMemory = GetAvailablePhysicalMemory();
+                        SystemInformation.Drives = GetDriveInformation();
+                        SystemInformation.UsedMemory = GetUsedMemory();
+                        SystemInformation.TotalMemory = GetTotalPhysicalMemory();
+                        SystemInformation.RunningProcesses = GetTotalProcesses();
+                        SystemInformation.UpTime = GetUpTime().TotalMilliseconds;
+                        SystemInformation.RunningAsAdmin = IsRunningAsAdministrator();
+                        SystemInformation.NetworkInfo = GetNetworkInfo();
+                        SystemInformation.CpuUsage = GetPerformanceCounters();
+                        SystemInformation.CpuTemps = GetCpuTemps();
+                        SystemInformation.MotherBoard = GetMotherBoard();
+                        SystemInformation.CdRom = GetCdRom();
+                        SystemInformation.Bios = GetBiosInfo();
+                    }
+                    catch (Exception e)
+                    {
+
+                       Console.WriteLine(e.Message);
+                    }
+                   
                 }
             });
         }
@@ -297,26 +306,14 @@ namespace UlteriusServer.TaskServer.Services.System
                 where hardwareItem.HardwareType == HardwareType.CPU
                 from sensor in hardwareItem.Sensors
                 where sensor.SensorType == SensorType.Temperature
-                where sensor.Value != null
-                select (float) sensor.Value).ToList();
+                let value = sensor.Value
+                where value != null
+                where value != null
+                select (float) value).ToList();
         }
 
 
-        private float GetCurrentCpuUsage()
-        {
-            var cpuCounter = new PerformanceCounter
-            {
-                CategoryName = "Processor",
-                CounterName = "% Processor Time",
-                InstanceName = "_Total"
-            };
-            // will always start at 0
-            dynamic firstValue = cpuCounter.NextValue();
-            Thread.Sleep(1000);
-            // now matches task manager reading
-            dynamic secondValue = cpuCounter.NextValue();
-            return secondValue;
-        }
+      
 
         [DllImport("kernel32")]
         private static extern ulong GetTickCount64();
