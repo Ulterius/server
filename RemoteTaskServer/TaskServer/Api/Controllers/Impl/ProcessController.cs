@@ -129,13 +129,14 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
 
         private List<SystemProcesses> GetProcessInformation()
         {
+            var options = new EnumerationOptions { ReturnImmediately = false, Timeout = new TimeSpan(0, 0, 10) };
             var processInformation = new List<SystemProcesses>();
             var simpleProcesses = new List<SimpleProcessInfo>();
             try
             {
                 using (var searcher =
                     new ManagementObjectSearcher("root\\CIMV2",
-                        "SELECT ExecutablePath, ProcessId FROM Win32_Process"))
+                        "SELECT ExecutablePath, ProcessId FROM Win32_Process", options))
                 {
                     simpleProcesses.AddRange(from ManagementBaseObject info in searcher.Get()
                         let id = int.Parse(info["ProcessId"].ToString())
@@ -147,7 +148,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                         });
                 }
 
-                var options = new EnumerationOptions {ReturnImmediately = false};
+             
                 using (var searcher =
                     new ManagementObjectSearcher("root\\CIMV2",
                         "SELECT * FROM Win32_PerfFormattedData_PerfProc_Process", options))
