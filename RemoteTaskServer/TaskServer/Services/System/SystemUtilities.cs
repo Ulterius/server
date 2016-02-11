@@ -237,7 +237,7 @@ namespace UlteriusServer.TaskServer.Services.System
 
         public static Dictionary<string, List<EventLogEntry>> GetEventLogs()
         {
-            var dictionary = new Dictionary<string, List<EventLogEntry>>();
+           /* var dictionary = new Dictionary<string, List<EventLogEntry>>();
             var d = EventLog.GetEventLogs();
             foreach (var l in d)
             {
@@ -250,7 +250,8 @@ namespace UlteriusServer.TaskServer.Services.System
                     dictionary[categoryName].Add(entry);
                 }
             }
-            return dictionary;
+            return dictionary;*/
+            return null;
         }
 
         public List<DriveInformation> GetDriveInformation()
