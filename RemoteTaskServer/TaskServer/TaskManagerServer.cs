@@ -30,7 +30,7 @@ namespace UlteriusServer.TaskServer
             var settings = new Settings();
             var port = settings.Read("TaskServer", "TaskServerPort", 8387);
             var cancellation = new CancellationTokenSource();
-            var endpoint = new IPEndPoint(IPAddress.Parse(NetworkUtilities.GetIPv4Address()), port);
+            var endpoint = new IPEndPoint(IPAddress.Parse(/*NetworkUtilities.GetIPv4Address()*/ "0.0.0.0"), port);
             var server = new WebSocketEventListener(endpoint);
 
             server.OnConnect += HandleConnect;

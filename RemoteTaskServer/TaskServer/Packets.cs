@@ -13,7 +13,7 @@ namespace UlteriusServer.TaskServer
     public class Packets
     {
         private static readonly Settings settings = new Settings();
-        private readonly string serverKey = settings.Read("TaskServer", "ApiKey", "");
+       
         public string apiKey;
         public List<object> args;
         public string endpoint;
@@ -22,7 +22,8 @@ namespace UlteriusServer.TaskServer
 
         public Packets(string packetJson)
         {
-            Console.WriteLine(packetJson);
+         string serverKey = settings.Read("TaskServer", "ApiKey", "");
+        Console.WriteLine(packetJson);
             JsPacket deserializedPacket = null;
             try
             {
