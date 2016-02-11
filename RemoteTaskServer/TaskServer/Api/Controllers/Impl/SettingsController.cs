@@ -44,7 +44,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
             var data = new
             {
                 changedStatus = true,
-                newPort = currentPort
+                WebServerPort = currentPort
             };
             serializator.Serialize(client, packet.endpoint, packet.syncKey, data);
         }
@@ -57,7 +57,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
             var data = new
             {
                 changedStatus = true,
-                newPath = currentPath
+                WebFilePath = currentPath
             };
             serializator.Serialize(client, packet.endpoint, packet.syncKey, data);
         }
@@ -70,7 +70,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
             var data = new
             {
                 changedStatus = true,
-                newPass = currentPass
+                VncPass = currentPass
             };
             serializator.Serialize(client, packet.endpoint, packet.syncKey, data);
         }
@@ -83,7 +83,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
             var data = new
             {
                 changedStatus = true,
-                newPort = currentPort
+                VncPort = currentPort
             };
             serializator.Serialize(client, packet.endpoint, packet.syncKey, data);
         }
@@ -96,7 +96,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
             var data = new
             {
                 changedStatus = true,
-                newPort = currentPort
+                VncProxyPort = currentPort
             };
             serializator.Serialize(client, packet.endpoint, packet.syncKey, data);
         }
@@ -109,7 +109,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
             var data = new
             {
                 changedStatus = true,
-                useWebServer = currentStatus
+                UseWebServer = currentStatus
             };
             serializator.Serialize(client, packet.endpoint, packet.syncKey, data);
         }
@@ -122,7 +122,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
             var data = new
             {
                 changedStatus = true,
-                newStatus = currentStatus
+                SkipHostNameResolve = currentStatus
             };
             serializator.Serialize(client, packet.endpoint, packet.syncKey, data);
         }
@@ -135,7 +135,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
             var data = new
             {
                 changedStatus = true,
-                newPort = currentPort
+                TaskServerPort = currentPort
             };
             serializator.Serialize(client, packet.endpoint, packet.syncKey, data);
         }
