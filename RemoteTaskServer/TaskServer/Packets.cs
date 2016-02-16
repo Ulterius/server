@@ -178,6 +178,9 @@ namespace UlteriusServer.TaskServer
                             case "refreshcameras":
                                 packetType = PacketType.RefreshCameras;
                                 break;
+                            case "uploadfile":
+                                packetType = PacketType.UploadFile;
+                                break;
                             default:
                                 packetType = PacketType.InvalidOrEmptyPacket;
                                 break;
@@ -248,6 +251,7 @@ namespace UlteriusServer.TaskServer
         GetCameraFrame,
         RefreshCameras,
         StartCameraStream,
-        StopCameraStream
+        StopCameraStream,
+        UploadFile
     }
 }

@@ -47,6 +47,7 @@ namespace UlteriusServer.TaskServer
 
         private static void HandleMessage(WebSocket websocket, string message)
         {
+           
             foreach (var apiController in
                 ApiControllers.Select(controller => controller.Value)
                     .Where(apiController => apiController.Client == websocket))

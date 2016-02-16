@@ -1,7 +1,9 @@
 ﻿#region
 
+using System;
 using System.IO;
 using System.Linq;
+using Newtonsoft.Json;
 using UlteriusServer.TaskServer.Api.Serialization;
 using UlteriusServer.Utilities.Files;
 using vtortola.WebSockets;
@@ -19,7 +21,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
 
         public FileController(WebSocket client, Packets packet)
         {
-            this._client = client;
+            _client = client;
             this.packet = packet;
         }
 
@@ -38,8 +40,8 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
 
         public void SearchFile()
         {
-            
         }
+
         public void DownloadFile()
         {
             var path = packet.args.First().ToString();
@@ -49,6 +51,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                 var size = new FileInfo(path).Length;
                 var data = new
                 {
+                    path,
                     fileValid = true,
                     fileName,
                     size
@@ -60,7 +63,38 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
             {
                 var data = new
                 {
+                    path,
                     fileValid = false
+                };
+                serializator.Serialize(_client, packet.endpoint, packet.syncKey, data);
+            }
+        }
+
+
+        public void UploadFile()
+        {
+            var path = packet.args.First().ToString();
+            var fileName = Path.GetFileName(path);
+            try
+            {
+                var dataArray = JsonConvert.DeserializeObject(packet.args[1].ToString(), typeof (sbyte[]));
+                var unsigned = (byte[]) (Array) dataArray;
+                File.WriteAllBytes(path, unsigned);
+                var data = new
+                {
+                    path,
+                    fileUploaded = true,
+                    fileName
+                };
+                serializator.Serialize(_client, packet.endpoint, packet.syncKey, data);
+            }
+            catch (Exception)
+            {
+                var data = new
+                {
+                    path,
+                    fileUploaded = false,
+                    fileName
                 };
                 serializator.Serialize(_client, packet.endpoint, packet.syncKey, data);
             }

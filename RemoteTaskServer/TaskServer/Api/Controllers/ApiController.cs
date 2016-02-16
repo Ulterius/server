@@ -125,6 +125,9 @@ namespace UlteriusServer.TaskServer.Api.Controllers
                     case PacketType.RequestProcess:
                         processController.RequestProcessInformation();
                         break;
+                    case PacketType.UploadFile:
+                        fileController.UploadFile();
+                        break;
                     case PacketType.StreamProcesses:
                         processController.StreamProcessInformation();
                         break;

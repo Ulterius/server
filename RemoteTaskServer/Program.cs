@@ -51,7 +51,6 @@ namespace UlteriusServer
             HttpServer.Setup();
             var systemUtilities = new SystemUtilities();
             systemUtilities.Start();
-
             //Keep down here if you actually want a functional program
             TaskManagerServer.Start();
             TerminalManagerServer.Start();
