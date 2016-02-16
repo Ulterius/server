@@ -23,7 +23,6 @@ namespace UlteriusServer.TaskServer
         public Packets(string packetJson)
         {
          string serverKey = settings.Read("TaskServer", "ApiKey", "");
-        Console.WriteLine(packetJson);
             JsPacket deserializedPacket = null;
             try
             {
