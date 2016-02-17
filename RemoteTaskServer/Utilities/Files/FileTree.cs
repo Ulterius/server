@@ -11,13 +11,13 @@ namespace UlteriusServer.Utilities.Files
 {
     public class File
     {
-        public File(string name, long size)
+        public File(string path, long size)
         {
-            Name = name;
+            Path = path;
             FileSize = size;
         }
 
-        public string Name { get; set; }
+        public string Path { get; set; }
 
         public long FileSize { get; set; }
     }
