@@ -146,7 +146,9 @@ namespace UlteriusServer.TaskServer.Api.Controllers
                         serverController.RestartServer();
                         break;
                     case PacketType.RequestNetworkInformation:
+                        Task.Run(() => {
                         networkController.GetNetworkInformation();
+                        });
                         break;
                     case PacketType.UseWebServer:
                         settingsController.ChangeWebServerUse();
