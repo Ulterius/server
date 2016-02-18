@@ -30,6 +30,27 @@ namespace UlteriusServer.TaskServer.Services.Network
         private static readonly Settings settings = new Settings();
 
         private static readonly List<NetworkDevices> Devices = new List<NetworkDevices>();
+        private delegate IPHostEntry GetHostEntryHandler(string ip);
+        public static string GetReverseDNS(string ip, int timeout)
+        {
+            try
+            {
+                GetHostEntryHandler callback = new GetHostEntryHandler(Dns.GetHostEntry);
+                IAsyncResult result = callback.BeginInvoke(ip, null, null);
+                if (result.AsyncWaitHandle.WaitOne(timeout, false))
+                {
+                    return callback.EndInvoke(result).HostName;
+                }
+                else
+                {
+                    return ip;
+                }
+            }
+            catch (Exception)
+            {
+                return ip;
+            }
+        }
 
         public static List<NetworkDevices> ConnectedDevices()
         {
@@ -38,12 +59,12 @@ namespace UlteriusServer.TaskServer.Services.Network
             {
                 var name = "";
                 var currentStatus = settings.Read("Network", "SkipHostNameResolve", false);
-                if (currentStatus)
+                if (!currentStatus)
                 {
                     try
                     {
-                        var hostEntry = Dns.GetHostEntry(device.Key);
-                        name = hostEntry.HostName;
+                        var hostEntry = GetReverseDNS(device.Key.ToString(), 1000);
+                        name = hostEntry;
                     }
                     catch (SocketException)
                     {
