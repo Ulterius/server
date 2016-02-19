@@ -75,8 +75,9 @@ namespace UlteriusServer.Utilities.Files
             {
                 childDirs = directory.GetDirectories().ToList();
             }
-            catch (UnauthorizedAccessException)
+            catch (Exception e)
             {
+                Console.WriteLine(e.Message);
                 return;
             }
 
