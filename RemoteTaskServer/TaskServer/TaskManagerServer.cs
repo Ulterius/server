@@ -45,7 +45,7 @@ namespace UlteriusServer.TaskServer
             Console.WriteLine(error.StackTrace + " " + error.Message);
         }
 
-        private static async void HandleMessage(WebSocket websocket, string message)
+        private static void HandleMessage(WebSocket websocket, string message)
         {
            
             foreach (var apiController in

@@ -47,6 +47,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
             var path = packet.args.First().ToString();
             if (File.Exists(path))
             {
+                var fileBytes = File.ReadAllBytes(path);
                 var fileName = Path.GetFileName(path);
                 var size = new FileInfo(path).Length;
                 var data = new
@@ -54,10 +55,11 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                     path,
                     fileValid = true,
                     fileName,
-                    size
+                    size,
+                    fileBytes
                 };
                 serializator.Serialize(_client, packet.endpoint, packet.syncKey, data);
-                serializator.PushFile(_client, path);
+               // serializator.PushFile(_client, path);
             }
             else
             {

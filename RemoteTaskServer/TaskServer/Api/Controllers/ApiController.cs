@@ -28,7 +28,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers
         }
 
 
-        public async Task HandlePacket(Packets packet)
+        public void HandlePacket(Packets packet)
         {
             var packetType = packet.packetType;
             Console.WriteLine(packetType);
@@ -87,7 +87,9 @@ namespace UlteriusServer.TaskServer.Api.Controllers
                 switch (packetType)
                 {
                     case PacketType.DownloadFile:
+                        Task.Run(() => {
                         fileController.DownloadFile();
+                        });
                         break;
                     case PacketType.RequestGpuInformation:
                         gpuController.GetGpuInformation();
