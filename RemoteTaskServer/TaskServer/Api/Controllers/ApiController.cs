@@ -28,7 +28,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers
         }
 
 
-        public void HandlePacket(Packets packet)
+        public async Task HandlePacket(Packets packet)
         {
             var packetType = packet.packetType;
             Console.WriteLine(packetType);

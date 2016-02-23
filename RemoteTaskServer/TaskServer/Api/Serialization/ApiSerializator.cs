@@ -51,12 +51,12 @@ namespace UlteriusServer.TaskServer.Api.Serialization
             }
         }
 
-        public async void PushFile(WebSocket client, string filePath)
+        public void PushFile(WebSocket client, string filePath)
         {
             using (var messageWriter = client.CreateMessageWriter(WebSocketMessageType.Binary))
             using (var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read))
             {
-                await fs.CopyToAsync(messageWriter);
+                fs.CopyToAsync(messageWriter);
             }
         }
 

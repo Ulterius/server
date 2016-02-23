@@ -14,88 +14,86 @@ using vtortola.WebSockets.Rfc6455;
 namespace UlteriusServer.WebSocketAPI
 {
     public delegate void WebSocketEventListenerOnConnect(WebSocket webSocket);
-
     public delegate void WebSocketEventListenerOnDisconnect(WebSocket webSocket);
-
-    public delegate void WebSocketEventListenerOnMessage(WebSocket webSocket, string message);
-
+    public delegate void WebSocketEventListenerOnMessage(WebSocket webSocket, String message);
     public delegate void WebSocketEventListenerOnError(WebSocket webSocket, Exception error);
 
     public class WebSocketEventListener : IDisposable
     {
-        private readonly WebSocketListener _listener;
-
-        public WebSocketEventListener(IPEndPoint endpoint)
-            : this(endpoint, new WebSocketListenerOptions())
-        {
-        }
-
-        public WebSocketEventListener(IPEndPoint endpoint, WebSocketListenerOptions options)
-        {
-            _listener = new WebSocketListener(endpoint, options);
-            var rfc6455 = new WebSocketFactoryRfc6455(_listener);
-            rfc6455.MessageExtensions.RegisterExtension(new WebSocketDeflateExtension());
-            _listener.Standards.RegisterStandard(rfc6455);
-            //TODO ALLOW PEOPLE TO SET THEIR SERTS FOR WSS
-            //_listener.ConnectionExtensions.RegisterExtension(new WebSocketSecureConnectionExtension(ca2));
-        }
-
-        public void Dispose()
-        {
-            _listener.Dispose();
-        }
-
         public event WebSocketEventListenerOnConnect OnConnect;
         public event WebSocketEventListenerOnDisconnect OnDisconnect;
         public event WebSocketEventListenerOnMessage OnMessage;
         public event WebSocketEventListenerOnError OnError;
 
+        readonly WebSocketListener _listener;
+
+        public WebSocketEventListener(IPEndPoint endpoint)
+            : this(endpoint, new WebSocketListenerOptions())
+        {
+        }
+        public WebSocketEventListener(IPEndPoint endpoint, WebSocketListenerOptions options)
+        {
+            _listener = new WebSocketListener(endpoint, options);
+            _listener.Standards.RegisterStandard(new WebSocketFactoryRfc6455(_listener));
+        }
         public void Start()
         {
             _listener.Start();
-            Task.Run(ListenAsync);
+            Task.Run((Func<Task>)ListenAsync);
         }
-
         public void Stop()
         {
             _listener.Stop();
         }
-
         private async Task ListenAsync()
         {
             while (_listener.IsStarted)
             {
-                var websocket = await _listener.AcceptWebSocketAsync(CancellationToken.None)
-                    .ConfigureAwait(false);
-                if (websocket != null)
-                    await Task.Run(() => HandleWebSocketAsync(websocket));
+                try
+                {
+                    var websocket = await _listener.AcceptWebSocketAsync(CancellationToken.None)
+                                                   .ConfigureAwait(false);
+                    if (websocket != null)
+                        Task.Run(() => HandleWebSocketAsync(websocket));
+                }
+                catch (Exception ex)
+                {
+                    if (OnError != null)
+                        OnError.Invoke(null, ex);
+                }
             }
         }
-
         private async Task HandleWebSocketAsync(WebSocket websocket)
         {
             try
             {
-                OnConnect?.Invoke(websocket);
+                if (OnConnect != null)
+                    OnConnect.Invoke(websocket);
 
                 while (websocket.IsConnected)
                 {
                     var message = await websocket.ReadStringAsync(CancellationToken.None)
-                        .ConfigureAwait(false);
-                    if (message != null)
-                        OnMessage?.Invoke(websocket, message);
+                                                 .ConfigureAwait(false);
+                    if (message != null && OnMessage != null)
+                        OnMessage.Invoke(websocket, message);
                 }
 
-                OnDisconnect?.Invoke(websocket);
+                if (OnDisconnect != null)
+                    OnDisconnect.Invoke(websocket);
             }
             catch (Exception ex)
             {
-                OnError?.Invoke(websocket, ex);
+                if (OnError != null)
+                    OnError.Invoke(websocket, ex);
             }
             finally
             {
                 websocket.Dispose();
             }
+        }
+        public void Dispose()
+        {
+            _listener.Dispose();
         }
     }
 }
