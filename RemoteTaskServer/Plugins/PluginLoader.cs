@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Security;
+using System.Security.Permissions;
 using System.Text;
 using System.Threading.Tasks;
 using UlteriusPlugins;
@@ -17,7 +19,11 @@ namespace UlteriusServer.Plugins
 
         public static ICollection<IPlugin> LoadPlugins()
         {
-            if (!Directory.Exists(path)) return null;
+            if (!Directory.Exists(path))
+            {
+                Console.WriteLine("Plugin folder does not exisit");
+                return null;
+            }
             var installedPlugins = Directory.GetFiles(path, "*.dll").ToList();
 
             var assemblies = new List<Assembly>(installedPlugins.Count);

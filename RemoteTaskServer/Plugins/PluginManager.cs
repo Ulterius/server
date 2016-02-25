@@ -41,6 +41,7 @@ namespace UlteriusServer.Plugins
                 {
                     _Plugins.Add(plugin.GUID.ToString(), plugin);
                 }
+                Console.WriteLine("Plugins loaded "  +_Plugins.Count);
             }
            
         }
