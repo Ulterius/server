@@ -7,6 +7,7 @@ using System.Security;
 using System.Security.Permissions;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using UlteriusPlugins;
 
 
@@ -14,11 +15,12 @@ namespace UlteriusServer.Plugins
 {
     public static class PluginLoader<T>
     {
-        private static string path = System.Environment.CurrentDirectory + "/data/plugins/";
+        private static string path = Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location) + @"\data\plugins\";
         public static List<string> BrokenPlugins = new List<string>(); 
 
         public static ICollection<IPlugin> LoadPlugins()
         {
+
             if (!Directory.Exists(path))
             {
                 Console.WriteLine("Plugin folder does not exisit");
