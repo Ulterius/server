@@ -73,6 +73,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
             }
             var pluginResponse = new
             {
+                guid,
                 pluginData = returnData,
                 pluginStarted,
             };
