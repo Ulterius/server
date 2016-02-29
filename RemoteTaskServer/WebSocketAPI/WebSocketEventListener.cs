@@ -4,7 +4,6 @@ using System;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using UlteriusServer.Utilities.Security;
 using vtortola.WebSockets;
 using vtortola.WebSockets.Deflate;
 using vtortola.WebSockets.Rfc6455;
@@ -34,7 +33,10 @@ namespace UlteriusServer.WebSocketAPI
         public WebSocketEventListener(IPEndPoint endpoint, WebSocketListenerOptions options)
         {
             _listener = new WebSocketListener(endpoint, options);
-            _listener.Standards.RegisterStandard(new WebSocketFactoryRfc6455(_listener));
+            var rfc6455 = new WebSocketFactoryRfc6455(_listener);
+            rfc6455.MessageExtensions.RegisterExtension(new WebSocketDeflateExtension());
+            _listener.Standards.RegisterStandard(rfc6455);
+           // _listener.ConnectionExtensions.RegisterExtension(new WebSocketSecureConnectionExtension(ca2));
         }
         public void Start()
         {
