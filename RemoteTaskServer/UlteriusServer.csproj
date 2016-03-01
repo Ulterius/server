@@ -169,6 +169,7 @@
       <DependentUpon>Launcher.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms\Utilities\ConsoleStreamWriter.cs" />
+    <Compile Include="Forms\Utilities\UlteriusTray.cs" />
     <Compile Include="Plugins\PluginLoader.cs" />
     <Compile Include="Plugins\PluginManager.cs" />
     <Compile Include="TaskServer\Api\API.cs" />
