@@ -2,11 +2,10 @@
 
 using System;
 using System.Diagnostics;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
-using System.Windows.Forms;
 using RemoteTaskServer.WebServer;
-using UlteriusServer.Forms;
 using UlteriusServer.Forms.Utilities;
 using UlteriusServer.Plugins;
 using UlteriusServer.Properties;
@@ -25,6 +24,13 @@ namespace UlteriusServer
         [STAThread]
         private static void Main(string[] args)
         {
+            var handle = GetConsoleWindow();
+            // Hide
+            ShowWindow(handle, SW_HIDE);
+            var filestream = new FileStream("log.txt", FileMode.Create);
+            var streamwriter = new StreamWriter(filestream) {AutoFlush = true};
+            Console.SetOut(streamwriter);
+            Console.SetError(streamwriter);
             Console.Title = Resources.Program_Title;
             if (!Debugger.IsAttached)
                 ExceptionHandler.AddGlobalHandlers();
@@ -33,18 +39,8 @@ namespace UlteriusServer
             var notifyThread = new Thread(
                 tray.ShowTray);
             notifyThread.Start();
-           // if (args.Length > 0)
-          //  {
-                // Command line given, display gui
-               // Application.EnableVisualStyles();
-               // Application.SetCompatibleTextRenderingDefault(false);
-               // Application.Run(new Launcher());
-           // }
-           // else
-           // {
-                AllocConsole();
-                ConsoleMain(args);
-           // }
+            AllocConsole();
+            ConsoleMain(args);
         }
 
 
@@ -63,11 +59,17 @@ namespace UlteriusServer
             //Keep down here if you actually want a functional program
             TaskManagerServer.Start();
             TerminalManagerServer.Start();
-
             Console.ReadLine();
         }
 
+
+        [DllImport("kernel32.dll")]
+        static extern IntPtr GetConsoleWindow();
+        [DllImport("user32.dll")]
+        static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
         [DllImport("kernel32.dll")]
         private static extern bool AllocConsole();
+        const int SW_HIDE = 0;
+        const int SW_SHOW = 5;
     }
 }

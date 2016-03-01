@@ -14,6 +14,7 @@ namespace UlteriusServer.Utilities
 
         public static void AddGlobalHandlers()
         {
+
             AppDomain.CurrentDomain.UnhandledException += (sender, args) =>
             {
                 try
@@ -27,7 +28,7 @@ namespace UlteriusServer.Utilities
                     File.AppendAllText(filePath,
                         JsonConvert.SerializeObject(args.ExceptionObject, Formatting.Indented) + "\r\n\r\n");
 
-                    Console.WriteLine("An Unhandled Exception was Caught and Logged to:\r\n{0}", filePath);
+                    Console.WriteLine(@"An Unhandled Exception was Caught and Logged to:{0}", filePath);
                 }
                 catch
                 {

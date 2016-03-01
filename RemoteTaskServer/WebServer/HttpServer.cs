@@ -251,8 +251,7 @@ namespace RemoteTaskServer.WebServer
         {
             _rootDirectory = path;
             _port = port;
-            _serverThread = new Thread(Listen);
-            _serverThread.IsBackground = true;
+            _serverThread = new Thread(Listen) {IsBackground = true};
             _serverThread.Start();
         }
     }
