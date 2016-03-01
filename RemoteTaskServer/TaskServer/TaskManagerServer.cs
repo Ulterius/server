@@ -36,7 +36,7 @@ namespace UlteriusServer.TaskServer
                 SubProtocols = new[] {"text"},
                 PingTimeout = TimeSpan.FromSeconds(5),
                 NegotiationTimeout = TimeSpan.FromSeconds(5),
-                ParallelNegotiations = 16,
+                ParallelNegotiations = Environment.ProcessorCount * 2,
                 NegotiationQueueCapacity = 256,
                 TcpBacklog = 1000
             });
