@@ -60,8 +60,7 @@ namespace UlteriusServer.WebSocketAPI
                 }
                 catch (Exception ex)
                 {
-                    if (OnError != null)
-                        OnError.Invoke(null, ex);
+                    OnError?.Invoke(null, ex);
                 }
             }
         }
@@ -69,24 +68,21 @@ namespace UlteriusServer.WebSocketAPI
         {
             try
             {
-                if (OnConnect != null)
-                    OnConnect.Invoke(websocket);
+                OnConnect?.Invoke(websocket);
 
                 while (websocket.IsConnected)
                 {
                     var message = await websocket.ReadStringAsync(CancellationToken.None)
                                                  .ConfigureAwait(false);
-                    if (message != null && OnMessage != null)
-                        OnMessage.Invoke(websocket, message);
+                    if (message != null)
+                        OnMessage?.Invoke(websocket, message);
                 }
 
-                if (OnDisconnect != null)
-                    OnDisconnect.Invoke(websocket);
+                OnDisconnect?.Invoke(websocket);
             }
             catch (Exception ex)
             {
-                if (OnError != null)
-                    OnError.Invoke(websocket, ex);
+                OnError?.Invoke(websocket, ex);
             }
             finally
             {
