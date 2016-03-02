@@ -1,57 +1,71 @@
-﻿using System;
+﻿#region
+
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Security;
 using System.Security.Permissions;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using UlteriusPlugins;
+using Newtonsoft.Json.Linq;
+using UlteriusPluginBase;
 
+#endregion
 
 namespace UlteriusServer.Plugins
 {
-    public static class PluginLoader<T>
+    public static class PluginLoader
     {
-        private static string path = Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location) + @"\data\plugins\";
-        public static List<string> BrokenPlugins = new List<string>(); 
+        private static readonly string path = "./data/plugins/";
+        public static List<string> BrokenPlugins = new List<string>();
 
-        public static ICollection<IPlugin> LoadPlugins()
+
+
+        public static List<PluginBase> LoadPlugins()
         {
-
-            if (!Directory.Exists(path))
-            {
-                Console.WriteLine("Plugin folder does not exisit");
-                return null;
-            }
+            if (!Directory.Exists(path)) return null;
+            var plugins = new List<PluginBase>();
             var installedPlugins = Directory.GetFiles(path, "*.dll").ToList();
+            foreach (var installedPlugin in installedPlugins)
+            {
+                var permissionSet = new PermissionSet(PermissionState.None);
+                var manifestPath = installedPlugin.Replace(".dll", ".json");
+                if (File.Exists(manifestPath))
+                {
+                    var manifest = File.ReadAllText(manifestPath);
+                    var o = JObject.Parse(manifest);
+                    IList<string> keys = o.Properties().Select(p => p.Name).ToList();
+                    var perms = new List<string>();
+                    foreach (var permission in keys.SelectMany(key => o[key]["Permissions"]))
+                    {
+                        perms.Add(permission.ToString());
+                        permissionSet.AddPermission(PluginPermissions.GetPermissionByName(permission.ToString()));
+                    }
+                    try
+                    {
+                        var pluginMan = PluginManager.GetInstance(permissionSet);
+                        var plugin = pluginMan.LoadPlugin(Path.GetFullPath(installedPlugin));
+                        if (plugin.GUID.ToString() != Guid.Empty.ToString())
+                        {
+                            plugins.Add(plugin);
+                            PluginHandler._PluginPermissions[plugin.GUID.ToString()] = perms;
 
-            var assemblies = new List<Assembly>(installedPlugins.Count);
-            assemblies.AddRange(installedPlugins.Select(AssemblyName.GetAssemblyName).Select(Assembly.Load));
-
-            var pluginType = typeof(T);
-           var pluginTypes = (from assembly in assemblies where assembly != null from type in GetTypes(assembly) where !type.IsInterface && !type.IsAbstract where type.GetInterface(pluginType.FullName) != null select type).ToList();
-            var plugins = new List<IPlugin>(pluginTypes.Count);
-            plugins.AddRange(pluginTypes.Select(type => (IPlugin) Activator.CreateInstance(type)));
-
+                        }
+                        else
+                        {
+                            BrokenPlugins.Add(installedPlugin + "|" + "Missing GUID");
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        BrokenPlugins.Add(installedPlugin + "|" + e.Message);
+                    }
+                }
+                else
+                {
+                    BrokenPlugins.Add(installedPlugin + "|" + "No Manifest");
+                }
+            }
             return plugins;
-        }
-
-        private static Type[] GetTypes(Assembly assembly)
-        {
-            
-            try
-            {
-                return assembly.GetTypes();
-            }
-            catch (Exception)
-            {
-                //swallow it baby
-                BrokenPlugins.Add(assembly.FullName);
-                return Type.EmptyTypes;
-            }
         }
     }
 }

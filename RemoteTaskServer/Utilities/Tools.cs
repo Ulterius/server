@@ -10,7 +10,6 @@ using System.Net.NetworkInformation;
 using System.Security.Principal;
 using System.Threading;
 using System.Web;
-using UlteriusPlugins;
 using UlteriusServer.Plugins;
 using UlteriusServer.TaskServer.Api.Controllers.Impl;
 using static System.Security.Principal.WindowsIdentity;

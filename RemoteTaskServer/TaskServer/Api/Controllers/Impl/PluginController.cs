@@ -1,10 +1,8 @@
 ﻿#region
 
-using System;
+using System.Collections.Generic;
 using System.Linq;
-using System.Management;
 using UlteriusServer.Plugins;
-using UlteriusServer.TaskServer.Api.Models;
 using UlteriusServer.TaskServer.Api.Serialization;
 using vtortola.WebSockets;
 
@@ -20,22 +18,38 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
 
         public PluginController(WebSocket client, Packets packet)
         {
-            this._client = client;
+            _client = client;
             this.packet = packet;
         }
 
         public void ListPlugins()
         {
-            serializator.Serialize(_client, packet.endpoint, packet.syncKey, PluginManager._Plugins);
+            var plugins = (from plugin in PluginHandler._Plugins
+                let pluginPerm = PluginHandler._PluginPermissions[plugin.Value.GUID.ToString()]
+                select new
+                {
+                    plugin.Value.CanonicalName, GUID = plugin.Value.GUID.ToString(), plugin.Value.Name, plugin.Value.Author, plugin.Value.Description, plugin.Value.Website, plugin.Value.Icon, plugin.Value.Version, plugin.Value.Javascript, pluginPermissions = pluginPerm
+                }).Cast<object>().ToList();
+            serializator.Serialize(_client, packet.endpoint, packet.syncKey, plugins);
         }
+
         public void ListBadPlugins()
         {
-            serializator.Serialize(_client, packet.endpoint, packet.syncKey, PluginManager.GetBadPluginsList());
+            var badPlugins = (from plugin in PluginHandler.GetBadPluginsList()
+                select plugin.Split('|')
+                into pluginInfo
+                let pluginName = pluginInfo[0]
+                let pluginError = pluginInfo[1]
+                select new
+                {
+                    pluginName, pluginError
+                }).Cast<object>().ToList();
+            serializator.Serialize(_client, packet.endpoint, packet.syncKey, badPlugins);
         }
 
         public void StartPlugin()
         {
-            if (PluginManager.GetTotalPlugins() <= 0)
+            if (PluginHandler.GetTotalPlugins() <= 0)
             {
                 var pluginError = new
                 {
@@ -63,19 +77,19 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                 var cleanedArgs = packet.args;
                 //remove guid from the arguments.
                 cleanedArgs.RemoveAt(0);
-                returnData = PluginManager.StartPlugin(guid, cleanedArgs);
+                returnData = PluginHandler.StartPlugin(guid, cleanedArgs);
                 pluginStarted = true;
             }
             else
             {
-                returnData = PluginManager.StartPlugin(guid);
+                returnData = PluginHandler.StartPlugin(guid);
                 pluginStarted = true;
             }
             var pluginResponse = new
             {
                 guid,
                 pluginData = returnData,
-                pluginStarted,
+                pluginStarted
             };
             serializator.Serialize(_client, packet.endpoint, packet.syncKey, pluginResponse);
         }
