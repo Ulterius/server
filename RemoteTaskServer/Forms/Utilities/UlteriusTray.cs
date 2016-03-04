@@ -16,37 +16,9 @@ namespace UlteriusServer.Forms.Utilities
         public static MenuItem RestartProgram;
         public static NotifyIcon NotificationIcon;
 
-        public UlteriusTray()
-        {
-            Menu = new ContextMenu();
-            RestartProgram = new MenuItem("Restart Server");
-            ExitProgram = new MenuItem("Exit");
-            OpenClient = new MenuItem("Open in Browser");
-            OpenLogs = new MenuItem("Open Logs");
-            OpenSettings = new MenuItem("Open Settings");
-            Menu.MenuItems.Add(0, ExitProgram);
-            Menu.MenuItems.Add(1, RestartProgram);
-            Menu.MenuItems.Add(2, OpenClient);
-            Menu.MenuItems.Add(3, OpenSettings);
-            Menu.MenuItems.Add(4, OpenLogs);
+       
 
-            NotificationIcon = new NotifyIcon
-            {
-                Icon = Resources.icon,
-                BalloonTipIcon = ToolTipIcon.Info,
-                BalloonTipText = "Ulterius Server Started ",
-                ContextMenu = Menu,
-                Text = "Main"
-            };
-
-            ExitProgram.Click += ExitEvent;
-            RestartProgram.Click += RestartEvent;
-            OpenClient.Click += OpenClientEvent;
-            OpenSettings.Click += OpenSettingsEvent;
-            OpenLogs.Click += OpenLogsEvent;
-        }
-
-        private void OpenLogsEvent(object sender, EventArgs e)
+        private static void OpenLogsEvent(object sender, EventArgs e)
         {
             Process.Start("notepad.exe", "log.txt");
         }
@@ -71,8 +43,37 @@ namespace UlteriusServer.Forms.Utilities
             Environment.Exit(0);
         }
 
-        public void ShowTray()
+        public static void ShowTray()
         {
+
+            Menu = new ContextMenu();
+            RestartProgram = new MenuItem("Restart Server");
+            ExitProgram = new MenuItem("Exit");
+            OpenClient = new MenuItem("Open in Browser");
+            OpenLogs = new MenuItem("Open Logs");
+            OpenSettings = new MenuItem("Open Settings");
+            Menu.MenuItems.Add(0, ExitProgram);
+            Menu.MenuItems.Add(1, RestartProgram);
+            Menu.MenuItems.Add(2, OpenClient);
+            Menu.MenuItems.Add(3, OpenSettings);
+            Menu.MenuItems.Add(4, OpenLogs);
+
+            NotificationIcon = new NotifyIcon
+            {
+                Icon = Resources.icon,
+                BalloonTipIcon = ToolTipIcon.Info,
+                BalloonTipText = "Ulterius Server Started ",
+                ContextMenu = Menu,
+                Text = "Main"
+            };
+
+            
+
+            ExitProgram.Click += ExitEvent;
+            RestartProgram.Click += RestartEvent;
+            OpenClient.Click += OpenClientEvent;
+            OpenSettings.Click += OpenSettingsEvent;
+            OpenLogs.Click += OpenLogsEvent;
             NotificationIcon.Visible = true;
             NotificationIcon.ShowBalloonTip(5);
             Application.Run();

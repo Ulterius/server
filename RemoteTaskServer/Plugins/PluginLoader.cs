@@ -15,7 +15,7 @@ namespace UlteriusServer.Plugins
 {
     public static class PluginLoader
     {
-        private static readonly string path = "./data/plugins/";
+        private static string path = Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location) + @"\data\plugins\";
         public static List<string> BrokenPlugins = new List<string>();
 
 

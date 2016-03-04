@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Security;
 using UlteriusPluginBase;
+using UlteriusServer.Forms.Utilities;
 
 namespace UlteriusServer.Plugins
 {
@@ -64,6 +65,12 @@ namespace UlteriusServer.Plugins
                 BadPlugins.AddRange(PluginLoader.BrokenPlugins);
                 foreach (var plugin in plugins)
                 {
+                    //probably a better way to expose objects
+                    plugin.NotificationIcon = UlteriusTray.NotificationIcon;
+                    if (plugin.RequiresSetup)
+                    {
+                        plugin.Setup();
+                    }
                     _Plugins.Add(plugin.GUID.ToString(), plugin);
                 }
             }

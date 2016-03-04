@@ -26,18 +26,17 @@ namespace UlteriusServer
         {
             var handle = GetConsoleWindow();
             // Hide
-           // ShowWindow(handle, SW_HIDE);
-          //  var filestream = new FileStream("log.txt", FileMode.Create);
-          ////  var streamwriter = new StreamWriter(filestream) {AutoFlush = true};
-           // Console.SetOut(streamwriter);
-            //Console.SetError(streamwriter);
+           ShowWindow(handle, SW_HIDE);
+          var filestream = new FileStream("log.txt", FileMode.Create);
+           var streamwriter = new StreamWriter(filestream) {AutoFlush = true};
+           Console.SetOut(streamwriter);
+           Console.SetError(streamwriter);
             Console.Title = Resources.Program_Title;
             if (!Debugger.IsAttached)
                 ExceptionHandler.AddGlobalHandlers();
 
-            var tray = new UlteriusTray();
             var notifyThread = new Thread(
-                tray.ShowTray);
+                UlteriusTray.ShowTray);
             notifyThread.Start();
             AllocConsole();
             ConsoleMain(args);
