@@ -41,16 +41,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers
                 errorController.InvalidPacket();
                 return;
             }
-            if (packetType == PacketType.InvalidApiKey)
-            {
-                errorController.InvalidApiKey();
-                return;
-            }
-            if (string.IsNullOrEmpty(packet.apiKey) && packetType == PacketType.GenerateNewKey)
-            {
-                settingsController.GenerateNewAPiKey();
-                return;
-            }
+
             if (packetType == PacketType.RequestWindowsInformation)
             {
                 windowsController.GetWindowsInformation();
@@ -194,17 +185,8 @@ namespace UlteriusServer.TaskServer.Api.Controllers
                     case PacketType.KillProcess:
                         processController.KillProcess();
                         break;
-                    case PacketType.EmptyApiKey:
-                        errorController.EmptyApiKey();
-                        break;
-                    case PacketType.InvalidApiKey:
-                        errorController.InvalidApiKey();
-                        break;
                     case PacketType.InvalidOrEmptyPacket:
                         errorController.InvalidPacket();
-                        break;
-                    case PacketType.GenerateNewKey:
-                        settingsController.GenerateNewAPiKey();
                         break;
                     case PacketType.CheckUpdate:
                         serverController.CheckForUpdate();

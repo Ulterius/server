@@ -10,6 +10,7 @@ using System.Net.NetworkInformation;
 using System.Security.Principal;
 using System.Threading;
 using System.Web;
+using RemoteTaskServer.WebServer;
 using UlteriusServer.Plugins;
 using UlteriusServer.TaskServer.Api.Controllers.Impl;
 using static System.Security.Principal.WindowsIdentity;
@@ -33,15 +34,18 @@ namespace UlteriusServer.Utilities
                     {
                         using (var p = new Ping())
                         {
-                            result =
-                                (p.Send("8.8.8.8", 15000).Status == IPStatus.Success) ||
-                                (p.Send("8.8.4.4", 15000).Status == IPStatus.Success) ||
-                                (p.Send("4.2.2.1", 15000).Status == IPStatus.Success);
+                            var pingReply = p.Send("8.8.8.8", 15000);
+                            if (pingReply != null)
+                                result =
+                                    (pingReply.Status == IPStatus.Success) ||
+                                    (p.Send("8.8.4.4", 15000)?.Status == IPStatus.Success) ||
+                                    (p.Send("4.2.2.1", 15000)?.Status == IPStatus.Success);
                         }
                     }
                 }
                 catch
                 {
+                    // ignored
                 }
 
                 return result;
@@ -70,13 +74,27 @@ namespace UlteriusServer.Utilities
             if (!File.Exists("UlteriusServer.ini"))
             {
                 var settings = new Settings();
-
-                settings.Write("WebServer", "UseWebServer", false);
+                
+                settings.Write("WebServer", "UseWebServer", true);
                 settings.Write("WebServer", "WebServerPort", 9999);
-                settings.Write("WebServer", "WebFilePath", "");
+                settings.Write("WebServer", "WebFilePath", HttpServer.defaultPath);
                 settings.Write("TaskServer", "TaskServerPort", 8387);
                 settings.Write("Network", "SkipHostNameResolve", false);
+                settings.Write("Plugins", "LoadPlugins", true);
             }
+        }
+
+        public static string GenerateAPIKey()
+        {
+            var res = "";
+            var rnd = new Random();
+            while (res.Length < 35)
+                res += new Func<Random, string>(r =>
+                {
+                    var c = (char)(r.Next(123) * DateTime.Now.Millisecond % 123);
+                    return char.IsLetterOrDigit(c) ? c.ToString() : "";
+                })(rnd);
+            return res;
         }
 
         public static bool IsAdmin()
@@ -86,17 +104,17 @@ namespace UlteriusServer.Utilities
 
         public static string GetQueryString(string url, string key)
         {
-            var query_string = string.Empty;
+            var queryString = string.Empty;
 
             var uri = new Uri(url);
             var newQueryString = HttpUtility.ParseQueryString(uri.Query);
             if (newQueryString[key] != null)
             {
-                query_string = newQueryString[key];
+                queryString = newQueryString[key];
             }
 
 
-            return query_string;
+            return queryString;
         }
 
         /// <summary>

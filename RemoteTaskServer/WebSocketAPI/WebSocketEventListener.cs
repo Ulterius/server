@@ -2,6 +2,7 @@
 
 using System;
 using System.Net;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
 using vtortola.WebSockets;
@@ -32,11 +33,15 @@ namespace UlteriusServer.WebSocketAPI
         }
         public WebSocketEventListener(IPEndPoint endpoint, WebSocketListenerOptions options)
         {
+         //   X509Store store = new X509Store(StoreName.My, StoreLocation.LocalMachine);
+          //  store.Open(OpenFlags.ReadOnly);
+          //  var certificate = store.Certificates[0];
+        //    store.Close();
             _listener = new WebSocketListener(endpoint, options);
             var rfc6455 = new WebSocketFactoryRfc6455(_listener);
             rfc6455.MessageExtensions.RegisterExtension(new WebSocketDeflateExtension());
             _listener.Standards.RegisterStandard(rfc6455);
-           // _listener.ConnectionExtensions.RegisterExtension(new WebSocketSecureConnectionExtension(ca2));
+            //_listener.ConnectionExtensions.RegisterExtension(new WebSocketSecureConnectionExtension(certificate));
         }
         public void Start()
         {

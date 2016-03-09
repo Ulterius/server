@@ -1,7 +1,7 @@
 ﻿#region
 
-using System;
 using System.Linq;
+using RemoteTaskServer.WebServer;
 using UlteriusServer.TaskServer.Api.Serialization;
 using UlteriusServer.Utilities;
 using vtortola.WebSockets;
@@ -12,144 +12,133 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
 {
     public class SettingsController : ApiController
     {
-        private static readonly Settings settings = new Settings();
-        private readonly WebSocket client;
-        private readonly Packets packet;
-        private readonly ApiSerializator serializator = new ApiSerializator();
+        private static readonly Settings Settings = new Settings();
+        private readonly WebSocket _client;
+        private readonly Packets _packet;
+        private readonly ApiSerializator _serializator = new ApiSerializator();
 
         public SettingsController(WebSocket client, Packets packet)
         {
-            this.client = client;
-            this.packet = packet;
+            _client = client;
+            _packet = packet;
         }
 
-        private string GenerateAPIKey()
-        {
-            var res = "";
-            var rnd = new Random();
-            while (res.Length < 35)
-                res += new Func<Random, string>(r =>
-                {
-                    var c = (char) (r.Next(123)*DateTime.Now.Millisecond%123);
-                    return char.IsLetterOrDigit(c) ? c.ToString() : "";
-                })(rnd);
-            return res;
-        }
+       
 
         public void ChangeWebServerPort()
         {
-            var port = int.Parse(packet.args.First().ToString());
-            settings.Write("WebServer", "WebServerPort", port);
-            var currentPort = settings.Read("WebServer", "WebServerPort", 9999);
+            var port = int.Parse(_packet.args.First().ToString());
+            Settings.Write("WebServer", "WebServerPort", port);
+            var currentPort = Settings.Read("WebServer", "WebServerPort", 9999);
             var data = new
             {
                 changedStatus = true,
                 WebServerPort = currentPort
             };
-            serializator.Serialize(client, packet.endpoint, packet.syncKey, data);
+            _serializator.Serialize(_client, _packet.endpoint, _packet.syncKey, data);
         }
 
         public void ChangeWebFilePath()
         {
-            var path = packet.args.First().ToString();
-            settings.Write("WebServer", "WebFilePath", path);
-            var currentPath = settings.Read("WebServer", "WebFilePath", "");
+            var path = _packet.args.First().ToString();
+            Settings.Write("WebServer", "WebFilePath", path);
+            var currentPath = Settings.Read("WebServer", "WebFilePath", HttpServer.defaultPath);
             var data = new
             {
                 changedStatus = true,
                 WebFilePath = currentPath
             };
-            serializator.Serialize(client, packet.endpoint, packet.syncKey, data);
+            _serializator.Serialize(_client, _packet.endpoint, _packet.syncKey, data);
         }
 
         public void ChangeVncPassword()
         {
-            var pass = packet.args.First().ToString();
-            settings.Write("Vnc", "VncPass", pass);
-            var currentPass = settings.Read("Vnc", "VncPass", "");
+            var pass = _packet.args.First().ToString();
+            Settings.Write("Vnc", "VncPass", pass);
+            var currentPass = Settings.Read("Vnc", "VncPass", "");
             var data = new
             {
                 changedStatus = true,
                 VncPass = currentPass
             };
-            serializator.Serialize(client, packet.endpoint, packet.syncKey, data);
+            _serializator.Serialize(_client, _packet.endpoint, _packet.syncKey, data);
         }
 
         public void ChangeVncPort()
         {
-            var port = int.Parse(packet.args.First().ToString());
-            settings.Write("Vnc", "VncPort", port);
-            var currentPort = settings.Read("Vnc", "VncPort", 5900);
+            var port = int.Parse(_packet.args.First().ToString());
+            Settings.Write("Vnc", "VncPort", port);
+            var currentPort = Settings.Read("Vnc", "VncPort", 5900);
             var data = new
             {
                 changedStatus = true,
                 VncPort = currentPort
             };
-            serializator.Serialize(client, packet.endpoint, packet.syncKey, data);
+            _serializator.Serialize(_client, _packet.endpoint, _packet.syncKey, data);
         }
 
         public void ChangeVncProxyPort()
         {
-            var port = int.Parse(packet.args.First().ToString());
-            settings.Write("Vnc", "VncProxyPort", port);
-            var currentPort = settings.Read("Vnc", "VncProxyPort", 5900);
+            var port = int.Parse(_packet.args.First().ToString());
+            Settings.Write("Vnc", "VncProxyPort", port);
+            var currentPort = Settings.Read("Vnc", "VncProxyPort", 5900);
             var data = new
             {
                 changedStatus = true,
                 VncProxyPort = currentPort
             };
-            serializator.Serialize(client, packet.endpoint, packet.syncKey, data);
+            _serializator.Serialize(_client, _packet.endpoint, _packet.syncKey, data);
         }
 
         public void ChangeWebServerUse()
         {
-            var useServer = (bool) packet.args.First();
-            settings.Write("WebServer", "UseWebServer", useServer);
-            var currentStatus = settings.Read("WebServer", "UseWebServer", false);
+            var useServer = (bool) _packet.args.First();
+            Settings.Write("WebServer", "UseWebServer", useServer);
+            var currentStatus = Settings.Read("WebServer", "UseWebServer", false);
             var data = new
             {
                 changedStatus = true,
                 UseWebServer = currentStatus
             };
-            serializator.Serialize(client, packet.endpoint, packet.syncKey, data);
+            _serializator.Serialize(_client, _packet.endpoint, _packet.syncKey, data);
         }
 
         public void ChangeNetworkResolve()
         {
-            var resolve = (bool) packet.args.First();
-            settings.Write("Network", "SkipHostNameResolve", resolve);
-            var currentStatus = settings.Read("Network", "SkipHostNameResolve", false);
+            var resolve = (bool) _packet.args.First();
+            Settings.Write("Network", "SkipHostNameResolve", resolve);
+            var currentStatus = Settings.Read("Network", "SkipHostNameResolve", false);
             var data = new
             {
                 changedStatus = true,
                 SkipHostNameResolve = currentStatus
             };
-            serializator.Serialize(client, packet.endpoint, packet.syncKey, data);
+            _serializator.Serialize(_client, _packet.endpoint, _packet.syncKey, data);
         }
 
         public void ChangeTaskServerPort()
         {
-            var port = int.Parse(packet.args.First().ToString());
-            settings.Write("TaskServer", "TaskServerPort", port);
-            var currentPort = settings.Read("TaskServer", "TaskServerPort", 8387);
+            var port = int.Parse(_packet.args.First().ToString());
+            Settings.Write("TaskServer", "TaskServerPort", port);
+            var currentPort = Settings.Read("TaskServer", "TaskServerPort", 8387);
             var data = new
             {
                 changedStatus = true,
                 TaskServerPort = currentPort
             };
-            serializator.Serialize(client, packet.endpoint, packet.syncKey, data);
+            _serializator.Serialize(_client, _packet.endpoint, _packet.syncKey, data);
         }
 
         public void GetCurrentSettings()
         {
-            var UseWebServer = settings.Read("WebServer", "UseWebServer", false);
-            var WebServerPort = settings.Read("WebServer", "WebServerPort", 9999);
-            var WebFilePath = settings.Read("WebServer", "WebFilePath", "");
-            var TaskServerPort = settings.Read("TaskServer", "TaskServerPort", 8387);
-            var SkipHostNameResolve = settings.Read("Network", "SkipHostNameResolve", false);
-            var VncProxyPort = settings.Read("Vnc", "VncProxyPort", 5901);
-            var VncPort = settings.Read("Vnc", "VncPort", 5900);
-            var VncPass = settings.Read("Vnc", "VncPass", "");
+            var UseWebServer = Settings.Read("WebServer", "UseWebServer", false);
+            var WebServerPort = Settings.Read("WebServer", "WebServerPort", 9999);
+            var WebFilePath = Settings.Read("WebServer", "WebFilePath", "");
+            var TaskServerPort = Settings.Read("TaskServer", "TaskServerPort", 8387);
+            var SkipHostNameResolve = Settings.Read("Network", "SkipHostNameResolve", false);
+            var VncProxyPort = Settings.Read("Vnc", "VncProxyPort", 5901);
+            var VncPort = Settings.Read("Vnc", "VncPort", 5900);
+            var VncPass = Settings.Read("Vnc", "VncPass", "");
             var currentSettingsData = new
             {
                 UseWebServer,
@@ -161,27 +150,9 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                 VncProxyPort,
                 VncPass
             };
-            serializator.Serialize(client, packet.endpoint, packet.syncKey, currentSettingsData);
+            _serializator.Serialize(_client, _packet.endpoint, _packet.syncKey, currentSettingsData);
         }
 
-        public void GenerateNewAPiKey()
-        {
-            var keyGenerated = false;
-            string newKey = null;
-            var currentKey = settings.Read("TaskServer", "ApiKey", "");
-            var oldKey = packet.apiKey;
-            if (oldKey.Equals(currentKey))
-            {
-                keyGenerated = true;
-                newKey = GenerateAPIKey();
-                settings.Write("TaskServer", "ApiKey", newKey);
-            }
-            var data = new
-            {
-                keyGenerated,
-                newKey
-            };
-            serializator.Serialize(client, packet.endpoint, packet.syncKey, data);
-        }
+       
     }
 }

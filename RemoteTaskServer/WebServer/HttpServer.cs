@@ -16,6 +16,7 @@ namespace RemoteTaskServer.WebServer
 {
     internal class HttpServer
     {
+        public static string defaultPath = Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location) + @"\data\client\";
         private static readonly IDictionary<string, string> MimeTypeMappings =
             new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase)
             {
@@ -131,14 +132,16 @@ namespace RemoteTaskServer.WebServer
             private set { }
         }
 
+        public static int GlobalPort;
         public static void Setup()
         {
             var settings = new Settings();
-            var useWebServer = settings.Read("WebServer", "UseWebServer", false);
+            var useWebServer = settings.Read("WebServer", "UseWebServer", true);
             if (useWebServer)
             {
-                var root = settings.Read("WebServer", "WebFilePath", "");
+                var root = settings.Read("WebServer", "WebFilePath", defaultPath);
                 var port = settings.Read("WebServer", "WebServerPort", 9999);
+                GlobalPort = port;
                 var httpServer = new HttpServer(root, port);
                 Console.WriteLine(Resources.Program_Main_Web_Server_is_running_on_this_port__ + httpServer.Port);
             }
@@ -168,8 +171,8 @@ namespace RemoteTaskServer.WebServer
             {
                 if (ex.ErrorCode == 5)
                 {
-                    Console.WriteLine("You need to run the following args:");
-                    Console.WriteLine("  netsh http add urlacl url={0} user={1}\\{2} listen=yes",
+                    Console.WriteLine(@"You need to run the following args:");
+                    Console.WriteLine(@"  netsh http add urlacl url={0} user={1}\{2} listen=yes",
                         prefix, userdomain, username);
                 }
                 else
@@ -194,7 +197,6 @@ namespace RemoteTaskServer.WebServer
         private void Process(HttpListenerContext context)
         {
             var filename = context.Request.Url.AbsolutePath;
-            Console.WriteLine(filename);
             filename = filename.Substring(1);
 
             if (string.IsNullOrEmpty(filename))

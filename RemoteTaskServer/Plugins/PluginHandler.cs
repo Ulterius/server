@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Security;
 using UlteriusPluginBase;
 using UlteriusServer.Forms.Utilities;
+using UlteriusServer.Utilities;
 
 namespace UlteriusServer.Plugins
 {
@@ -57,23 +58,29 @@ namespace UlteriusServer.Plugins
 
         public static void LoadPlugins()
         {
-            _Plugins = new Dictionary<string, PluginBase>();
-            _PluginPermissions = new Dictionary<string, List<string>>();
-            var plugins = PluginLoader.LoadPlugins();
-            if (plugins != null)
+            var settings = new Settings();
+            var loadPlugins = settings.Read("Plugins", "LoadPlugins", true);
+            if (loadPlugins)
             {
-                BadPlugins.AddRange(PluginLoader.BrokenPlugins);
-                foreach (var plugin in plugins)
+                _Plugins = new Dictionary<string, PluginBase>();
+                _PluginPermissions = new Dictionary<string, List<string>>();
+                var plugins = PluginLoader.LoadPlugins();
+                if (plugins != null)
                 {
-                    //probably a better way to expose objects
-                    plugin.NotificationIcon = UlteriusTray.NotificationIcon;
-                    if (plugin.RequiresSetup)
+                    BadPlugins.AddRange(PluginLoader.BrokenPlugins);
+                    foreach (var plugin in plugins)
                     {
-                        plugin.Setup();
+                        //probably a better way to expose objects
+                        plugin.NotificationIcon = UlteriusTray.NotificationIcon;
+                        if (plugin.RequiresSetup)
+                        {
+                            plugin.Setup();
+                        }
+                        _Plugins.Add(plugin.GUID.ToString(), plugin);
                     }
-                    _Plugins.Add(plugin.GUID.ToString(), plugin);
                 }
             }
+            
         }
     }
 }

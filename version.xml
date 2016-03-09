@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ulteriusserver>
 	<version>1.0</version>
+	<changeNotes></changeNotes>
 	<url>https://github.com/StrikeOrg/ulterius-server/releases/latest</url>
 </ulteriusserver>

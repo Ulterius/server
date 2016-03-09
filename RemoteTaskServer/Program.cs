@@ -49,9 +49,10 @@ namespace UlteriusServer
             for (var ix = 0; ix < args.Length; ++ix)
                 Console.WriteLine("Argument{0} = {1}", ix + 1, args[ix]);
 
+            Tools.GenerateSettings();
             WebCamManager.LoadWebcams();
             PluginHandler.LoadPlugins();
-            Tools.GenerateSettings();
+           
             HttpServer.Setup();
             var systemUtilities = new SystemUtilities();
             systemUtilities.Start();

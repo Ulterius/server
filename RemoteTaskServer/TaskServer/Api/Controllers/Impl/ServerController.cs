@@ -33,6 +33,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                 try
                 {
                     var releasePageUrl = "";
+                    var changeNotes = "";
                     Version newVersion = null;
                     const string versionConfig = "https://raw.github.com/StrikeOrg/ulterius-server/master/version.xml";
                     var reader = new XmlTextReader(versionConfig);
@@ -56,6 +57,9 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                                             {
                                                 case "version":
                                                     newVersion = new Version(reader.Value);
+                                                    break;
+                                                case "changeNotes":
+                                                    changeNotes = reader.Value;
                                                     break;
                                                 case "url":
                                                     releasePageUrl = reader.Value;
@@ -95,6 +99,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                             update = true,
                             url = releasePageUrl,
                             newVersion = newVersion.ToString(),
+                            changeNotes,
                             message = "New version available: " + newVersion
                         };
                         serializator.Serialize(client, packet.endpoint, packet.syncKey, data);

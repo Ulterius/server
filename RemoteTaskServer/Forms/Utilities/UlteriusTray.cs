@@ -2,7 +2,10 @@
 using System.Diagnostics;
 using System.IO;
 using System.Windows.Forms;
+using RemoteTaskServer.WebServer;
 using UlteriusServer.Properties;
+using UlteriusServer.TaskServer.Services.Network;
+using UlteriusServer.Utilities;
 
 namespace UlteriusServer.Forms.Utilities
 {
@@ -20,7 +23,7 @@ namespace UlteriusServer.Forms.Utilities
 
         private static void OpenLogsEvent(object sender, EventArgs e)
         {
-            Process.Start("notepad.exe", "log.txt");
+            Process.Start("log.txt");
         }
 
         private static void RestartEvent(object sender, EventArgs e)
@@ -31,11 +34,14 @@ namespace UlteriusServer.Forms.Utilities
 
         private static void OpenSettingsEvent(object sender, EventArgs e)
         {
-            Process.Start("notepad.exe", "UlteriusServer.ini");
+            Process.Start("UlteriusServer.ini");
         }
 
         private static void OpenClientEvent(object sender, EventArgs e)
         {
+            var ip = NetworkUtilities.GetIPv4Address();
+            var httpPort = HttpServer.GlobalPort;
+            Process.Start($"http://{ip}:{httpPort}");
         }
 
         private static void ExitEvent(object sender, EventArgs e)
@@ -49,7 +55,7 @@ namespace UlteriusServer.Forms.Utilities
             Menu = new ContextMenu();
             RestartProgram = new MenuItem("Restart Server");
             ExitProgram = new MenuItem("Exit");
-            OpenClient = new MenuItem("Open in Browser");
+            OpenClient = new MenuItem("Open Client");
             OpenLogs = new MenuItem("Open Logs");
             OpenSettings = new MenuItem("Open Settings");
             Menu.MenuItems.Add(0, ExitProgram);

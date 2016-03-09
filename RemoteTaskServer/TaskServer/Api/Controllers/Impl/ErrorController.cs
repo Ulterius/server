@@ -39,24 +39,5 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
             serializator.Serialize(_client, packet.endpoint, packet.syncKey, noAuthData);
         }
 
-        public void InvalidApiKey()
-        {
-            var invalidApiData = new
-            {
-                invalidApiKey = true,
-                message = "Provided API Key does not match the server key"
-            };
-            serializator.Serialize(_client, packet.endpoint, packet.syncKey, invalidApiData);
-        }
-
-        public void EmptyApiKey()
-        {
-            var data = new
-            {
-                emptyApiKey = true,
-                message = "Please generate an API Key"
-            };
-            serializator.Serialize(_client, packet.endpoint, packet.syncKey, data);
-        }
     }
 }
