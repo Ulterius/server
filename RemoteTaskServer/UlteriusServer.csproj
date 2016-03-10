@@ -227,6 +227,7 @@
   <ItemGroup>
     <Compile Include="TaskServer\TaskManagerServer.cs" />
     <Compile Include="TerminalServer\TerminalManagerServer.cs" />
+    <Compile Include="Utilities\Security\Rsa.cs" />
     <Compile Include="Utilities\StringUtilities.cs" />
     <Compile Include="Utilities\Files\FileTree.cs" />
     <Compile Include="WebCams\WebCamManager.cs" />
@@ -284,7 +285,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="bin\Debug\" />
-    <Folder Include="Utilities\Security\" />
   </ItemGroup>
   <ItemGroup>
     <COMReference Include="NetFwTypeLib">

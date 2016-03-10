@@ -2,10 +2,14 @@
 
 using System;
 using System.Diagnostics;
+using System.Linq;
 using System.Reflection;
+using System.Security.Cryptography;
+using System.Windows;
 using System.Xml;
 using UlteriusServer.TaskServer.Api.Serialization;
 using UlteriusServer.Utilities;
+using UlteriusServer.Utilities.Security;
 using vtortola.WebSockets;
 
 #endregion
@@ -22,6 +26,33 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
         {
             this.client = client;
             this.packet = packet;
+        }
+
+        public void AesHandshake()
+        {
+            try
+            {
+                var encryptedKey = packet.args.AsEnumerable().First().ToString();
+                foreach (var connectedClient in TaskManagerServer.AllClients.Where(connectedClient => connectedClient.Value.Client == client))
+                {
+                   connectedClient.Value.AesKey = Rsa.Decryption(connectedClient.Value.PrivateKey, encryptedKey);
+
+                    var endData = new
+                    {
+                        shook = true
+                    };
+                    serializator.Serialize(client, packet.endpoint, packet.syncKey, endData);  
+                }
+            }
+            catch (Exception e)
+            {
+                var endData = new
+                {
+                    shook = false,
+                    message = e.Message
+                };
+                serializator.Serialize(client, packet.endpoint, packet.syncKey, endData);
+            }
         }
 
         public void CheckForUpdate()

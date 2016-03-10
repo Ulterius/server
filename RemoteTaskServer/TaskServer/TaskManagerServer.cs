@@ -11,6 +11,7 @@ using UlteriusServer.Authentication;
 using UlteriusServer.TaskServer.Api.Controllers;
 using UlteriusServer.TaskServer.Services.Network;
 using UlteriusServer.Utilities;
+using UlteriusServer.Utilities.Security;
 using UlteriusServer.WebSocketAPI;
 using vtortola.WebSockets;
 
@@ -83,6 +84,7 @@ namespace UlteriusServer.TaskServer
         {
             Console.WriteLine("Connection from " + clientSocket.RemoteEndpoint);
             var client = new AuthClient(clientSocket);
+            Rsa.GenerateKeyPairs(client);
             var apiController = new ApiController(clientSocket)
             {
                 //set the auth Client so we can use it later
@@ -91,10 +93,10 @@ namespace UlteriusServer.TaskServer
             AllClients.AddOrUpdate(client.GetHashCode().ToString(), client, (key, value) => value);
             ApiControllers.AddOrUpdate(apiController.authClient.GetHashCode().ToString(), apiController,
                 (key, value) => value);
-            SendWelcomeMessage(clientSocket);
+            SendWelcomeMessage(client, clientSocket);
         }
 
-        private static void SendWelcomeMessage(WebSocket clientSocket)
+        private static void SendWelcomeMessage(AuthClient client,  WebSocket clientSocket)
         {
             var welcomeMessage = new JavaScriptSerializer().Serialize(new
             {
@@ -102,7 +104,8 @@ namespace UlteriusServer.TaskServer
                 results = new
                 {
                     message = "Ulterius server online!",
-                    authRequired = true
+                    authRequired = true,
+                    publicKey = Rsa.SecureStringToString(client.PublicKey)
                 }
             });
             clientSocket.WriteStringAsync(welcomeMessage, CancellationToken.None);

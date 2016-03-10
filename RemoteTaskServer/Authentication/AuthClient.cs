@@ -1,6 +1,7 @@
 ﻿#region
 
 using System;
+using System.Security;
 using vtortola.WebSockets;
 
 #endregion
@@ -19,5 +20,9 @@ namespace UlteriusServer.Authentication
         public WebSocket Client { get; set; }
         public DateTime LastUpdate { get; set; }
         public bool Authenticated { get; set; }
+        public SecureString PrivateKey { get; set; }
+        public SecureString PublicKey { get; set; }
+        public SecureString AesKey { get; set; }
+
     }
 }

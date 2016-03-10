@@ -178,6 +178,9 @@ namespace UlteriusServer.TaskServer
                     case "uploadfile":
                         packetType = PacketType.UploadFile;
                         break;
+                    case "aeshandshake":
+                        packetType = PacketType.AesHandshake;
+                        break;
                     default:
                         packetType = PacketType.InvalidOrEmptyPacket;
                         break;
@@ -241,5 +244,6 @@ public enum PacketType
     StopCameraStream,
     UploadFile,
     ChangeLoadPlugins,
-    ChangeUseTerminal
+    ChangeUseTerminal,
+    AesHandshake
 }

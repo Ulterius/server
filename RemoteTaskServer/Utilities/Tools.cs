@@ -1,7 +1,6 @@
 ﻿#region
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -12,8 +11,6 @@ using System.Threading;
 using System.Web;
 using NetFwTypeLib;
 using RemoteTaskServer.WebServer;
-using UlteriusServer.Plugins;
-using UlteriusServer.TaskServer.Api.Controllers.Impl;
 using static System.Security.Principal.WindowsIdentity;
 
 #endregion
@@ -22,6 +19,9 @@ namespace UlteriusServer.Utilities
 {
     internal class Tools
     {
+        private const string INetFwPolicy2ProgID = "HNetCfg.FwPolicy2";
+        private const string INetFwRuleProgID = "HNetCfg.FWRule";
+
         public static bool HasInternetConnection
         {
             // There is no way you can reliably check if there is an internet connection, but we can come close
@@ -67,37 +67,37 @@ namespace UlteriusServer.Utilities
                 Thread.Sleep(500);
             }
         }
-        const string INetFwPolicy2ProgID = "HNetCfg.FwPolicy2";
-        const string INetFwRuleProgID = "HNetCfg.FWRule";
 
 
         private void ClosePort(string name)
         {
-            INetFwPolicy2 firewallPolicy = getComObject<INetFwPolicy2>(INetFwPolicy2ProgID);
+            var firewallPolicy = getComObject<INetFwPolicy2>(INetFwPolicy2ProgID);
             firewallPolicy.Rules.Remove(name);
         }
+
         private static T getComObject<T>(string progID)
         {
-            Type t = Type.GetTypeFromProgID(progID, true);
-            return (T)Activator.CreateInstance(t);
+            var t = Type.GetTypeFromProgID(progID, true);
+            return (T) Activator.CreateInstance(t);
         }
+
         private static void OpenPort(ushort port, string name)
         {
-            INetFwRule2 firewallRule = getComObject<INetFwRule2>(INetFwRuleProgID);
+            var firewallRule = getComObject<INetFwRule2>(INetFwRuleProgID);
             firewallRule.Description = name;
             firewallRule.Name = name;
             firewallRule.Action = NET_FW_ACTION_.NET_FW_ACTION_ALLOW;
             firewallRule.Enabled = true;
             firewallRule.InterfaceTypes = "All";
-            firewallRule.Protocol = (int)NET_FW_IP_PROTOCOL_.NET_FW_IP_PROTOCOL_TCP;
+            firewallRule.Protocol = (int) NET_FW_IP_PROTOCOL_.NET_FW_IP_PROTOCOL_TCP;
             firewallRule.LocalPorts = port.ToString();
 
-            INetFwPolicy2 firewallPolicy = getComObject<INetFwPolicy2>(INetFwPolicy2ProgID);
+            var firewallPolicy = getComObject<INetFwPolicy2>(INetFwPolicy2ProgID);
             firewallPolicy.Rules.Add(firewallRule);
         }
 
 
-        public static void GenerateSettings()
+        public static void ConfigureServer()
         {
             if (!File.Exists("UlteriusServer.ini"))
             {
@@ -106,7 +106,7 @@ namespace UlteriusServer.Utilities
                 var username = Environment.GetEnvironmentVariable("USERNAME");
                 var userdomain = Environment.GetEnvironmentVariable("USERDOMAIN");
                 var command = $@"/C netsh http add urlacl url={prefix} user={userdomain}\{username} listen=yes";
-                System.Diagnostics.Process.Start("CMD.exe", command);
+                Process.Start("CMD.exe", command);
                 OpenPort(22006, "Ulterius Web Server");
                 OpenPort(22007, "Ulterius Task Server");
                 OpenPort(22008, "Ulterius Terminal Server");
@@ -141,7 +141,7 @@ namespace UlteriusServer.Utilities
             while (res.Length < 35)
                 res += new Func<Random, string>(r =>
                 {
-                    var c = (char)(r.Next(123) * DateTime.Now.Millisecond % 123);
+                    var c = (char) (r.Next(123)*DateTime.Now.Millisecond%123);
                     return char.IsLetterOrDigit(c) ? c.ToString() : "";
                 })(rnd);
             return res;

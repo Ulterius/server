@@ -35,7 +35,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers
             var errorController = new ErrorController(Client, packet);
             var windowsController = new WindowsController(Client, packet);
             var settingsController = new SettingsController(Client, packet);
-
+            var serverController = new ServerController(Client, packet);
             if (packetType == PacketType.InvalidOrEmptyPacket)
             {
                 errorController.InvalidPacket();
@@ -44,6 +44,12 @@ namespace UlteriusServer.TaskServer.Api.Controllers
             if (packetType == PacketType.RequestWindowsInformation)
             {
                 windowsController.GetWindowsInformation();
+                return;
+            }
+            if (packetType == PacketType.AesHandshake)
+            {
+                serverController.AesHandshake();
+
                 return;
             }
             if (!authClient.Authenticated && packetType == PacketType.Authenticate)
@@ -64,7 +70,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers
                 var systemController = new SystemController(Client, packet);
                 var operatingSystemController = new OperatingSystemController(Client, packet);
                 var networkController = new NetworkController(Client, packet);
-                var serverController = new ServerController(Client, packet);
+                
               
                 var gpuController = new GpuController(Client, packet);
                 var vncController = new VncController(Client, packet);

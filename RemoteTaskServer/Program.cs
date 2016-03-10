@@ -45,7 +45,7 @@ namespace UlteriusServer
 
         private static void ConsoleMain(string[] args)
         {
-            Tools.GenerateSettings();
+            Tools.ConfigureServer();
             var settings = new Settings();
             var useTerminal = settings.Read("Terminal", "AllowTerminal", true);
             var usePlugins = settings.Read("Plugins", "LoadPlugins", true);
