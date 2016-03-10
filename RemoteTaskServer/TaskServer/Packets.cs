@@ -118,6 +118,12 @@ namespace UlteriusServer.TaskServer
                     case "changenetworkresolve":
                         packetType = PacketType.ChangeNetworkResolve;
                         break;
+                    case "changeloadplugins":
+                        packetType = PacketType.ChangeLoadPlugins;
+                        break;
+                    case "changeuseterminal":
+                        packetType = PacketType.ChangeUseTerminal;
+                        break;
                     case "getcurrentsettings":
                         packetType = PacketType.GetCurrentSettings;
                         break;
@@ -233,5 +239,7 @@ public enum PacketType
     RefreshCameras,
     StartCameraStream,
     StopCameraStream,
-    UploadFile
+    UploadFile,
+    ChangeLoadPlugins,
+    ChangeUseTerminal
 }

@@ -45,20 +45,28 @@ namespace UlteriusServer
 
         private static void ConsoleMain(string[] args)
         {
-            Console.WriteLine("Command line = {0}", Environment.CommandLine);
-            for (var ix = 0; ix < args.Length; ++ix)
-                Console.WriteLine("Argument{0} = {1}", ix + 1, args[ix]);
-
             Tools.GenerateSettings();
+            var settings = new Settings();
+            var useTerminal = settings.Read("Terminal", "AllowTerminal", true);
+            var usePlugins = settings.Read("Plugins", "LoadPlugins", true);
+            var useWebServer = settings.Read("WebServer", "UseWebServer", true);
             WebCamManager.LoadWebcams();
-            PluginHandler.LoadPlugins();
-           
-            HttpServer.Setup();
+            if (usePlugins)
+            {
+                PluginHandler.LoadPlugins();
+            }
+            if (useWebServer)
+            {
+                HttpServer.Setup();
+            }
             var systemUtilities = new SystemUtilities();
             systemUtilities.Start();
             //Keep down here if you actually want a functional program
             TaskManagerServer.Start();
-            TerminalManagerServer.Start();
+            if (useTerminal)
+            {
+                TerminalManagerServer.Start();
+            }
             Console.ReadLine();
         }
 

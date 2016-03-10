@@ -129,16 +129,44 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
             _serializator.Serialize(_client, _packet.endpoint, _packet.syncKey, data);
         }
 
+        public void ChangeLoadPlugins()
+        {
+            var loadPlugins = (bool)_packet.args.First();
+            Settings.Write("Plugins", "LoadPlugins", loadPlugins);
+            var currentStatus = Settings.Read("Plugins", "LoadPlugins", true);
+            var data = new
+            {
+                changedStatus = true,
+                LoadPlugins = currentStatus
+            };
+            _serializator.Serialize(_client, _packet.endpoint, _packet.syncKey, data);
+        }
+
+        public void ChangeUseTerminal()
+        {
+            var useTerminal = (bool)_packet.args.First();
+            Settings.Write("Terminal", "AllowTerminal", useTerminal);
+            var currentStatus = Settings.Read("Terminal", "AllowTerminal", true);
+            var data = new
+            {
+                changedStatus = true,
+                AllowTerminal = currentStatus
+            };
+            _serializator.Serialize(_client, _packet.endpoint, _packet.syncKey, data);
+        }
+
         public void GetCurrentSettings()
         {
-            var UseWebServer = Settings.Read("WebServer", "UseWebServer", false);
-            var WebServerPort = Settings.Read("WebServer", "WebServerPort", 9999);
-            var WebFilePath = Settings.Read("WebServer", "WebFilePath", "");
-            var TaskServerPort = Settings.Read("TaskServer", "TaskServerPort", 8387);
+            var UseWebServer = Settings.Read("WebServer", "UseWebServer", true);
+            var WebServerPort = Settings.Read("WebServer", "WebServerPort", 22006);
+            var WebFilePath = Settings.Read("WebServer", "WebFilePath", HttpServer.defaultPath);
+            var TaskServerPort = Settings.Read("TaskServer", "TaskServerPort", 22007);
             var SkipHostNameResolve = Settings.Read("Network", "SkipHostNameResolve", false);
             var VncProxyPort = Settings.Read("Vnc", "VncProxyPort", 5901);
             var VncPort = Settings.Read("Vnc", "VncPort", 5900);
             var VncPass = Settings.Read("Vnc", "VncPass", "");
+            var AllowTerminal = Settings.Read("Terminal", "AllowTerminal", true);
+            var LoadPlugins = Settings.Read("Plugins", "LoadPlugins", true);
             var currentSettingsData = new
             {
                 UseWebServer,
@@ -148,7 +176,9 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                 SkipHostNameResolve,
                 VncPort,
                 VncProxyPort,
-                VncPass
+                VncPass,
+                AllowTerminal,
+                LoadPlugins
             };
             _serializator.Serialize(_client, _packet.endpoint, _packet.syncKey, currentSettingsData);
         }

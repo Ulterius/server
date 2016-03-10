@@ -20,7 +20,7 @@ namespace UlteriusServer.TerminalServer
         {
             var logger = new Log4NetLogger();
             var sysinfo = new SystemInfo();
-            var endpoint = new IPEndPoint(IPAddress.Parse(/*NetworkUtilities.GetIPv4Address()*/ "0.0.0.0"), 8009);
+            var endpoint = new IPEndPoint(IPAddress.Parse(/*NetworkUtilities.GetIPv4Address()*/ "0.0.0.0"), 22008);
 
 
             var server = new WebSocketQueueServer(endpoint, sysinfo, logger);
@@ -43,7 +43,7 @@ namespace UlteriusServer.TerminalServer
             try
             {
                 server.StartAsync();
-                Console.WriteLine("Terminal Server bound to " + NetworkUtilities.GetIPv4Address() + ":" + 8009);
+                Console.WriteLine("Terminal Server bound to " + NetworkUtilities.GetIPv4Address() + ":" + 22008);
                 Console.ReadKey(true);
                 server.Dispose();
             }

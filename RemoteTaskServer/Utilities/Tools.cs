@@ -10,6 +10,7 @@ using System.Net.NetworkInformation;
 using System.Security.Principal;
 using System.Threading;
 using System.Web;
+using NetFwTypeLib;
 using RemoteTaskServer.WebServer;
 using UlteriusServer.Plugins;
 using UlteriusServer.TaskServer.Api.Controllers.Impl;
@@ -66,21 +67,70 @@ namespace UlteriusServer.Utilities
                 Thread.Sleep(500);
             }
         }
+        const string INetFwPolicy2ProgID = "HNetCfg.FwPolicy2";
+        const string INetFwRuleProgID = "HNetCfg.FWRule";
 
-   
+
+        private void ClosePort(string name)
+        {
+            INetFwPolicy2 firewallPolicy = getComObject<INetFwPolicy2>(INetFwPolicy2ProgID);
+            firewallPolicy.Rules.Remove(name);
+        }
+        private static T getComObject<T>(string progID)
+        {
+            Type t = Type.GetTypeFromProgID(progID, true);
+            return (T)Activator.CreateInstance(t);
+        }
+        private static void OpenPort(ushort port, string name)
+        {
+            INetFwRule2 firewallRule = getComObject<INetFwRule2>(INetFwRuleProgID);
+            firewallRule.Description = name;
+            firewallRule.Name = name;
+            firewallRule.Action = NET_FW_ACTION_.NET_FW_ACTION_ALLOW;
+            firewallRule.Enabled = true;
+            firewallRule.InterfaceTypes = "All";
+            firewallRule.Protocol = (int)NET_FW_IP_PROTOCOL_.NET_FW_IP_PROTOCOL_TCP;
+            firewallRule.LocalPorts = port.ToString();
+
+            INetFwPolicy2 firewallPolicy = getComObject<INetFwPolicy2>(INetFwPolicy2ProgID);
+            firewallPolicy.Rules.Add(firewallRule);
+        }
+
 
         public static void GenerateSettings()
         {
             if (!File.Exists("UlteriusServer.ini"))
             {
+                //setup listen sh
+                var prefix = "http://*:22006/";
+                var username = Environment.GetEnvironmentVariable("USERNAME");
+                var userdomain = Environment.GetEnvironmentVariable("USERDOMAIN");
+                var command = $@"/C netsh http add urlacl url={prefix} user={userdomain}\{username} listen=yes";
+                System.Diagnostics.Process.Start("CMD.exe", command);
+                OpenPort(22006, "Ulterius Web Server");
+                OpenPort(22007, "Ulterius Task Server");
+                OpenPort(22008, "Ulterius Terminal Server");
+                OpenPort(5900, "VNC Server");
+                OpenPort(5901, "Ulterius VNC Proxy Server");
+
+
                 var settings = new Settings();
-                
+                //web server settings
                 settings.Write("WebServer", "UseWebServer", true);
-                settings.Write("WebServer", "WebServerPort", 9999);
+                settings.Write("WebServer", "WebServerPort", 22006);
                 settings.Write("WebServer", "WebFilePath", HttpServer.defaultPath);
-                settings.Write("TaskServer", "TaskServerPort", 8387);
+                //task server settings
+                settings.Write("TaskServer", "TaskServerPort", 22007);
+                //network settings
                 settings.Write("Network", "SkipHostNameResolve", false);
+                //plugin settings
                 settings.Write("Plugins", "LoadPlugins", true);
+                //vnc settings
+                settings.Write("Vnc", "VncPass", "");
+                settings.Write("Vnc", "VncPort", 5900);
+                settings.Write("Vnc", "VncProxyPort", 5901);
+                //terminal settings
+                settings.Write("Terminal", "AllowTerminal", true);
             }
         }
 

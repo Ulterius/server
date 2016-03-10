@@ -140,7 +140,7 @@ namespace RemoteTaskServer.WebServer
             if (useWebServer)
             {
                 var root = settings.Read("WebServer", "WebFilePath", defaultPath);
-                var port = settings.Read("WebServer", "WebServerPort", 9999);
+                var port = settings.Read("WebServer", "WebServerPort", 22006);
                 GlobalPort = port;
                 var httpServer = new HttpServer(root, port);
                 Console.WriteLine(Resources.Program_Main_Web_Server_is_running_on_this_port__ + httpServer.Port);
@@ -158,7 +158,7 @@ namespace RemoteTaskServer.WebServer
 
         private void Listen()
         {
-            var prefix = "http://*:9669/";
+            var prefix = "http://*:22006/";
             var username = Environment.GetEnvironmentVariable("USERNAME");
             var userdomain = Environment.GetEnvironmentVariable("USERDOMAIN");
             _listener = new HttpListener();
@@ -172,7 +172,7 @@ namespace RemoteTaskServer.WebServer
                 if (ex.ErrorCode == 5)
                 {
                     Console.WriteLine(@"You need to run the following args:");
-                    Console.WriteLine(@"  netsh http add urlacl url={0} user={1}\{2} listen=yes",
+                    Console.WriteLine(@"netsh http add urlacl url={0} user={1}\{2} listen=yes",
                         prefix, userdomain, username);
                 }
                 else

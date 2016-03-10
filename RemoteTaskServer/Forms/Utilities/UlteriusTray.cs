@@ -55,9 +55,9 @@ namespace UlteriusServer.Forms.Utilities
             Menu = new ContextMenu();
             RestartProgram = new MenuItem("Restart Server");
             ExitProgram = new MenuItem("Exit");
-            OpenClient = new MenuItem("Open Client");
-            OpenLogs = new MenuItem("Open Logs");
-            OpenSettings = new MenuItem("Open Settings");
+            OpenClient = new MenuItem("OpenPort Client");
+            OpenLogs = new MenuItem("OpenPort Logs");
+            OpenSettings = new MenuItem("OpenPort Settings");
             Menu.MenuItems.Add(0, ExitProgram);
             Menu.MenuItems.Add(1, RestartProgram);
             Menu.MenuItems.Add(2, OpenClient);

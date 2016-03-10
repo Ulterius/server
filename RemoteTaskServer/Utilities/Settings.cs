@@ -100,7 +100,7 @@ namespace UlteriusServer.Utilities
                     m_Sections.Clear();
                     m_Modified.Clear();
 
-                    // *** Open the INI file ***
+                    // *** OpenPort the INI file ***
                     try
                     {
                         sr = new StreamReader(FileName);
@@ -193,7 +193,7 @@ namespace UlteriusServer.Utilities
                     StreamReader sr = null;
                     try
                     {
-                        // *** Open the original file ***
+                        // *** OpenPort the original file ***
                         sr = new StreamReader(FileName);
 
                         // *** Read the file original content, replace changes with local cache values ***
@@ -277,7 +277,7 @@ namespace UlteriusServer.Utilities
                             }
                         }
 
-                        // *** Close the original file ***
+                        // *** ClosePort the original file ***
                         sr.Close();
                         sr = null;
                     }
@@ -315,7 +315,7 @@ namespace UlteriusServer.Utilities
                 }
                 m_Modified.Clear();
 
-                // *** Close the temporary file ***
+                // *** ClosePort the temporary file ***
                 sw.Close();
                 sw = null;
 

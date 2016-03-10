@@ -34,9 +34,9 @@ namespace UlteriusServer.WebSocketAPI
         public WebSocketEventListener(IPEndPoint endpoint, WebSocketListenerOptions options)
         {
          //   X509Store store = new X509Store(StoreName.My, StoreLocation.LocalMachine);
-          //  store.Open(OpenFlags.ReadOnly);
+          //  store.OpenPort(OpenFlags.ReadOnly);
           //  var certificate = store.Certificates[0];
-        //    store.Close();
+        //    store.ClosePort();
             _listener = new WebSocketListener(endpoint, options);
             var rfc6455 = new WebSocketFactoryRfc6455(_listener);
             rfc6455.MessageExtensions.RegisterExtension(new WebSocketDeflateExtension());

@@ -41,7 +41,6 @@ namespace UlteriusServer.TaskServer.Api.Controllers
                 errorController.InvalidPacket();
                 return;
             }
-
             if (packetType == PacketType.RequestWindowsInformation)
             {
                 windowsController.GetWindowsInformation();
@@ -53,8 +52,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers
                 var password = packet.args.First().ToString();
                 var authenticationData = loginDecoder.Login(password, Client);
                 Client.WriteStringAsync(authenticationData, CancellationToken.None);
-            }
-           
+            }          
             if (authClient.Authenticated)
             {
                 #region
@@ -166,6 +164,12 @@ namespace UlteriusServer.TaskServer.Api.Controllers
                         break;
                     case PacketType.ChangeNetworkResolve:
                         settingsController.ChangeNetworkResolve();
+                        break;
+                    case PacketType.ChangeLoadPlugins:
+                        settingsController.ChangeLoadPlugins();;
+                        break;
+                    case PacketType.ChangeUseTerminal:
+                        settingsController.ChangeUseTerminal();;
                         break;
                     case PacketType.GetCurrentSettings:
                         settingsController.GetCurrentSettings();

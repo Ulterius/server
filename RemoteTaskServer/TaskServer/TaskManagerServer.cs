@@ -28,7 +28,7 @@ namespace UlteriusServer.TaskServer
             AllClients = new ConcurrentDictionary<string, AuthClient>();
             ApiControllers = new ConcurrentDictionary<string, ApiController>();
             var settings = new Settings();
-            var port = settings.Read("TaskServer", "TaskServerPort", 8387);
+            var port = settings.Read("TaskServer", "TaskServerPort", 22007);
             var cancellation = new CancellationTokenSource();
             var endpoint = new IPEndPoint(IPAddress.Parse(/*NetworkUtilities.GetIPv4Address()*/ "0.0.0.0"), port);
             var server = new WebSocketEventListener(endpoint, new WebSocketListenerOptions()
