@@ -82,6 +82,8 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
             serializator.Serialize(client, packet.endpoint, packet.syncKey, data);
         }
 
+
+
         /// <summary>
         ///     Experimental function for monitoring active windows on your remote desktop (windows).
         /// </summary>

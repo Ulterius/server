@@ -2,8 +2,13 @@
 
 using System;
 using System.Collections.Generic;
+using System.Security;
+using System.Text;
+using System.Windows;
 using Newtonsoft.Json;
+using UlteriusServer.Authentication;
 using UlteriusServer.Utilities;
+using UlteriusServer.Utilities.Security;
 
 #endregion
 
@@ -19,8 +24,50 @@ namespace UlteriusServer.TaskServer
         public PacketType packetType;
         public string syncKey;
 
-        public Packets(string packetJson)
+        public Packets(AuthClient client, string packetJson)
         {
+            //An entire base64 string is an aes encrypted packet
+            if (StringUtilities.IsBase64String(packetJson))
+            {
+                try
+                {
+                    var keybytes = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(client.AesKey));
+                    var iv = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(client.AesSeed));
+                    var packet = Convert.FromBase64String(packetJson);
+                    packetJson = Aes.Decrypt(packet, keybytes, iv);
+                }
+                catch (Exception)
+                {
+                    packetType = PacketType.InvalidOrEmptyPacket;
+                    return;
+                }
+            }
+            else
+            {
+                //the only non encrypted packet allowed is the first handshake
+                try
+                {
+                    var validHandshake = JsonConvert.DeserializeObject<JsPacket>(packetJson);
+                    var endpoint = validHandshake?.endpoint?.Trim()?.ToLower();
+                    if (!endpoint.Equals("aeshandshake"))
+                    {
+                        packetType = PacketType.InvalidOrEmptyPacket;
+                        return;
+                    }
+                    //prevent sending a new aes key pair after a handshake has already taken place
+                    if (client.AesShook)
+                    {
+                        packetType = PacketType.InvalidOrEmptyPacket;
+                        return;
+                    }
+                }
+                catch (Exception)
+                {
+
+                    packetType = PacketType.InvalidOrEmptyPacket;
+                    return;
+                }
+            }
             JsPacket deserializedPacket = null;
             try
             {

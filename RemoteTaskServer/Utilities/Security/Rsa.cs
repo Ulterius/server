@@ -93,6 +93,7 @@ namespace UlteriusServer.Utilities.Security
             var pemWriter = new PemWriter(publicWriter);
             pemWriter.WriteObject(publicKey);
             pemWriter.Writer.Flush();
+            Console.WriteLine(publicWriter.ToString());
             client.PublicKey = StringToSecureString(Base64Encode(publicWriter.ToString()));
             publicWriter.Close();
 
@@ -100,6 +101,7 @@ namespace UlteriusServer.Utilities.Security
             var pemWriterP = new PemWriter(privateWriter);
             pemWriterP.WriteObject(privateKey);
             pemWriterP.Writer.Flush();
+            Console.WriteLine(privateWriter.ToString());
             client.PrivateKey = StringToSecureString(Base64Encode(privateWriter.ToString()));
             privateWriter.Close();
         }

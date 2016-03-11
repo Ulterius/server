@@ -1,6 +1,7 @@
 ﻿#region
 
 using System;
+using System.DirectoryServices.AccountManagement;
 using UlteriusServer.Authentication;
 using UlteriusServer.TerminalServer.Infrastructure;
 using UlteriusServer.TerminalServer.Messaging.TerminalControl.Requests;
@@ -14,11 +15,34 @@ namespace UlteriusServer.TerminalServer.Messaging.TerminalControl.Handlers
     {
         private readonly ConnectionManager _connections;
         private readonly ILogger _log;
+        private static readonly byte INVALID_PASSWORD = 3;
+        private static readonly byte AUTHENTICATED = 2;
+
 
         public InputTerminalRequestHandler(ConnectionManager sessions, ILogger log)
         {
             _connections = sessions;
             _log = log;
+        }
+
+        private string GetUsername()
+        {
+            return Environment.UserName;
+        }
+
+        private bool Login(string password)
+        {
+            var code = 3;
+            if (string.IsNullOrEmpty(password))
+            {
+                code = INVALID_PASSWORD;
+            }
+            using (var context = new PrincipalContext(ContextType.Machine))
+            {
+                code = context.ValidateCredentials(GetUsername(), password) ? 2 : 3;
+            }
+            var authenticated = code == AUTHENTICATED;
+            return authenticated;
         }
 
         public bool Accept(TerminalInputRequest message)
@@ -43,8 +67,7 @@ namespace UlteriusServer.TerminalServer.Messaging.TerminalControl.Handlers
             else if (!connection.IsAuthed && connection.TryingAuth)
             {
                 cli.Output("Logging in please wait...", 1, false);
-                var loginDecoder = new UlteriusLoginDecoder();
-                var authed = loginDecoder.Login(message.Input);
+                var authed = Login(message.Input);
                 cli.Output(authed ? "Login was successfull" : "Login was unsuccessful, enter your password",
                     Convert.ToInt32(authed), authed);
                 connection.IsAuthed = authed;

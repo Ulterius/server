@@ -15,6 +15,7 @@ namespace UlteriusServer.Authentication
             Client = client;
             LastUpdate = DateTime.Now;
             Authenticated = false;
+            AesShook = false;
         }
 
         public WebSocket Client { get; set; }
@@ -23,6 +24,7 @@ namespace UlteriusServer.Authentication
         public SecureString PrivateKey { get; set; }
         public SecureString PublicKey { get; set; }
         public SecureString AesKey { get; set; }
-
+        public SecureString AesSeed { get; set; }
+        public bool AesShook { get; set; }
     }
 }

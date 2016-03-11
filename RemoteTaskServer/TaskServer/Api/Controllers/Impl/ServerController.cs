@@ -2,9 +2,11 @@
 
 using System;
 using System.Diagnostics;
+using System.DirectoryServices.AccountManagement;
 using System.Linq;
 using System.Reflection;
 using System.Security.Cryptography;
+using System.Web.Script.Serialization;
 using System.Windows;
 using System.Xml;
 using UlteriusServer.TaskServer.Api.Serialization;
@@ -21,7 +23,8 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
         private readonly WebSocket client;
         private readonly Packets packet;
         private readonly ApiSerializator serializator = new ApiSerializator();
-
+        private static readonly byte INVALID_PASSWORD = 3;
+        private static readonly byte AUTHENTICATED = 2;
         public ServerController(WebSocket client, Packets packet)
         {
             this.client = client;
@@ -32,11 +35,14 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
         {
             try
             {
-                var encryptedKey = packet.args.AsEnumerable().First().ToString();
+                var encryptedKey = packet.args.ElementAt(0).ToString();
+                var encryptedSeed = packet.args.ElementAt(1).ToString();
                 foreach (var connectedClient in TaskManagerServer.AllClients.Where(connectedClient => connectedClient.Value.Client == client))
                 {
-                   connectedClient.Value.AesKey = Rsa.Decryption(connectedClient.Value.PrivateKey, encryptedKey);
-
+                    var privateKey = connectedClient.Value.PrivateKey;
+                   connectedClient.Value.AesKey = Rsa.Decryption(privateKey, encryptedKey);
+                   connectedClient.Value.AesSeed = Rsa.Decryption(privateKey, encryptedSeed);
+                    connectedClient.Value.AesShook = true;
                     var endData = new
                     {
                         shook = true
@@ -46,6 +52,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
             }
             catch (Exception e)
             {
+                
                 var endData = new
                 {
                     shook = false,
@@ -54,7 +61,45 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                 serializator.Serialize(client, packet.endpoint, packet.syncKey, endData);
             }
         }
-
+        private string GetUsername()
+        {
+            return Environment.UserName;
+        }
+        public void Login()
+        {
+            var password = packet.args.ElementAt(0).ToString();
+            var code = 3;
+            if (string.IsNullOrEmpty(password))
+            {
+                code = INVALID_PASSWORD;
+            }
+            using (var context = new PrincipalContext(ContextType.Machine))
+            {
+                code = context.ValidateCredentials(GetUsername(), password) ? 2 : 3;
+            }
+            var authenticated = code == AUTHENTICATED;
+            foreach (var aClient in TaskManagerServer.AllClients.Select(connectedClient => connectedClient.Value).Where(aClient => aClient.Client == client))
+            {
+                if (code == INVALID_PASSWORD)
+                {
+                    aClient.Authenticated = false;
+                }
+                else if (code == AUTHENTICATED)
+                {
+                    aClient.Authenticated = true;
+                }
+            }
+            var authenticationData = new JavaScriptSerializer().Serialize(new
+            {
+                endpoint = "authentication",
+                results = new
+                {
+                    authenticated,
+                    message = authenticated ? "Login was successfull" : "Login was unsuccessful"
+                }
+            });
+            serializator.Serialize(client, packet.endpoint, packet.syncKey, authenticationData);
+        }
         public void CheckForUpdate()
         {
             var isError = false;

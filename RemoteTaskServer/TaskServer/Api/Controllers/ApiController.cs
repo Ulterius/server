@@ -49,15 +49,12 @@ namespace UlteriusServer.TaskServer.Api.Controllers
             if (packetType == PacketType.AesHandshake)
             {
                 serverController.AesHandshake();
-
                 return;
             }
             if (!authClient.Authenticated && packetType == PacketType.Authenticate)
             {
-                var loginDecoder = new UlteriusLoginDecoder();
-                var password = packet.args.First().ToString();
-                var authenticationData = loginDecoder.Login(password, Client);
-                Client.WriteStringAsync(authenticationData, CancellationToken.None);
+               serverController.Login();
+               return;
             }          
             if (authClient.Authenticated)
             {
@@ -206,6 +203,20 @@ namespace UlteriusServer.TaskServer.Api.Controllers
                         break;
                     case PacketType.RefreshCameras:
                         webcamController.RefreshCameras();
+                        break;
+                    case PacketType.GenerateNewKey:
+                        break;
+                    case PacketType.EmptyApiKey:
+                        break;
+                    case PacketType.InvalidApiKey:
+                        break;
+                    case PacketType.RequestWindowsInformation:
+                        break;
+                    case PacketType.Authenticate:
+                        break;
+                    case PacketType.GetCameraFrame:
+                        break;
+                    case PacketType.AesHandshake:
                         break;
                     default:
                         break;
