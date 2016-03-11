@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Reflection;
 using System.Threading;
 using UlteriusServer.Properties;
 using UlteriusServer.Utilities;
@@ -16,7 +17,9 @@ namespace RemoteTaskServer.WebServer
 {
     internal class HttpServer
     {
-        public static string defaultPath = Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location) + @"\data\client\";
+        public static string defaultPath = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location) +
+                                           @"\data\client\";
+
         private static readonly IDictionary<string, string> MimeTypeMappings =
             new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase)
             {
@@ -89,6 +92,8 @@ namespace RemoteTaskServer.WebServer
                 #endregion
             };
 
+        public static int GlobalPort;
+
         private readonly string[] _indexFiles =
         {
             "index.html",
@@ -132,7 +137,6 @@ namespace RemoteTaskServer.WebServer
             private set { }
         }
 
-        public static int GlobalPort;
         public static void Setup()
         {
             var settings = new Settings();

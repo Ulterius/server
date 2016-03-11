@@ -5,11 +5,10 @@ using System.Collections.Concurrent;
 using System.Linq;
 using System.Net;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Web.Script.Serialization;
 using UlteriusServer.Authentication;
+using UlteriusServer.Forms.Utilities;
 using UlteriusServer.TaskServer.Api.Controllers;
-using UlteriusServer.TaskServer.Services.Network;
 using UlteriusServer.Utilities;
 using UlteriusServer.Utilities.Security;
 using UlteriusServer.WebSocketAPI;
@@ -31,13 +30,13 @@ namespace UlteriusServer.TaskServer
             var settings = new Settings();
             var port = settings.Read("TaskServer", "TaskServerPort", 22007);
             var cancellation = new CancellationTokenSource();
-            var endpoint = new IPEndPoint(IPAddress.Parse(/*NetworkUtilities.GetIPv4Address()*/ "0.0.0.0"), port);
-            var server = new WebSocketEventListener(endpoint, new WebSocketListenerOptions()
+            var endpoint = new IPEndPoint(IPAddress.Parse( /*NetworkUtilities.GetIPv4Address()*/ "0.0.0.0"), port);
+            var server = new WebSocketEventListener(endpoint, new WebSocketListenerOptions
             {
                 SubProtocols = new[] {"text"},
                 PingTimeout = TimeSpan.FromSeconds(5),
                 NegotiationTimeout = TimeSpan.FromSeconds(5),
-                ParallelNegotiations = Environment.ProcessorCount * 2,
+                ParallelNegotiations = Environment.ProcessorCount*2,
                 NegotiationQueueCapacity = 256,
                 TcpBacklog = 1000
             });
@@ -56,7 +55,6 @@ namespace UlteriusServer.TaskServer
 
         private static void HandleMessage(WebSocket websocket, string message)
         {
-           
             foreach (var apiController in
                 ApiControllers.Select(controller => controller.Value)
                     .Where(apiController => apiController.Client == websocket))
@@ -96,7 +94,7 @@ namespace UlteriusServer.TaskServer
             SendWelcomeMessage(client, clientSocket);
         }
 
-        private static void SendWelcomeMessage(AuthClient client,  WebSocket clientSocket)
+        private static void SendWelcomeMessage(AuthClient client, WebSocket clientSocket)
         {
             var welcomeMessage = new JavaScriptSerializer().Serialize(new
             {
@@ -109,6 +107,9 @@ namespace UlteriusServer.TaskServer
                 }
             });
             clientSocket.WriteStringAsync(welcomeMessage, CancellationToken.None);
+            var userCount = AllClients.Count;
+            var extra = userCount > 1 ? "s" : string.Empty;
+            UlteriusTray.ShowMessage($"There are now {userCount} user{extra} connected.", "A new user connected!");
         }
 
         private static void Log(string message)

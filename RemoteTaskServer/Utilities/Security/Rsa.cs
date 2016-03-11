@@ -17,12 +17,10 @@ namespace UlteriusServer.Utilities.Security
 {
     public class Rsa
     {
-
-
         public static AsymmetricCipherKeyPair GetKeyPair()
         {
-            CryptoApiRandomGenerator randomGenerator = new CryptoApiRandomGenerator();
-            SecureRandom secureRandom = new SecureRandom(randomGenerator);
+            var randomGenerator = new CryptoApiRandomGenerator();
+            var secureRandom = new SecureRandom(randomGenerator);
             var keyGenerationParameters = new KeyGenerationParameters(secureRandom, 2048);
 
             var keyPairGenerator = new RsaKeyPairGenerator();
@@ -67,7 +65,6 @@ namespace UlteriusServer.Utilities.Security
         {
             var data = Convert.FromBase64String(SecureStringToString(clientPrivateKey));
             var decodedPrivateKey = Encoding.UTF8.GetString(data);
-            Console.WriteLine(decodedPrivateKey);
             var bytesToDecrypt = Convert.FromBase64String(encryptedData);
             var decryptEngine = new Pkcs1Encoding(new RsaEngine());
 
@@ -77,8 +74,9 @@ namespace UlteriusServer.Utilities.Security
 
                 decryptEngine.Init(false, keyPair.Private);
             }
-            return StringToSecureString(Encoding.UTF8.GetString(decryptEngine.ProcessBlock(bytesToDecrypt, 0, bytesToDecrypt.Length)));
-            
+            return
+                StringToSecureString(
+                    Encoding.UTF8.GetString(decryptEngine.ProcessBlock(bytesToDecrypt, 0, bytesToDecrypt.Length)));
         }
 
 
@@ -93,7 +91,6 @@ namespace UlteriusServer.Utilities.Security
             var pemWriter = new PemWriter(publicWriter);
             pemWriter.WriteObject(publicKey);
             pemWriter.Writer.Flush();
-            Console.WriteLine(publicWriter.ToString());
             client.PublicKey = StringToSecureString(Base64Encode(publicWriter.ToString()));
             publicWriter.Close();
 
@@ -101,7 +98,6 @@ namespace UlteriusServer.Utilities.Security
             var pemWriterP = new PemWriter(privateWriter);
             pemWriterP.WriteObject(privateKey);
             pemWriterP.Writer.Flush();
-            Console.WriteLine(privateWriter.ToString());
             client.PrivateKey = StringToSecureString(Base64Encode(privateWriter.ToString()));
             privateWriter.Close();
         }

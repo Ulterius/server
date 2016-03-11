@@ -15,7 +15,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
 
         public ErrorController(WebSocket client, Packets packet)
         {
-            this._client = client;
+            _client = client;
             this.packet = packet;
         }
 
@@ -38,6 +38,5 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
             };
             serializator.Serialize(_client, packet.endpoint, packet.syncKey, noAuthData);
         }
-
     }
 }

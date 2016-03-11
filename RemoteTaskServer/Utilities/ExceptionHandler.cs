@@ -14,7 +14,6 @@ namespace UlteriusServer.Utilities
 
         public static void AddGlobalHandlers()
         {
-
             AppDomain.CurrentDomain.UnhandledException += (sender, args) =>
             {
                 try

@@ -53,10 +53,8 @@ namespace UlteriusServer.TaskServer.Services.System
                     }
                     catch (Exception e)
                     {
-
-                       Console.WriteLine(e.Message);
+                        Console.WriteLine(e.Message);
                     }
-                   
                 }
             });
         }
@@ -237,7 +235,7 @@ namespace UlteriusServer.TaskServer.Services.System
 
         public static Dictionary<string, List<EventLogEntry>> GetEventLogs()
         {
-           /* var dictionary = new Dictionary<string, List<EventLogEntry>>();
+            /* var dictionary = new Dictionary<string, List<EventLogEntry>>();
             var d = EventLog.GetEventLogs();
             foreach (var l in d)
             {
@@ -313,8 +311,6 @@ namespace UlteriusServer.TaskServer.Services.System
                 select (float) value).ToList();
         }
 
-
-      
 
         [DllImport("kernel32")]
         private static extern ulong GetTickCount64();

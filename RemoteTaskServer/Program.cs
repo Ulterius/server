@@ -21,16 +21,19 @@ namespace UlteriusServer
 {
     internal class Program
     {
+        private const int SW_HIDE = 0;
+        private const int SW_SHOW = 5;
+
         [STAThread]
         private static void Main(string[] args)
         {
             var handle = GetConsoleWindow();
             // Hide
-           ShowWindow(handle, SW_HIDE);
-          var filestream = new FileStream("log.txt", FileMode.Create);
-           var streamwriter = new StreamWriter(filestream) {AutoFlush = true};
-           Console.SetOut(streamwriter);
-           Console.SetError(streamwriter);
+            ShowWindow(handle, SW_HIDE);
+            var filestream = new FileStream("log.txt", FileMode.Create);
+            var streamwriter = new StreamWriter(filestream) {AutoFlush = true};
+            Console.SetOut(streamwriter);
+            Console.SetError(streamwriter);
             Console.Title = Resources.Program_Title;
             if (!Debugger.IsAttached)
                 ExceptionHandler.AddGlobalHandlers();
@@ -72,12 +75,12 @@ namespace UlteriusServer
 
 
         [DllImport("kernel32.dll")]
-        static extern IntPtr GetConsoleWindow();
+        private static extern IntPtr GetConsoleWindow();
+
         [DllImport("user32.dll")]
-        static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+        private static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+
         [DllImport("kernel32.dll")]
         private static extern bool AllocConsole();
-        const int SW_HIDE = 0;
-        const int SW_SHOW = 5;
     }
 }

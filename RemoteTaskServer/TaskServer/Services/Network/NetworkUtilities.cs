@@ -30,21 +30,18 @@ namespace UlteriusServer.TaskServer.Services.Network
         private static readonly Settings settings = new Settings();
 
         private static readonly List<NetworkDevices> Devices = new List<NetworkDevices>();
-        private delegate IPHostEntry GetHostEntryHandler(string ip);
+
         public static string GetReverseDNS(string ip, int timeout)
         {
             try
             {
-                GetHostEntryHandler callback = new GetHostEntryHandler(Dns.GetHostEntry);
-                IAsyncResult result = callback.BeginInvoke(ip, null, null);
+                GetHostEntryHandler callback = Dns.GetHostEntry;
+                var result = callback.BeginInvoke(ip, null, null);
                 if (result.AsyncWaitHandle.WaitOne(timeout, false))
                 {
                     return callback.EndInvoke(result).HostName;
                 }
-                else
-                {
-                    return ip;
-                }
+                return ip;
             }
             catch (Exception)
             {
@@ -238,6 +235,8 @@ namespace UlteriusServer.TaskServer.Services.Network
             }
             return "127.0.0.1";
         }
+
+        private delegate IPHostEntry GetHostEntryHandler(string ip);
 
         /// <summary>
         ///     MIB_IPNETROW structure returned by GetIpNetTable

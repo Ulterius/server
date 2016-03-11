@@ -23,7 +23,6 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
             _packet = packet;
         }
 
-       
 
         public void ChangeWebServerPort()
         {
@@ -131,7 +130,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
 
         public void ChangeLoadPlugins()
         {
-            var loadPlugins = (bool)_packet.args.First();
+            var loadPlugins = (bool) _packet.args.First();
             Settings.Write("Plugins", "LoadPlugins", loadPlugins);
             var currentStatus = Settings.Read("Plugins", "LoadPlugins", true);
             var data = new
@@ -144,7 +143,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
 
         public void ChangeUseTerminal()
         {
-            var useTerminal = (bool)_packet.args.First();
+            var useTerminal = (bool) _packet.args.First();
             Settings.Write("Terminal", "AllowTerminal", useTerminal);
             var currentStatus = Settings.Read("Terminal", "AllowTerminal", true);
             var data = new
@@ -182,7 +181,5 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
             };
             _serializator.Serialize(_client, _packet.endpoint, _packet.syncKey, currentSettingsData);
         }
-
-       
     }
 }

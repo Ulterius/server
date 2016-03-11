@@ -2,7 +2,6 @@
 
 using System;
 using System.IO;
-using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Web.Script.Serialization;
@@ -27,18 +26,15 @@ namespace UlteriusServer.TaskServer.Api.Serialization
             //we sanity stuff
             try
             {
-                
-                    foreach (var connectedClient in TaskManagerServer.AllClients)
-                    {
-                        var authClient = connectedClient.Value;
-                        if (authClient.Client != client) continue;
-                        var keybytes = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(authClient.AesKey));
-                        var iv = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(authClient.AesSeed));
-                        //convert packet json into base64
-                        json = Convert.ToBase64String(Aes.Encrypt(json, keybytes, iv));
-                    }
-                
-
+                foreach (var connectedClient in TaskManagerServer.AllClients)
+                {
+                    var authClient = connectedClient.Value;
+                    if (authClient.Client != client) continue;
+                    var keybytes = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(authClient.AesKey));
+                    var iv = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(authClient.AesSeed));
+                    //convert packet json into base64
+                    json = Convert.ToBase64String(Aes.Encrypt(json, keybytes, iv));
+                }
             }
             catch (Exception e)
             {

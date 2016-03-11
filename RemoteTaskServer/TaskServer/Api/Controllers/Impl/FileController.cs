@@ -59,7 +59,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                     fileBytes
                 };
                 serializator.Serialize(_client, packet.endpoint, packet.syncKey, data);
-               // serializator.PushFile(_client, path);
+                // serializator.PushFile(_client, path);
             }
             else
             {

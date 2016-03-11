@@ -1,6 +1,5 @@
 ﻿#region
 
-using System.Collections.Generic;
 using System.Linq;
 using UlteriusServer.Plugins;
 using UlteriusServer.TaskServer.Api.Serialization;
@@ -28,7 +27,16 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                 let pluginPerm = PluginHandler._PluginPermissions[plugin.Value.GUID.ToString()]
                 select new
                 {
-                    plugin.Value.CanonicalName, GUID = plugin.Value.GUID.ToString(), plugin.Value.Name, plugin.Value.Author, plugin.Value.Description, plugin.Value.Website, plugin.Value.Icon, plugin.Value.Version, plugin.Value.Javascript, pluginPermissions = pluginPerm
+                    plugin.Value.CanonicalName,
+                    GUID = plugin.Value.GUID.ToString(),
+                    plugin.Value.Name,
+                    plugin.Value.Author,
+                    plugin.Value.Description,
+                    plugin.Value.Website,
+                    plugin.Value.Icon,
+                    plugin.Value.Version,
+                    plugin.Value.Javascript,
+                    pluginPermissions = pluginPerm
                 }).Cast<object>().ToList();
             serializator.Serialize(_client, packet.endpoint, packet.syncKey, plugins);
         }
@@ -42,7 +50,8 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                 let pluginError = pluginInfo[1]
                 select new
                 {
-                    pluginName, pluginError
+                    pluginName,
+                    pluginError
                 }).Cast<object>().ToList();
             serializator.Serialize(_client, packet.endpoint, packet.syncKey, badPlugins);
         }

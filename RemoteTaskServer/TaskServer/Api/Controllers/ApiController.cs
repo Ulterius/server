@@ -1,8 +1,6 @@
 ﻿#region
 
 using System;
-using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using UlteriusServer.Authentication;
 using UlteriusServer.TaskServer.Api.Controllers.Impl;
@@ -19,7 +17,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers
 
         public ApiController(WebSocket client)
         {
-            this.Client = client;
+            Client = client;
         }
 
         public ApiController()
@@ -53,9 +51,9 @@ namespace UlteriusServer.TaskServer.Api.Controllers
             }
             if (!authClient.Authenticated && packetType == PacketType.Authenticate)
             {
-               serverController.Login();
-               return;
-            }          
+                serverController.Login();
+                return;
+            }
             if (authClient.Authenticated)
             {
                 #region
@@ -67,8 +65,8 @@ namespace UlteriusServer.TaskServer.Api.Controllers
                 var systemController = new SystemController(Client, packet);
                 var operatingSystemController = new OperatingSystemController(Client, packet);
                 var networkController = new NetworkController(Client, packet);
-                
-              
+
+
                 var gpuController = new GpuController(Client, packet);
                 var vncController = new VncController(Client, packet);
                 var pluginController = new PluginController(Client, packet);
@@ -79,9 +77,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers
                 switch (packetType)
                 {
                     case PacketType.DownloadFile:
-                        Task.Run(() => {
-                        fileController.DownloadFile();
-                        });
+                        Task.Run(() => { fileController.DownloadFile(); });
                         break;
                     case PacketType.RequestGpuInformation:
                         gpuController.GetGpuInformation();
@@ -99,10 +95,10 @@ namespace UlteriusServer.TaskServer.Api.Controllers
                         fileController.CreateFileTree();
                         break;
                     case PacketType.StartCamera:
-                       webcamController.StartCamera();
+                        webcamController.StartCamera();
                         break;
                     case PacketType.StopCamera:
-                       webcamController.StopCamera();
+                        webcamController.StopCamera();
                         break;
                     case PacketType.PauseCamera:
                         webcamController.PauseCamera();
@@ -120,9 +116,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers
                         processController.RequestProcessInformation();
                         break;
                     case PacketType.UploadFile:
-                        Task.Run(() => {
-                        fileController.UploadFile();
-                        });
+                        Task.Run(() => { fileController.UploadFile(); });
                         break;
                     case PacketType.StreamProcesses:
                         processController.StreamProcessInformation();
@@ -140,9 +134,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers
                         serverController.RestartServer();
                         break;
                     case PacketType.RequestNetworkInformation:
-                        Task.Run(() => {
-                        networkController.GetNetworkInformation();
-                        });
+                        Task.Run(() => { networkController.GetNetworkInformation(); });
                         break;
                     case PacketType.UseWebServer:
                         settingsController.ChangeWebServerUse();
@@ -169,10 +161,12 @@ namespace UlteriusServer.TaskServer.Api.Controllers
                         settingsController.ChangeNetworkResolve();
                         break;
                     case PacketType.ChangeLoadPlugins:
-                        settingsController.ChangeLoadPlugins();;
+                        settingsController.ChangeLoadPlugins();
+                        ;
                         break;
                     case PacketType.ChangeUseTerminal:
-                        settingsController.ChangeUseTerminal();;
+                        settingsController.ChangeUseTerminal();
+                        ;
                         break;
                     case PacketType.GetCurrentSettings:
                         settingsController.GetCurrentSettings();
@@ -181,7 +175,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers
                         systemController.GetSystemInformation();
                         break;
                     case PacketType.GetEventLogs:
-                        Task.Factory.StartNew(() => operatingSystemController.GetEventLogs());                                   
+                        Task.Factory.StartNew(() => operatingSystemController.GetEventLogs());
                         break;
                     case PacketType.StartVncServer:
                         vncController.StartVncServer();

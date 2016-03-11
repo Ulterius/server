@@ -129,7 +129,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
 
         private List<SystemProcesses> GetProcessInformation()
         {
-            var options = new EnumerationOptions { ReturnImmediately = false, Timeout = new TimeSpan(0, 0, 10) };
+            var options = new EnumerationOptions {ReturnImmediately = false, Timeout = new TimeSpan(0, 0, 10)};
             var processInformation = new List<SystemProcesses>();
             var simpleProcesses = new List<SimpleProcessInfo>();
             try
@@ -148,7 +148,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                         });
                 }
 
-             
+
                 using (var searcher =
                     new ManagementObjectSearcher("root\\CIMV2",
                         "SELECT * FROM Win32_PerfFormattedData_PerfProc_Process", options))

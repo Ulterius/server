@@ -5,9 +5,7 @@ using System.Diagnostics;
 using System.DirectoryServices.AccountManagement;
 using System.Linq;
 using System.Reflection;
-using System.Security.Cryptography;
 using System.Web.Script.Serialization;
-using System.Windows;
 using System.Xml;
 using UlteriusServer.TaskServer.Api.Serialization;
 using UlteriusServer.Utilities;
@@ -20,11 +18,12 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
 {
     public class ServerController : ApiController
     {
+        private static readonly byte INVALID_PASSWORD = 3;
+        private static readonly byte AUTHENTICATED = 2;
         private readonly WebSocket client;
         private readonly Packets packet;
         private readonly ApiSerializator serializator = new ApiSerializator();
-        private static readonly byte INVALID_PASSWORD = 3;
-        private static readonly byte AUTHENTICATED = 2;
+
         public ServerController(WebSocket client, Packets packet)
         {
             this.client = client;
@@ -37,22 +36,23 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
             {
                 var encryptedKey = packet.args.ElementAt(0).ToString();
                 var encryptedSeed = packet.args.ElementAt(1).ToString();
-                foreach (var connectedClient in TaskManagerServer.AllClients.Where(connectedClient => connectedClient.Value.Client == client))
+                foreach (
+                    var connectedClient in
+                        TaskManagerServer.AllClients.Where(connectedClient => connectedClient.Value.Client == client))
                 {
                     var privateKey = connectedClient.Value.PrivateKey;
-                   connectedClient.Value.AesKey = Rsa.Decryption(privateKey, encryptedKey);
-                   connectedClient.Value.AesSeed = Rsa.Decryption(privateKey, encryptedSeed);
+                    connectedClient.Value.AesKey = Rsa.Decryption(privateKey, encryptedKey);
+                    connectedClient.Value.AesSeed = Rsa.Decryption(privateKey, encryptedSeed);
                     connectedClient.Value.AesShook = true;
                     var endData = new
                     {
                         shook = true
                     };
-                    serializator.Serialize(client, packet.endpoint, packet.syncKey, endData);  
+                    serializator.Serialize(client, packet.endpoint, packet.syncKey, endData);
                 }
             }
             catch (Exception e)
             {
-                
                 var endData = new
                 {
                     shook = false,
@@ -61,10 +61,12 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                 serializator.Serialize(client, packet.endpoint, packet.syncKey, endData);
             }
         }
+
         private string GetUsername()
         {
             return Environment.UserName;
         }
+
         public void Login()
         {
             var password = packet.args.ElementAt(0).ToString();
@@ -78,7 +80,10 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                 code = context.ValidateCredentials(GetUsername(), password) ? 2 : 3;
             }
             var authenticated = code == AUTHENTICATED;
-            foreach (var aClient in TaskManagerServer.AllClients.Select(connectedClient => connectedClient.Value).Where(aClient => aClient.Client == client))
+            foreach (
+                var aClient in
+                    TaskManagerServer.AllClients.Select(connectedClient => connectedClient.Value)
+                        .Where(aClient => aClient.Client == client))
             {
                 if (code == INVALID_PASSWORD)
                 {
@@ -100,6 +105,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
             });
             serializator.Serialize(client, packet.endpoint, packet.syncKey, authenticationData);
         }
+
         public void CheckForUpdate()
         {
             var isError = false;

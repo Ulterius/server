@@ -1,5 +1,6 @@
 ﻿#region
 
+using System;
 using UlteriusServer.TaskServer.Api.Models;
 using UlteriusServer.TaskServer.Api.Serialization;
 using vtortola.WebSockets;
@@ -26,9 +27,8 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
             {
                 serializator.Serialize(client, packet.endpoint, packet.syncKey, SystemInformation.ToObject());
             }
-            catch (System.Exception e)
+            catch (Exception e)
             {
-
                 throw e;
             }
         }

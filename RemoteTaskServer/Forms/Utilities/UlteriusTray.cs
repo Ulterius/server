@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Diagnostics;
-using System.IO;
 using System.Windows.Forms;
 using RemoteTaskServer.WebServer;
 using UlteriusServer.Properties;
 using UlteriusServer.TaskServer.Services.Network;
-using UlteriusServer.Utilities;
 
 namespace UlteriusServer.Forms.Utilities
 {
@@ -19,7 +17,6 @@ namespace UlteriusServer.Forms.Utilities
         public static MenuItem RestartProgram;
         public static NotifyIcon NotificationIcon;
 
-       
 
         private static void OpenLogsEvent(object sender, EventArgs e)
         {
@@ -49,9 +46,21 @@ namespace UlteriusServer.Forms.Utilities
             Environment.Exit(0);
         }
 
+        public static void ShowMessage(string message, string title = "")
+        {
+            var notification = new System.Windows.Forms.NotifyIcon()
+            {
+                Visible = true,
+                Icon = System.Drawing.SystemIcons.Information,
+                BalloonTipIcon = System.Windows.Forms.ToolTipIcon.Info,
+                BalloonTipTitle = title,
+                BalloonTipText = message,
+            };
+            notification.ShowBalloonTip(5);
+            notification.Dispose();
+        }
         public static void ShowTray()
         {
-
             Menu = new ContextMenu();
             RestartProgram = new MenuItem("Restart Server");
             ExitProgram = new MenuItem("Exit");
@@ -73,7 +82,6 @@ namespace UlteriusServer.Forms.Utilities
                 Text = "Main"
             };
 
-            
 
             ExitProgram.Click += ExitEvent;
             RestartProgram.Click += RestartEvent;
@@ -83,7 +91,6 @@ namespace UlteriusServer.Forms.Utilities
             NotificationIcon.Visible = true;
             NotificationIcon.ShowBalloonTip(5);
             Application.Run();
-            
         }
     }
 }

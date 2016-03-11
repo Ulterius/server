@@ -2,9 +2,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Security;
 using System.Text;
-using System.Windows;
 using Newtonsoft.Json;
 using UlteriusServer.Authentication;
 using UlteriusServer.Utilities;
@@ -63,7 +61,6 @@ namespace UlteriusServer.TaskServer
                 }
                 catch (Exception)
                 {
-
                     packetType = PacketType.InvalidOrEmptyPacket;
                     return;
                 }

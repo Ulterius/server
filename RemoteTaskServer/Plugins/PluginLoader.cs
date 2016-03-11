@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Security;
 using System.Security.Permissions;
 using Newtonsoft.Json.Linq;
@@ -15,9 +16,10 @@ namespace UlteriusServer.Plugins
 {
     public static class PluginLoader
     {
-        private static string path = Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location) + @"\data\plugins\";
-        public static List<string> BrokenPlugins = new List<string>();
+        private static readonly string path = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location) +
+                                              @"\data\plugins\";
 
+        public static List<string> BrokenPlugins = new List<string>();
 
 
         public static List<PluginBase> LoadPlugins()
@@ -48,7 +50,6 @@ namespace UlteriusServer.Plugins
                         {
                             plugins.Add(plugin);
                             PluginHandler._PluginPermissions[plugin.GUID.ToString()] = perms;
-
                         }
                         else
                         {

@@ -55,7 +55,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                 var camera = WebCamManager.Cameras[cameraId];
                 var data = new
                 {
-                    cameraId = cameraId,
+                    cameraId,
                     cameraRunning = camera.IsRunning,
                     cameraStarted
                 };
@@ -63,10 +63,9 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
             }
             catch (Exception)
             {
-
                 var data = new
                 {
-                    cameraId = cameraId,
+                    cameraId,
                     cameraRunning = false,
                     cameraStarted = false
                 };
@@ -79,7 +78,6 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
             var cameraId = packet.args.First().ToString();
             try
             {
-               
                 var cameraStopped = WebCamManager.StopCamera(cameraId);
                 var camera = WebCamManager.Cameras[cameraId];
                 var data = new
@@ -92,7 +90,6 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
             }
             catch (Exception)
             {
-
                 var data = new
                 {
                     cameraId,
@@ -121,7 +118,6 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
             var cameraId = packet.args.First().ToString();
             try
             {
-                
                 var streamThread = new Thread(() => GetWebCamFrame(cameraId));
                 WebCamManager.Streams[cameraId] = streamThread;
                 WebCamManager.Streams[cameraId].IsBackground = true;
@@ -137,7 +133,6 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
             }
             catch (Exception)
             {
-
                 var data = new
                 {
                     cameraId,
@@ -154,7 +149,6 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
             var cameraId = packet.args.First().ToString();
             try
             {
-                
                 var streamThread = WebCamManager.Streams[cameraId];
                 if (streamThread != null)
                 {
@@ -174,7 +168,6 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
             {
                 if (client.IsConnected)
                 {
-
                     var data = new
                     {
                         cameraId,

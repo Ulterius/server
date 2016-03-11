@@ -1,5 +1,6 @@
 ﻿#region
 
+using System;
 using System.Linq;
 using System.Management;
 using UlteriusServer.TaskServer.Api.Models;
@@ -26,7 +27,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
         public void GetEventLogs()
         {
             serializator.Serialize(client, packet.endpoint, packet.syncKey, SystemUtilities.GetEventLogs());
-            System.GC.Collect();
+            GC.Collect();
         }
 
         public void GetOperatingSystemInformation()
