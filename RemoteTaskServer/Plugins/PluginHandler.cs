@@ -77,9 +77,9 @@ namespace UlteriusServer.Plugins
 
         public static void LoadPlugins()
         {
-            if (!File.Exists(PluginPermissions.trustFile))
+            if (!File.Exists(PluginPermissions.TrustFile))
             {
-                File.Create(PluginPermissions.trustFile).Close();
+                File.Create(PluginPermissions.TrustFile).Close();
             }
             _Plugins = new Dictionary<string, PluginBase>();
             _PluginPermissions = new Dictionary<string, List<string>>();

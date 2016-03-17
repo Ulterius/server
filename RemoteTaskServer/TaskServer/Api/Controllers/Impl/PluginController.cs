@@ -126,6 +126,16 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                 serializator.Serialize(_client, packet.endpoint, packet.syncKey, pluginError);
                 return;
             }
+            if (!PluginHandler._ApprovedPlugins.ContainsValue(guid))
+            {
+                var pluginError = new
+                {
+                    notApproved = true,
+                    guid
+                };
+                serializator.Serialize(_client, packet.endpoint, packet.syncKey, pluginError);
+                return;
+            }
             object returnData = null;
             var pluginStarted = false;
             //lets check if we have any other arguments to clean the list
