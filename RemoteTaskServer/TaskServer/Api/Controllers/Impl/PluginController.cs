@@ -1,6 +1,11 @@
 ﻿#region
 
+using System;
+using System.Collections.Generic;
+using System.Dynamic;
 using System.Linq;
+using System.Web.Script.Serialization;
+using UlteriusPluginBase;
 using UlteriusServer.Plugins;
 using UlteriusServer.TaskServer.Api.Serialization;
 using vtortola.WebSockets;
@@ -39,6 +44,49 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                     pluginPermissions = pluginPerm
                 }).Cast<object>().ToList();
             serializator.Serialize(_client, packet.endpoint, packet.syncKey, plugins);
+        }
+
+        public void ApprovePlugin()
+        {
+            var guid = packet.args?.First().ToString();
+            if (guid == null)
+            {
+                var pluginError = new
+                {
+                    missingGuid = true
+                };
+                serializator.Serialize(_client, packet.endpoint, packet.syncKey, pluginError);
+                return;
+            }
+            var pluginApproved = PluginPermissions.ApprovePlugin(guid);
+            var pluginApproveResponse = new
+            {
+                pluginApproved,
+                guid,
+                setupRan = true
+            };
+            serializator.Serialize(_client, packet.endpoint, packet.syncKey, pluginApproveResponse);
+        }
+
+        public void GetPendingPlugins()
+        {
+            var pendingPlugins = PluginHandler._PendingPlugins.ToList();
+            var pendingList = (from pendingPlugin in pendingPlugins
+                let plugin = PluginHandler._Plugins[pendingPlugin.Value]
+                let pluginName = plugin.Name
+                let pluginDescription = plugin.Description
+                let pluginVersion = plugin.Version
+                let pluginAuthor = plugin.Author
+                let pluginGuid = plugin.GUID.ToString()
+                let pluginCanonicalName = plugin.CanonicalName
+                let pluginIcon = plugin.Icon
+                let pluginWebsite = plugin.Website
+                let pluginPermissions = PluginHandler._PluginPermissions[pendingPlugin.Value]
+                select new
+                {
+                    pluginGuid, pluginName, pluginDescription, pluginVersion, pluginAuthor, pluginCanonicalName, pluginIcon, pluginPermissions, pluginWebsite
+                }).Cast<object>().ToList();
+            serializator.Serialize(_client, packet.endpoint, packet.syncKey, pendingList);
         }
 
         public void ListBadPlugins()

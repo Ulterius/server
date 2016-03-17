@@ -31,7 +31,7 @@ namespace UlteriusServer.TaskServer.Api.Serialization
                     var authClient = connectedClient.Value;
                     if (authClient.Client != client) continue;
                     var keybytes = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(authClient.AesKey));
-                    var iv = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(authClient.AesSeed));
+                    var iv = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(authClient.AesIv));
                     //convert packet json into base64
                     json = Convert.ToBase64String(Aes.Encrypt(json, keybytes, iv));
                 }

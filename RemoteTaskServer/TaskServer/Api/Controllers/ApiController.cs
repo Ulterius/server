@@ -85,6 +85,12 @@ namespace UlteriusServer.TaskServer.Api.Controllers
                     case PacketType.Plugin:
                         pluginController.StartPlugin();
                         break;
+                    case PacketType.ApprovePlugin:
+                        pluginController.ApprovePlugin();
+                        break;
+                    case PacketType.GetPendingPlugins:
+                        pluginController.GetPendingPlugins();
+                        break;
                     case PacketType.GetPlugins:
                         pluginController.ListPlugins();
                         break;
@@ -162,11 +168,10 @@ namespace UlteriusServer.TaskServer.Api.Controllers
                         break;
                     case PacketType.ChangeLoadPlugins:
                         settingsController.ChangeLoadPlugins();
-                        ;
                         break;
                     case PacketType.ChangeUseTerminal:
                         settingsController.ChangeUseTerminal();
-                        ;
+                        
                         break;
                     case PacketType.GetCurrentSettings:
                         settingsController.GetCurrentSettings();
@@ -197,20 +202,6 @@ namespace UlteriusServer.TaskServer.Api.Controllers
                         break;
                     case PacketType.RefreshCameras:
                         webcamController.RefreshCameras();
-                        break;
-                    case PacketType.GenerateNewKey:
-                        break;
-                    case PacketType.EmptyApiKey:
-                        break;
-                    case PacketType.InvalidApiKey:
-                        break;
-                    case PacketType.RequestWindowsInformation:
-                        break;
-                    case PacketType.Authenticate:
-                        break;
-                    case PacketType.GetCameraFrame:
-                        break;
-                    case PacketType.AesHandshake:
                         break;
                     default:
                         break;

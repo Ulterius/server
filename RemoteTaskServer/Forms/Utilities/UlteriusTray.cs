@@ -56,8 +56,9 @@ namespace UlteriusServer.Forms.Utilities
                 BalloonTipTitle = title,
                 BalloonTipText = message,
             };
-            notification.ShowBalloonTip(5);
+            notification.ShowBalloonTip(5000);
             notification.Dispose();
+
         }
         public static void ShowTray()
         {
@@ -89,7 +90,7 @@ namespace UlteriusServer.Forms.Utilities
             OpenSettings.Click += OpenSettingsEvent;
             OpenLogs.Click += OpenLogsEvent;
             NotificationIcon.Visible = true;
-            NotificationIcon.ShowBalloonTip(5);
+            NotificationIcon.ShowBalloonTip(5000);
             Application.Run();
         }
     }

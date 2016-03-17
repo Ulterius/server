@@ -1,11 +1,17 @@
 ﻿#region
 
+using System;
 using System.Drawing.Printing;
+using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Mail;
 using System.Net.NetworkInformation;
+using System.Reflection;
 using System.Security;
+using System.Security.Cryptography;
 using System.Security.Permissions;
+using System.Text;
 
 #endregion
 
@@ -15,6 +21,84 @@ namespace UlteriusServer.Plugins
 {
     public class PluginPermissions
     {
+        private static readonly byte[] SAditionalEntropy = Encoding.UTF8.GetBytes(Environment.MachineName);
+
+        public static readonly string TrustFile = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location) +
+                                                  @"\data\plugins\trusted.dat";
+
+        public static void SaveApprovedGuids()
+        {
+            File.WriteAllText(TrustFile, string.Empty);
+            var approvedPlugins = PluginHandler._ApprovedPlugins;
+            var stringBuilder = new StringBuilder();
+            foreach (var plugin in approvedPlugins)
+            {
+                var guid = plugin.Value;
+                var name = plugin.Key;
+                stringBuilder.AppendLine(name + "|" + guid);
+            }
+            var guidBytes = Encoding.UTF8.GetBytes(stringBuilder.ToString().Trim());
+            var encryptedSecret = Protect(guidBytes);
+            File.WriteAllBytes(TrustFile, encryptedSecret);
+        }
+
+        private static byte[] Protect(byte[] data)
+        {
+            try
+            {
+                // Encrypt the data using DataProtectionScope.CurrentUser. The result can be decrypted
+                //  only by the same current user.
+                return ProtectedData.Protect(data, SAditionalEntropy, DataProtectionScope.CurrentUser);
+            }
+            catch (CryptographicException e)
+            {
+                Console.WriteLine("Data was not encrypted. An error occurred.");
+                Console.WriteLine(e.ToString());
+                return null;
+            }
+        }
+
+        public static bool ApprovePlugin(string guid)
+        {
+            var pendingPluginKey = PluginHandler._PendingPlugins.FirstOrDefault(x => x.Value == guid).Key;
+            PluginHandler._PendingPlugins.Remove(pendingPluginKey);
+            PluginHandler._ApprovedPlugins.Add(pendingPluginKey, guid);
+            SaveApprovedGuids();
+            //plugins approved set it up
+            PluginHandler.SetupPlugin(guid);
+            return true;
+        }
+
+        public static string GetApprovedGuids()
+        {
+            var originalData = File.ReadAllBytes(TrustFile);
+            if (originalData.Length > 0)
+            {
+                var unprotected = Unprotect(originalData);
+                if (unprotected != null && unprotected.Length > 0)
+                {
+                    var decryptedData = Encoding.UTF8.GetString(unprotected);
+                    return decryptedData;
+                }
+            }
+            return string.Empty;
+        }
+
+        private static byte[] Unprotect(byte[] data)
+        {
+            try
+            {
+                //Decrypt the data using DataProtectionScope.CurrentUser.
+                return ProtectedData.Unprotect(data, SAditionalEntropy, DataProtectionScope.CurrentUser);
+            }
+            catch (CryptographicException e)
+            {
+                Console.WriteLine("Data was not decrypted. An error occurred. Deleting file");
+                File.WriteAllText(TrustFile, string.Empty);
+                return null;
+            }
+        }
+
         public static IPermission GetPermissionByName(string name)
         {
             switch (name)

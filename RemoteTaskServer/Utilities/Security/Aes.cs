@@ -1,12 +1,15 @@
 ﻿using System;
 using System.IO;
 using System.Security.Cryptography;
+using System.Text;
 
 namespace UlteriusServer.Utilities.Security
 {
     public class Aes
     {
-        public static byte[] Encrypt(string plainText, byte[] key, byte[] iv)
+       
+
+       public static byte[] Encrypt(string plainText, byte[] key, byte[] iv)
         {
             // Check arguments.  
             if (plainText == null || plainText.Length <= 0)

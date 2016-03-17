@@ -35,14 +35,14 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
             try
             {
                 var encryptedKey = packet.args.ElementAt(0).ToString();
-                var encryptedSeed = packet.args.ElementAt(1).ToString();
+                var encryptedIv = packet.args.ElementAt(1).ToString();
                 foreach (
                     var connectedClient in
                         TaskManagerServer.AllClients.Where(connectedClient => connectedClient.Value.Client == client))
                 {
                     var privateKey = connectedClient.Value.PrivateKey;
                     connectedClient.Value.AesKey = Rsa.Decryption(privateKey, encryptedKey);
-                    connectedClient.Value.AesSeed = Rsa.Decryption(privateKey, encryptedSeed);
+                    connectedClient.Value.AesIv = Rsa.Decryption(privateKey, encryptedIv);
                     connectedClient.Value.AesShook = true;
                     var endData = new
                     {

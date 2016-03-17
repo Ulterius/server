@@ -30,7 +30,7 @@ namespace UlteriusServer.TaskServer
                 try
                 {
                     var keybytes = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(client.AesKey));
-                    var iv = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(client.AesSeed));
+                    var iv = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(client.AesIv));
                     var packet = Convert.FromBase64String(packetJson);
                     packetJson = Aes.Decrypt(packet, keybytes, iv);
                 }
@@ -225,6 +225,12 @@ namespace UlteriusServer.TaskServer
                     case "aeshandshake":
                         packetType = PacketType.AesHandshake;
                         break;
+                    case "approveplugin":
+                        packetType = PacketType.ApprovePlugin;
+                        break;
+                    case "getpendingplugins":
+                        packetType = PacketType.GetPendingPlugins;
+                        break;
                     default:
                         packetType = PacketType.InvalidOrEmptyPacket;
                         break;
@@ -289,5 +295,7 @@ public enum PacketType
     UploadFile,
     ChangeLoadPlugins,
     ChangeUseTerminal,
-    AesHandshake
+    AesHandshake,
+    ApprovePlugin,
+    GetPendingPlugins
 }

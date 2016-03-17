@@ -19,12 +19,14 @@ namespace UlteriusServer.Plugins
         private static readonly string path = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location) +
                                               @"\data\plugins\";
 
+
         public static List<string> BrokenPlugins = new List<string>();
 
 
         public static List<PluginBase> LoadPlugins()
         {
             if (!Directory.Exists(path)) return null;
+         
             var plugins = new List<PluginBase>();
             var installedPlugins = Directory.GetFiles(path, "*.dll").ToList();
             foreach (var installedPlugin in installedPlugins)

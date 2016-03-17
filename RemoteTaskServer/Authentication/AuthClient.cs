@@ -24,7 +24,7 @@ namespace UlteriusServer.Authentication
         public SecureString PrivateKey { get; set; }
         public SecureString PublicKey { get; set; }
         public SecureString AesKey { get; set; }
-        public SecureString AesSeed { get; set; }
+        public SecureString AesIv { get; set; }
         public bool AesShook { get; set; }
     }
 }

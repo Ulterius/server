@@ -76,6 +76,9 @@ namespace UlteriusServer.TaskServer
                 Console.WriteLine("Disconnection from " + clientSocket.RemoteEndpoint);
                 Console.WriteLine(ApiControllers.Count);
             }
+            var userCount = AllClients.Count;
+            var extra = userCount < 1 ? "s" : string.Empty;
+            UlteriusTray.ShowMessage($"There are now {userCount} user{extra} connected.", "A user disconnected!");
         }
 
         private static void HandleConnect(WebSocket clientSocket)
