@@ -42,7 +42,7 @@ namespace UlteriusServer.TaskServer.Api.Serialization
             }
             catch (Exception e)
             {
-                if (!endpoint.Equals("aeshandshake"))
+                if (endpoint != null && !endpoint.Equals("aeshandshake"))
                 {
                     return;
                 }
