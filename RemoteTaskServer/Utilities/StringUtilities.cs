@@ -1,4 +1,7 @@
-﻿using System.Text.RegularExpressions;
+﻿using System;
+using System.Text.RegularExpressions;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace UlteriusServer.Utilities
 {
@@ -10,7 +13,34 @@ namespace UlteriusServer.Utilities
             return (s.Length%4 == 0) && Regex.IsMatch(s, @"^[a-zA-Z0-9\+/]*={0,3}$", RegexOptions.None);
         }
 
-
+        public static bool IsValidJson(string strInput)
+        {
+            strInput = strInput.Trim();
+            if ((strInput.StartsWith("{") && strInput.EndsWith("}")) || //For object
+                (strInput.StartsWith("[") && strInput.EndsWith("]"))) //For array
+            {
+                try
+                {
+                    var obj = JToken.Parse(strInput);
+                    return true;
+                }
+                catch (JsonReaderException jex)
+                {
+                    //Exception in parsing json
+                    Console.WriteLine(jex.Message);
+                    return false;
+                }
+                catch (Exception ex) //some other exception
+                {
+                    Console.WriteLine(ex.ToString());
+                    return false;
+                }
+            }
+            else
+            {
+                return false;
+            }
+        }
         // Returns the human-readable file size for an arbitrary, 64-bit file size 
         // The default format is "0.### XB", e.g. "4.2 KB" or "1.434 GB"
         public static string GetBytesReadable(long i)
