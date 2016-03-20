@@ -105,7 +105,6 @@ namespace UlteriusServer.TaskServer
                 results = new
                 {
                     message = "Ulterius server online!",
-                    authRequired = true,
                     publicKey = Rsa.SecureStringToString(client.PublicKey)
                 }
             });
