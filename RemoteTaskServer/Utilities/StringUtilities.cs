@@ -1,13 +1,28 @@
-﻿using System.Text.RegularExpressions;
+﻿using System;
+using System.Text.RegularExpressions;
 
 namespace UlteriusServer.Utilities
 {
     internal class StringUtilities
     {
-        public static bool IsBase64String(string s)
+      
+        public static bool IsBase64(string base64String)
         {
-            s = s.Trim();
-            return (s.Length%4 == 0) && Regex.IsMatch(s, @"^[a-zA-Z0-9\+/]*={0,3}$", RegexOptions.None);
+            // Credit: oybek http://stackoverflow.com/users/794764/oybek
+            if (base64String == null || base64String.Length == 0 || base64String.Length % 4 != 0
+               || base64String.Contains(" ") || base64String.Contains("\t") || base64String.Contains("\r") || base64String.Contains("\n"))
+                return false;
+
+            try
+            {
+                Convert.FromBase64String(base64String);
+                return true;
+            }
+            catch (Exception exception)
+            {
+                // Handle the exception
+            }
+            return false;
         }
 
         // Returns the human-readable file size for an arbitrary, 64-bit file size 
