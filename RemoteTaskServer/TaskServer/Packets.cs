@@ -36,7 +36,7 @@ namespace UlteriusServer.TaskServer
                 }
                 catch (Exception)
                 {
-                    packetType = PacketType.InvalidOrEmptyPacket;
+                    packetType = PacketType.UseWebServer;
                     return;
                 }
             }
