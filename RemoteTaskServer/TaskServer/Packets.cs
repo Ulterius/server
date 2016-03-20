@@ -34,8 +34,9 @@ namespace UlteriusServer.TaskServer
                     var packet = Convert.FromBase64String(packetJson);
                     packetJson = Aes.Decrypt(packet, keybytes, iv);
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
+                    Console.WriteLine(e.Message);
                     packetType = PacketType.InvalidOrEmptyPacket;
                     return;
                 }
