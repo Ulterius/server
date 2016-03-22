@@ -94,11 +94,11 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                     aClient.Authenticated = true;
                 }
             }
-            var authenticationData = new JavaScriptSerializer().Serialize(new
-            {       
-                    authenticated,
+            var authenticationData = new
+            {
+                authenticated,
                     message = authenticated ? "Login was successfull" : "Login was unsuccessful"
-            });
+            };
             serializator.Serialize(client, packet.endpoint, packet.syncKey, authenticationData);
         }
 
