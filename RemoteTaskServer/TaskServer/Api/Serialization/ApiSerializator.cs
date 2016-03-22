@@ -14,7 +14,7 @@ namespace UlteriusServer.TaskServer.Api.Serialization
 {
     public class ApiSerializator
     {
-        public void Serialize(WebSocket client, string endpoint, string syncKey, object data, bool binary = false)
+        public void Serialize(WebSocket client, string endpoint, string syncKey, object data)
         {
             var serializer = new JavaScriptSerializer {MaxJsonLength = int.MaxValue};
             var json = serializer.Serialize(new
@@ -48,14 +48,8 @@ namespace UlteriusServer.TaskServer.Api.Serialization
                 }
             }
 
-            if (binary)
-            {
-                PushFile(client, "");
-            }
-            else
-            {
+
                 Push(client, json);
-            }
         }
 
         public async void PushBinary(WebSocket client, string endpoint, string syncKey, byte[] data)

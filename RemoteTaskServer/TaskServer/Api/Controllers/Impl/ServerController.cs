@@ -95,13 +95,9 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                 }
             }
             var authenticationData = new JavaScriptSerializer().Serialize(new
-            {
-                endpoint = "authentication",
-                results = new
-                {
+            {       
                     authenticated,
                     message = authenticated ? "Login was successfull" : "Login was unsuccessful"
-                }
             });
             serializator.Serialize(client, packet.endpoint, packet.syncKey, authenticationData);
         }
