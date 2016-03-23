@@ -1,6 +1,5 @@
 ﻿#region
 
-using System;
 using System.Threading.Tasks;
 using UlteriusServer.Authentication;
 using UlteriusServer.TaskServer.Api.Controllers.Impl;
@@ -12,7 +11,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers
 {
     public class ApiController
     {
-        public AuthClient authClient;
+        public AuthClient AuthClient;
         public WebSocket Client;
 
         public ApiController(WebSocket client)
@@ -29,7 +28,6 @@ namespace UlteriusServer.TaskServer.Api.Controllers
         public void HandlePacket(Packets packet)
         {
             var packetType = packet.packetType;
-            Console.WriteLine(packetType);
             var errorController = new ErrorController(Client, packet);
             var windowsController = new WindowsController(Client, packet);
             var settingsController = new SettingsController(Client, packet);
@@ -49,12 +47,12 @@ namespace UlteriusServer.TaskServer.Api.Controllers
                 serverController.AesHandshake();
                 return;
             }
-            if (!authClient.Authenticated && packetType == PacketType.Authenticate)
+            if (!AuthClient.Authenticated && packetType == PacketType.Authenticate)
             {
                 serverController.Login();
                 return;
             }
-            if (authClient.Authenticated)
+            if (AuthClient.Authenticated)
             {
                 #region
 
@@ -65,7 +63,6 @@ namespace UlteriusServer.TaskServer.Api.Controllers
                 var systemController = new SystemController(Client, packet);
                 var operatingSystemController = new OperatingSystemController(Client, packet);
                 var networkController = new NetworkController(Client, packet);
-
 
                 var gpuController = new GpuController(Client, packet);
                 var vncController = new VncController(Client, packet);
@@ -171,7 +168,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers
                         break;
                     case PacketType.ChangeUseTerminal:
                         settingsController.ChangeUseTerminal();
-                        
+
                         break;
                     case PacketType.GetCurrentSettings:
                         settingsController.GetCurrentSettings();
@@ -202,8 +199,6 @@ namespace UlteriusServer.TaskServer.Api.Controllers
                         break;
                     case PacketType.RefreshCameras:
                         webcamController.RefreshCameras();
-                        break;
-                    default:
                         break;
                 }
             }

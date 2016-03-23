@@ -26,7 +26,7 @@ namespace UlteriusServer.Plugins
         public static List<PluginBase> LoadPlugins()
         {
             if (!Directory.Exists(path)) return null;
-         
+
             var plugins = new List<PluginBase>();
             var installedPlugins = Directory.GetFiles(path, "*.dll").ToList();
             foreach (var installedPlugin in installedPlugins)

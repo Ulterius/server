@@ -5,7 +5,6 @@ using System.Diagnostics;
 using System.DirectoryServices.AccountManagement;
 using System.Linq;
 using System.Reflection;
-using System.Web.Script.Serialization;
 using System.Xml;
 using UlteriusServer.TaskServer.Api.Serialization;
 using UlteriusServer.Utilities;
@@ -97,7 +96,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
             var authenticationData = new
             {
                 authenticated,
-                    message = authenticated ? "Login was successfull" : "Login was unsuccessful"
+                message = authenticated ? "Login was successfull" : "Login was unsuccessful"
             };
             serializator.Serialize(client, packet.endpoint, packet.syncKey, authenticationData);
         }

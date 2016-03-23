@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Drawing;
 using System.Windows.Forms;
 using RemoteTaskServer.WebServer;
 using UlteriusServer.Properties;
@@ -48,18 +49,18 @@ namespace UlteriusServer.Forms.Utilities
 
         public static void ShowMessage(string message, string title = "")
         {
-            var notification = new System.Windows.Forms.NotifyIcon()
+            var notification = new NotifyIcon
             {
                 Visible = true,
-                Icon = System.Drawing.SystemIcons.Information,
-                BalloonTipIcon = System.Windows.Forms.ToolTipIcon.Info,
+                Icon = SystemIcons.Information,
+                BalloonTipIcon = ToolTipIcon.Info,
                 BalloonTipTitle = title,
-                BalloonTipText = message,
+                BalloonTipText = message
             };
             notification.ShowBalloonTip(5000);
             notification.Dispose();
-
         }
+
         public static void ShowTray()
         {
             Menu = new ContextMenu();

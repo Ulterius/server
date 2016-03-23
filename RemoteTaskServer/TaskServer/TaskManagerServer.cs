@@ -59,7 +59,7 @@ namespace UlteriusServer.TaskServer
                 ApiControllers.Select(controller => controller.Value)
                     .Where(apiController => apiController.Client == websocket))
             {
-                var packet = new Packets(apiController.authClient, message);
+                var packet = new Packets(apiController.AuthClient, message);
                 apiController.HandlePacket(packet);
             }
         }
@@ -74,7 +74,6 @@ namespace UlteriusServer.TaskServer
                 AllClients.TryRemove(client.Key, out temp);
                 ApiControllers.TryRemove(client.Key, out temp2);
                 Console.WriteLine("Disconnection from " + clientSocket.RemoteEndpoint);
-                Console.WriteLine(ApiControllers.Count);
             }
             var userCount = AllClients.Count;
             var extra = userCount < 1 ? "s" : string.Empty;
@@ -89,10 +88,10 @@ namespace UlteriusServer.TaskServer
             var apiController = new ApiController(clientSocket)
             {
                 //set the auth Client so we can use it later
-                authClient = client
+                AuthClient = client
             };
             AllClients.AddOrUpdate(client.GetHashCode().ToString(), client, (key, value) => value);
-            ApiControllers.AddOrUpdate(apiController.authClient.GetHashCode().ToString(), apiController,
+            ApiControllers.AddOrUpdate(apiController.AuthClient.GetHashCode().ToString(), apiController,
                 (key, value) => value);
             SendWelcomeMessage(client, clientSocket);
         }

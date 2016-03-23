@@ -115,23 +115,21 @@ namespace UlteriusServer.WebCams
                 }
                 Console.WriteLine($"{Cameras.Count} cameras loaded");
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                // Eat it whole!
+                Console.WriteLine(e.Message);
             }
         }
 
         private static void HandleFrame(object sender, NewFrameEventArgs camera, string webcamIdHash)
         {
             if (sender == null) throw new ArgumentNullException(nameof(sender));
-            if (camera?.Frame != null)
+            if (camera?.Frame == null) return;
+            using (var ms = new MemoryStream())
             {
-                using (var ms = new MemoryStream())
-                {
-                    camera.Frame.Save(ms, ImageFormat.Jpeg);
-                    var imageBytes = ms.ToArray();
-                    Frames[webcamIdHash] = imageBytes;
-                }
+                camera.Frame.Save(ms, ImageFormat.Jpeg);
+                var imageBytes = ms.ToArray();
+                Frames[webcamIdHash] = imageBytes;
             }
         }
 

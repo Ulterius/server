@@ -91,7 +91,7 @@ namespace UlteriusServer.Plugins
                 //Decrypt the data using DataProtectionScope.CurrentUser.
                 return ProtectedData.Unprotect(data, SAditionalEntropy, DataProtectionScope.CurrentUser);
             }
-            catch (CryptographicException e)
+            catch (CryptographicException)
             {
                 Console.WriteLine("Data was not decrypted. An error occurred. Deleting file");
                 File.WriteAllText(TrustFile, string.Empty);

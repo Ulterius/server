@@ -37,7 +37,7 @@ namespace UlteriusServer.TaskServer
                 catch (Exception exception)
                 {
                     Console.WriteLine(exception.Message);
-                   
+
                     packetType = PacketType.InvalidOrEmptyPacket;
                     return;
                 }

@@ -67,7 +67,7 @@ namespace UlteriusServer.Utilities.Security
             var decodedPrivateKey = Encoding.UTF8.GetString(data);
             var bytesToDecrypt = Convert.FromBase64String(encryptedData);
             var decryptEngine = new Pkcs1Encoding(new RsaEngine());
-     
+
             using (var txtreader = new StringReader(decodedPrivateKey))
             {
                 var keyPair = (AsymmetricCipherKeyPair) new PemReader(txtreader).ReadObject();

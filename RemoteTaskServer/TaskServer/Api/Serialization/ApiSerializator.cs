@@ -37,10 +37,9 @@ namespace UlteriusServer.TaskServer.Api.Serialization
                         //convert packet json into base64
                         json = Convert.ToBase64String(Aes.Encrypt(json, keybytes, iv));
                     }
-                  
                 }
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 if (endpoint != null && !endpoint.Equals("aeshandshake"))
                 {
@@ -49,7 +48,7 @@ namespace UlteriusServer.TaskServer.Api.Serialization
             }
 
 
-                Push(client, json);
+            Push(client, json);
         }
 
         public async void PushBinary(WebSocket client, string endpoint, string syncKey, byte[] data)

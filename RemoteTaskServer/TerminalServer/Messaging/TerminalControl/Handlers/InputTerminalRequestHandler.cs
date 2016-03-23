@@ -41,7 +41,7 @@ namespace UlteriusServer.TerminalServer.Messaging.TerminalControl.Handlers
             if (!connection.IsAuthed && message.Input.Equals("ulterius-auth"))
             {
                 connection.TryingAuth = true;
-                cli.Output("Please enter your password", 1, false);
+                cli.Output("Please enter your password", 2, false);
             }
             else if (!connection.IsAuthed && connection.TryingAuth)
             {

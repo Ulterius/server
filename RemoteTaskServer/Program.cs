@@ -10,7 +10,6 @@ using UlteriusServer.Forms.Utilities;
 using UlteriusServer.Plugins;
 using UlteriusServer.Properties;
 using UlteriusServer.TaskServer;
-using UlteriusServer.TaskServer.Api.Controllers.Impl;
 using UlteriusServer.TaskServer.Services.System;
 using UlteriusServer.TerminalServer;
 using UlteriusServer.Utilities;
@@ -40,7 +39,7 @@ namespace UlteriusServer
                 ExceptionHandler.AddGlobalHandlers();
 
             var notifyThread = new Thread(
-                  UlteriusTray.ShowTray);
+                UlteriusTray.ShowTray);
             notifyThread.Start();
             AllocConsole();
             ConsoleMain(args);

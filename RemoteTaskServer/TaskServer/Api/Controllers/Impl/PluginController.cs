@@ -1,11 +1,6 @@
 ﻿#region
 
-using System;
-using System.Collections.Generic;
-using System.Dynamic;
 using System.Linq;
-using System.Web.Script.Serialization;
-using UlteriusPluginBase;
 using UlteriusServer.Plugins;
 using UlteriusServer.TaskServer.Api.Serialization;
 using vtortola.WebSockets;
@@ -84,7 +79,15 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                 let pluginPermissions = PluginHandler._PluginPermissions[pendingPlugin.Value]
                 select new
                 {
-                    pluginGuid, pluginName, pluginDescription, pluginVersion, pluginAuthor, pluginCanonicalName, pluginIcon, pluginPermissions, pluginWebsite
+                    pluginGuid,
+                    pluginName,
+                    pluginDescription,
+                    pluginVersion,
+                    pluginAuthor,
+                    pluginCanonicalName,
+                    pluginIcon,
+                    pluginPermissions,
+                    pluginWebsite
                 }).Cast<object>().ToList();
             serializator.Serialize(_client, packet.endpoint, packet.syncKey, pendingList);
         }
