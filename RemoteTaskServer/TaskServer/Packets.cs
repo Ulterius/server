@@ -25,7 +25,7 @@ namespace UlteriusServer.TaskServer
         public Packets(AuthClient client, string packetJson)
         {
             //An entire base64 string is an aes encrypted packet
-            if (StringUtilities.IsBase64String(packetJson))
+        /*    if (StringUtilities.IsBase64String(packetJson))
             {
                 try
                 {
@@ -66,7 +66,7 @@ namespace UlteriusServer.TaskServer
                     packetType = PacketType.InvalidOrEmptyPacket;
                     return;
                 }
-            }
+            }*/
             JsPacket deserializedPacket = null;
             try
             {

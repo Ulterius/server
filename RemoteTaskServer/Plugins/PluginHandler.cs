@@ -16,12 +16,13 @@ namespace UlteriusServer.Plugins
         public static Dictionary<string, string> _PendingPlugins;
         private static readonly List<string> BadPlugins = new List<string>();
 
+      
         public static object StartPlugin(string guid, List<object> args = null)
         {
             try
             {
                 var plugin = _Plugins[guid];
-                return args != null ? plugin.Start(args) : plugin.Start();
+                return args != null ? plugin.Start(args) :  plugin.Start();
             }
             catch (SecurityException e)
             {
@@ -104,6 +105,7 @@ namespace UlteriusServer.Plugins
                         pluginApproved = false;
                         try
                         {
+                            Console.WriteLine(plugin.GUID.ToString());
                             _PendingPlugins.Add(plugin.Name, plugin.GUID.ToString());
                         }
                         catch (Exception)

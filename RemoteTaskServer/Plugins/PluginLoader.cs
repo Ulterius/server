@@ -28,11 +28,11 @@ namespace UlteriusServer.Plugins
             if (!Directory.Exists(path)) return null;
 
             var plugins = new List<PluginBase>();
-            var installedPlugins = Directory.GetFiles(path, "*.dll").ToList();
+            var installedPlugins = Directory.GetFiles(path, "*.plugin.dll").ToList();
             foreach (var installedPlugin in installedPlugins)
             {
                 var permissionSet = new PermissionSet(PermissionState.None);
-                var manifestPath = installedPlugin.Replace(".dll", ".json");
+                var manifestPath = installedPlugin.Replace(".plugin.dll", ".json");
                 if (File.Exists(manifestPath))
                 {
                     var manifest = File.ReadAllText(manifestPath);
@@ -47,6 +47,7 @@ namespace UlteriusServer.Plugins
                     try
                     {
                         var pluginMan = PluginManager.GetInstance(permissionSet);
+
                         var plugin = pluginMan.LoadPlugin(Path.GetFullPath(installedPlugin));
                         if (plugin.GUID.ToString() != Guid.Empty.ToString())
                         {

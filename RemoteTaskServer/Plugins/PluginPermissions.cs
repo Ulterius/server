@@ -60,12 +60,20 @@ namespace UlteriusServer.Plugins
 
         public static bool ApprovePlugin(string guid)
         {
-            var pendingPluginKey = PluginHandler._PendingPlugins.FirstOrDefault(x => x.Value == guid).Key;
-            PluginHandler._PendingPlugins.Remove(pendingPluginKey);
-            PluginHandler._ApprovedPlugins.Add(pendingPluginKey, guid);
-            SaveApprovedGuids();
-            //plugins approved set it up
-            PluginHandler.SetupPlugin(guid);
+
+            try
+            {
+                var pendingPluginKey = PluginHandler._PendingPlugins.FirstOrDefault(x => x.Value == guid).Key;
+                PluginHandler._PendingPlugins.Remove(pendingPluginKey);
+                PluginHandler._ApprovedPlugins.Add(pendingPluginKey, guid);
+                SaveApprovedGuids();
+                //plugins approved set it up
+                PluginHandler.SetupPlugin(guid);
+            }
+            catch (Exception)
+            {
+                return false;
+            }
             return true;
         }
 

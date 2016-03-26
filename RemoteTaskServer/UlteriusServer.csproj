@@ -143,7 +143,8 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="UlteriusPluginBase">
+    <Reference Include="UlteriusPluginBase, Version=2.0.0.0, Culture=neutral, PublicKeyToken=78be47952a053475, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>extensions\UlteriusPluginBase.dll</HintPath>
     </Reference>
     <Reference Include="vtortola.WebSockets, Version=2.2.0.1, Culture=neutral, PublicKeyToken=7f78616efb4a208d, processorArchitecture=MSIL">

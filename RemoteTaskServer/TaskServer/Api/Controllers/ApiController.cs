@@ -80,7 +80,9 @@ namespace UlteriusServer.TaskServer.Api.Controllers
                         gpuController.GetGpuInformation();
                         break;
                     case PacketType.Plugin:
+                        Task.Run(() => {
                         pluginController.StartPlugin();
+                        });
                         break;
                     case PacketType.ApprovePlugin:
                         pluginController.ApprovePlugin();
