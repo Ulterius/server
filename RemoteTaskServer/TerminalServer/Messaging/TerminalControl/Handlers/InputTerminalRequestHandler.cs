@@ -41,19 +41,19 @@ namespace UlteriusServer.TerminalServer.Messaging.TerminalControl.Handlers
             if (!connection.IsAuthed && message.Input.Equals("ulterius-auth"))
             {
                 connection.TryingAuth = true;
-                cli.Output("Please enter your password", 2, false);
+                cli.Output("Please enter your password", 2, false, true);
             }
             else if (!connection.IsAuthed && connection.TryingAuth)
             {
-                cli.Output("Logging in please wait...", 1, false);
+                cli.Output("Logging in please wait...", 1, false, false);
                 var authed = Login(message.Input);
                 cli.Output(authed ? "Login was successfull" : "Login was unsuccessful, enter your password",
-                    Convert.ToInt32(authed), authed);
+                    Convert.ToInt32(authed), authed, authed);
                 connection.IsAuthed = authed;
             }
             else if (!connection.IsAuthed)
             {
-                cli.Output("Please login to use this terminal (ulterius-auth)", 0, true);
+                cli.Output("Please login to use this terminal (ulterius-auth)", 0, true, false);
             }
             else if (connection.IsAuthed)
             {

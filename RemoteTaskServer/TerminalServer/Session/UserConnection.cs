@@ -76,14 +76,15 @@ namespace UlteriusServer.TerminalServer.Session
         public void Append(Guid id, ICliSession cliSession)
         {
             _cliSessions.Add(id, cliSession);
-            cliSession.Output = (s, c, e) => Push(new TerminalOutputEvent
+            cliSession.Output = (s, c, e, b) => Push(new TerminalOutputEvent
             {
                 TerminalId = id,
                 Output = s,
                 CurrentPath = cliSession.CurrentPath,
                 ConnectionId = ConnectionId,
                 CorrelationId = c,
-                EndOfCommand = e
+                EndOfCommand = e,
+                Sensetive = b
             });
         }
 

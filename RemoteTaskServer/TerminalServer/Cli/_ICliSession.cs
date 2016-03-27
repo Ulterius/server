@@ -10,7 +10,7 @@ namespace UlteriusServer.TerminalServer.Cli
     {
         string Type { get; }
         string CurrentPath { get; }
-        Action<string, int, bool> Output { get; set; }
+        Action<string, int, bool, bool> Output { get; set; }
         void Input(string value, int commandCorrelationId);
     }
 }

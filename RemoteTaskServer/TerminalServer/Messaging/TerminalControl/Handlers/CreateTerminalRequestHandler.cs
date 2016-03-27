@@ -53,7 +53,7 @@ namespace UlteriusServer.TerminalServer.Messaging.TerminalControl.Handlers
             });
             if (!connection.IsAuthed)
             {
-                cli.Output("Please Login to continue (ulterius-auth)", 0, true);
+                cli.Output("Please Login to continue (ulterius-auth)", 0, true, false);
             }
         }
     }

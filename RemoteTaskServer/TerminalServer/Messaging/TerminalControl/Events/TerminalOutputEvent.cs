@@ -13,6 +13,7 @@ namespace UlteriusServer.TerminalServer.Messaging.TerminalControl.Events
         public string CurrentPath { get; set; }
         public int CorrelationId { get; set; }
         public bool EndOfCommand { get; set; }
+        public bool Sensetive { get; set; }
         public Guid TerminalId { get; set; }
         public Guid ConnectionId { get; set; }
     }

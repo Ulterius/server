@@ -75,7 +75,7 @@ namespace UlteriusServer.TerminalServer.Cli
         }
 
         public string CurrentPath { get; private set; }
-        public Action<string, int, bool> Output { get; set; }
+        public Action<string, int, bool, bool> Output { get; set; }
 
         public void Input(string value, int commandCorrelationId)
         {
@@ -111,12 +111,12 @@ namespace UlteriusServer.TerminalServer.Cli
                 _nextIsPath = true;
             else if (line == _postCDID)
             {
-                Output(string.Empty, _commandCorrelationId, _errorBuffer.Count == 0);
+                Output(string.Empty, _commandCorrelationId, _errorBuffer.Count == 0, false);
                 _lastCommand = null;
                 if (_errorBuffer.Count != 0)
                 {
                     for (var i = 0; i < _errorBuffer.Count; i++)
-                        Output(_errorBuffer[i], _commandCorrelationId, i == _errorBuffer.Count - 1);
+                        Output(_errorBuffer[i], _commandCorrelationId, i == _errorBuffer.Count - 1, false);
                     _errorBuffer.Clear();
                 }
             }
@@ -124,7 +124,7 @@ namespace UlteriusServer.TerminalServer.Cli
             {
             }
             else if (Output != null && !string.IsNullOrWhiteSpace(line))
-                Output(line, _commandCorrelationId, _lastCommand == null);
+                Output(line, _commandCorrelationId, _lastCommand == null, false);
         }
 
         private async Task ReadAsync()

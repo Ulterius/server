@@ -31,7 +31,7 @@ namespace UlteriusServer.TerminalServer.Cli
     {
         private readonly ILogger _log;
         private readonly PowerShell _proc;
-        private Action<string, int, bool> _output;
+        private Action<string, int, bool, bool> _output;
 
         public PowerShellSession(ILogger log)
         {
@@ -53,13 +53,13 @@ namespace UlteriusServer.TerminalServer.Cli
 
         public string CurrentPath { get; private set; }
 
-        public Action<string, int, bool> Output
+        public Action<string, int, bool, bool> Output
         {
             get { return _output; }
             set
             {
                 _output = value;
-                _output("Welcome to Powershell (System.Management.Automation.dll)", 0, true);
+                _output("Welcome to Powershell (System.Management.Automation.dll)", 0, true, false);
             }
         }
 
@@ -88,7 +88,7 @@ namespace UlteriusServer.TerminalServer.Cli
             foreach (var line in lines)
             {
                 if (Output != null)
-                    Output(line, commandCorrelationId, line == lines.Last());
+                    Output(line, commandCorrelationId, line == lines.Last(), false);
             }
         }
 
