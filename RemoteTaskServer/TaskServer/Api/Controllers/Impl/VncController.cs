@@ -43,9 +43,16 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                 };
                 serializator.Serialize(_client, packet.endpoint, packet.syncKey, endData);
             }
-            catch (ArgumentNullException)
+            catch (Exception e)
             {
                 vncServer?.Stop();
+                var endData = new
+                {
+                    vncStarted = false,
+                    message = $"VNC Server Not Started {e.Message}",
+
+                };
+                serializator.Serialize(_client, packet.endpoint, packet.syncKey, endData);
             }
         }
     }
