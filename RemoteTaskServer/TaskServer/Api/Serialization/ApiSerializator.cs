@@ -78,10 +78,7 @@ namespace UlteriusServer.TaskServer.Api.Serialization
             }
         }
 
-        public static void PushPlugin(WebSocket client, string data)
-        {
-            client.WriteStringAsync(data, CancellationToken.None);
-        }
+      
         private void Push(WebSocket client, string data)
         {
             client.WriteStringAsync(data, CancellationToken.None);
