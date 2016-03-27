@@ -3,11 +3,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security;
 using UlteriusServer.TerminalServer.Cli;
 using UlteriusServer.TerminalServer.Infrastructure;
 using UlteriusServer.TerminalServer.Messaging;
 using UlteriusServer.TerminalServer.Messaging.Connection;
 using UlteriusServer.TerminalServer.Messaging.TerminalControl.Events;
+using UlteriusServer.Utilities.Security;
 
 #endregion
 
@@ -36,6 +38,11 @@ namespace UlteriusServer.TerminalServer.Session
         public bool IsConnected { get; set; }
         public bool IsAuthed { get; set; }
         public bool TryingAuth { get; set; }
+        public SecureString PrivateKey { get; set; }
+        public SecureString PublicKey { get; set; }
+        public SecureString AesKey { get; set; }
+        public SecureString AesIv { get; set; }
+        public bool AesShook { get; set; }
 
         public void Dispose()
         {
@@ -48,10 +55,15 @@ namespace UlteriusServer.TerminalServer.Session
 
         public void Init()
         {
+            var rsa = new Rsa();
+            rsa.GenerateKeyPairs();
+            PrivateKey = rsa.PrivateKey;
+            PublicKey = rsa.PublicKey;
             Push(new SessionStateEvent
             {
                 ConnectionId = ConnectionId,
                 UserId = UserId,
+                PublicKey = Rsa.SecureStringToString(PublicKey),
                 Terminals = _cliSessions.Select(kv => new TerminalDescriptor
                 {
                     TerminalId = kv.Key,

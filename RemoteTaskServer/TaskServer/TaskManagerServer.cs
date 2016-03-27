@@ -84,7 +84,10 @@ namespace UlteriusServer.TaskServer
         {
             Console.WriteLine("Connection from " + clientSocket.RemoteEndpoint);
             var client = new AuthClient(clientSocket);
-            Rsa.GenerateKeyPairs(client);
+            var rsa = new Rsa();
+            rsa.GenerateKeyPairs();
+            client.PublicKey = rsa.PublicKey;
+            client.PrivateKey = rsa.PrivateKey;
             var apiController = new ApiController(clientSocket)
             {
                 //set the auth Client so we can use it later

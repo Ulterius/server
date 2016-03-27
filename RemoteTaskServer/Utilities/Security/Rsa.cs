@@ -17,6 +17,9 @@ namespace UlteriusServer.Utilities.Security
 {
     public class Rsa
     {
+        public SecureString PrivateKey;
+        public SecureString PublicKey;
+
         public static AsymmetricCipherKeyPair GetKeyPair()
         {
             var randomGenerator = new CryptoApiRandomGenerator();
@@ -80,7 +83,7 @@ namespace UlteriusServer.Utilities.Security
         }
 
 
-        public static void GenerateKeyPairs(AuthClient client)
+        public void GenerateKeyPairs()
         {
             var keyPair = GetKeyPair();
             var publicKey = (RsaKeyParameters) keyPair.Public;
@@ -91,14 +94,14 @@ namespace UlteriusServer.Utilities.Security
             var pemWriter = new PemWriter(publicWriter);
             pemWriter.WriteObject(publicKey);
             pemWriter.Writer.Flush();
-            client.PublicKey = StringToSecureString(Base64Encode(publicWriter.ToString()));
+            PublicKey = StringToSecureString(Base64Encode(publicWriter.ToString()));
             publicWriter.Close();
 
             var privateWriter = new StringWriter();
             var pemWriterP = new PemWriter(privateWriter);
             pemWriterP.WriteObject(privateKey);
             pemWriterP.Writer.Flush();
-            client.PrivateKey = StringToSecureString(Base64Encode(privateWriter.ToString()));
+            PrivateKey = StringToSecureString(Base64Encode(privateWriter.ToString()));
             privateWriter.Close();
         }
     }

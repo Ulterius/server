@@ -10,7 +10,7 @@ namespace UlteriusServer.TerminalServer.Messaging.Serialization
 {
     public interface IEventSerializator
     {
-        void Serialize(IConnectionEvent eventObject, Stream output);
-        IConnectionRequest Deserialize(Stream source, out Type type);
+        void Serialize(Guid connectionId, IConnectionEvent eventObject, Stream output);
+        IConnectionRequest Deserialize(Guid connectionId, Stream source, out Type type);
     }
 }

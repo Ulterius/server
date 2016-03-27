@@ -32,10 +32,10 @@ namespace UlteriusServer.TerminalServer.Messaging
             _queue = bus;
             _log = log;
             _serializer = serializer;
-            TerminalClients = new ConcurrentDictionary<string, AuthClient>();
+     
         }
 
-        private static ConcurrentDictionary<string, AuthClient> TerminalClients { get; set; }
+
 
         public async Task HandleConnectionAsync(CancellationToken cancellation)
         {
@@ -53,7 +53,7 @@ namespace UlteriusServer.TerminalServer.Messaging
                     lock (_ws)
                     {
                         using (var wsmsg = _ws.CreateMessageWriter(WebSocketMessageType.Text))
-                            _serializer.Serialize(msg, wsmsg);
+                            _serializer.Serialize(connectionId, msg, wsmsg);
                     }
                 }, con => _ws.IsConnected && con.ConnectionId == connectionId));
 
@@ -61,11 +61,10 @@ namespace UlteriusServer.TerminalServer.Messaging
 
                 while (_ws.IsConnected && !_cancellation.IsCancellationRequested)
                 {
-                    Console.WriteLine(authClient.Authenticated);
                     var msg = await _ws.ReadMessageAsync(_cancellation).ConfigureAwait(false);
                     if (msg == null) continue;
                     Type type;
-                    var queueRequest = _serializer.Deserialize(msg, out type);
+                    var queueRequest = _serializer.Deserialize(connectionId, msg, out type);
                     Console.WriteLine(queueRequest);
                     queueRequest.ConnectionId = connectionId;
 
@@ -87,13 +86,7 @@ namespace UlteriusServer.TerminalServer.Messaging
             finally
             {
                 Console.WriteLine("Session '{0}' with connection '{1}' disconnected", sessionId, connectionId);
-                foreach (var client in TerminalClients)
-                {
-                    if (client.Value.Client != _ws) continue;
-                    AuthClient temp = null;
-                    TerminalClients.TryRemove(client.Key, out temp);
-                    Console.WriteLine("Disconnection from " + _ws.RemoteEndpoint);
-                }
+              
                 foreach (var unsub in unsubs)
                     unsub();
                 _ws.Dispose();
@@ -109,7 +102,7 @@ namespace UlteriusServer.TerminalServer.Messaging
         private static AuthClient AddTerminalClient(WebSocket ws)
         {
             var client = new AuthClient(ws);
-            TerminalClients.AddOrUpdate(client.GetHashCode().ToString(), client, (key, value) => value);
+           
             return client;
         }
 

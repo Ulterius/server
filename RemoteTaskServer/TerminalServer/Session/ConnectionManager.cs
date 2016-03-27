@@ -20,7 +20,7 @@ namespace UlteriusServer.TerminalServer.Session
         public static readonly string UserSessionCookieName = "SID";
         private readonly CancellationTokenSource _cancel;
 
-        private readonly ConcurrentDictionary<Guid, UserConnection> _connections;
+        public static ConcurrentDictionary<Guid, UserConnection> _connections;
         private readonly ILogger _log;
         private readonly IMessageBus _mBus;
         private readonly ISystemInfo _systemInfo;
@@ -97,8 +97,7 @@ namespace UlteriusServer.TerminalServer.Session
                 id => new UserConnection(ctx.Message.ConnectionId, ctx.Message.UserId, _mBus, _log),
                 (id, con) =>
                 {
-// only attach the session if the user id is the same
-
+                    // only attach the session if the user id is the same
                     if (con.UserId == ctx.Message.UserId)
                     {
                         con.IsConnected = true;
@@ -106,7 +105,6 @@ namespace UlteriusServer.TerminalServer.Session
                     }
                     return new UserConnection(ctx.Message.ConnectionId, _systemInfo.Guid(), _mBus, _log);
                 });
-
             ctx.Respond(new ConnectionConnectResponse(ctx.Message.ConnectionId, ctx.Message.UserId));
         }
 

@@ -208,6 +208,7 @@
     <Compile Include="TerminalServer\Messaging\TerminalControl\Handlers\CreateTerminalRequestHandler.cs" />
     <Compile Include="TerminalServer\Messaging\TerminalControl\Handlers\InputTerminalRequestHandler.cs" />
     <Compile Include="TerminalServer\Messaging\TerminalControl\Handlers\_IRequestHandler.cs" />
+    <Compile Include="TerminalServer\Messaging\TerminalControl\Requests\AesHandshakeRequest.cs" />
     <Compile Include="TerminalServer\Messaging\TerminalControl\Requests\CloseTerminalRequest.cs" />
     <Compile Include="TerminalServer\Messaging\TerminalControl\Requests\CreateTerminalRequest.cs" />
     <Compile Include="TerminalServer\Messaging\TerminalControl\Requests\TerminalInputRequest.cs" />
