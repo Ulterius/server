@@ -8,7 +8,7 @@ using UlteriusServer.Forms.Utilities;
 
 namespace UlteriusServer.Plugins
 {
-    public class PluginHandler
+    public class PluginHandler 
     {
         public static Dictionary<string, PluginBase> _Plugins;
         public static Dictionary<string, List<string>> _PluginPermissions;
