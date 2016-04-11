@@ -31,6 +31,8 @@ namespace RemoteTaskServer.WebServer
                 {".cco", "application/x-cocoa"},
                 {".crt", "application/x-x509-ca-cert"},
                 {".css", "text/css"},
+                {".svg", "image/svg+xml"},
+                {".svgz", "image/svg+xml"},
                 {".deb", "application/octet-stream"},
                 {".der", "application/x-x509-ca-cert"},
                 {".dll", "application/octet-stream"},
@@ -224,6 +226,7 @@ namespace RemoteTaskServer.WebServer
 
                     //Adding permanent http response headers
                     string mime;
+                    
                     context.Response.ContentType = MimeTypeMappings.TryGetValue(Path.GetExtension(filename), out mime)
                         ? mime
                         : "application/octet-stream";
