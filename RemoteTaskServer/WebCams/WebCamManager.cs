@@ -84,8 +84,8 @@ namespace UlteriusServer.WebCams
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message);
-
+                Console.WriteLine("Unable to stop camera");
+                Console.WriteLine(e);
                 return false;
             }
         }
