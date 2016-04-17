@@ -80,6 +80,7 @@ namespace UlteriusServer.TerminalServer.Messaging.Serialization
                         }
                         catch (Exception exception)
                         {
+                        Console.WriteLine("Error deserial");
                           Console.WriteLine(exception.Message);
                         }
                     }

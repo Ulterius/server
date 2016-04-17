@@ -91,6 +91,7 @@ namespace UlteriusServer.TaskServer
                 }
                 catch (Exception e)
                 {
+					
                     Console.WriteLine(e.Message);
                     packetType = PacketType.InvalidOrEmptyPacket;
                     return;

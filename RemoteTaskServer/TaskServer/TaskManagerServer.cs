@@ -118,6 +118,7 @@ namespace UlteriusServer.TaskServer
 
         private static void Log(string message)
         {
+            Console.WriteLine("Debug log written to");
             Console.WriteLine(message);
         }
     }
