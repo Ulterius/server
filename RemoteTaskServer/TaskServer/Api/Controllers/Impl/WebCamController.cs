@@ -88,8 +88,9 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                 };
                 serializator.Serialize(client, packet.endpoint, packet.syncKey, data);
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                Console.WriteLine(e.Message);
                 var data = new
                 {
                     cameraId,
@@ -150,9 +151,10 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
             try
             {
                 var streamThread = WebCamManager.Streams[cameraId];
-                if (streamThread != null)
+                if (streamThread != null && streamThread.IsAlive)
                 {
-                    WebCamManager.Streams[cameraId].Abort();
+                    streamThread.Abort();
+                    
                     if (client.IsConnected)
                     {
                         var data = new
@@ -164,8 +166,9 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                     }
                 }
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                Console.WriteLine(e.Message);
                 if (client.IsConnected)
                 {
                     var data = new
@@ -173,7 +176,6 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                         cameraId,
                         cameraStreamStopped = false
                     };
-
                     serializator.Serialize(client, packet.endpoint, packet.syncKey, data);
                 }
             }
