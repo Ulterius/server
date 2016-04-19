@@ -1,6 +1,7 @@
 ﻿#region
 
 using System;
+using System.ComponentModel;
 using System.Linq;
 using System.Threading;
 using UlteriusServer.TaskServer.Api.Serialization;
@@ -114,15 +115,27 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
             serializator.Serialize(client, packet.endpoint, packet.syncKey, data);
         }
 
+        private void bw_DoWork(object sender, DoWorkEventArgs e)
+        {
+            string cameraId = (string)e.Argument;
+            GetWebCamFrame(cameraId);
+        }
         public void StartStream()
         {
             var cameraId = packet.args.First().ToString();
             try
             {
-                var streamThread = new Thread(() => GetWebCamFrame(cameraId));
-                WebCamManager.Streams[cameraId] = streamThread;
-                WebCamManager.Streams[cameraId].IsBackground = true;
-                WebCamManager.Streams[cameraId].Start();
+                BackgroundWorker bw = new BackgroundWorker();
+              
+                if (bw.IsBusy != true)
+                {
+                    bw.RunWorkerAsync();
+                }
+                WebCamManager.Streams[cameraId] = bw;
+                WebCamManager.Streams[cameraId].WorkerSupportsCancellation = true;
+
+                WebCamManager.Streams[cameraId].DoWork += bw_DoWork;
+                WebCamManager.Streams[cameraId].RunWorkerAsync(cameraId);
 
                 var data = new
                 {
@@ -152,10 +165,9 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
             try
             {
                 var streamThread = WebCamManager.Streams[cameraId];
-                if (streamThread != null && streamThread.IsAlive)
+                if (streamThread != null && !streamThread.IsBusy)
                 {
-                    streamThread.Abort();
-                    
+                    streamThread.CancelAsync();
                     if (client.IsConnected)
                     {
                         var data = new
@@ -185,8 +197,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
 
         public void GetWebCamFrame(string cameraId)
         {
-            var camera = WebCamManager.Cameras[cameraId];
-            while (client.IsConnected && camera.IsRunning)
+            while (client.IsConnected)
             {
                 try
                 {
