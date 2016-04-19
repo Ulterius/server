@@ -103,7 +103,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
 
         public void PauseCamera()
         {
-            var cameraId = packet.args.First().ToString();
+            var cameraId = packet.args.First().ToString();  
             var cameraPaused = WebCamManager.PauseCamera(cameraId);
             var camera = WebCamManager.Cameras[cameraId];
             var data = new
@@ -148,6 +148,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
         public void StopStream()
         {
             var cameraId = packet.args.First().ToString();
+            
             try
             {
                 var streamThread = WebCamManager.Streams[cameraId];
@@ -184,7 +185,8 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
 
         public void GetWebCamFrame(string cameraId)
         {
-            while (client.IsConnected)
+            var camera = WebCamManager.Cameras[cameraId];
+            while (client.IsConnected && camera.IsRunning)
             {
                 try
                 {
@@ -197,7 +199,6 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                             cameraId,
                             cameraFrame = imageBytes
                         };
-
                         serializator.Serialize(client, "getcameraframe", packet.syncKey, data);
                     }
                 }
@@ -213,7 +214,6 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                     serializator.Serialize(client, "getcameraframe", packet.syncKey, data);
                 }
             }
-            StopStream();
         }
 
         public class Cameras
