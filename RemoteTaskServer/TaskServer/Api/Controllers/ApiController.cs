@@ -103,7 +103,9 @@ namespace UlteriusServer.TaskServer.Api.Controllers
                         webcamController.StartCamera();
                         break;
                     case PacketType.StopCamera:
+                        Task.Run(() => {
                         webcamController.StopCamera();
+                        });
                         break;
                     case PacketType.PauseCamera:
                         webcamController.PauseCamera();
