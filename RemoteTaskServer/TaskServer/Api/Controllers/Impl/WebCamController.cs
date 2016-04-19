@@ -185,7 +185,8 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
 
         public void GetWebCamFrame(string cameraId)
         {
-            while (client.IsConnected)
+            var camera = WebCamManager.Cameras[cameraId];
+            while (client.IsConnected && camera.IsRunning)
             {
                 try
                 {
@@ -199,6 +200,10 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                             cameraFrame = imageBytes
                         };
                         serializator.Serialize(client, "getcameraframe", packet.syncKey, data);
+                    }
+                    else
+                    {
+                        break;
                     }
                 }
                 catch (Exception e)
