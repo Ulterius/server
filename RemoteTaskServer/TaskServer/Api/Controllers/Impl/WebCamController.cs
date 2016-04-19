@@ -190,13 +190,16 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                 {
                     var cameraHash = cameraId;
                     var imageBytes = WebCamManager.Frames[cameraHash];
-                    var data = new
+                    if (imageBytes.Length > 0)
                     {
-                        cameraId,
-                        cameraFrame = imageBytes
-                    };
+                        var data = new
+                        {
+                            cameraId,
+                            cameraFrame = imageBytes
+                        };
 
-                    serializator.Serialize(client, "getcameraframe", packet.syncKey, data);
+                        serializator.Serialize(client, "getcameraframe", packet.syncKey, data);
+                    }
                 }
                 catch (Exception e)
                 {

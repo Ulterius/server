@@ -79,7 +79,7 @@ namespace UlteriusServer.WebCams
                 var camera = Cameras[cameraId];
                 if (camera == null) return false;
                 if (camera.IsRunning == false) return false;
-                camera.Stop();
+                camera.SignalToStop();
                 return true;
             }
             catch (Exception e)
