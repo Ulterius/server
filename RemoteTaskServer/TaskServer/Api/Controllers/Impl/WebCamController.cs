@@ -4,6 +4,7 @@ using System;
 using System.ComponentModel;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using UlteriusServer.TaskServer.Api.Serialization;
 using UlteriusServer.WebCams;
 using vtortola.WebSockets;
@@ -115,38 +116,25 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
             serializator.Serialize(client, packet.endpoint, packet.syncKey, data);
         }
 
-        private void bw_DoWork(object sender, DoWorkEventArgs e)
-        {
-            string cameraId = (string)e.Argument;
-            GetWebCamFrame(cameraId);
-        }
+        
         public void StartStream()
         {
             var cameraId = packet.args.First().ToString();
             try
             {
-                BackgroundWorker bw = new BackgroundWorker();
-              
-                if (bw.IsBusy != true)
-                {
-                    bw.RunWorkerAsync();
-                }
-                WebCamManager.Streams[cameraId] = bw;
-                WebCamManager.Streams[cameraId].WorkerSupportsCancellation = true;
-
-                WebCamManager.Streams[cameraId].DoWork += bw_DoWork;
-                WebCamManager.Streams[cameraId].RunWorkerAsync(cameraId);
-
+                Task cameraStream = new Task(() => GetWebCamFrame(cameraId));
+                WebCamManager.Streams[cameraId] = cameraStream;
+                WebCamManager.Streams[cameraId].Start();
                 var data = new
                 {
                     cameraId,
                     cameraStreamStarted = true
                 };
-
                 serializator.Serialize(client, packet.endpoint, packet.syncKey, data);
             }
-            catch (Exception)
+            catch (Exception exception)
             {
+                Console.WriteLine(exception.Message);
                 var data = new
                 {
                     cameraId,
@@ -165,9 +153,9 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
             try
             {
                 var streamThread = WebCamManager.Streams[cameraId];
-                if (streamThread != null && !streamThread.IsBusy)
+                if (streamThread != null && !streamThread.IsCanceled && !streamThread.IsCompleted && streamThread.Status == TaskStatus.Running)
                 {
-                    streamThread.CancelAsync();
+                    streamThread.Dispose();
                     if (client.IsConnected)
                     {
                         var data = new

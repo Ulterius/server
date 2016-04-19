@@ -8,6 +8,7 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using AForge.Video;
 using AForge.Video.DirectShow;
 
@@ -20,7 +21,7 @@ namespace UlteriusServer.WebCams
         //TODO TURN INTO AN MJPEG STREAMING SERVER
         public static Dictionary<string, VideoCaptureDevice> Cameras;
         public static ConcurrentDictionary<string, byte[]> Frames { get; set; }
-        public static ConcurrentDictionary<string, BackgroundWorker> Streams { get; set; }
+        public static ConcurrentDictionary<string, Task> Streams { get; set; }
 
 
         public static bool StartCamera(string cameraId)
@@ -103,7 +104,7 @@ namespace UlteriusServer.WebCams
             try
             {
                 Cameras = new Dictionary<string, VideoCaptureDevice>();
-                Streams = new ConcurrentDictionary<string, BackgroundWorker>();
+                Streams = new ConcurrentDictionary<string, Task>();
                 Frames = new ConcurrentDictionary<string, byte[]>();
                 var videoDevices = new FilterInfoCollection(FilterCategory.VideoInputDevice);
                 for (var i = 0; i < videoDevices.Count; i++)
