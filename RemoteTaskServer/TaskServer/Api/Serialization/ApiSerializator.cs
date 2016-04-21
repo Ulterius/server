@@ -46,8 +46,6 @@ namespace UlteriusServer.TaskServer.Api.Serialization
                     return;
                 }
             }
-
-
             Push(client, json);
         }
 

@@ -119,9 +119,6 @@ namespace UlteriusServer.TaskServer
                     case "stopprocessinformationstream":
                         packetType = PacketType.StopProcessStream;
                         break;
-                    case "downloadfile":
-                        packetType = PacketType.DownloadFile;
-                        break;
                     case "requestcpuinformation":
                         packetType = PacketType.RequestCpuInformation;
                         break;
@@ -227,8 +224,14 @@ namespace UlteriusServer.TaskServer
                     case "refreshcameras":
                         packetType = PacketType.RefreshCameras;
                         break;
-                    case "uploadfile":
-                        packetType = PacketType.UploadFile;
+                    case "filestore":
+                        packetType = PacketType.FileStore;
+                        break;
+                    case "filedata":
+                        packetType = PacketType.FileData;
+                        break;
+                    case "requestfile":
+                        packetType = PacketType.RequestFile;
                         break;
                     case "aeshandshake":
                         packetType = PacketType.AesHandshake;
@@ -282,7 +285,6 @@ public enum PacketType
     Authenticate,
     StreamProcesses,
     StopProcessStream,
-    DownloadFile,
     CreateFileTree,
     RequestGpuInformation,
     Plugin,
@@ -300,10 +302,12 @@ public enum PacketType
     RefreshCameras,
     StartCameraStream,
     StopCameraStream,
-    UploadFile,
     ChangeLoadPlugins,
     ChangeUseTerminal,
     AesHandshake,
     ApprovePlugin,
-    GetPendingPlugins
+    GetPendingPlugins,
+    FileStore,
+    FileData,
+    RequestFile
 }

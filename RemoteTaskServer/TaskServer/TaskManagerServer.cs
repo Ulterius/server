@@ -59,6 +59,7 @@ namespace UlteriusServer.TaskServer
                 ApiControllers.Select(controller => controller.Value)
                     .Where(apiController => apiController.Client == websocket))
             {
+
                 var packet = new Packets(apiController.AuthClient, message);
                 apiController.HandlePacket(packet);
             }

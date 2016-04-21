@@ -73,8 +73,8 @@ namespace UlteriusServer.TaskServer.Api.Controllers
 
                 switch (packetType)
                 {
-                    case PacketType.DownloadFile:
-                        Task.Run(() => { fileController.DownloadFile(); });
+                    case PacketType.RequestFile:
+                        Task.Run(() => { fileController.RequestFile(); });
                         break;
                     case PacketType.RequestGpuInformation:
                         gpuController.GetGpuInformation();
@@ -122,8 +122,8 @@ namespace UlteriusServer.TaskServer.Api.Controllers
                     case PacketType.RequestProcess:
                         processController.RequestProcessInformation();
                         break;
-                    case PacketType.UploadFile:
-                        Task.Run(() => { fileController.UploadFile(); });
+                    case PacketType.FileData:
+                        fileController.AddData();
                         break;
                     case PacketType.StreamProcesses:
                         processController.StreamProcessInformation();
@@ -172,7 +172,6 @@ namespace UlteriusServer.TaskServer.Api.Controllers
                         break;
                     case PacketType.ChangeUseTerminal:
                         settingsController.ChangeUseTerminal();
-
                         break;
                     case PacketType.GetCurrentSettings:
                         settingsController.GetCurrentSettings();
@@ -204,7 +203,12 @@ namespace UlteriusServer.TaskServer.Api.Controllers
                     case PacketType.RefreshCameras:
                         webcamController.RefreshCameras();
                         break;
+                    case PacketType.FileStore:
+                        fileController.StoreFile();
+                        break;
+                   
                 }
+
             }
             else
             {
