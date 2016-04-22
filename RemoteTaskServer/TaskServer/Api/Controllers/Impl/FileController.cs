@@ -99,7 +99,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                                 complete = false,
                                 fileData = memory.ToArray()
                             };
-                            serializator.Serialize(_client, packet.endpoint, packet.syncKey, data);
+                            serializator.Serialize(_client, "downloaddata", packet.syncKey, data);
                         }
                     }
                 }
