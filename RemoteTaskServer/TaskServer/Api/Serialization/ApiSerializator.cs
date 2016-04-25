@@ -2,6 +2,7 @@
 
 using System;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Web.Script.Serialization;
@@ -47,6 +48,24 @@ namespace UlteriusServer.TaskServer.Api.Serialization
                 }
             }
             Push(client, json);
+        }
+
+
+        public void SerializeBinary(WebSocket client, string endpoint, string syncKey, string data)
+        {
+
+            try
+            {
+                foreach (var encryptedBinary in from connectedClient in TaskManagerServer.AllClients select connectedClient.Value into authClient where authClient.Client == client where authClient.AesShook let keybytes = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(authClient.AesKey)) let iv = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(authClient.AesIv)) select Aes.Encrypt(data, keybytes, iv))
+                {
+                    PushBinary(client, endpoint, syncKey, encryptedBinary);
+                }
+            }
+            catch (Exception e )
+            {
+               
+                Console.WriteLine($"Error serilazing binary: {e.Message}");
+            }
         }
 
         public async void PushBinary(WebSocket client, string endpoint, string syncKey, byte[] data)

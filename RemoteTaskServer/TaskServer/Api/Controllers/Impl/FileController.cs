@@ -3,6 +3,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Text;
 using Newtonsoft.Json;
 using UlteriusServer.TaskServer.Api.Models;
 using UlteriusServer.TaskServer.Api.Serialization;
@@ -74,6 +75,15 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
             }
         }
 
+        private string ByteArrayToString(byte[] ba)
+        {
+            var sb = new StringBuilder();
+            foreach (var b in ba)
+                sb.Append(b.ToString("X2"));
+            var hexString = sb.ToString();
+            return hexString;
+        }
+
         public void ProcessFile(string path, long totalSize)
         {
             const int chunkSize = 1000000; // read the file by chunks of 1mb
@@ -83,10 +93,6 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                 var buffer = new byte[chunkSize];
                 while ((bytesRead = file.Read(buffer, 0, buffer.Length)) > 0)
                 {
-                    // TODO: Process bytesRead number of bytes from the buffer
-                    // not the entire buffer as the size of the buffer is 1KB
-                    // whereas the actual number of bytes that are read are 
-                    // stored in the bytesRead integer.
                     using (var memory = new MemoryStream())
                     {
                         using (var writer = new BinaryWriter(memory))
@@ -99,7 +105,11 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                                 complete = false,
                                 fileData = memory.ToArray()
                             };
-                            serializator.Serialize(_client, "downloaddata", packet.syncKey, data);
+
+                            var chunkMetaData = $"{path},{totalSize},{false}";
+                            var chunkData = ByteArrayToString(memory.ToArray());
+                            var finalString = $"{chunkMetaData}|{chunkData}";
+                            serializator.SerializeBinary(_client, "downloaddata", packet.syncKey, finalString);
                         }
                     }
                 }
