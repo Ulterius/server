@@ -15,8 +15,7 @@ namespace UlteriusServer.TaskServer.Api.Serialization
 {
     public class ApiSerializator
     {
-        public void Serialize(WebSocket client, string endpoint, string syncKey, object data, bool file = false,
-            string fileName = "")
+        public void Serialize(WebSocket client, string endpoint, string syncKey, object data)
         {
             var serializer = new JavaScriptSerializer {MaxJsonLength = int.MaxValue};
             var json = serializer.Serialize(new
@@ -37,11 +36,7 @@ namespace UlteriusServer.TaskServer.Api.Serialization
                         var keybytes = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(authClient.AesKey));
                         var iv = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(authClient.AesIv));
                         var encryptedData = Aes.Encrypt(json, keybytes, iv);
-                        if (file)
-                        {
-                            PushFile(client, fileName, encryptedData);
-                            return;
-                        }
+
                         json = Convert.ToBase64String(Aes.Encrypt(json, keybytes, iv));
                     }
                 }
@@ -54,6 +49,32 @@ namespace UlteriusServer.TaskServer.Api.Serialization
                 }
             }
             Push(client, json);
+        }
+
+        public void SerializeFile(WebSocket client, byte[] data,
+            string fileName)
+        {
+            //we sanity stuff
+            try
+            {
+                foreach (var connectedClient in TaskManagerServer.AllClients)
+                {
+                    var authClient = connectedClient.Value;
+                    if (authClient.Client != client) continue;
+                    if (authClient.AesShook)
+                    {
+                        var keybytes = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(authClient.AesKey));
+                        var iv = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(authClient.AesIv));
+                        var encryptedData = Aes.Encrypt(Convert.ToBase64String(data), keybytes, iv);
+
+                        PushFile(client, fileName, encryptedData);
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
         }
 
         public async Task CopyToProgress(Stream stream, Stream target, int bufferSize, string fileName, WebSocket client)

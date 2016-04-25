@@ -110,7 +110,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
             };
             serializator.Serialize(_client, packet.endpoint, packet.syncKey, finalData);*/
             var data = File.ReadAllBytes(path);
-            serializator.Serialize(_client, packet.endpoint, packet.syncKey, data, true, path);
+            serializator.SerializeFile(_client, data, path);
         }
 
 
