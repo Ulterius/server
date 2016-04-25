@@ -82,7 +82,8 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
         public void RemoveFile()
         {
             var path = packet.args.First().ToString();
-            if (File.Exists(path))
+            //make sure we can only remove tempfiles for now
+            if (File.Exists(path) && path.Contains("temp"))
             {
                 try
                 {
@@ -110,7 +111,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                 var deleteData = new
                 {
                     deleted = false,
-                    message = "File does not exist"
+                    message = "File does not exist or cannot be deleted"
                 };
                 serializator.Serialize(_client, packet.endpoint, packet.syncKey, deleteData);
             }
