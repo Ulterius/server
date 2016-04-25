@@ -80,9 +80,9 @@ namespace UlteriusServer.TaskServer.Api.Serialization
                     }
                 }
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                //should never happen
+               Console.WriteLine(e.Message);
             }
         }
 

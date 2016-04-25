@@ -1,6 +1,7 @@
 ﻿#region
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -83,36 +84,34 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
             var hexString = sb.ToString();
             return hexString;
         }
+        
+        public static IEnumerable<IEnumerable<T>> Split<T>(T[] array, int size)
+        {
+            for (var i = 0; i < (float)array.Length / size; i++)
+            {
+                yield return array.Skip(i * size).Take(size);
+            }
+        }
 
         public void ProcessFile(string path, long totalSize)
         {
-            const int chunkSize = 1000000; // read the file by chunks of 1mb
-            using (var file = File.OpenRead(path))
+            //Read the file
+            var fileData = File.ReadAllBytes(path);
+            //Segment it by 1mb
+            var fileSegments = Split(fileData, 1000000);
+            foreach (var finalString in from segment in fileSegments let chunkMetaData = $"{path},{totalSize},{false}" let chunkData = ByteArrayToString(segment.ToArray()) select $"{chunkMetaData}|{chunkData}")
             {
-                int bytesRead;
-                var buffer = new byte[chunkSize];
-                while ((bytesRead = file.Read(buffer, 0, buffer.Length)) > 0)
-                {
-                    using (var memory = new MemoryStream())
-                    {
-                        using (var writer = new BinaryWriter(memory))
-                        {
-                            writer.Write(buffer, 0, bytesRead);
-                            var chunkMetaData = $"{path},{totalSize},{false}";
-                            var chunkData = ByteArrayToString(memory.ToArray());
-                            var finalString = $"{chunkMetaData}|{chunkData}";
-                            serializator.SerializeBinary(_client, "downloaddata", packet.syncKey, finalString);
-                        }
-                    }
-                }
-                var finalData = new
-                {
-                    path,
-                    totalSize,
-                    complete = true
-                };
-                serializator.Serialize(_client, packet.endpoint, packet.syncKey, finalData);
+                serializator.SerializeBinary(_client, "downloaddata", packet.syncKey, finalString);
             }
+            var finalData = new
+            {
+                path,
+                totalSize,
+                complete = true
+            };
+            serializator.Serialize(_client, packet.endpoint, packet.syncKey, finalData);
+
+
         }
 
 
