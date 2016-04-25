@@ -107,7 +107,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                 fileData = System.Convert.ToBase64String(segment.ToArray())
             }))
             {
-                serializator.Serialize(_client, packet.endpoint, packet.syncKey, data);
+                serializator.Serialize(_client, "downloaddata", packet.syncKey, data);
             }
 
             var finalData = new
