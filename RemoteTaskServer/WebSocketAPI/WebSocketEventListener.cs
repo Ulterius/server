@@ -38,6 +38,7 @@ namespace UlteriusServer.WebSocketAPI
             _listener = new WebSocketListener(endpoint, options);
             var rfc6455 = new WebSocketFactoryRfc6455(_listener);
             rfc6455.MessageExtensions.RegisterExtension(new WebSocketDeflateExtension());
+
             _listener.Standards.RegisterStandard(rfc6455);
             //_listener.ConnectionExtensions.RegisterExtension(new WebSocketSecureConnectionExtension(certificate));
         }
@@ -91,6 +92,7 @@ namespace UlteriusServer.WebSocketAPI
                 {
                     var message = await websocket.ReadStringAsync(CancellationToken.None)
                         .ConfigureAwait(false);
+
                     if (message != null)
                         OnMessage?.Invoke(websocket, message);
                 }

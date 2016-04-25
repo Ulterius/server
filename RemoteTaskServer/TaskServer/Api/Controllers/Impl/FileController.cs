@@ -76,26 +76,17 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
             }
         }
 
-        private string ByteArrayToString(byte[] ba)
-        {
-            var sb = new StringBuilder();
-            foreach (var b in ba)
-                sb.Append(b.ToString("X2"));
-            var hexString = sb.ToString();
-            return hexString;
-        }
-
         public static IEnumerable<IEnumerable<T>> Split<T>(T[] array, int size)
         {
-            for (var i = 0; i < (float) array.Length/size; i++)
+            for (var i = 0; i < (float)array.Length / size; i++)
             {
-                yield return array.Skip(i*size).Take(size);
+                yield return array.Skip(i * size).Take(size);
             }
         }
 
         public void ProcessFile(string path, long totalSize)
         {
-            //Read the file
+         /*   //Read the file
             var fileData = File.ReadAllBytes(path);
             //Segment it by 1mb
             var fileSegments = Split(fileData, 1000000);
@@ -117,7 +108,9 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                 totalSize,
                 complete = true
             };
-            serializator.Serialize(_client, packet.endpoint, packet.syncKey, finalData);
+            serializator.Serialize(_client, packet.endpoint, packet.syncKey, finalData);*/
+            var data = File.ReadAllBytes(path);
+            serializator.Serialize(_client, packet.endpoint, packet.syncKey, data, true, path);
         }
 
 

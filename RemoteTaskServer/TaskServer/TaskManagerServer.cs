@@ -40,6 +40,7 @@ namespace UlteriusServer.TaskServer
                 NegotiationQueueCapacity = 256,
                 TcpBacklog = 1000
             });
+            
             server.OnConnect += HandleConnect;
             server.OnDisconnect += HandleDisconnect;
             server.OnMessage += HandleMessage;
@@ -60,7 +61,7 @@ namespace UlteriusServer.TaskServer
                 ApiControllers.Select(controller => controller.Value)
                     .Where(apiController => apiController.Client == websocket))
             {
-
+            
                 var packet = new Packets(apiController.AuthClient, message);
                 apiController.HandlePacket(packet);
             }
