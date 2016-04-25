@@ -84,12 +84,12 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
             var hexString = sb.ToString();
             return hexString;
         }
-        
+
         public static IEnumerable<IEnumerable<T>> Split<T>(T[] array, int size)
         {
-            for (var i = 0; i < (float)array.Length / size; i++)
+            for (var i = 0; i < (float) array.Length/size; i++)
             {
-                yield return array.Skip(i * size).Take(size);
+                yield return array.Skip(i*size).Take(size);
             }
         }
 
@@ -99,19 +99,25 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
             var fileData = File.ReadAllBytes(path);
             //Segment it by 1mb
             var fileSegments = Split(fileData, 1000000);
-            foreach (var finalString in from segment in fileSegments let chunkMetaData = $"{path},{totalSize},{false}" let chunkData = ByteArrayToString(segment.ToArray()) select $"{chunkMetaData}|{chunkData}")
+            foreach (var data in fileSegments.Select(segment => new
             {
-                serializator.SerializeBinary(_client, "downloaddata", packet.syncKey, finalString);
+                path,
+                totalSize,
+                complete = false,
+                fileData = System.Convert.ToBase64String(segment.ToArray())
+            }))
+            {
+                serializator.Serialize(_client, packet.endpoint, packet.syncKey, data);
             }
+
             var finalData = new
+
             {
                 path,
                 totalSize,
                 complete = true
             };
             serializator.Serialize(_client, packet.endpoint, packet.syncKey, finalData);
-
-
         }
 
 
