@@ -98,14 +98,6 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                         using (var writer = new BinaryWriter(memory))
                         {
                             writer.Write(buffer, 0, bytesRead);
-                            var data = new
-                            {
-                                path,
-                                totalSize,
-                                complete = false,
-                                fileData = memory.ToArray()
-                            };
-
                             var chunkMetaData = $"{path},{totalSize},{false}";
                             var chunkData = ByteArrayToString(memory.ToArray());
                             var finalString = $"{chunkMetaData}|{chunkData}";
