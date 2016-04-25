@@ -6,8 +6,11 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using Newtonsoft.Json;
+using RemoteTaskServer.WebServer;
 using UlteriusServer.TaskServer.Api.Models;
 using UlteriusServer.TaskServer.Api.Serialization;
+using UlteriusServer.TaskServer.Services.Network;
+using UlteriusServer.Utilities;
 using UlteriusServer.Utilities.Files;
 using vtortola.WebSockets;
 using static UlteriusServer.TaskServer.Api.Models.FileInformation;
@@ -76,41 +79,87 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
             }
         }
 
-        public static IEnumerable<IEnumerable<T>> Split<T>(T[] array, int size)
+        public void RemoveFile()
         {
-            for (var i = 0; i < (float)array.Length / size; i++)
+            var path = packet.args.First().ToString();
+            if (File.Exists(path))
             {
-                yield return array.Skip(i * size).Take(size);
+                try
+                {
+                    File.Delete(path);
+                    var deleteData = new
+                    {
+                        deleted  = true,
+                        message = "File removed."
+                    };
+                    serializator.Serialize(_client, packet.endpoint, packet.syncKey, deleteData);
+                }
+                catch (Exception e)
+                {
+
+                    var deleteDataException = new
+                    {
+                        deleted = false,
+                        message = e.Message
+                    };
+                    serializator.Serialize(_client, packet.endpoint, packet.syncKey, deleteDataException);
+                }
+            }
+            else
+            {
+                var deleteData = new
+                {
+                    deleted = false,
+                    message = "File does not exist"
+                };
+                serializator.Serialize(_client, packet.endpoint, packet.syncKey, deleteData);
             }
         }
 
         public void ProcessFile(string path, long totalSize)
         {
-         /*   //Read the file
-            var fileData = File.ReadAllBytes(path);
-            //Segment it by 1mb
-            var fileSegments = Split(fileData, 1000000);
-            foreach (var data in fileSegments.Select(segment => new
-            {
-                path,
-                totalSize,
-                complete = false,
-                fileData = System.Convert.ToBase64String(segment.ToArray())
-            }))
-            {
-                serializator.Serialize(_client, "downloaddata", packet.syncKey, data);
-            }
-
-            var finalData = new
-
-            {
-                path,
-                totalSize,
-                complete = true
-            };
-            serializator.Serialize(_client, packet.endpoint, packet.syncKey, finalData);*/
+            var fileName = Path.GetFileName(path);
+            var settings = new Settings();
+            var webPath = settings.Read("WebServer", "WebFilePath", HttpServer.defaultPath);
+            var ip = NetworkUtilities.GetIPv4Address();
+            var httpPort = HttpServer.GlobalPort;
             var data = File.ReadAllBytes(path);
-            serializator.SerializeFile(_client, data, path);
+            var encryptedFile = serializator.SerializeFile(_client, data);
+            try
+            {
+                if (encryptedFile != null)
+                {
+                    var tempPath = Path.Combine(webPath + "temp\\", fileName);
+                    File.WriteAllBytes(tempPath, encryptedFile);
+                    var tempWebPath = $"http://{ip}:{httpPort}/temp/{fileName}";
+                    var downloadData = new
+                    {
+                        tempWebPath,
+                        totalSize
+                    };
+                    serializator.Serialize(_client, packet.endpoint, packet.syncKey, downloadData);
+                }
+                else
+                {
+                    var errorData = new
+                    {
+                        error = true,
+                        message = "Unable to encrypt file"
+                    };
+                    serializator.Serialize(_client, packet.endpoint, packet.syncKey, errorData);
+                }
+
+            }
+            catch (Exception e)
+            {
+
+                var exceptionData = new
+                {
+                    error = true,
+                    message = e.Message
+                };
+                serializator.Serialize(_client, packet.endpoint, packet.syncKey, exceptionData);
+            }
         }
 
 

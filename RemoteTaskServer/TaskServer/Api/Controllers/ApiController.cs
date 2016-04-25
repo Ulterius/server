@@ -73,12 +73,14 @@ namespace UlteriusServer.TaskServer.Api.Controllers
 
                 switch (packetType)
                 {
-
                     case PacketType.RequestFile:
                         Task.Run(() => { fileController.RequestFile(); });
                         break;
                     case PacketType.RequestGpuInformation:
                         gpuController.GetGpuInformation();
+                        break;
+                    case PacketType.RemoveFile:
+                        fileController.RemoveFile();
                         break;
                     case PacketType.Plugin:
                         Task.Run(() => {

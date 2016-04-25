@@ -2,6 +2,7 @@
 
 using System;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -27,18 +28,9 @@ namespace UlteriusServer.TaskServer.Api.Serialization
             //we sanity stuff
             try
             {
-                foreach (var connectedClient in TaskManagerServer.AllClients)
+                foreach (var encryptedData in from connectedClient in TaskManagerServer.AllClients select connectedClient.Value into authClient where authClient.Client == client where authClient.AesShook let keybytes = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(authClient.AesKey)) let iv = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(authClient.AesIv)) select Aes.Encrypt(json, keybytes, iv))
                 {
-                    var authClient = connectedClient.Value;
-                    if (authClient.Client != client) continue;
-                    if (authClient.AesShook)
-                    {
-                        var keybytes = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(authClient.AesKey));
-                        var iv = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(authClient.AesIv));
-                        var encryptedData = Aes.Encrypt(json, keybytes, iv);
-
-                        json = Convert.ToBase64String(Aes.Encrypt(json, keybytes, iv));
-                    }
+                    json = Convert.ToBase64String(encryptedData);
                 }
             }
             catch (Exception)
@@ -51,30 +43,20 @@ namespace UlteriusServer.TaskServer.Api.Serialization
             Push(client, json);
         }
 
-        public void SerializeFile(WebSocket client, byte[] data,
-            string fileName)
+        public byte[] SerializeFile(WebSocket client, byte[] data)
         {
-            //we sanity stuff
             try
             {
-                foreach (var connectedClient in TaskManagerServer.AllClients)
+                foreach (var encryptedData in from connectedClient in TaskManagerServer.AllClients select connectedClient.Value into authClient where authClient.Client == client where authClient.AesShook let keybytes = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(authClient.AesKey)) let iv = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(authClient.AesIv)) select Aes.Encrypt(Convert.ToBase64String(data), keybytes, iv))
                 {
-                    var authClient = connectedClient.Value;
-                    if (authClient.Client != client) continue;
-                    if (authClient.AesShook)
-                    {
-                        var keybytes = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(authClient.AesKey));
-                        var iv = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(authClient.AesIv));
-                        var encryptedData = Aes.Encrypt(Convert.ToBase64String(data), keybytes, iv);
-
-                        PushFile(client, fileName, encryptedData);
-                    }
+                    return encryptedData;
                 }
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message);
+               Console.WriteLine(e.Message);
             }
+            return null;
         }
 
         public async Task CopyToProgress(Stream stream, Stream target, int bufferSize, string fileName, WebSocket client)
@@ -104,7 +86,7 @@ namespace UlteriusServer.TaskServer.Api.Serialization
                 Serialize(client, "fileprogress", string.Empty, fileProgress);
             }
         }
-
+        
         public async void PushFile(WebSocket client, string fileName, byte[] data)
         {
             try
@@ -113,7 +95,8 @@ namespace UlteriusServer.TaskServer.Api.Serialization
                 {
                     using (var stream = new MemoryStream(data))
                     {
-                        await CopyToProgress(stream, messageWriter, 1000000, fileName, client);
+                        await CopyToProgress(stream, messageWriter, 1000000, fileName, client); 
+                        
                     }
                 }
             }
