@@ -26,7 +26,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                 invalidPacket = true,
                 message = "This packet is invalid or empty"
             };
-            serializator.Serialize(_client, packet.endpoint, packet.syncKey, invalidPacketData);
+            serializator.Serialize(_client, packet.Endpoint, packet.SyncKey, invalidPacketData);
         }
 
         public void NoAuth()
@@ -36,7 +36,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                 authRequired = true,
                 message = "Please login to continue!"
             };
-            serializator.Serialize(_client, packet.endpoint, packet.syncKey, noAuthData);
+            serializator.Serialize(_client, packet.Endpoint, packet.SyncKey, noAuthData);
         }
     }
 }

@@ -22,7 +22,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
 
         public void GetSystemInformation()
         {
-            serializator.Serialize(client, packet.endpoint, packet.syncKey, SystemInformation.ToObject());
+            serializator.Serialize(client, packet.Endpoint, packet.SyncKey, SystemInformation.ToObject());
         }
     }
 }

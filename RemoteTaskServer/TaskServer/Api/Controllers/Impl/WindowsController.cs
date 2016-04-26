@@ -79,7 +79,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                 avatar = GetUserAvatar(),
                 username = GetUsername()
             };
-            serializator.Serialize(client, packet.endpoint, packet.syncKey, data);
+            serializator.Serialize(client, packet.Endpoint, packet.SyncKey, data);
         }
 
 
@@ -117,7 +117,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                     activeWindows.Add(image);
                 }
             }
-            serializator.Serialize(client, packet.endpoint, packet.syncKey, activeWindows);
+            serializator.Serialize(client, packet.Endpoint, packet.SyncKey, activeWindows);
         }
 
         #region

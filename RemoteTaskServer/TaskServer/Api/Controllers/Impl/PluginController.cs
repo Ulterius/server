@@ -38,19 +38,19 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                                plugin.Value.Javascript,
                                Permissions = pluginPerm
                            }).Cast<object>().ToList();
-            serializator.Serialize(_client, packet.endpoint, packet.syncKey, plugins);
+            serializator.Serialize(_client, packet.Endpoint, packet.SyncKey, plugins);
         }
 
         public void ApprovePlugin()
         {
-            var guid = packet.args?.First().ToString();
+            var guid = packet.Args?.First().ToString();
             if (guid == null)
             {
                 var pluginError = new
                 {
                     missingGuid = true
                 };
-                serializator.Serialize(_client, packet.endpoint, packet.syncKey, pluginError);
+                serializator.Serialize(_client, packet.Endpoint, packet.SyncKey, pluginError);
                 return;
             }
             var pluginApproved = PluginPermissions.ApprovePlugin(guid);
@@ -60,7 +60,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                 guid,
                 setupRan = true
             };
-            serializator.Serialize(_client, packet.endpoint, packet.syncKey, pluginApproveResponse);
+            serializator.Serialize(_client, packet.Endpoint, packet.SyncKey, pluginApproveResponse);
         }
 
         public void GetPendingPlugins()
@@ -89,7 +89,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                                    Permissions,
                                    Website
                                }).Cast<object>().ToList();
-            serializator.Serialize(_client, packet.endpoint, packet.syncKey, pendingList);
+            serializator.Serialize(_client, packet.Endpoint, packet.SyncKey, pendingList);
         }
 
         public void ListBadPlugins()
@@ -104,7 +104,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                                   pluginName,
                                   pluginError
                               }).Cast<object>().ToList();
-            serializator.Serialize(_client, packet.endpoint, packet.syncKey, badPlugins);
+            serializator.Serialize(_client, packet.Endpoint, packet.SyncKey, badPlugins);
         }
 
         public void StartPlugin()
@@ -115,18 +115,18 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                 {
                     noPluginsLoaded = true
                 };
-                serializator.Serialize(_client, packet.endpoint, packet.syncKey, pluginError);
+                serializator.Serialize(_client, packet.Endpoint, packet.SyncKey, pluginError);
                 return;
             }
             //GUID should always be the first argument
-            var guid = packet.args?.First().ToString();
+            var guid = packet.Args?.First().ToString();
             if (guid == null)
             {
                 var pluginError = new
                 {
                     missingGuid = true
                 };
-                serializator.Serialize(_client, packet.endpoint, packet.syncKey, pluginError);
+                serializator.Serialize(_client, packet.Endpoint, packet.SyncKey, pluginError);
                 return;
             }
             if (!PluginHandler._ApprovedPlugins.ContainsValue(guid))
@@ -136,15 +136,15 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                     notApproved = true,
                     guid
                 };
-                serializator.Serialize(_client, packet.endpoint, packet.syncKey, pluginError);
+                serializator.Serialize(_client, packet.Endpoint, packet.SyncKey, pluginError);
                 return;
             }
             object returnData = null;
             var pluginStarted = false;
             //lets check if we have any other arguments to clean the list
-            if (packet.args.Count > 1)
+            if (packet.Args.Count > 1)
             {
-                var cleanedArgs = packet.args;
+                var cleanedArgs = packet.Args;
                 //remove guid from the arguments.
                 cleanedArgs.RemoveAt(0);
                 returnData = PluginHandler.StartPlugin(guid, cleanedArgs);
@@ -161,7 +161,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                 pluginData = returnData,
                 pluginStarted
             };
-            serializator.Serialize(_client, packet.endpoint, packet.syncKey, pluginResponse);
+            serializator.Serialize(_client, packet.Endpoint, packet.SyncKey, pluginResponse);
         }
     }
 }

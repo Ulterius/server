@@ -20,7 +20,6 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
         private readonly WebSocket client;
         private readonly Packets packet;
         private readonly ApiSerializator serializator = new ApiSerializator();
-        private Timer streamTimer;
 
         public ProcessController(WebSocket client, Packets packet)
         {
@@ -30,7 +29,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
 
         public void StartProcess()
         {
-            var path = packet.args.AsEnumerable().First();
+            var path = packet.Args.AsEnumerable().First();
             bool processStarted;
             var processId = -1;
             try
@@ -55,13 +54,13 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                 processId,
                 path
             };
-            serializator.Serialize(client, packet.endpoint, packet.syncKey, data);
+            serializator.Serialize(client, packet.Endpoint, packet.SyncKey, data);
         }
 
         public void KillProcess()
         {
             //this is dumb
-            var id = int.Parse(packet.args.First().ToString());
+            var id = int.Parse(packet.Args.First().ToString());
             string processName = null;
             var processKilled = false;
             foreach (var p in Process.GetProcesses().Where(p => p.Id == id))
@@ -78,53 +77,22 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                 id,
                 processName
             };
-            serializator.Serialize(client, packet.endpoint, packet.syncKey, data);
+            serializator.Serialize(client, packet.Endpoint, packet.SyncKey, data);
         }
 
         public void RequestProcessInformation()
         {
             var processInformation = GetProcessInformation();
-            serializator.Serialize(client, packet.endpoint, packet.syncKey, processInformation);
+            serializator.Serialize(client, packet.Endpoint, packet.SyncKey, processInformation);
         }
 
         public void StreamProcessInformation()
         {
-            var loopTime = int.Parse(packet.args.First().ToString());
-            streamTimer = new Timer(loopTime)
-            {
-                Enabled = true,
-                AutoReset = true
-            };
-            streamTimer.Elapsed += StreamInformation;
-        }
-
-
-        private void StreamInformation(object sender, ElapsedEventArgs e)
-        {
-            if (client.IsConnected && API.ProcessState == API.States.StreamingProcessData)
+            while (client.IsConnected)
             {
                 RequestProcessInformation();
             }
-            else if (client.IsConnected && API.ProcessState == API.States.Standard)
-            {
-                StopProcessStream();
-            }
-            else
-            {
-                StopProcessStream();
-            }
-        }
-
-        public void StopProcessStream()
-        {
-            if (streamTimer != null)
-            {
-                streamTimer.Enabled = false;
-                streamTimer.AutoReset = false;
-                streamTimer.Stop();
-                streamTimer.Dispose();
-            }
-            API.ProcessState = API.States.Standard;
+            Console.WriteLine("Client gone");
         }
 
         private List<SystemProcesses> GetProcessInformation()
@@ -203,7 +171,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                     managementException = true,
                     message = e.Message
                 };
-                serializator.Serialize(client, packet.endpoint, packet.syncKey, data);
+                serializator.Serialize(client, packet.Endpoint, packet.SyncKey, data);
             }
 
             return processInformation;

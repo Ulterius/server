@@ -33,8 +33,8 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
         {
             try
             {
-                var encryptedKey = packet.args.ElementAt(0).ToString();
-                var encryptedIv = packet.args.ElementAt(1).ToString();
+                var encryptedKey = packet.Args.ElementAt(0).ToString();
+                var encryptedIv = packet.Args.ElementAt(1).ToString();
                 foreach (
                     var connectedClient in
                         TaskManagerServer.AllClients.Where(connectedClient => connectedClient.Value.Client == client))
@@ -47,7 +47,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                     {
                         shook = true
                     };
-                    serializator.Serialize(client, packet.endpoint, packet.syncKey, endData);
+                    serializator.Serialize(client, packet.Endpoint, packet.SyncKey, endData);
                 }
             }
             catch (Exception e)
@@ -57,7 +57,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                     shook = false,
                     message = e.Message
                 };
-                serializator.Serialize(client, packet.endpoint, packet.syncKey, endData);
+                serializator.Serialize(client, packet.Endpoint, packet.SyncKey, endData);
             }
         }
 
@@ -68,7 +68,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
 
         public void Login()
         {
-            var password = packet.args.ElementAt(0).ToString();
+            var password = packet.Args.ElementAt(0).ToString();
             var code = 3;
             if (string.IsNullOrEmpty(password))
             {
@@ -98,7 +98,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                 authenticated,
                 message = authenticated ? "Login was successfull" : "Login was unsuccessful"
             };
-            serializator.Serialize(client, packet.endpoint, packet.syncKey, authenticationData);
+            serializator.Serialize(client, packet.Endpoint, packet.SyncKey, authenticationData);
         }
 
         public void CheckForUpdate()
@@ -167,7 +167,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                             error = errorData,
                             message = "Error retrieving update information: " + errorData
                         };
-                        serializator.Serialize(client, packet.endpoint, packet.syncKey, data);
+                        serializator.Serialize(client, packet.Endpoint, packet.SyncKey, data);
                     }
                     else if (applicationVersion.CompareTo(newVersion) < 0)
                     {
@@ -179,7 +179,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                             changeNotes,
                             message = "New version available: " + newVersion
                         };
-                        serializator.Serialize(client, packet.endpoint, packet.syncKey, data);
+                        serializator.Serialize(client, packet.Endpoint, packet.SyncKey, data);
                     }
                     else
                     {
@@ -188,7 +188,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                             update = false,
                             message = "You have the latest version."
                         };
-                        serializator.Serialize(client, packet.endpoint, packet.syncKey, data);
+                        serializator.Serialize(client, packet.Endpoint, packet.SyncKey, data);
                     }
                 }
                 catch (Exception e)
@@ -199,7 +199,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                         error = e.Message,
                         message = "General bad thing has happened: " + e.Message
                     };
-                    serializator.Serialize(client, packet.endpoint, packet.syncKey, data);
+                    serializator.Serialize(client, packet.Endpoint, packet.SyncKey, data);
                 }
             }
             var endData = new
@@ -208,7 +208,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                 error = "No connection",
                 message = "Unable to connect to the internet to check for update."
             };
-            serializator.Serialize(client, packet.endpoint, packet.syncKey, endData);
+            serializator.Serialize(client, packet.Endpoint, packet.SyncKey, endData);
         }
 
         public void RestartServer()
@@ -217,7 +217,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
             {
                 serverRestarting = true
             };
-            serializator.Serialize(client, packet.endpoint, packet.syncKey, data);
+            serializator.Serialize(client, packet.Endpoint, packet.SyncKey, data);
             var fileName = Assembly.GetExecutingAssembly().Location;
             Process.Start(fileName);
             Environment.Exit(0);

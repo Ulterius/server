@@ -167,7 +167,6 @@
     <Compile Include="Plugins\PluginHandler.cs" />
     <Compile Include="Plugins\PluginLoader.cs" />
     <Compile Include="Plugins\PluginPermissions.cs" />
-    <Compile Include="TaskServer\Api\API.cs" />
     <Compile Include="TaskServer\Api\Controllers\ApiController.cs" />
     <Compile Include="TaskServer\Api\Controllers\Impl\WebCamController.cs" />
     <Compile Include="TaskServer\Api\Controllers\Impl\PluginController.cs" />

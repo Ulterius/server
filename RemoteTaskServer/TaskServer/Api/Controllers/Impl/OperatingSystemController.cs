@@ -26,7 +26,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
 
         public void GetEventLogs()
         {
-            serializator.Serialize(client, packet.endpoint, packet.syncKey, SystemUtilities.GetEventLogs());
+            serializator.Serialize(client, packet.Endpoint, packet.SyncKey, SystemUtilities.GetEventLogs());
             GC.Collect();
         }
 
@@ -48,7 +48,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                 ServerOperatingSystem.SerialNumber = (string) wmi["SerialNumber"];
                 ServerOperatingSystem.Build = (string) wmi["BuildNumber"];
             }
-            serializator.Serialize(client, packet.endpoint, packet.syncKey, ServerOperatingSystem.ToObject());
+            serializator.Serialize(client, packet.Endpoint, packet.SyncKey, ServerOperatingSystem.ToObject());
         }
     }
 }

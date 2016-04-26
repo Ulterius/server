@@ -58,7 +58,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                         .Replace("    ", " ")
                         .Replace("  ", " ");
             }
-            serializator.Serialize(_client, packet.endpoint, packet.syncKey, CpuInformation.ToObject());
+            serializator.Serialize(_client, packet.Endpoint, packet.SyncKey, CpuInformation.ToObject());
         }
     }
 }

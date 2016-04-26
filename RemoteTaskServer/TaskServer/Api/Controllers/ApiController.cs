@@ -27,7 +27,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers
 
         public void HandlePacket(Packets packet)
         {
-            var packetType = packet.packetType;
+            var packetType = packet.PacketType;
             var errorController = new ErrorController(Client, packet);
             var windowsController = new WindowsController(Client, packet);
             var settingsController = new SettingsController(Client, packet);
@@ -129,10 +129,9 @@ namespace UlteriusServer.TaskServer.Api.Controllers
                         fileController.AddData();
                         break;
                     case PacketType.StreamProcesses:
+                        Task.Run(() => {
                         processController.StreamProcessInformation();
-                        break;
-                    case PacketType.StopProcessStream:
-                        processController.StopProcessStream();
+                        });
                         break;
                     case PacketType.RequestCpuInformation:
                         cpuController.GetCpuInformation();
@@ -183,7 +182,8 @@ namespace UlteriusServer.TaskServer.Api.Controllers
                         systemController.GetSystemInformation();
                         break;
                     case PacketType.GetEventLogs:
-                        Task.Factory.StartNew(() => operatingSystemController.GetEventLogs());
+                        //WHO REENABLED THIS
+                       // Task.Factory.StartNew(() => operatingSystemController.GetEventLogs());
                         break;
                     case PacketType.StartVncServer:
                         vncController.StartVncServer();

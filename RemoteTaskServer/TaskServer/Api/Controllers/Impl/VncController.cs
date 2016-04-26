@@ -41,7 +41,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                     port = vncPort,
                     message = "VNC Server Started"
                 };
-                serializator.Serialize(_client, packet.endpoint, packet.syncKey, endData);
+                serializator.Serialize(_client, packet.Endpoint, packet.SyncKey, endData);
             }
             catch (Exception e)
             {
@@ -52,7 +52,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                     message = $"VNC Server Not Started {e.Message}",
 
                 };
-                serializator.Serialize(_client, packet.endpoint, packet.syncKey, endData);
+                serializator.Serialize(_client, packet.Endpoint, packet.SyncKey, endData);
             }
         }
     }

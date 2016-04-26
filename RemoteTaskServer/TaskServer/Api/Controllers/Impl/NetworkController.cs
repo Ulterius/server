@@ -31,7 +31,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                 NetworkInformation.MacAddress = NetworkUtilities.GetMacAddress().ToString();
                 NetworkInformation.InternalIp = NetworkUtilities.GetIPAddress().ToString();
             }
-            serializator.Serialize(client, packet.endpoint, packet.syncKey, NetworkInformation.ToObject());
+            serializator.Serialize(client, packet.Endpoint, packet.SyncKey, NetworkInformation.ToObject());
         }
     }
 }

@@ -45,7 +45,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                     Availability = int.Parse(mo["Availability"]?.ToString() ?? "0"),
                     Temperature = GetGpuTemp(mo["Name"]?.ToString())
                 }).ToList();
-            serializator.Serialize(client, packet.endpoint, packet.syncKey, new
+            serializator.Serialize(client, packet.Endpoint, packet.SyncKey, new
             {
                 gpus
             });
