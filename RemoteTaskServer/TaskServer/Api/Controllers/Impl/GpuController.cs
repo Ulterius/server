@@ -15,13 +15,13 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
     internal class GpuController : ApiController
     {
         private readonly WebSocket client;
-        private readonly Packets packet;
-        private readonly ApiSerializator serializator = new ApiSerializator();
+        private readonly Packets _packet;
+        private readonly ApiSerializator _serializator = new ApiSerializator();
 
         public GpuController(WebSocket client, Packets packet)
         {
             this.client = client;
-            this.packet = packet;
+            this._packet = packet;
         }
 
         public void GetGpuInformation()
@@ -45,7 +45,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                     Availability = int.Parse(mo["Availability"]?.ToString() ?? "0"),
                     Temperature = GetGpuTemp(mo["Name"]?.ToString())
                 }).ToList();
-            serializator.Serialize(client, packet.Endpoint, packet.SyncKey, new
+            _serializator.Serialize(client, _packet.Endpoint, _packet.SyncKey, new
             {
                 gpus
             });

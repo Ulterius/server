@@ -11,14 +11,14 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
 {
     public class NetworkController : ApiController
     {
-        private readonly WebSocket client;
-        private readonly Packets packet;
-        private readonly ApiSerializator serializator = new ApiSerializator();
+        private readonly WebSocket _client;
+        private readonly Packets _packet;
+        private readonly ApiSerializator _serializator = new ApiSerializator();
 
         public NetworkController(WebSocket client, Packets packet)
         {
-            this.client = client;
-            this.packet = packet;
+           _client = client;
+            _packet = packet;
         }
 
 
@@ -31,7 +31,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                 NetworkInformation.MacAddress = NetworkUtilities.GetMacAddress().ToString();
                 NetworkInformation.InternalIp = NetworkUtilities.GetIPAddress().ToString();
             }
-            serializator.Serialize(client, packet.Endpoint, packet.SyncKey, NetworkInformation.ToObject());
+            _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, NetworkInformation.ToObject());
         }
     }
 }

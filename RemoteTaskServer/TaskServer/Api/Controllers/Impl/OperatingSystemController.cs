@@ -43,7 +43,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                 ServerOperatingSystem.Name = ((string) wmi["Caption"]).Trim();
                 ServerOperatingSystem.Version = (string) wmi["Version"];
                 ServerOperatingSystem.MaxProcessCount = (uint) wmi["MaxNumberOfProcesses"];
-                ServerOperatingSystem.MaxProcessRAM = (ulong) wmi["MaxProcessMemorySize"];
+                ServerOperatingSystem.MaxProcessRam = (ulong) wmi["MaxProcessMemorySize"];
                 ServerOperatingSystem.Architecture = (string) wmi["OSArchitecture"];
                 ServerOperatingSystem.SerialNumber = (string) wmi["SerialNumber"];
                 ServerOperatingSystem.Build = (string) wmi["BuildNumber"];

@@ -135,30 +135,30 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                         let icon = ""
                         select new SystemProcesses
                         {
-                            id = processId,
-                            path = fullPath,
-                            name = name,
-                            icon = icon,
-                            ramUsage = memory,
-                            cpuUsage = cpuUsage,
-                            threads = threads,
-                            handles = handles,
-                            ioWriteOperationsPerSec = ioWriteOperationsPerSec,
-                            ioReadOperationsPerSec = ioReadOperationsPerSec
+                            Id = processId,
+                            Path = fullPath,
+                            Name = name,
+                            Icon = icon,
+                            RamUsage = memory,
+                            CpuUsage = cpuUsage,
+                            Threads = threads,
+                            Handles = handles,
+                            IoWriteOperationsPerSec = ioWriteOperationsPerSec,
+                            IoReadOperationsPerSec = ioReadOperationsPerSec
                         });
                     foreach (var result in processInformation)
                     {
-                        foreach (var process in simpleProcesses.Where(process => process.id == result.id))
+                        foreach (var process in simpleProcesses.Where(process => process.id == result.Id))
                         {
-                            result.path = process.path;
-                            if (!string.IsNullOrEmpty(result.path))
+                            result.Path = process.path;
+                            if (!string.IsNullOrEmpty(result.Path))
                             {
-                                result.icon = Tools.GetIconForProcess(result.path);
+                                result.Icon = Tools.GetIconForProcess(result.Path);
                             }
                             else
                             {
-                                result.path = "null";
-                                result.icon = "null";
+                                result.Path = "null";
+                                result.Icon = "null";
                             }
                         }
                     }

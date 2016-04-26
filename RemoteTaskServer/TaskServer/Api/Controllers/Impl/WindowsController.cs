@@ -18,14 +18,14 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
 {
     public class WindowsController : ApiController
     {
-        private readonly WebSocket client;
-        private readonly Packets packet;
-        private readonly ApiSerializator serializator = new ApiSerializator();
+        private readonly WebSocket _client;
+        private readonly Packets _packet;
+        private readonly ApiSerializator _serializator = new ApiSerializator();
 
         public WindowsController(WebSocket client, Packets packet)
         {
-            this.client = client;
-            this.packet = packet;
+            this._client = client;
+            this._packet = packet;
         }
 
         private bool AllOneColor(Bitmap bmp)
@@ -79,7 +79,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                 avatar = GetUserAvatar(),
                 username = GetUsername()
             };
-            serializator.Serialize(client, packet.Endpoint, packet.SyncKey, data);
+            _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, data);
         }
 
 
@@ -118,7 +118,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                     activeWindows.Add(image);
                 }
             }
-            serializator.Serialize(client, packet.Endpoint, packet.SyncKey, activeWindows);
+            _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, activeWindows);
         }
 
         #region

@@ -10,19 +10,19 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
 {
     public class SystemController : ApiController
     {
-        private readonly WebSocket client;
-        private readonly Packets packet;
-        private readonly ApiSerializator serializator = new ApiSerializator();
+        private readonly WebSocket _client;
+        private readonly Packets _packet;
+        private readonly ApiSerializator _serializator = new ApiSerializator();
 
         public SystemController(WebSocket client, Packets packet)
         {
-            this.client = client;
-            this.packet = packet;
+            this._client = client;
+            this._packet = packet;
         }
 
         public void GetSystemInformation()
         {
-            serializator.Serialize(client, packet.Endpoint, packet.SyncKey, SystemInformation.ToObject());
+            _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, SystemInformation.ToObject());
         }
     }
 }

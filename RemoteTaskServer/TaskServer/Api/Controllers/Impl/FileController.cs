@@ -23,27 +23,27 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
     public class FileController : ApiController
     {
         private readonly WebSocket _client;
-        private readonly Packets packet;
-        private readonly ApiSerializator serializator = new ApiSerializator();
+        private readonly Packets _packet;
+        private readonly ApiSerializator _serializator = new ApiSerializator();
 
 
         public FileController(WebSocket client, Packets packet)
         {
             _client = client;
-            this.packet = packet;
+            this._packet = packet;
         }
 
         public void CreateFileTree()
         {
-            var argumentSize = packet.Args.Count;
-            var path = packet.Args.First().ToString();
+            var argumentSize = _packet.Args.Count;
+            var path = _packet.Args.First().ToString();
             var deepWalk = false;
             if (argumentSize > 1)
             {
-                deepWalk = (bool) packet.Args[1];
+                deepWalk = (bool) _packet.Args[1];
             }
             var tree = new FileTree(path, deepWalk);
-            serializator.Serialize(_client, packet.Endpoint, packet.SyncKey, tree);
+            _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, tree);
         }
 
         public void SearchFile()
@@ -53,7 +53,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
 
         public void RequestFile()
         {
-            var path = packet.Args.First().ToString();
+            var path = _packet.Args.First().ToString();
             if (File.Exists(path))
             {
                 var fileName = Path.GetFileName(path);
@@ -67,13 +67,13 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                     path,
                     fileValid = false
                 };
-                serializator.Serialize(_client, packet.Endpoint, packet.SyncKey, data);
+                _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, data);
             }
         }
 
         public void RemoveFile()
         {
-            var path = packet.Args.First().ToString();
+            var path = _packet.Args.First().ToString();
             //make sure we can only remove tempfiles for now
             if (File.Exists(path) && path.Contains("temp"))
             {
@@ -85,7 +85,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                         deleted  = true,
                         message = "File removed."
                     };
-                    serializator.Serialize(_client, packet.Endpoint, packet.SyncKey, deleteData);
+                    _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, deleteData);
                 }
                 catch (Exception e)
                 {
@@ -95,7 +95,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                         deleted = false,
                         message = e.Message
                     };
-                    serializator.Serialize(_client, packet.Endpoint, packet.SyncKey, deleteDataException);
+                    _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, deleteDataException);
                 }
             }
             else
@@ -106,7 +106,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                     deleted = false,
                     message = "File does not exist or cannot be deleted"
                 };
-                serializator.Serialize(_client, packet.Endpoint, packet.SyncKey, deleteData);
+                _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, deleteData);
             }
         }
 
@@ -120,7 +120,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
             var ip = NetworkUtilities.GetIPv4Address();
             var httpPort = HttpServer.GlobalPort;
             var data = File.ReadAllBytes(path);
-            var encryptedFile = serializator.SerializeFile(_client, data);
+            var encryptedFile = _serializator.SerializeFile(_client, data);
             try
             {
                 if (encryptedFile != null)
@@ -133,7 +133,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                         tempWebPath,
                         totalSize
                     };
-                    serializator.Serialize(_client, packet.Endpoint, packet.SyncKey, downloadData);
+                    _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, downloadData);
                 }
                 else
                 {
@@ -142,7 +142,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                         error = true,
                         message = "Unable to encrypt file"
                     };
-                    serializator.Serialize(_client, packet.Endpoint, packet.SyncKey, errorData);
+                    _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, errorData);
                 }
 
             }
@@ -154,19 +154,19 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                     error = true,
                     message = e.Message
                 };
-                serializator.Serialize(_client, packet.Endpoint, packet.SyncKey, exceptionData);
+                _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, exceptionData);
             }
         }
 
 
         public void AddData()
         {
-            var sha = packet.Args.First().ToString();
+            var sha = _packet.Args.First().ToString();
             try
             {
                 if (FileManager.CurrentState(sha) == FileState.Uploading)
                 {
-                    var dataArray = JsonConvert.DeserializeObject(packet.Args[1].ToString(), typeof (sbyte[]));
+                    var dataArray = JsonConvert.DeserializeObject(_packet.Args[1].ToString(), typeof (sbyte[]));
                     var unsigned = (byte[]) (Array) dataArray;
                     FileManager.AddData(sha, unsigned);
 
@@ -183,7 +183,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                                 totalSize,
                                 message = "Upload Complete."
                             };
-                            serializator.Serialize(_client, packet.Endpoint, packet.SyncKey, completeData);
+                            _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, completeData);
                         }
                         else
                         {
@@ -194,7 +194,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                                 totalSize,
                                 message = "Upload Completed, but unable to create file."
                             };
-                            serializator.Serialize(_client, packet.Endpoint, packet.SyncKey, issueData);
+                            _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, issueData);
                         }
                     }
                     else
@@ -205,7 +205,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                             totalSize,
                             message = "Uploading, please wait..."
                         };
-                        serializator.Serialize(_client, packet.Endpoint, packet.SyncKey, uploadData);
+                        _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, uploadData);
                     }
                 }
             }
@@ -216,15 +216,15 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                     error = true,
                     message = e.Message
                 };
-                serializator.Serialize(_client, packet.Endpoint, packet.SyncKey, uploadError);
+                _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, uploadError);
             }
         }
 
         public void StoreFile()
         {
-            var filePath = packet.Args.First().ToString();
-            var totalSize = (long) packet.Args[1];
-            var sha = packet.Args[2].ToString();
+            var filePath = _packet.Args.First().ToString();
+            var totalSize = (long) _packet.Args[1];
+            var sha = _packet.Args[2].ToString();
             var file = new FileInformation
             {
                 FileName = filePath,
@@ -239,7 +239,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                     stored = true,
                     message = "File information set"
                 };
-                serializator.Serialize(_client, packet.Endpoint, packet.SyncKey, storeData);
+                _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, storeData);
             }
             else
             {
@@ -248,7 +248,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                     stored = false,
                     message = "Unable to store file information"
                 };
-                serializator.Serialize(_client, packet.Endpoint, packet.SyncKey, storeData);
+                _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, storeData);
             }
         }
     }

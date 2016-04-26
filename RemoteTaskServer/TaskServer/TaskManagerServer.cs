@@ -33,10 +33,11 @@ namespace UlteriusServer.TaskServer
             var endpoint = new IPEndPoint(IPAddress.Parse( /*NetworkUtilities.GetIPv4Address()*/ "0.0.0.0"), port);
             var server = new WebSocketEventListener(endpoint, new WebSocketListenerOptions
             {
-                SubProtocols = new[] {"text", "binary"},
+                SubProtocols = new[] {"text"},
                 PingTimeout = TimeSpan.FromSeconds(5),
                 NegotiationTimeout = TimeSpan.FromSeconds(5),
                 ParallelNegotiations = Environment.ProcessorCount*2,
+               
                 NegotiationQueueCapacity = 256,
                 TcpBacklog = 1000
             });
@@ -121,7 +122,6 @@ namespace UlteriusServer.TaskServer
 
         private static void Log(string message)
         {
-            Console.WriteLine("Debug log written to");
             Console.WriteLine(message);
         }
     }

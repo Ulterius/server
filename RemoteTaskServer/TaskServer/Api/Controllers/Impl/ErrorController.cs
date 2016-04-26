@@ -10,13 +10,13 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
     public class ErrorController : ApiController
     {
         private readonly WebSocket _client;
-        private readonly Packets packet;
-        private readonly ApiSerializator serializator = new ApiSerializator();
+        private readonly Packets _packet;
+        private readonly ApiSerializator _serializator = new ApiSerializator();
 
         public ErrorController(WebSocket client, Packets packet)
         {
             _client = client;
-            this.packet = packet;
+            this._packet = packet;
         }
 
         public void InvalidPacket()
@@ -26,7 +26,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                 invalidPacket = true,
                 message = "This packet is invalid or empty"
             };
-            serializator.Serialize(_client, packet.Endpoint, packet.SyncKey, invalidPacketData);
+            _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, invalidPacketData);
         }
 
         public void NoAuth()
@@ -36,7 +36,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                 authRequired = true,
                 message = "Please login to continue!"
             };
-            serializator.Serialize(_client, packet.Endpoint, packet.SyncKey, noAuthData);
+            _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, noAuthData);
         }
     }
 }
