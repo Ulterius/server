@@ -87,6 +87,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
         ///     Experimental function for monitoring active windows on your remote desktop (windows).
         /// </summary>
         /// <returns></returns>
+        /// @deprecated
         public void GetActiveWindowsImages()
         {
             var activeWindows = new List<WindowsImages>();

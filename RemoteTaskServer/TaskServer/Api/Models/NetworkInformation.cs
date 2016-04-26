@@ -11,7 +11,7 @@ namespace UlteriusServer.TaskServer.Api.Models
     public static class NetworkInformation
     {
         public static string MacAddress { get; set; }
-        public static string JSON { get; set; }
+        public static string Json { get; set; }
         public static string PublicIp { get; set; }
         public static List<NetworkDevices> NetworkComputers { get; set; }
         public static string InternalIp { get; set; }

@@ -108,7 +108,15 @@ namespace UlteriusServer.TaskServer.Api.Serialization
 
         private void Push(WebSocket client, string data)
         {
-            client.WriteStringAsync(data, CancellationToken.None);
+            try
+            {
+                client.WriteStringAsync(data, CancellationToken.None);
+            }
+            catch (Exception e)
+            {
+
+                Console.WriteLine(e.Message);
+            }
         }
     }
 }

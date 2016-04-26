@@ -3,15 +3,15 @@
 {
     public class SystemProcesses
     {
-        public int id { get; set; }
-        public string path { get; set; }
-        public string icon { get; set; }
-        public string name { get; set; }
-        public int cpuUsage { get; set; }
-        public long ramUsage { get; set; }
-        public int threads { get; set; }
-        public int handles { get; set; }
-        public int ioWriteOperationsPerSec { get; set; }
-        public int ioReadOperationsPerSec { get; set; }
+        public int Id { get; set; }
+        public string Path { get; set; }
+        public string Icon { get; set; }
+        public string Name { get; set; }
+        public int CpuUsage { get; set; }
+        public long RamUsage { get; set; }
+        public int Threads { get; set; }
+        public int Handles { get; set; }
+        public int IoWriteOperationsPerSec { get; set; }
+        public int IoReadOperationsPerSec { get; set; }
     }
 }
