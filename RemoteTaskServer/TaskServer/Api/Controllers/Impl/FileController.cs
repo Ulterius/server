@@ -100,6 +100,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
             }
             else
             {
+
                 var deleteData = new
                 {
                     deleted = false,
@@ -111,6 +112,8 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
 
         public void ProcessFile(string path, long totalSize)
         {
+            System.IO.FileInfo file = new System.IO.FileInfo(path);
+            file.Directory.Create(); // If the directory already exists, this method does nothing.
             var fileName = Path.GetFileName(path);
             var settings = new Settings();
             var webPath = settings.Read("WebServer", "WebFilePath", HttpServer.defaultPath);

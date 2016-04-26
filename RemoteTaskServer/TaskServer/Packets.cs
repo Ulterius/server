@@ -2,8 +2,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
-using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using UlteriusServer.Authentication;
 using UlteriusServer.Utilities;
 using UlteriusServer.Utilities.Security;
@@ -16,32 +17,31 @@ namespace UlteriusServer.TaskServer
     public class Packets
     {
         private static readonly Settings settings = new Settings();
-
-        public List<object> args;
-        public string endpoint;
-        public PacketType packetType;
-        public string syncKey;
+        public List<object> Args = new List<object>();
         private bool encryptionOff = false;
 
-        public Packets(AuthClient client, string packetJson)
+        //  public List<object> args;
+        public string Endpoint;
+        public PacketType PacketType;
+        public string SyncKey;
+
+        public Packets(AuthClient client, string packetData)
         {
-         
-            
             //An entire base64 string is an aes encrypted packet
-          if (StringUtilities.IsBase64String(packetJson))
+            if (StringUtilities.IsBase64String(packetData))
             {
                 try
                 {
                     var keybytes = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(client.AesKey));
                     var iv = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(client.AesIv));
-                    var packet = Convert.FromBase64String(packetJson);
-                    packetJson = Aes.Decrypt(packet, keybytes, iv);
+                    var packet = Convert.FromBase64String(packetData);
+                    packetData = Aes.Decrypt(packet, keybytes, iv);
                 }
                 catch (Exception exception)
                 {
                     Console.WriteLine(exception.Message);
 
-                    packetType = PacketType.InvalidOrEmptyPacket;
+                    PacketType = PacketType.InvalidOrEmptyPacket;
                     return;
                 }
             }
@@ -50,214 +50,210 @@ namespace UlteriusServer.TaskServer
                 //the only non encrypted packet allowed is the first handshake
                 try
                 {
-                    var validHandshake = JsonConvert.DeserializeObject<JsPacket>(packetJson);
-                    var endpoint = validHandshake?.endpoint?.Trim()?.ToLower();
+                    var validHandshake = JObject.Parse(packetData);
+                    var endpoint = validHandshake["endpoint"].ToString().Trim().ToLower();
                     if (!endpoint.Equals("aeshandshake"))
                     {
-                        packetType = PacketType.InvalidOrEmptyPacket;
+                        PacketType = PacketType.InvalidOrEmptyPacket;
                         return;
                     }
                     //prevent sending a new aes key pair after a handshake has already taken place
                     if (client.AesShook)
                     {
-                        packetType = PacketType.InvalidOrEmptyPacket;
+                        PacketType = PacketType.InvalidOrEmptyPacket;
                         return;
                     }
                 }
                 catch (Exception)
                 {
-                    packetType = PacketType.InvalidOrEmptyPacket;
+                    PacketType = PacketType.InvalidOrEmptyPacket;
                     return;
                 }
             }
-           
-    
-        JsPacket deserializedPacket = null;
+            
+
+            JObject deserializedPacket = null;
             try
             {
-                deserializedPacket = JsonConvert.DeserializeObject<JsPacket>(packetJson);
+                deserializedPacket = JObject.Parse(packetData);
             }
             catch (Exception)
             {
-                packetType = PacketType.InvalidOrEmptyPacket;
+                PacketType = PacketType.InvalidOrEmptyPacket;
                 return;
             }
-
             if (deserializedPacket != null)
             {
                 try
                 {
-                    endpoint = deserializedPacket?.endpoint?.Trim()?.ToLower();
+                    Endpoint = deserializedPacket["endpoint"].ToString().Trim().ToLower();
                 }
                 catch (Exception e)
                 {
-					
-                    Console.WriteLine(e.Message);
-                    packetType = PacketType.InvalidOrEmptyPacket;
+                    PacketType = PacketType.InvalidOrEmptyPacket;
                     return;
                 }
-                args = deserializedPacket?.args ?? null;
-                syncKey = deserializedPacket?.syncKey?.Trim() ?? null;
-
-                switch (endpoint)
+                try
+                {
+                    SyncKey = deserializedPacket["synckey"].ToString().Trim();
+                }
+                catch (Exception)
+                {
+                    SyncKey = null;
+                }
+                Args.AddRange(JArray.Parse(deserializedPacket["args"].ToString()));
+                switch (Endpoint)
                 {
                     case "authenticate":
-                        packetType = PacketType.Authenticate;
+                        PacketType = PacketType.Authenticate;
                         break;
                     case "requestgpuinformation":
-                        packetType = PacketType.RequestGpuInformation;
+                        PacketType = PacketType.RequestGpuInformation;
                         break;
                     case "createfiletree":
-                        packetType = PacketType.CreateFileTree;
+                        PacketType = PacketType.CreateFileTree;
                         break;
                     case "requestprocessinformation":
-                        packetType = PacketType.RequestProcess;
+                        PacketType = PacketType.RequestProcess;
                         break;
                     case "streamprocessinformation":
-                        packetType = PacketType.StreamProcesses;
+                        PacketType = PacketType.StreamProcesses;
                         break;
                     case "stopprocessinformationstream":
-                        packetType = PacketType.StopProcessStream;
+                        PacketType = PacketType.StopProcessStream;
                         break;
                     case "requestcpuinformation":
-                        packetType = PacketType.RequestCpuInformation;
+                        PacketType = PacketType.RequestCpuInformation;
                         break;
                     case "requestosinformation":
-                        packetType = PacketType.RequestOsInformation;
+                        PacketType = PacketType.RequestOsInformation;
                         break;
                     case "requestnetworkinformation":
-                        packetType = PacketType.RequestNetworkInformation;
+                        PacketType = PacketType.RequestNetworkInformation;
                         break;
                     case "requestsysteminformation":
-                        packetType = PacketType.RequestSystemInformation;
+                        PacketType = PacketType.RequestSystemInformation;
                         break;
                     case "startprocess":
-                        packetType = PacketType.StartProcess;
+                        PacketType = PacketType.StartProcess;
                         break;
                     case "killprocess":
-                        packetType = PacketType.KillProcess;
+                        PacketType = PacketType.KillProcess;
                         break;
                     case "generatenewkey":
-                        packetType = PacketType.GenerateNewKey;
+                        PacketType = PacketType.GenerateNewKey;
                         break;
                     case "togglewebserver":
-                        packetType = PacketType.UseWebServer;
+                        PacketType = PacketType.UseWebServer;
                         break;
                     case "changewebserverport":
-                        packetType = PacketType.ChangeWebServerPort;
+                        PacketType = PacketType.ChangeWebServerPort;
                         break;
                     case "changewebfilepath":
-                        packetType = PacketType.ChangeWebFilePath;
+                        PacketType = PacketType.ChangeWebFilePath;
                         break;
                     case "startvncserver":
-                        packetType = PacketType.StartVncServer;
+                        PacketType = PacketType.StartVncServer;
                         break;
                     case "changevncpass":
-                        packetType = PacketType.ChangeVncPass;
+                        PacketType = PacketType.ChangeVncPass;
                         break;
                     case "changetaskserverport":
-                        packetType = PacketType.ChangeTaskServerPort;
+                        PacketType = PacketType.ChangeTaskServerPort;
                         break;
                     case "changevncport":
-                        packetType = PacketType.ChangeVncPort;
+                        PacketType = PacketType.ChangeVncPort;
                         break;
                     case "changevncproxyport":
-                        packetType = PacketType.ChangeVncProxyPort;
+                        PacketType = PacketType.ChangeVncProxyPort;
                         break;
                     case "changenetworkresolve":
-                        packetType = PacketType.ChangeNetworkResolve;
+                        PacketType = PacketType.ChangeNetworkResolve;
                         break;
                     case "changeloadplugins":
-                        packetType = PacketType.ChangeLoadPlugins;
+                        PacketType = PacketType.ChangeLoadPlugins;
                         break;
                     case "changeuseterminal":
-                        packetType = PacketType.ChangeUseTerminal;
+                        PacketType = PacketType.ChangeUseTerminal;
                         break;
                     case "getcurrentsettings":
-                        packetType = PacketType.GetCurrentSettings;
+                        PacketType = PacketType.GetCurrentSettings;
                         break;
                     case "geteventlogs":
-                        packetType = PacketType.GetEventLogs;
+                        PacketType = PacketType.GetEventLogs;
                         break;
                     case "checkforupdate":
-                        packetType = PacketType.CheckUpdate;
+                        PacketType = PacketType.CheckUpdate;
                         break;
                     case "restartserver":
-                        packetType = PacketType.RestartServer;
+                        PacketType = PacketType.RestartServer;
                         break;
                     case "getwindowsdata":
-                        packetType = PacketType.RequestWindowsInformation;
+                        PacketType = PacketType.RequestWindowsInformation;
                         break;
                     case "getactivewindowssnapshots":
-                        packetType = PacketType.GetActiveWindowsSnapshots;
+                        PacketType = PacketType.GetActiveWindowsSnapshots;
                         break;
                     case "plugin":
-                        packetType = PacketType.Plugin;
+                        PacketType = PacketType.Plugin;
                         break;
                     case "getplugins":
-                        packetType = PacketType.GetPlugins;
+                        PacketType = PacketType.GetPlugins;
                         break;
                     case "getbadplugins":
-                        packetType = PacketType.GetBadPlugins;
+                        PacketType = PacketType.GetBadPlugins;
                         break;
                     case "startcamera":
-                        packetType = PacketType.StartCamera;
+                        PacketType = PacketType.StartCamera;
                         break;
                     case "stopcamera":
-                        packetType = PacketType.StopCamera;
+                        PacketType = PacketType.StopCamera;
                         break;
                     case "pausecamera":
-                        packetType = PacketType.PauseCamera;
+                        PacketType = PacketType.PauseCamera;
                         break;
                     case "getcameras":
-                        packetType = PacketType.GetCameras;
+                        PacketType = PacketType.GetCameras;
                         break;
                     case "getcameraframe":
-                        packetType = PacketType.GetCameraFrame;
+                        PacketType = PacketType.GetCameraFrame;
                         break;
                     case "startcamerastream":
-                        packetType = PacketType.StartCameraStream;
+                        PacketType = PacketType.StartCameraStream;
                         break;
                     case "stopcamerastream":
-                        packetType = PacketType.StopCameraStream;
+                        PacketType = PacketType.StopCameraStream;
                         break;
                     case "refreshcameras":
-                        packetType = PacketType.RefreshCameras;
+                        PacketType = PacketType.RefreshCameras;
                         break;
                     case "filestore":
-                        packetType = PacketType.FileStore;
+                        PacketType = PacketType.FileStore;
                         break;
                     case "filedata":
-                        packetType = PacketType.FileData;
+                        PacketType = PacketType.FileData;
                         break;
                     case "requestfile":
-                        packetType = PacketType.RequestFile;
+                        PacketType = PacketType.RequestFile;
                         break;
                     case "aeshandshake":
-                        packetType = PacketType.AesHandshake;
+                        PacketType = PacketType.AesHandshake;
                         break;
                     case "approveplugin":
-                        packetType = PacketType.ApprovePlugin;
+                        PacketType = PacketType.ApprovePlugin;
                         break;
                     case "getpendingplugins":
-                        packetType = PacketType.GetPendingPlugins;
+                        PacketType = PacketType.GetPendingPlugins;
                         break;
                     case "removefile":
-                        packetType = PacketType.RemoveFile;
+                        PacketType = PacketType.RemoveFile;
                         break;
                     default:
-                        packetType = PacketType.InvalidOrEmptyPacket;
+                        PacketType = PacketType.InvalidOrEmptyPacket;
                         break;
                 }
             }
         }
-    }
-
-    public class JsPacket
-    {
-        public List<object> args;
-        public string endpoint;
-        public string syncKey;
     }
 }
 
