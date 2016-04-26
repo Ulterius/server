@@ -58,14 +58,6 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
             {
                 var fileName = Path.GetFileName(path);
                 var totalSize = new FileInfo(path).Length;
-                var data = new
-                {
-                    path,
-                    fileValid = true,
-                    fileName,
-                    size = totalSize
-                };
-                serializator.Serialize(_client, packet.endpoint, packet.syncKey, data);
                 ProcessFile(path, totalSize);
             }
             else
