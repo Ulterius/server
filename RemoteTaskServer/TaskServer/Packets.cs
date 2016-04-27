@@ -28,7 +28,7 @@ namespace UlteriusServer.TaskServer
         public Packets(AuthClient client, string packetData)
         {
             //An entire base64 string is an aes encrypted packet
-          if (StringUtilities.IsBase64String(packetData))
+         if (StringUtilities.IsBase64String(packetData))
             {
                 try
                 {

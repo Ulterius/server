@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Management;
 using System.Management.Automation;
+using System.Threading;
 using System.Timers;
 using UlteriusServer.TaskServer.Api.Models;
 using UlteriusServer.TaskServer.Api.Serialization;
@@ -92,6 +93,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
             while (client.IsConnected)
             {
                 RequestProcessInformation();
+                Thread.Sleep(1000); 
             }
             Console.WriteLine("Client gone");
         }

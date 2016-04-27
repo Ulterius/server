@@ -34,8 +34,10 @@ namespace UlteriusServer.TaskServer
             var server = new WebSocketEventListener(endpoint, new WebSocketListenerOptions
             {
                 SubProtocols = new[] {"text"},
-                PingTimeout = TimeSpan.FromSeconds(5),
-                NegotiationTimeout = TimeSpan.FromSeconds(5),
+                PingTimeout = TimeSpan.FromSeconds(15),
+                NegotiationTimeout = TimeSpan.FromSeconds(15),
+                WebSocketSendTimeout =  TimeSpan.FromSeconds(15),
+                WebSocketReceiveTimeout = TimeSpan.FromSeconds(15),
                 ParallelNegotiations = Environment.ProcessorCount*2,
                
                 NegotiationQueueCapacity = 256,
