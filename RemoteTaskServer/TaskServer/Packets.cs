@@ -88,7 +88,7 @@ namespace UlteriusServer.TaskServer
                 {
                     Endpoint = deserializedPacket["endpoint"].ToString().Trim().ToLower();
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     PacketType = PacketType.InvalidOrEmptyPacket;
                     return;

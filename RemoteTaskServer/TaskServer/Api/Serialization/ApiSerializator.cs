@@ -16,13 +16,13 @@ namespace UlteriusServer.TaskServer.Api.Serialization
 {
     public class ApiSerializator
     {
-        public void Serialize(WebSocket client, string endpoint, string syncKey, object data)
+        public void Serialize(WebSocket client, string endpoint, string synckey, object data)
         {
             var serializer = new JavaScriptSerializer {MaxJsonLength = int.MaxValue};
             var json = serializer.Serialize(new
             {
                 endpoint,
-                syncKey,
+                synckey,
                 results = data
             });
             //we sanity stuff
