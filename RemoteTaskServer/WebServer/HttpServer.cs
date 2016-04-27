@@ -169,7 +169,7 @@ namespace RemoteTaskServer.WebServer
             var userdomain = Environment.GetEnvironmentVariable("USERDOMAIN");
             _listener = new HttpListener();
             _listener.Prefixes.Add("http://*:" + _port + "/");
-            _listener.
+           
             try
             {
                 _listener.Start();
