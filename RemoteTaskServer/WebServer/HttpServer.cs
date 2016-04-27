@@ -169,6 +169,7 @@ namespace RemoteTaskServer.WebServer
             var userdomain = Environment.GetEnvironmentVariable("USERDOMAIN");
             _listener = new HttpListener();
             _listener.Prefixes.Add("http://*:" + _port + "/");
+            _listener.
             try
             {
                 _listener.Start();
@@ -233,7 +234,7 @@ namespace RemoteTaskServer.WebServer
                     context.Response.ContentLength64 = input.Length;
                     context.Response.AddHeader("Date", DateTime.Now.ToString("r"));
                     context.Response.AddHeader("Last-Modified", File.GetLastWriteTime(filename).ToString("r"));
-
+                    context.Response.AddHeader("Access-Control-Allow-Origin", "*");
                     var buffer = new byte[1024*16];
                     int nbytes;
                     while ((nbytes = input.Read(buffer, 0, buffer.Length)) > 0)

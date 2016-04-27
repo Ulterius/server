@@ -102,7 +102,7 @@ namespace UlteriusServer.TaskServer.Api.Serialization
             }
             catch (Exception)
             {
-                //should never happen
+                // ignored
             }
         }
 
