@@ -28,7 +28,7 @@ namespace UlteriusServer.WebServer
             public bool Success { get; private set; }
 
             public string ContentType { get; private set; }
-            public string SyncKey { get; private set; }
+          
 
             public string Filename { get; private set; }
 
@@ -61,8 +61,7 @@ namespace UlteriusServer.WebServer
                     re = new Regex(@"(?<=filename\=\"")(.*?)(?=\"")");
                     var filenameMatch = re.Match(content);
 
-                    re  = new Regex(@"(Sync-Key:)[ \t]*([^\n\r]*)");
-                    var syncKey = re.Match(content).Groups[2];
+                  
 
                     // Did we find the required values?
                     if (contentTypeMatch.Success && filenameMatch.Success)
@@ -71,7 +70,8 @@ namespace UlteriusServer.WebServer
                         // Set properties
                         ContentType = contentTypeMatch.Value.Trim();
                         Filename = filenameMatch.Value.Trim();
-                        SyncKey = syncKey.Value.Trim();
+
+
 
                         // Get the start & end indexes of the file contents
                         var startIndex = contentTypeMatch.Index + contentTypeMatch.Length + "\r\n\r\n".Length;

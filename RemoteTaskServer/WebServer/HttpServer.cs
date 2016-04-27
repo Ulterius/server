@@ -223,17 +223,18 @@ namespace RemoteTaskServer.WebServer
             {
                 if (request.Url.AbsolutePath.Contains("upload"))
                 {
+                    var syncKey = request.Headers["Sync-Key"];
                     var parser = new MultipartParser(context.Request.InputStream);
 
                     using (var writer = new StreamWriter(context.Response.OutputStream, Encoding.UTF8))
                     {
                         if (parser.Success)
                         {
-                            var saved = SaveFile(parser.SyncKey, parser.FileContents);
+                            var saved = SaveFile(syncKey, parser.FileContents);
 
                             var responseObject = new
                             {
-                                syncKey = parser.SyncKey,
+                                syncKey,
                                 success = saved,
                                 message = "File Uploaded!"
                             };
@@ -245,7 +246,7 @@ namespace RemoteTaskServer.WebServer
                         {
                             var responseObject = new
                             {
-                                syncKey = parser.SyncKey,
+                                syncKey,
                                 success = false,
                                 message = "The posted file was not recognised."
                             };
@@ -256,7 +257,7 @@ namespace RemoteTaskServer.WebServer
                         context.Response.ContentType = "application/json";
                         context.Response.StatusCode = 200;
                         context.Response.Close();
-                    
+                        return;
                     }
                 }
             }
