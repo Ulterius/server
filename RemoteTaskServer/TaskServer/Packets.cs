@@ -101,7 +101,15 @@ namespace UlteriusServer.TaskServer
                 {
                     SyncKey = null;
                 }
-                Args.AddRange(JArray.Parse(deserializedPacket["args"].ToString()));
+                try
+                {
+                    Args.AddRange(JArray.Parse(deserializedPacket["args"].ToString()));
+                }
+                catch (Exception)
+                {
+
+                    // no args
+                }
                 switch (Endpoint)
                 {
                     case "authenticate":
