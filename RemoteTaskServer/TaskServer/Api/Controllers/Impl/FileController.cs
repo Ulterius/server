@@ -110,6 +110,29 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
             }
         }
 
+        public void ApproveFile()
+        {
+            var syncKey = _packet.Args[0].ToString();
+            var destPath = _packet.Args[1].ToString();
+            foreach (var authClient in TaskManagerServer.AllClients.Where(authClient => authClient.Value.Client == _client))
+            {
+                FileManager.AddFile(authClient.Value, destPath, syncKey);
+                var approved = new
+                {
+                    fileApproved = true,
+                    message = "File added to whitelist"
+                };
+                _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, approved);
+                return;
+            }
+            var error = new
+            {
+                fileApproved = false,
+                message = "File not added to whitelist, no auth client found."
+            };
+            _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, error);
+        }
+
         public void ProcessFile(string path, long totalSize)
         {
             System.IO.FileInfo file = new System.IO.FileInfo(path);
@@ -159,97 +182,8 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
         }
 
 
-        public void AddData()
-        {
-            var sha = _packet.Args.First().ToString();
-            try
-            {
-                if (FileManager.CurrentState(sha) == FileState.Uploading)
-                {
-                    var dataArray = JsonConvert.DeserializeObject(_packet.Args[1].ToString(), typeof (sbyte[]));
-                    var unsigned = (byte[]) (Array) dataArray;
-                    FileManager.AddData(sha, unsigned);
+      
 
-                    var receivedData = FileManager.GetTotalRead(sha);
-                    var totalSize = FileManager.GetTotalSize(sha);
-                    if (receivedData >= totalSize)
-                    {
-                        var complete = FileManager.Complete(sha);
-                        if (complete)
-                        {
-                            var completeData = new
-                            {
-                                receivedData,
-                                totalSize,
-                                message = "Upload Complete."
-                            };
-                            _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, completeData);
-                        }
-                        else
-                        {
-                            var issueData = new
-                            {
-                                error = true,
-                                receivedData,
-                                totalSize,
-                                message = "Upload Completed, but unable to create file."
-                            };
-                            _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, issueData);
-                        }
-                    }
-                    else
-                    {
-                        var uploadData = new
-                        {
-                            receivedData,
-                            totalSize,
-                            message = "Uploading, please wait..."
-                        };
-                        _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, uploadData);
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                var uploadError = new
-                {
-                    error = true,
-                    message = e.Message
-                };
-                _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, uploadError);
-            }
-        }
-
-        public void StoreFile()
-        {
-            var filePath = _packet.Args.First().ToString();
-            var totalSize = (long) _packet.Args[1];
-            var sha = _packet.Args[2].ToString();
-            var file = new FileInformation
-            {
-                FileName = filePath,
-                TotalSize = totalSize,
-                State = FileState.Uploading
-            };
-            var added = FileManager.AddFile(sha, file);
-            if (added)
-            {
-                var storeData = new
-                {
-                    stored = true,
-                    message = "File information set"
-                };
-                _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, storeData);
-            }
-            else
-            {
-                var storeData = new
-                {
-                    stored = false,
-                    message = "Unable to store file information"
-                };
-                _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, storeData);
-            }
-        }
+     
     }
 }

@@ -228,6 +228,7 @@
     <Compile Include="Utilities\StringUtilities.cs" />
     <Compile Include="Utilities\Files\FileTree.cs" />
     <Compile Include="WebCams\WebCamManager.cs" />
+    <Compile Include="WebServer\MultipartParser.cs" />
     <Compile Include="WebSocketAPI\WebSocketEventListener.cs" />
     <Compile Include="TaskServer\Api\Models\DriveInformation.cs" />
     <Compile Include="TaskServer\Api\Models\SystemInformation.cs" />

@@ -125,9 +125,6 @@ namespace UlteriusServer.TaskServer.Api.Controllers
                     case PacketType.RequestProcess:
                         processController.RequestProcessInformation();
                         break;
-                    case PacketType.FileData:
-                        fileController.AddData();
-                        break;
                     case PacketType.StreamProcesses:
                         Task.Run(() => {
                         processController.StreamProcessInformation();
@@ -188,6 +185,9 @@ namespace UlteriusServer.TaskServer.Api.Controllers
                     case PacketType.StartVncServer:
                         vncController.StartVncServer();
                         break;
+                    case PacketType.ApproveFile:
+                        fileController.ApproveFile();
+                        break;
                     case PacketType.StartProcess:
                         processController.StartProcess();
                         break;
@@ -205,9 +205,6 @@ namespace UlteriusServer.TaskServer.Api.Controllers
                         break;
                     case PacketType.RefreshCameras:
                         webcamController.RefreshCameras();
-                        break;
-                    case PacketType.FileStore:
-                        fileController.StoreFile();
                         break;
                    
                 }

@@ -7,9 +7,14 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Reflection;
+using System.Text;
 using System.Threading;
+using System.Web.Script.Serialization;
 using UlteriusServer.Properties;
 using UlteriusServer.Utilities;
+using UlteriusServer.Utilities.Files;
+using UlteriusServer.WebServer.RemoteTaskServer.WebServer;
+using File = System.IO.File;
 
 #endregion
 
@@ -169,7 +174,7 @@ namespace RemoteTaskServer.WebServer
             var userdomain = Environment.GetEnvironmentVariable("USERDOMAIN");
             _listener = new HttpListener();
             _listener.Prefixes.Add("http://*:" + _port + "/");
-           
+
             try
             {
                 _listener.Start();
@@ -201,68 +206,122 @@ namespace RemoteTaskServer.WebServer
             }
         }
 
+        public bool SaveFile(string syncKey, byte[] data)
+        {
+            if (FileManager.OnWhitelist(syncKey))
+            {
+                var saved = FileManager.DecryptFile(syncKey, data);
+                return saved;
+            }
+            return false;
+        }
+
         private void Process(HttpListenerContext context)
         {
-            var filename = context.Request.Url.AbsolutePath;
-            filename = filename.Substring(1);
-
-            if (string.IsNullOrEmpty(filename))
+            var request = context.Request;
+            if (request.HttpMethod == "POST")
             {
-                foreach (
-                    var indexFile in
-                        _indexFiles.Where(indexFile => File.Exists(Path.Combine(_rootDirectory, indexFile))))
+                if (request.Url.AbsolutePath.Contains("upload"))
                 {
-                    filename = indexFile;
-                    break;
-                }
-            }
+                    var parser = new MultipartParser(context.Request.InputStream);
 
-            filename = Path.Combine(_rootDirectory, filename);
+                    using (var writer = new StreamWriter(context.Response.OutputStream, Encoding.UTF8))
+                    {
+                        if (parser.Success)
+                        {
+                            var saved = SaveFile(parser.SyncKey, parser.FileContents);
 
-            if (File.Exists(filename))
-            {
-                try
-                {
-                    Stream input = new FileStream(filename, FileMode.Open);
-
-                    //Adding permanent http response headers
-                    string mime;
+                            var responseObject = new
+                            {
+                                syncKey = parser.SyncKey,
+                                success = saved,
+                                message = "File Uploaded!"
+                            };
+                            var json = new JavaScriptSerializer().Serialize(responseObject);
+                            Console.WriteLine(json);
+                            writer.WriteLine(json);
+                        }
+                        else
+                        {
+                            var responseObject = new
+                            {
+                                syncKey = parser.SyncKey,
+                                success = false,
+                                message = "The posted file was not recognised."
+                            };
+                            var json = new JavaScriptSerializer().Serialize(responseObject);
+                            writer.WriteLine(json);
+                        }
+                        context.Response.AddHeader("Access-Control-Allow-Origin", "*");
+                        context.Response.ContentType = "application/json";
+                        context.Response.StatusCode = 200;
+                        context.Response.Close();
                     
-                    context.Response.ContentType = MimeTypeMappings.TryGetValue(Path.GetExtension(filename), out mime)
-                        ? mime
-                        : "application/octet-stream";
-                    context.Response.ContentLength64 = input.Length;
-                    context.Response.AddHeader("Date", DateTime.Now.ToString("r"));
-                    context.Response.AddHeader("Last-Modified", File.GetLastWriteTime(filename).ToString("r"));
-                    context.Response.AddHeader("Access-Control-Allow-Origin", "*");
-                    var buffer = new byte[1024*16];
-                    int nbytes;
-                    while ((nbytes = input.Read(buffer, 0, buffer.Length)) > 0)
-                        context.Response.OutputStream.Write(buffer, 0, nbytes);
-                    input.Close();
-                    context.Response.OutputStream.Flush();
-
-                    context.Response.StatusCode = (int) HttpStatusCode.OK;
+                    }
                 }
-                catch (Exception)
+            }
+            var filename = context.Request.Url.AbsolutePath;
+                filename = filename.Substring(1);
+
+                if (string.IsNullOrEmpty(filename))
                 {
-                    context.Response.StatusCode = (int) HttpStatusCode.InternalServerError;
+                    foreach (
+                        var indexFile in
+                            _indexFiles.Where(indexFile => File.Exists(Path.Combine(_rootDirectory, indexFile))))
+                    {
+                        filename = indexFile;
+                        break;
+                    }
                 }
+
+                filename = Path.Combine(_rootDirectory, filename);
+
+                if (File.Exists(filename))
+                {
+                    try
+                    {
+                        Stream input = new FileStream(filename, FileMode.Open);
+
+                        //Adding permanent http response headers
+                        string mime;
+
+                        context.Response.ContentType = MimeTypeMappings.TryGetValue(Path.GetExtension(filename),
+                            out mime)
+                            ? mime
+                            : "application/octet-stream";
+                        context.Response.ContentLength64 = input.Length;
+                        context.Response.AddHeader("Date", DateTime.Now.ToString("r"));
+                        context.Response.AddHeader("Last-Modified", File.GetLastWriteTime(filename).ToString("r"));
+                        context.Response.AddHeader("Access-Control-Allow-Origin", "*");
+                        var buffer = new byte[1024*16];
+                        int nbytes;
+                        while ((nbytes = input.Read(buffer, 0, buffer.Length)) > 0)
+                            context.Response.OutputStream.Write(buffer, 0, nbytes);
+                        input.Close();
+                        context.Response.OutputStream.Flush();
+
+                        context.Response.StatusCode = (int) HttpStatusCode.OK;
+                    }
+                    catch (Exception)
+                    {
+                        context.Response.StatusCode = (int) HttpStatusCode.InternalServerError;
+                    }
+                }
+                else
+                {
+                    context.Response.StatusCode = (int) HttpStatusCode.NotFound;
+                }
+
+                context.Response.OutputStream.Close();
             }
-            else
+
+            private void Initialize 
+            (string path, int port)
             {
-                context.Response.StatusCode = (int) HttpStatusCode.NotFound;
+                _rootDirectory = path;
+                _port = port;
+                _serverThread = new Thread(Listen) {IsBackground = true};
+                _serverThread.Start();
             }
-
-            context.Response.OutputStream.Close();
-        }
-
-        private void Initialize(string path, int port)
-        {
-            _rootDirectory = path;
-            _port = port;
-            _serverThread = new Thread(Listen) {IsBackground = true};
-            _serverThread.Start();
         }
     }
-}

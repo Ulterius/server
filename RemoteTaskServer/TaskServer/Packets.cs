@@ -235,11 +235,8 @@ namespace UlteriusServer.TaskServer
                     case "refreshcameras":
                         PacketType = PacketType.RefreshCameras;
                         break;
-                    case "filestore":
-                        PacketType = PacketType.FileStore;
-                        break;
-                    case "filedata":
-                        PacketType = PacketType.FileData;
+                    case "approvefile":
+                        PacketType = PacketType.ApproveFile;
                         break;
                     case "requestfile":
                         PacketType = PacketType.RequestFile;
@@ -314,8 +311,7 @@ public enum PacketType
     AesHandshake,
     ApprovePlugin,
     GetPendingPlugins,
-    FileStore,
-    FileData,
+    ApproveFile,
     RequestFile,
     RemoveFile
 }
