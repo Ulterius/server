@@ -9,6 +9,7 @@ using System.Net.Sockets;
 using System.Reflection;
 using System.Text;
 using System.Threading;
+using System.Web;
 using System.Web.Script.Serialization;
 using UlteriusServer.Properties;
 using UlteriusServer.Utilities;
@@ -246,7 +247,7 @@ namespace RemoteTaskServer.WebServer
                         {
                             var responseObject = new
                             {
-                                fileKey,
+                                 fileKey,
                                 success = false,
                                 message = "The posted file was not recognised."
                             };
@@ -275,7 +276,7 @@ namespace RemoteTaskServer.WebServer
                     }
                 }
 
-                filename = Path.Combine(_rootDirectory, filename);
+                filename = HttpUtility.UrlDecode(Path.Combine(_rootDirectory, filename));
 
                 if (File.Exists(filename))
                 {

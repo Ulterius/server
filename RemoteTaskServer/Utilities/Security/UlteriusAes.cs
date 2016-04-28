@@ -11,15 +11,15 @@ namespace UlteriusServer.Utilities.Security
             byte[] encrypted;
             // Create a RijndaelManaged object  
             // with the specified key and IV.  
-            using (var rijAlg = new RijndaelManaged())
+            using (var aes = new RijndaelManaged())
             {
-                rijAlg.Mode = CipherMode.ECB;
-                rijAlg.Padding = PaddingMode.PKCS7;
-                rijAlg.Key = passwordBytes;
-                rijAlg.IV = passwordBytes;
+                aes.Mode = CipherMode.ECB;
+                aes.Padding = PaddingMode.PKCS7;
+                aes.Key = passwordBytes;
+                aes.IV = passwordBytes;
 
                 // Create a decrytor to perform the stream transform.  
-                var encryptor = rijAlg.CreateEncryptor(rijAlg.Key, rijAlg.IV);
+                var encryptor = aes.CreateEncryptor(aes.Key, aes.IV);
 
                 // Create the streams used for encryption.  
                 using (var msEncrypt = new MemoryStream())
@@ -41,13 +41,13 @@ namespace UlteriusServer.Utilities.Security
 
             using (var ms = new MemoryStream())
             {
-                using (var AES = new RijndaelManaged())
+                using (var aes = new RijndaelManaged())
                 {
-                    AES.Mode = CipherMode.ECB;
-                    AES.Padding = PaddingMode.PKCS7;
+                    aes.Mode = CipherMode.ECB;
+                    aes.Padding = PaddingMode.PKCS7;
 
                     using (
-                        var cs = new CryptoStream(ms, AES.CreateDecryptor(passwordBytes, passwordBytes),
+                        var cs = new CryptoStream(ms, aes.CreateDecryptor(passwordBytes, passwordBytes),
                             CryptoStreamMode.Write))
                     {
                         cs.Write(bytesToBeDecrypted, 0, bytesToBeDecrypted.Length);
