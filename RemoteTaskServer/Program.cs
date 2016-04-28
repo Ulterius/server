@@ -51,18 +51,8 @@ namespace UlteriusServer
         }
 
 
-        private static void ConsoleMain(string[] args)
-        {
-            var fileData = System.IO.File.ReadAllBytes("D:/VC_RED.cab");
-            string password = "abcd1234";
-            byte[] passwordBytes = Encoding.UTF8.GetBytes(password);
-            passwordBytes = SHA256.Create().ComputeHash(passwordBytes);
-            byte[] bytesEncrypted = Utilities.Security.Aes.EncryptFile(fileData, passwordBytes);
-            System.IO.File.WriteAllBytes("fuck.cab", bytesEncrypted);
-            var encryptedFileData = System.IO.File.ReadAllBytes("fuck.cab");
-            var decryptedFile = Utilities.Security.Aes.DecryptFile(encryptedFileData, passwordBytes);
-            System.IO.File.WriteAllBytes("work.cab", decryptedFile);
-
+        private static void ConsoleMain(string[] args) { 
+  
 
             Tools.ConfigureServer();
             var settings = new Settings();
