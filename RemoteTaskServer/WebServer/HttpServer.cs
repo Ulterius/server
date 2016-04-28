@@ -206,11 +206,11 @@ namespace RemoteTaskServer.WebServer
             }
         }
 
-        public bool SaveFile(string syncKey, byte[] data)
+        public bool SaveFile(string fileKey, byte[] data)
         {
-            if (FileManager.OnWhitelist(syncKey))
+            if (FileManager.OnWhitelist(fileKey))
             {
-                var saved = FileManager.DecryptFile(syncKey, data);
+                var saved = FileManager.DecryptFile(fileKey, data);
                 return saved;
             }
             return false;
@@ -223,18 +223,18 @@ namespace RemoteTaskServer.WebServer
             {
                 if (request.Url.AbsolutePath.Contains("upload"))
                 {
-                    var syncKey = request.Headers["Sync-Key"];
+                    var fileKey = request.Headers["File-Key"];
                     var parser = new MultipartParser(context.Request.InputStream);
 
                     using (var writer = new StreamWriter(context.Response.OutputStream, Encoding.UTF8))
                     {
                         if (parser.Success)
                         {
-                            var saved = SaveFile(syncKey, parser.FileContents);
+                            var saved = SaveFile(fileKey, parser.FileContents);
 
                             var responseObject = new
                             {
-                                syncKey,
+                                fileKey,
                                 success = saved,
                                 message = "File Uploaded!"
                             };
@@ -246,7 +246,7 @@ namespace RemoteTaskServer.WebServer
                         {
                             var responseObject = new
                             {
-                                syncKey,
+                                fileKey,
                                 success = false,
                                 message = "The posted file was not recognised."
                             };

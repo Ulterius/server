@@ -106,11 +106,11 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
 
         public void ApproveFile()
         {
-            var syncKey = _packet.Args[0].ToString();
+            var fileKey = _packet.Args[0].ToString();
             var destPath = _packet.Args[1].ToString();
             var password = _packet.Args[2].ToString();
 
-            FileManager.AddFile(password, destPath, syncKey);
+            FileManager.AddFile(password, destPath, fileKey);
             var approved = new
             {
                 fileApproved = true,
