@@ -26,10 +26,7 @@ namespace UlteriusServer.Utilities.Security
 
         public static byte[] EncryptFile(byte[] bytesToBeEncrypted, byte[] passwordBytes)
         {
-            byte[] encryptedBytes = null;
-
-
-            byte[] saltBytes = {1, 2, 3, 4, 5, 6, 7, 8};
+            
 
             using (var ms = new MemoryStream())
             {
@@ -47,11 +44,9 @@ namespace UlteriusServer.Utilities.Security
                         cs.Write(bytesToBeEncrypted, 0, bytesToBeEncrypted.Length);
                         cs.Close();
                     }
-                    encryptedBytes = ms.ToArray();
+                    return  ms.ToArray();
                 }
             }
-
-            return encryptedBytes;
         }
 
         public static byte[] DecryptFile(byte[] bytesToBeDecrypted, byte[] passwordBytes)

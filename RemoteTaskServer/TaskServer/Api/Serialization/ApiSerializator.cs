@@ -59,8 +59,9 @@ namespace UlteriusServer.TaskServer.Api.Serialization
                 var passwordBytes = Encoding.UTF8.GetBytes(password);
                 return Aes.EncryptFile(data, passwordBytes);
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                Console.WriteLine(e.Message);
                 return null;
             }
         }
