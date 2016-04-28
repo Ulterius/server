@@ -4,49 +4,35 @@ using System.Security.Cryptography;
 
 namespace UlteriusServer.Utilities.Security
 {
-    public class Aes
+    public class UlteriusAes
     {
-        public static byte[] GenerateRandomSalt()
-        {
-            var data = new byte[32];
-
-            using (var rng = new RNGCryptoServiceProvider())
-            {
-                // Ten iterations.
-                for (var i = 0; i < 10; i++)
-                {
-                    // Fill buffer.
-                    rng.GetBytes(data);
-                }
-            }
-            return data;
-        }
-
-
-
         public static byte[] EncryptFile(byte[] bytesToBeEncrypted, byte[] passwordBytes)
         {
-            
-
-            using (var ms = new MemoryStream())
+            byte[] encrypted;
+            // Create a RijndaelManaged object  
+            // with the specified key and IV.  
+            using (var rijAlg = new RijndaelManaged())
             {
-                using (var AES = new RijndaelManaged())
-                {
-                    AES.KeySize = 256;
-                    AES.BlockSize = 128;
-                    AES.Padding = PaddingMode.PKCS7;
-                    AES.Mode = CipherMode.ECB;
+                rijAlg.Mode = CipherMode.ECB;
+                rijAlg.Padding = PaddingMode.PKCS7;
+                rijAlg.Key = passwordBytes;
+                rijAlg.IV = passwordBytes;
 
-                    using (
-                        var cs = new CryptoStream(ms, AES.CreateEncryptor(passwordBytes, passwordBytes),
-                            CryptoStreamMode.Write))
+                // Create a decrytor to perform the stream transform.  
+                var encryptor = rijAlg.CreateEncryptor(rijAlg.Key, rijAlg.IV);
+
+                // Create the streams used for encryption.  
+                using (var msEncrypt = new MemoryStream())
+                {
+                    using (var csEncrypt = new CryptoStream(msEncrypt, encryptor, CryptoStreamMode.Write))
                     {
-                        cs.Write(bytesToBeEncrypted, 0, bytesToBeEncrypted.Length);
-                        cs.Close();
+                        csEncrypt.Write(bytesToBeEncrypted, 0, bytesToBeEncrypted.Length);
                     }
-                    return  ms.ToArray();
+                    encrypted = msEncrypt.ToArray();
                 }
             }
+            // Return the encrypted bytes from the memory stream.  
+            return encrypted;
         }
 
         public static byte[] DecryptFile(byte[] bytesToBeDecrypted, byte[] passwordBytes)
@@ -57,8 +43,6 @@ namespace UlteriusServer.Utilities.Security
             {
                 using (var AES = new RijndaelManaged())
                 {
-                    AES.KeySize = 256;
-                    AES.BlockSize = 128;                
                     AES.Mode = CipherMode.ECB;
                     AES.Padding = PaddingMode.PKCS7;
 

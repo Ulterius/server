@@ -3,7 +3,7 @@ using System.Collections.Concurrent;
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
-using Aes = UlteriusServer.Utilities.Security.Aes;
+using UlteriusServer.Utilities.Security;
 
 namespace UlteriusServer.Utilities.Files
 {
@@ -43,7 +43,7 @@ namespace UlteriusServer.Utilities.Files
                 try
                 {
                     var passwordBytes = Encoding.UTF8.GetBytes(file.Password);
-                    var decryptedFile = Aes.DecryptFile(fileData, passwordBytes);
+                    var decryptedFile = UlteriusAes.DecryptFile(fileData, passwordBytes);
                     var destinationPath = file.DestinationPath;
                     System.IO.File.WriteAllBytes(destinationPath, decryptedFile);
                     RemoveFile(fileKey);

@@ -223,7 +223,7 @@
     <Compile Include="TaskServer\TaskManagerServer.cs" />
     <Compile Include="TerminalServer\TerminalManagerServer.cs" />
     <Compile Include="Utilities\Files\FileManager.cs" />
-    <Compile Include="Utilities\Security\Aes.cs" />
+    <Compile Include="Utilities\Security\UlteriusAes.cs" />
     <Compile Include="Utilities\Security\Rsa.cs" />
     <Compile Include="Utilities\StringUtilities.cs" />
     <Compile Include="Utilities\Files\FileTree.cs" />

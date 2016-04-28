@@ -10,7 +10,6 @@ using System.Threading.Tasks;
 using System.Web.Script.Serialization;
 using UlteriusServer.Utilities.Security;
 using vtortola.WebSockets;
-using Aes = UlteriusServer.Utilities.Security.Aes;
 
 #endregion
 
@@ -37,7 +36,7 @@ namespace UlteriusServer.TaskServer.Api.Serialization
                     where authClient.AesShook
                     let keybytes = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(authClient.AesKey))
                     let iv = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(authClient.AesIv))
-                    select Aes.Encrypt(json, keybytes, iv))
+                    select UlteriusAes.Encrypt(json, keybytes, iv))
                 {
                     json = Convert.ToBase64String(encryptedData);
                 }
@@ -57,7 +56,7 @@ namespace UlteriusServer.TaskServer.Api.Serialization
             try
             {
                 var passwordBytes = Encoding.UTF8.GetBytes(password);
-                return Aes.EncryptFile(data, passwordBytes);
+                return UlteriusAes.EncryptFile(data, passwordBytes);
             }
             catch (Exception e)
             {

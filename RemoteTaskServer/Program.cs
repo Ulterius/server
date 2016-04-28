@@ -53,6 +53,7 @@ namespace UlteriusServer
 
         private static void ConsoleMain(string[] args)
         {
+            
 
 
             Tools.ConfigureServer();

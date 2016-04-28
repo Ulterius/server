@@ -39,7 +39,7 @@ namespace UlteriusServer.TerminalServer.Messaging.Serialization
                     var keybytes = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(user.AesKey));
                     var iv = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(user.AesIv));
                     //convert packet json into base64
-                    var encrpytedJson = Convert.ToBase64String(Aes.Encrypt(jsonString, keybytes, iv));
+                    var encrpytedJson = Convert.ToBase64String(UlteriusAes.Encrypt(jsonString, keybytes, iv));
                     using (var writer = new StreamWriter(output, Encoding.UTF8, 4096, true))
                     {
                         writer.Write(encrpytedJson);
@@ -74,7 +74,7 @@ namespace UlteriusServer.TerminalServer.Messaging.Serialization
                             var keybytes = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(user.PrivateKey));
                             var iv = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(user.AesIv));
                             var packet = Convert.FromBase64String(data);
-                            var packetJson = JObject.Parse(Aes.Decrypt(packet, keybytes, iv));
+                            var packetJson = JObject.Parse(UlteriusAes.Decrypt(packet, keybytes, iv));
                             var typeName = packetJson.Property("type").Value.ToString();
                             return Build(typeName, packetJson, out type, user);
                         }
