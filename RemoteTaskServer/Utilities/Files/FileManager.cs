@@ -43,7 +43,6 @@ namespace UlteriusServer.Utilities.Files
                 try
                 {
                     var passwordBytes = Encoding.UTF8.GetBytes(file.Password);
-                    passwordBytes = SHA256.Create().ComputeHash(passwordBytes);
                     var decryptedFile = Aes.DecryptFile(fileData, passwordBytes);
                     var destinationPath = file.DestinationPath;
                     System.IO.File.WriteAllBytes(destinationPath, decryptedFile);
