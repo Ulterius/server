@@ -6,6 +6,87 @@ namespace UlteriusServer.Utilities.Security
 {
     public class Aes
     {
+        public static byte[] GenerateRandomSalt()
+        {
+            var data = new byte[32];
+
+            using (var rng = new RNGCryptoServiceProvider())
+            {
+                // Ten iterations.
+                for (var i = 0; i < 10; i++)
+                {
+                    // Fill buffer.
+                    rng.GetBytes(data);
+                }
+            }
+            return data;
+        }
+
+        public static byte[] EncryptFile(byte[] bytesToBeEncrypted, byte[] passwordBytes)
+        {
+            byte[] encryptedBytes = null;
+
+
+            byte[] saltBytes = {1, 2, 3, 4, 5, 6, 7, 8};
+
+            using (var ms = new MemoryStream())
+            {
+                using (var AES = new RijndaelManaged())
+                {
+                    AES.KeySize = 256;
+                    AES.BlockSize = 128;
+
+                    var key = new Rfc2898DeriveBytes(passwordBytes, saltBytes, 1000);
+                    AES.Key = key.GetBytes(AES.KeySize/8);
+                    AES.IV = key.GetBytes(AES.BlockSize/8);
+
+                    AES.Mode = CipherMode.CBC;
+
+                    using (var cs = new CryptoStream(ms, AES.CreateEncryptor(), CryptoStreamMode.Write))
+                    {
+                        cs.Write(bytesToBeEncrypted, 0, bytesToBeEncrypted.Length);
+                        cs.Close();
+                    }
+                    encryptedBytes = ms.ToArray();
+                }
+            }
+
+            return encryptedBytes;
+        }
+
+        public static byte[] DecryptFile(byte[] bytesToBeDecrypted, byte[] passwordBytes)
+        {
+            byte[] decryptedBytes = null;
+
+
+            byte[] saltBytes = {1, 2, 3, 4, 5, 6, 7, 8};
+
+            using (var ms = new MemoryStream())
+            {
+                using (var AES = new RijndaelManaged())
+                {
+                    AES.KeySize = 256;
+                    AES.BlockSize = 128;
+
+                    var key = new Rfc2898DeriveBytes(passwordBytes, saltBytes, 1000);
+                    AES.Key = key.GetBytes(AES.KeySize/8);
+                    AES.IV = key.GetBytes(AES.BlockSize/8);
+
+                    AES.Mode = CipherMode.CBC;
+
+                    using (var cs = new CryptoStream(ms, AES.CreateDecryptor(), CryptoStreamMode.Write))
+                    {
+                        cs.Write(bytesToBeDecrypted, 0, bytesToBeDecrypted.Length);
+                        cs.Close();
+                    }
+                    decryptedBytes = ms.ToArray();
+                }
+            }
+
+            return decryptedBytes;
+        }
+
+
         public static byte[] Encrypt(string plainText, byte[] key, byte[] iv)
         {
             // Check arguments.  

@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
+using System.Security.Cryptography;
 using System.Text;
 using MiscUtil.Xml.Linq.Extensions;
 using UlteriusServer.Authentication;
@@ -16,13 +17,13 @@ namespace UlteriusServer.Utilities.Files
     {
         public static ConcurrentDictionary<string, ApprovedFile> Whitelist = new ConcurrentDictionary<string, ApprovedFile>();
    
-        public static bool AddFile(AuthClient client, string filePath, string synckey)
+        public static bool AddFile(string password, string filePath, string synckey)
         {
             var file = new ApprovedFile
             {
                 FileName = Path.GetFileName(filePath),
                 DestinationPath = filePath,
-                Client = client
+                Password = password
             };      
             return Whitelist.TryAdd(synckey, file);
         }
@@ -47,14 +48,12 @@ namespace UlteriusServer.Utilities.Files
             {
                 try
                 {
-                    var client = file.Client;
+
+                    byte[] passwordBytes = Encoding.UTF8.GetBytes(file.Password);
+                    passwordBytes = SHA256.Create().ComputeHash(passwordBytes);
+                    var decryptedFile = Utilities.Security.Aes.DecryptFile(fileData, passwordBytes);
                     var destinationPath = file.DestinationPath;
-                    var keybytes = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(client.AesKey));
-                    var iv = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(client.AesIv));
-                    var decryptedData = Security.Aes.Decrypt(fileData, keybytes, iv);
-                    byte[] bytes = new byte[decryptedData.Length * sizeof(char)];
-                    System.Buffer.BlockCopy(decryptedData.ToCharArray(), 0, bytes, 0, bytes.Length);
-                    System.IO.File.WriteAllBytes(destinationPath, bytes);
+                    System.IO.File.WriteAllBytes(destinationPath, decryptedFile);
                     RemoveFile(syncKey);
                     return true;
                 }
@@ -74,7 +73,7 @@ namespace UlteriusServer.Utilities.Files
         {
             public string FileName;
             public string DestinationPath;
-            public AuthClient Client;
+            public string Password;
         }
     }
 }

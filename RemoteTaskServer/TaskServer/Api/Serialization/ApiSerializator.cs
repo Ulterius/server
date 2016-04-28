@@ -3,12 +3,14 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web.Script.Serialization;
 using UlteriusServer.Utilities.Security;
 using vtortola.WebSockets;
+using Aes = UlteriusServer.Utilities.Security.Aes;
 
 #endregion
 
@@ -28,7 +30,14 @@ namespace UlteriusServer.TaskServer.Api.Serialization
             //we sanity stuff
             try
             {
-                foreach (var encryptedData in from connectedClient in TaskManagerServer.AllClients select connectedClient.Value into authClient where authClient.Client == client where authClient.AesShook let keybytes = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(authClient.AesKey)) let iv = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(authClient.AesIv)) select Aes.Encrypt(json, keybytes, iv))
+                foreach (var encryptedData in from connectedClient in TaskManagerServer.AllClients
+                    select connectedClient.Value
+                    into authClient
+                    where authClient.Client == client
+                    where authClient.AesShook
+                    let keybytes = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(authClient.AesKey))
+                    let iv = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(authClient.AesIv))
+                    select Aes.Encrypt(json, keybytes, iv))
                 {
                     json = Convert.ToBase64String(encryptedData);
                 }
@@ -43,20 +52,18 @@ namespace UlteriusServer.TaskServer.Api.Serialization
             Push(client, json);
         }
 
-        public byte[] SerializeFile(WebSocket client, byte[] data)
+        public byte[] SerializeFile(WebSocket client, string password, byte[] data)
         {
             try
             {
-                foreach (var encryptedData in from connectedClient in TaskManagerServer.AllClients select connectedClient.Value into authClient where authClient.Client == client where authClient.AesShook let keybytes = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(authClient.AesKey)) let iv = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(authClient.AesIv)) select Aes.Encrypt(Convert.ToBase64String(data), keybytes, iv))
-                {
-                    return encryptedData;
-                }
+                var passwordBytes = Encoding.UTF8.GetBytes(password);
+                passwordBytes = SHA256.Create().ComputeHash(passwordBytes);
+                return Aes.EncryptFile(data, passwordBytes);
             }
-            catch (Exception e)
+            catch (Exception)
             {
-               Console.WriteLine(e.Message);
+                return null;
             }
-            return null;
         }
 
         public async Task CopyToProgress(Stream stream, Stream target, int bufferSize, string fileName, WebSocket client)
@@ -86,7 +93,7 @@ namespace UlteriusServer.TaskServer.Api.Serialization
                 Serialize(client, "fileprogress", string.Empty, fileProgress);
             }
         }
-        
+
         public async void PushFile(WebSocket client, string fileName, byte[] data)
         {
             try
@@ -95,8 +102,7 @@ namespace UlteriusServer.TaskServer.Api.Serialization
                 {
                     using (var stream = new MemoryStream(data))
                     {
-                        await CopyToProgress(stream, messageWriter, 1000000, fileName, client); 
-                        
+                        await CopyToProgress(stream, messageWriter, 1000000, fileName, client);
                     }
                 }
             }
@@ -114,7 +120,6 @@ namespace UlteriusServer.TaskServer.Api.Serialization
             }
             catch (Exception e)
             {
-
                 Console.WriteLine(e.Message);
             }
         }
