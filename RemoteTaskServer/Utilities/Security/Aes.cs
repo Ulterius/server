@@ -22,6 +22,8 @@ namespace UlteriusServer.Utilities.Security
             return data;
         }
 
+
+
         public static byte[] EncryptFile(byte[] bytesToBeEncrypted, byte[] passwordBytes)
         {
             byte[] encryptedBytes = null;
@@ -35,14 +37,12 @@ namespace UlteriusServer.Utilities.Security
                 {
                     AES.KeySize = 256;
                     AES.BlockSize = 128;
+                    AES.Padding = PaddingMode.PKCS7;
+                    AES.Mode = CipherMode.ECB;
 
-                    var key = new Rfc2898DeriveBytes(passwordBytes, saltBytes, 1000);
-                    AES.Key = key.GetBytes(AES.KeySize/8);
-                    AES.IV = key.GetBytes(AES.BlockSize/8);
-
-                    AES.Mode = CipherMode.CBC;
-
-                    using (var cs = new CryptoStream(ms, AES.CreateEncryptor(), CryptoStreamMode.Write))
+                    using (
+                        var cs = new CryptoStream(ms, AES.CreateEncryptor(passwordBytes, passwordBytes),
+                            CryptoStreamMode.Write))
                     {
                         cs.Write(bytesToBeEncrypted, 0, bytesToBeEncrypted.Length);
                         cs.Close();
@@ -58,23 +58,18 @@ namespace UlteriusServer.Utilities.Security
         {
             byte[] decryptedBytes = null;
 
-
-            byte[] saltBytes = {1, 2, 3, 4, 5, 6, 7, 8};
-
             using (var ms = new MemoryStream())
             {
                 using (var AES = new RijndaelManaged())
                 {
                     AES.KeySize = 256;
-                    AES.BlockSize = 128;
+                    AES.BlockSize = 128;                
+                    AES.Mode = CipherMode.ECB;
+                    AES.Padding = PaddingMode.PKCS7;
 
-                    var key = new Rfc2898DeriveBytes(passwordBytes, saltBytes, 1000);
-                    AES.Key = key.GetBytes(AES.KeySize/8);
-                    AES.IV = key.GetBytes(AES.BlockSize/8);
-
-                    AES.Mode = CipherMode.CBC;
-
-                    using (var cs = new CryptoStream(ms, AES.CreateDecryptor(), CryptoStreamMode.Write))
+                    using (
+                        var cs = new CryptoStream(ms, AES.CreateDecryptor(passwordBytes, passwordBytes),
+                            CryptoStreamMode.Write))
                     {
                         cs.Write(bytesToBeDecrypted, 0, bytesToBeDecrypted.Length);
                         cs.Close();

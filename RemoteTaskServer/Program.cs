@@ -53,8 +53,8 @@ namespace UlteriusServer
 
         private static void ConsoleMain(string[] args)
         {
-           
-         
+
+
             Tools.ConfigureServer();
             var settings = new Settings();
             var useTerminal = settings.Read("Terminal", "AllowTerminal", true);
