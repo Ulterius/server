@@ -33,7 +33,7 @@ namespace UlteriusServer.Utilities.Security
             {
                 using (var AES = new RijndaelManaged())
                 {
-                    AES.KeySize = 256;
+                    AES.KeySize = 128;
                     AES.BlockSize = 128;
 
                     var key = new Rfc2898DeriveBytes(passwordBytes, saltBytes, 1000);
@@ -65,7 +65,7 @@ namespace UlteriusServer.Utilities.Security
             {
                 using (var AES = new RijndaelManaged())
                 {
-                    AES.KeySize = 256;
+                    AES.KeySize = 128;
                     AES.BlockSize = 128;
 
                     var key = new Rfc2898DeriveBytes(passwordBytes, saltBytes, 1000);
