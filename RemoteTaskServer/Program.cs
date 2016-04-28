@@ -14,6 +14,7 @@ using UlteriusServer.Forms.Utilities;
 using UlteriusServer.Plugins;
 using UlteriusServer.Properties;
 using UlteriusServer.TaskServer;
+using UlteriusServer.TaskServer.Api.Controllers.Impl;
 using UlteriusServer.TaskServer.Services.System;
 using UlteriusServer.TerminalServer;
 using UlteriusServer.Utilities;
@@ -53,9 +54,7 @@ namespace UlteriusServer
 
         private static void ConsoleMain(string[] args)
         {
-            
-
-
+          
             Tools.ConfigureServer();
             var settings = new Settings();
             var useTerminal = settings.Read("Terminal", "AllowTerminal", true);

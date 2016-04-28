@@ -1,8 +1,12 @@
 ﻿#region
 
 using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
+using System.Text;
 using RemoteTaskServer.WebServer;
 using UlteriusServer.TaskServer.Api.Serialization;
 using UlteriusServer.TaskServer.Services.Network;
@@ -17,6 +21,15 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
 {
     public class FileController : ApiController
     {
+        private const int EVERYTHING_OK = 0;
+        private const int EVERYTHING_ERROR_MEMORY = 1;
+        private const int EVERYTHING_ERROR_IPC = 2;
+        private const int EVERYTHING_ERROR_REGISTERCLASSEX = 3;
+        private const int EVERYTHING_ERROR_CREATEWINDOW = 4;
+        private const int EVERYTHING_ERROR_CREATETHREAD = 5;
+        private const int EVERYTHING_ERROR_INVALIDINDEX = 6;
+        private const int EVERYTHING_ERROR_INVALIDCALL = 7;
+
         private readonly WebSocket _client;
         private readonly Packets _packet;
         private readonly ApiSerializator _serializator = new ApiSerializator();
@@ -26,6 +39,29 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
         {
             _client = client;
             _packet = packet;
+            //only do this operation on search request
+            if (_packet.PacketType == PacketType.SearchFiles)
+            {
+                var startupDirEndingWithSlash = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName) +
+                                                "\\";
+                var resolvedDomainTimeFileName = startupDirEndingWithSlash + "Everything.dll";
+                if (!File.Exists(resolvedDomainTimeFileName))
+                {
+                    if (IntPtr.Size == 8)
+                    {
+                        Console.WriteLine("x64 Everything Loaded");
+                        if (File.Exists(startupDirEndingWithSlash + "Everything64.dll"))
+
+                            File.Copy(startupDirEndingWithSlash + "Everything64.dll", resolvedDomainTimeFileName);
+                    }
+                    else
+                    {
+                        Console.WriteLine("x86 Everything Loaded");
+                        if (File.Exists(startupDirEndingWithSlash + "Everything32.dll"))
+                            File.Copy(startupDirEndingWithSlash + "Everything32.dll", resolvedDomainTimeFileName);
+                    }
+                }
+            }
         }
 
         public void CreateFileTree()
@@ -41,8 +77,58 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
             _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, tree);
         }
 
+
+        public long DirSize(DirectoryInfo d)
+        {
+            // Add file sizes.
+            var fis = d.GetFiles();
+            var size = fis.Sum(fi => fi.Length);
+            // Add subdirectory sizes.
+            var dis = d.GetDirectories();
+            size += dis.Sum(di => DirSize(di));
+            return size;
+        }
+
         public void SearchFile()
         {
+            if (Process.GetProcessesByName("Everything").Length > 0)
+            {
+                var query = _packet.Args[0].ToString();
+                var stopwatch = Stopwatch.StartNew();
+                const int bufferSize = 260;
+                var buffer = new StringBuilder(bufferSize);
+                // set the search
+                Everything_SetSearchW(query);
+                //execute the query
+                Everything_QueryW(true);
+                var totalResults = Everything_GetNumResults();
+                var searchResults = new List<string>();
+                for (var index = 0; index < totalResults; index++)
+                {
+                    Everything_GetResultFullPathNameW(index, buffer, bufferSize);
+                    var filePath = buffer.ToString();
+                    searchResults.Add(filePath);
+                }
+                stopwatch.Stop();
+                var searchGenerationTime = stopwatch.ElapsedMilliseconds;
+                var data = new
+                {
+                    success = true,
+                    searchGenerationTime,
+                    totalResults,
+                    searchResults
+                };
+                _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, data);
+            }
+            else
+            {
+                var error = new
+                {
+                    success = false,
+                    message = "Everything is not running.",
+                };
+                _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, error);
+            }
         }
 
 
@@ -172,5 +258,93 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                 _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, exceptionData);
             }
         }
+
+        #region everything
+
+        [DllImport("Everything.dll", CharSet = CharSet.Unicode)]
+        public static extern int Everything_SetSearchW(string lpSearchString);
+
+        [DllImport("Everything.dll")]
+        public static extern void Everything_SetMatchPath(bool bEnable);
+
+        [DllImport("Everything.dll")]
+        public static extern void Everything_SetMatchCase(bool bEnable);
+
+        [DllImport("Everything.dll")]
+        public static extern void Everything_SetMatchWholeWord(bool bEnable);
+
+        [DllImport("Everything.dll")]
+        public static extern void Everything_SetRegex(bool bEnable);
+
+        [DllImport("Everything.dll")]
+        public static extern void Everything_SetMax(int dwMax);
+
+        [DllImport("Everything.dll")]
+        public static extern void Everything_SetOffset(int dwOffset);
+
+        [DllImport("Everything.dll")]
+        public static extern bool Everything_GetMatchPath();
+
+        [DllImport("Everything.dll")]
+        public static extern bool Everything_GetMatchCase();
+
+        [DllImport("Everything.dll")]
+        public static extern bool Everything_GetMatchWholeWord();
+
+        [DllImport("Everything.dll")]
+        public static extern bool Everything_GetRegex();
+
+        [DllImport("Everything32.dll")]
+        public static extern uint Everything_GetMax();
+
+        [DllImport("Everything.dll")]
+        public static extern uint Everything_GetOffset();
+
+        [DllImport("Everything.dll")]
+        public static extern string Everything_GetSearchW();
+
+        [DllImport("Everything.dll")]
+        public static extern int Everything_GetLastError();
+
+        [DllImport("Everything.dll")]
+        public static extern bool Everything_QueryW(bool bWait);
+
+        [DllImport("Everything.dll")]
+        public static extern void Everything_SortResultsByPath();
+
+        [DllImport("Everything.dll")]
+        public static extern int Everything_GetNumFileResults();
+
+        [DllImport("Everything.dll")]
+        public static extern int Everything_GetNumFolderResults();
+
+        [DllImport("Everything.dll")]
+        public static extern int Everything_GetNumResults();
+
+        [DllImport("Everything.dll")]
+        public static extern int Everything_GetTotFileResults();
+
+        [DllImport("Everything.dll")]
+        public static extern int Everything_GetTotFolderResults();
+
+        [DllImport("Everything.dll")]
+        public static extern int Everything_GetTotResults();
+
+        [DllImport("Everything.dll")]
+        public static extern bool Everything_IsVolumeResult(int nIndex);
+
+        [DllImport("Everything.dll")]
+        public static extern bool Everything_IsFolderResult(int nIndex);
+
+        [DllImport("Everything.dll")]
+        public static extern bool Everything_IsFileResult(int nIndex);
+
+        [DllImport("Everything.dll", CharSet = CharSet.Unicode)]
+        public static extern void Everything_GetResultFullPathNameW(int nIndex, StringBuilder lpString, int nMaxCount);
+
+        [DllImport("Everything.dll")]
+        public static extern void Everything_Reset();
+
+        #endregion
     }
 }

@@ -340,11 +340,25 @@ foreach (var item in filesToCleanup)
     <CosturaCleanup Config="FodyWeavers.xml" Files="@(ReferenceCopyLocalPaths->'$(OutDir)%(DestinationSubDirectory)%(Filename)%(Extension)')" />
   </Target>
   <Import Project="..\packages\Fody.1.29.4\build\dotnet\Fody.targets" Condition="Exists('..\packages\Fody.1.29.4\build\dotnet\Fody.targets')" />
+  <PropertyGroup>
+    <PostBuildEvent>xcopy /y /f "$(ProjectDir)\extensions\Everything32.dll" "$(TargetDir)"
+xcopy /y /f "$(ProjectDir)\extensions\Everything64.dll" "$(TargetDir)"</PostBuildEvent>
+  </PropertyGroup>
+  <Target Name="AfterClean">
+    <Delete Files="$(TargetDir)\*.dll" />
+  </Target>
+  <Target Name="AfterClean">
+    <ItemGroup>
+      <FilesToDelete Include="$(TargetDir)\*.dll"/>
+    </ItemGroup>
+    <Delete Files="@(FilesToDelete)" />
+  </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
   </Target>
   <Target Name="AfterBuild">
   </Target>
+  
   -->
 </Project>

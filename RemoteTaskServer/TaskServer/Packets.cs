@@ -253,6 +253,9 @@ namespace UlteriusServer.TaskServer
                     case "removefile":
                         PacketType = PacketType.RemoveFile;
                         break;
+                    case "searchfiles":
+                        PacketType = PacketType.SearchFiles;
+                        break;
                     default:
                         PacketType = PacketType.InvalidOrEmptyPacket;
                         break;
@@ -313,5 +316,6 @@ public enum PacketType
     GetPendingPlugins,
     ApproveFile,
     RequestFile,
-    RemoveFile
+    RemoveFile,
+    SearchFiles
 }
