@@ -1,9 +1,7 @@
 ﻿#region
 
 using System;
-using System.ComponentModel;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using UlteriusServer.TaskServer.Api.Serialization;
 using UlteriusServer.WebCams;
@@ -22,8 +20,8 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
 
         public WebCamController(WebSocket client, Packets packet)
         {
-            this._client = client;
-            this._packet = packet;
+            _client = client;
+            _packet = packet;
         }
 
         public void RefreshCameras()
@@ -105,7 +103,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
 
         public void PauseCamera()
         {
-            var cameraId = _packet.Args.First().ToString();  
+            var cameraId = _packet.Args.First().ToString();
             var cameraPaused = WebCamManager.PauseCamera(cameraId);
             var camera = WebCamManager.Cameras[cameraId];
             var data = new
@@ -116,13 +114,13 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
             _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, data);
         }
 
-        
+
         public void StartStream()
         {
             var cameraId = _packet.Args.First().ToString();
             try
             {
-                Task cameraStream = new Task(() => GetWebCamFrame(cameraId));
+                var cameraStream = new Task(() => GetWebCamFrame(cameraId));
                 WebCamManager.Streams[cameraId] = cameraStream;
                 WebCamManager.Streams[cameraId].Start();
                 var data = new
@@ -149,11 +147,12 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
         public void StopStream()
         {
             var cameraId = _packet.Args.First().ToString();
-            
+
             try
             {
                 var streamThread = WebCamManager.Streams[cameraId];
-                if (streamThread != null && !streamThread.IsCanceled && !streamThread.IsCompleted && streamThread.Status == TaskStatus.Running)
+                if (streamThread != null && !streamThread.IsCanceled && !streamThread.IsCompleted &&
+                    streamThread.Status == TaskStatus.Running)
                 {
                     streamThread.Dispose();
                     if (_client.IsConnected)

@@ -36,14 +36,13 @@ namespace UlteriusServer.TaskServer
                 SubProtocols = new[] {"text"},
                 PingTimeout = TimeSpan.FromSeconds(15),
                 NegotiationTimeout = TimeSpan.FromSeconds(15),
-                WebSocketSendTimeout =  TimeSpan.FromSeconds(15),
+                WebSocketSendTimeout = TimeSpan.FromSeconds(15),
                 WebSocketReceiveTimeout = TimeSpan.FromSeconds(15),
                 ParallelNegotiations = Environment.ProcessorCount*2,
-               
                 NegotiationQueueCapacity = 256,
                 TcpBacklog = 1000
             });
-            
+
             server.OnConnect += HandleConnect;
             server.OnDisconnect += HandleDisconnect;
             server.OnMessage += HandleMessage;
@@ -59,12 +58,10 @@ namespace UlteriusServer.TaskServer
 
         private static void HandleMessage(WebSocket websocket, string message)
         {
-        
             foreach (var apiController in
                 ApiControllers.Select(controller => controller.Value)
                     .Where(apiController => apiController.Client == websocket))
             {
-            
                 var packet = new Packets(apiController.AuthClient, message);
                 apiController.HandlePacket(packet);
             }

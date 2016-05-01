@@ -2,7 +2,6 @@
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
-using Magnum.Parsers;
 
 namespace UlteriusServer.WebServer
 {
@@ -28,7 +27,7 @@ namespace UlteriusServer.WebServer
             public bool Success { get; private set; }
 
             public string ContentType { get; private set; }
-          
+
 
             public string Filename { get; private set; }
 
@@ -49,9 +48,8 @@ namespace UlteriusServer.WebServer
 
                 if (delimiterEndIndex > -1)
                 {
-
                     var delimiter = content.Substring(0, content.IndexOf("\r\n"));
-                   
+
 
                     // Look for Content-Type
                     var re = new Regex(@"(?<=Content\-Type:)(.*?)(?=\r\n\r\n)");
@@ -61,16 +59,13 @@ namespace UlteriusServer.WebServer
                     re = new Regex(@"(?<=filename\=\"")(.*?)(?=\"")");
                     var filenameMatch = re.Match(content);
 
-                  
 
                     // Did we find the required values?
                     if (contentTypeMatch.Success && filenameMatch.Success)
                     {
-
                         // Set properties
                         ContentType = contentTypeMatch.Value.Trim();
                         Filename = filenameMatch.Value.Trim();
-
 
 
                         // Get the start & end indexes of the file contents

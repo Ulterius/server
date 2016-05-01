@@ -17,7 +17,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
 
         public NetworkController(WebSocket client, Packets packet)
         {
-           _client = client;
+            _client = client;
             _packet = packet;
         }
 

@@ -18,9 +18,9 @@ namespace UlteriusServer.TerminalServer.Session
     public class ConnectionManager : IDisposable
     {
         public static readonly string UserSessionCookieName = "SID";
-        private readonly CancellationTokenSource _cancel;
 
         public static ConcurrentDictionary<Guid, UserConnection> _connections;
+        private readonly CancellationTokenSource _cancel;
         private readonly ILogger _log;
         private readonly IMessageBus _mBus;
         private readonly ISystemInfo _systemInfo;

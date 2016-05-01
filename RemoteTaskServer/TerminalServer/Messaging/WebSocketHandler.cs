@@ -1,7 +1,6 @@
 ﻿#region
 
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -32,9 +31,7 @@ namespace UlteriusServer.TerminalServer.Messaging
             _queue = bus;
             _log = log;
             _serializer = serializer;
-     
         }
-
 
 
         public async Task HandleConnectionAsync(CancellationToken cancellation)
@@ -86,7 +83,7 @@ namespace UlteriusServer.TerminalServer.Messaging
             finally
             {
                 Console.WriteLine("Session '{0}' with connection '{1}' disconnected", sessionId, connectionId);
-              
+
                 foreach (var unsub in unsubs)
                     unsub();
                 _ws.Dispose();
@@ -102,7 +99,7 @@ namespace UlteriusServer.TerminalServer.Messaging
         private static AuthClient AddTerminalClient(WebSocket ws)
         {
             var client = new AuthClient(ws);
-           
+
             return client;
         }
 

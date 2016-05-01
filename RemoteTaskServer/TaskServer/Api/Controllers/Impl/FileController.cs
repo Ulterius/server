@@ -125,7 +125,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                 var error = new
                 {
                     success = false,
-                    message = "Everything is not running.",
+                    message = "Everything is not running."
                 };
                 _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, error);
             }

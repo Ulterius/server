@@ -21,7 +21,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
         public VncController(WebSocket client, Packets packet)
         {
             _client = client;
-            this._packet = packet;
+            _packet = packet;
         }
 
         public void StartVncServer()
@@ -49,8 +49,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                 var endData = new
                 {
                     vncStarted = false,
-                    message = $"VNC Server Not Started {e.Message}",
-
+                    message = $"VNC Server Not Started {e.Message}"
                 };
                 _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, endData);
             }

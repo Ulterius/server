@@ -60,7 +60,6 @@ namespace UlteriusServer.Plugins
 
         public static bool ApprovePlugin(string guid)
         {
-
             try
             {
                 var pendingPluginKey = PluginHandler._PendingPlugins.FirstOrDefault(x => x.Value == guid).Key;

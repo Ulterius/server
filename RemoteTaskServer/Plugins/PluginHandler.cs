@@ -8,7 +8,7 @@ using UlteriusServer.Forms.Utilities;
 
 namespace UlteriusServer.Plugins
 {
-    public class PluginHandler 
+    public class PluginHandler
     {
         public static Dictionary<string, PluginBase> _Plugins;
         public static Dictionary<string, List<string>> _PluginPermissions;
@@ -16,13 +16,13 @@ namespace UlteriusServer.Plugins
         public static Dictionary<string, string> _PendingPlugins;
         private static readonly List<string> BadPlugins = new List<string>();
 
-      
+
         public static object StartPlugin(string guid, List<object> args = null)
         {
             try
             {
                 var plugin = _Plugins[guid];
-                return args != null ? plugin.Start(args) :  plugin.Start();
+                return args != null ? plugin.Start(args) : plugin.Start();
             }
             catch (SecurityException e)
             {

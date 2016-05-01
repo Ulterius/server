@@ -11,7 +11,6 @@ using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.Crypto.Prng;
 using Org.BouncyCastle.OpenSsl;
 using Org.BouncyCastle.Security;
-using UlteriusServer.Authentication;
 
 namespace UlteriusServer.Utilities.Security
 {

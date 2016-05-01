@@ -25,8 +25,8 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
 
         public ServerController(WebSocket client, Packets packet)
         {
-            this._client = client;
-            this._packet = packet;
+            _client = client;
+            _packet = packet;
         }
 
         public void AesHandshake()

@@ -24,8 +24,8 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
 
         public WindowsController(WebSocket client, Packets packet)
         {
-            this._client = client;
-            this._packet = packet;
+            _client = client;
+            _packet = packet;
         }
 
         private bool AllOneColor(Bitmap bmp)

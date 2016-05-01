@@ -14,7 +14,7 @@ using UlteriusPluginBase;
 
 namespace UlteriusServer.Plugins
 {
-    public class PluginLoader 
+    public class PluginLoader
     {
         private static readonly string path = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location) +
                                               @"\data\plugins\";

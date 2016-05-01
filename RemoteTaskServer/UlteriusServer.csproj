@@ -183,7 +183,6 @@
     <Compile Include="TaskServer\Api\Controllers\Impl\ServerController.cs" />
     <Compile Include="TaskServer\Api\Controllers\Impl\SystemController.cs" />
     <Compile Include="TaskServer\Api\Models\CameraModel.cs" />
-    <Compile Include="TaskServer\Api\Models\FileInformation.cs" />
     <Compile Include="TaskServer\Api\Models\GpuInformation.cs" />
     <Compile Include="TaskServer\Api\Serialization\ApiSerializator.cs" />
     <Compile Include="TerminalServer\Cli\CommandSession.cs" />
@@ -250,7 +249,6 @@
     <Compile Include="TaskServer\Services\System\SystemUtilities.cs" />
     <Compile Include="Utilities\Tools.cs" />
     <Compile Include="WebServer\HttpServer.cs" />
-    <Compile Include="WebSocketAPI\WebSocketFunctions.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -349,7 +347,7 @@ xcopy /y /f "$(ProjectDir)\extensions\Everything64.dll" "$(TargetDir)"</PostBuil
   </Target>
   <Target Name="AfterClean">
     <ItemGroup>
-      <FilesToDelete Include="$(TargetDir)\*.dll"/>
+      <FilesToDelete Include="$(TargetDir)\*.dll" />
     </ItemGroup>
     <Delete Files="@(FilesToDelete)" />
   </Target>

@@ -18,26 +18,26 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
         public PluginController(WebSocket client, Packets packet)
         {
             _client = client;
-            this._packet = packet;
+            _packet = packet;
         }
 
         public void ListPlugins()
         {
             var plugins = (from plugin in PluginHandler._Plugins
-                           let pluginPerm = PluginHandler._PluginPermissions[plugin.Value.GUID.ToString()]
-                           select new
-                           {
-                               plugin.Value.CanonicalName,
-                               GUID = plugin.Value.GUID.ToString(),
-                               plugin.Value.Name,
-                               plugin.Value.Author,
-                               plugin.Value.Description,
-                               plugin.Value.Website,
-                               plugin.Value.Icon,
-                               plugin.Value.Version,
-                               plugin.Value.Javascript,
-                               Permissions = pluginPerm
-                           }).Cast<object>().ToList();
+                let pluginPerm = PluginHandler._PluginPermissions[plugin.Value.GUID.ToString()]
+                select new
+                {
+                    plugin.Value.CanonicalName,
+                    GUID = plugin.Value.GUID.ToString(),
+                    plugin.Value.Name,
+                    plugin.Value.Author,
+                    plugin.Value.Description,
+                    plugin.Value.Website,
+                    plugin.Value.Icon,
+                    plugin.Value.Version,
+                    plugin.Value.Javascript,
+                    Permissions = pluginPerm
+                }).Cast<object>().ToList();
             _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, plugins);
         }
 
@@ -67,43 +67,43 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
         {
             var pendingPlugins = PluginHandler._PendingPlugins.ToList();
             var pendingList = (from pendingPlugin in pendingPlugins
-                               let plugin = PluginHandler._Plugins[pendingPlugin.Value]
-                               let Name = plugin.Name
-                               let Description = plugin.Description
-                               let Version = plugin.Version
-                               let Author = plugin.Author
-                               let Guid = plugin.GUID.ToString()
-                               let CanonicalName = plugin.CanonicalName
-                               let Icon = plugin.Icon
-                               let Website = plugin.Website
-                               let Permissions = PluginHandler._PluginPermissions[pendingPlugin.Value]
-                               select new
-                               {
-                                   Guid,
-                                   Name,
-                                   Description,
-                                   Version,
-                                   Author,
-                                  CanonicalName,
-                                   Icon,
-                                   Permissions,
-                                   Website
-                               }).Cast<object>().ToList();
+                let plugin = PluginHandler._Plugins[pendingPlugin.Value]
+                let Name = plugin.Name
+                let Description = plugin.Description
+                let Version = plugin.Version
+                let Author = plugin.Author
+                let Guid = plugin.GUID.ToString()
+                let CanonicalName = plugin.CanonicalName
+                let Icon = plugin.Icon
+                let Website = plugin.Website
+                let Permissions = PluginHandler._PluginPermissions[pendingPlugin.Value]
+                select new
+                {
+                    Guid,
+                    Name,
+                    Description,
+                    Version,
+                    Author,
+                    CanonicalName,
+                    Icon,
+                    Permissions,
+                    Website
+                }).Cast<object>().ToList();
             _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, pendingList);
         }
 
         public void ListBadPlugins()
         {
             var badPlugins = (from plugin in PluginHandler.GetBadPluginsList()
-                              select plugin.Split('|')
+                select plugin.Split('|')
                 into pluginInfo
-                              let pluginName = pluginInfo[0]
-                              let pluginError = pluginInfo[1]
-                              select new
-                              {
-                                  pluginName,
-                                  pluginError
-                              }).Cast<object>().ToList();
+                let pluginName = pluginInfo[0]
+                let pluginError = pluginInfo[1]
+                select new
+                {
+                    pluginName,
+                    pluginError
+                }).Cast<object>().ToList();
             _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, badPlugins);
         }
 

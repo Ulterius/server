@@ -20,7 +20,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
         public CpuController(WebSocket client, Packets packet)
         {
             _client = client;
-            this._packet = packet;
+            _packet = packet;
         }
 
         public void GetCpuInformation()

@@ -83,9 +83,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers
                         fileController.RemoveFile();
                         break;
                     case PacketType.Plugin:
-                        Task.Run(() => {
-                        pluginController.StartPlugin();
-                        });
+                        Task.Run(() => { pluginController.StartPlugin(); });
                         break;
                     case PacketType.ApprovePlugin:
                         pluginController.ApprovePlugin();
@@ -106,9 +104,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers
                         webcamController.StartCamera();
                         break;
                     case PacketType.StopCamera:
-                        Task.Run(() => {
-                        webcamController.StopCamera();
-                        });
+                        Task.Run(() => { webcamController.StopCamera(); });
                         break;
                     case PacketType.PauseCamera:
                         webcamController.PauseCamera();
@@ -126,9 +122,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers
                         processController.RequestProcessInformation();
                         break;
                     case PacketType.StreamProcesses:
-                        Task.Run(() => {
-                        processController.StreamProcessInformation();
-                        });
+                        Task.Run(() => { processController.StreamProcessInformation(); });
                         break;
                     case PacketType.RequestCpuInformation:
                         cpuController.GetCpuInformation();
@@ -183,7 +177,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers
                         break;
                     case PacketType.GetEventLogs:
                         //WHO REENABLED THIS
-                       // Task.Factory.StartNew(() => operatingSystemController.GetEventLogs());
+                        // Task.Factory.StartNew(() => operatingSystemController.GetEventLogs());
                         break;
                     case PacketType.StartVncServer:
                         vncController.StartVncServer();
@@ -209,9 +203,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers
                     case PacketType.RefreshCameras:
                         webcamController.RefreshCameras();
                         break;
-                   
                 }
-
             }
             else
             {

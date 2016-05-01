@@ -16,7 +16,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
         public ErrorController(WebSocket client, Packets packet)
         {
             _client = client;
-            this._packet = packet;
+            _packet = packet;
         }
 
         public void InvalidPacket()

@@ -4,22 +4,15 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
-using System.Security.AccessControl;
-using System.Security.Cryptography;
-using System.Security.Permissions;
-using System.Text;
 using System.Threading;
 using RemoteTaskServer.WebServer;
 using UlteriusServer.Forms.Utilities;
-using UlteriusServer.Plugins;
 using UlteriusServer.Properties;
 using UlteriusServer.TaskServer;
-using UlteriusServer.TaskServer.Api.Controllers.Impl;
 using UlteriusServer.TaskServer.Services.System;
 using UlteriusServer.TerminalServer;
 using UlteriusServer.Utilities;
 using UlteriusServer.WebCams;
-using File = Magnum.FileSystem.File;
 
 #endregion
 
@@ -54,7 +47,6 @@ namespace UlteriusServer
 
         private static void ConsoleMain(string[] args)
         {
-          
             Tools.ConfigureServer();
             var settings = new Settings();
             var useTerminal = settings.Read("Terminal", "AllowTerminal", true);
@@ -63,7 +55,7 @@ namespace UlteriusServer
             WebCamManager.LoadWebcams();
             if (usePlugins)
             {
-              //  PluginHandler.LoadPlugins();
+                //  PluginHandler.LoadPlugins();
             }
             if (useWebServer)
             {

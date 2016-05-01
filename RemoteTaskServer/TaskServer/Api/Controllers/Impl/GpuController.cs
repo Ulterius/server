@@ -14,14 +14,14 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
 {
     internal class GpuController : ApiController
     {
-        private readonly WebSocket client;
         private readonly Packets _packet;
         private readonly ApiSerializator _serializator = new ApiSerializator();
+        private readonly WebSocket client;
 
         public GpuController(WebSocket client, Packets packet)
         {
             this.client = client;
-            this._packet = packet;
+            _packet = packet;
         }
 
         public void GetGpuInformation()

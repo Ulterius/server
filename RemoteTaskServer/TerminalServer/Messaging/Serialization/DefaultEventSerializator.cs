@@ -4,7 +4,6 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Windows;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
@@ -80,8 +79,8 @@ namespace UlteriusServer.TerminalServer.Messaging.Serialization
                         }
                         catch (Exception exception)
                         {
-                        Console.WriteLine("Error deserial");
-                          Console.WriteLine(exception.Message);
+                            Console.WriteLine("Error deserial");
+                            Console.WriteLine(exception.Message);
                         }
                     }
                     else
@@ -95,7 +94,6 @@ namespace UlteriusServer.TerminalServer.Messaging.Serialization
                         return Build(typeName, json, out type, user);
                     }
                 }
-
             }
             return Build("", null, out type);
         }
@@ -106,7 +104,7 @@ namespace UlteriusServer.TerminalServer.Messaging.Serialization
             switch (typeName)
             {
                 case "CreateTerminalRequest":
-                    type = typeof (CreateTerminalRequest);
+                    type = typeof(CreateTerminalRequest);
                     return new CreateTerminalRequest
                     {
                         TerminalType = json.Property("terminalType").Value.ToString(),
@@ -139,7 +137,6 @@ namespace UlteriusServer.TerminalServer.Messaging.Serialization
                         }
                         catch (Exception)
                         {
-
                             Console.WriteLine("bad");
                             return new AesHandshakeRequest
                             {
@@ -147,19 +144,15 @@ namespace UlteriusServer.TerminalServer.Messaging.Serialization
                             };
                         }
                     }
-                    else
+                    Console.WriteLine("wgs");
+                    return new AesHandshakeRequest
                     {
-                        Console.WriteLine("wgs");
-                        return new AesHandshakeRequest
-                        {
-                            AesShook = false
-                        };
-                    }
-                   
-                   
-                 
+                        AesShook = false
+                    };
+
+
                 case "TerminalInputRequest":
-                    type = typeof (TerminalInputRequest);
+                    type = typeof(TerminalInputRequest);
                     return new TerminalInputRequest
                     {
                         TerminalId = Guid.Parse(json.Property("terminalId").Value.ToString()),
@@ -167,7 +160,7 @@ namespace UlteriusServer.TerminalServer.Messaging.Serialization
                         CorrelationId = int.Parse(json.Property("correlationId").Value.ToString())
                     };
                 case "CloseTerminalRequest":
-                    type = typeof (CloseTerminalRequest);
+                    type = typeof(CloseTerminalRequest);
                     return new CloseTerminalRequest
                     {
                         TerminalId = Guid.Parse(json.Property("terminalId").Value.ToString())
