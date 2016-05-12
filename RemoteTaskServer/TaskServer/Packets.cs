@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Text;
 using Newtonsoft.Json.Linq;
 using UlteriusServer.Authentication;
+using UlteriusServer.TaskServer.Api.Controllers.Impl;
 using UlteriusServer.Utilities;
 using UlteriusServer.Utilities.Security;
 
@@ -27,7 +28,7 @@ namespace UlteriusServer.TaskServer
         public Packets(AuthClient client, string packetData)
         {
             //An entire base64 string is an aes encrypted packet
-            if (StringUtilities.IsBase64String(packetData))
+         if (StringUtilities.IsBase64String(packetData))
             {
                 try
                 {

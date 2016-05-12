@@ -70,7 +70,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers
                 var webcamController = new WebCamController(Client, packet);
 
                 #endregion
-
+                //Running long processes in a new task prevents timeouts from firing 
                 switch (packetType)
                 {
                     case PacketType.RequestFile:

@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
+using System.Windows;
 using RemoteTaskServer.WebServer;
 using UlteriusServer.Forms.Utilities;
 using UlteriusServer.Properties;
@@ -26,6 +27,11 @@ namespace UlteriusServer
         [STAThread]
         private static void Main(string[] args)
         {
+            if (!Debugger.IsAttached)
+                ExceptionHandler.AddGlobalHandlers();
+
+            AppDomain.CurrentDomain.ProcessExit += new EventHandler(OnProcessExit);
+
             var handle = GetConsoleWindow();
             // Hide
             ShowWindow(handle, SW_HIDE);
@@ -42,6 +48,11 @@ namespace UlteriusServer
             notifyThread.Start();
             AllocConsole();
             ConsoleMain(args);
+        }
+        //Evan will have to support me and oumy cat once this gets released into the public.
+        private static void OnProcessExit(object sender, EventArgs e)
+        {
+            Console.WriteLine("Goodbye!");
         }
 
 

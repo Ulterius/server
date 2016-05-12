@@ -19,7 +19,7 @@ namespace UlteriusServer.Forms.Utilities
         public static MenuItem RestartProgram;
         public static NotifyIcon NotificationIcon;
 
-
+      
         private static void OpenLogsEvent(object sender, EventArgs e)
         {
             Process.Start("log.txt");
