@@ -7,11 +7,9 @@
         public string Path { get; set; }
         public string Icon { get; set; }
         public string Name { get; set; }
-        public int CpuUsage { get; set; }
+        public double CpuUsage { get; set; }
         public long RamUsage { get; set; }
         public int Threads { get; set; }
         public int Handles { get; set; }
-        public int IoWriteOperationsPerSec { get; set; }
-        public int IoReadOperationsPerSec { get; set; }
     }
 }

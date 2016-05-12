@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Management;
 using System.Threading;
 using UlteriusServer.TaskServer.Api.Models;
 using UlteriusServer.TaskServer.Api.Serialization;
@@ -99,83 +98,44 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
 
         private List<SystemProcesses> GetProcessInformation()
         {
-            var options = new EnumerationOptions {ReturnImmediately = false, Timeout = new TimeSpan(0, 0, 10)};
             var processInformation = new List<SystemProcesses>();
-            var simpleProcesses = new List<SimpleProcessInfo>();
-            try
+            var processKil = Process.GetProcesses();
+            foreach (var process in processKil)
             {
-                using (var searcher =
-                    new ManagementObjectSearcher("root\\CIMV2",
-                        "SELECT ExecutablePath, ProcessId FROM Win32_Process", options))
+                try
                 {
-                    simpleProcesses.AddRange(from ManagementBaseObject info in searcher.Get()
-                        let id = int.Parse(info["ProcessId"].ToString())
-                        let fullPath = (string) info["ExecutablePath"]
-                        select new SimpleProcessInfo
-                        {
-                            path = fullPath,
-                            id = id
-                        });
-                }
+                    var name = process.ProcessName;
 
+                    var fullPath = process.MainModule.FileName;
+                    var icon = Tools.GetIconForProcess(fullPath);
+                    var processId = process.Id;
+                    var handles = process.HandleCount;
+                    var threads = process.Threads.Count;
+                    var memory = process.WorkingSet64;
+                    var wallTime = DateTime.Now - process.StartTime;
+                    if (process.HasExited) wallTime = process.ExitTime - process.StartTime;
+                    var procTime = process.TotalProcessorTime;
+                    var cpuUsage = 100*procTime.TotalMilliseconds/wallTime.TotalMilliseconds;
 
-                using (var searcher =
-                    new ManagementObjectSearcher("root\\CIMV2",
-                        "SELECT * FROM Win32_PerfFormattedData_PerfProc_Process", options))
-                {
-                    processInformation.AddRange(from ManagementBaseObject queryObj in searcher.Get()
-                        where queryObj != null
-                        let name = (string) queryObj["Name"]
-                        let processId = int.Parse(queryObj["IDProcess"].ToString())
-                        let handles = int.Parse(queryObj["HandleCount"].ToString())
-                        let threads = int.Parse(queryObj["ThreadCount"].ToString())
-                        let memory = long.Parse(queryObj["WorkingSetPrivate"].ToString())
-                        let cpuUsage = int.Parse(queryObj["PercentProcessorTime"].ToString())
-                        let ioReadOperationsPerSec = int.Parse(queryObj["IOReadOperationsPerSec"].ToString())
-                        let ioWriteOperationsPerSec = int.Parse(queryObj["IOWriteOperationsPerSec"].ToString())
-                        let fullPath = ""
-                        let icon = ""
-                        select new SystemProcesses
-                        {
-                            Id = processId,
-                            Path = fullPath,
-                            Name = name,
-                            Icon = icon,
-                            RamUsage = memory,
-                            CpuUsage = cpuUsage,
-                            Threads = threads,
-                            Handles = handles,
-                            IoWriteOperationsPerSec = ioWriteOperationsPerSec,
-                            IoReadOperationsPerSec = ioReadOperationsPerSec
-                        });
-                    foreach (var result in processInformation)
+                    var sysP = new SystemProcesses
                     {
-                        foreach (var process in simpleProcesses.Where(process => process.id == result.Id))
-                        {
-                            result.Path = process.path;
-                            if (!string.IsNullOrEmpty(result.Path))
-                            {
-                                result.Icon = Tools.GetIconForProcess(result.Path);
-                            }
-                            else
-                            {
-                                result.Path = "null";
-                                result.Icon = "null";
-                            }
-                        }
-                    }
+                        Id = processId,
+                        Path = fullPath,
+                        Name = name,
+                        Icon = icon,
+                        RamUsage = memory,
+                        CpuUsage = cpuUsage,
+                        Threads = threads,
+                        Handles = handles
+                    };
+                    processInformation.Add(sysP);
+                }
+                catch (Exception e)
+                {
+
+                    //System processes usually throw
                 }
             }
-            catch (ManagementException e)
-            {
-                var data = new
-                {
-                    managementException = true,
-                    message = e.Message
-                };
-                serializator.Serialize(client, packet.Endpoint, packet.SyncKey, data);
-            }
-
             return processInformation;
         }
 
