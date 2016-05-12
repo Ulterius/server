@@ -16,19 +16,19 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
 {
     public class ProcessController : ApiController
     {
-        private readonly WebSocket client;
-        private readonly Packets packet;
-        private readonly ApiSerializator serializator = new ApiSerializator();
+        private readonly WebSocket _client;
+        private readonly Packets _packet;
+        private readonly ApiSerializator _serializator = new ApiSerializator();
 
         public ProcessController(WebSocket client, Packets packet)
         {
-            this.client = client;
-            this.packet = packet;
+            _client = client;
+            _packet = packet;
         }
 
         public void StartProcess()
         {
-            var path = packet.Args.AsEnumerable().First();
+            var path = _packet.Args.AsEnumerable().First();
             bool processStarted;
             var processId = -1;
             try
@@ -36,11 +36,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                 var processStartInfo = new ProcessStartInfo((string) path);
 
                 var process = new Process {StartInfo = processStartInfo};
-                if (!process.Start())
-                {
-                    processStarted = false;
-                }
-                processStarted = true;
+                processStarted = process.Start();
                 processId = process.Id;
             }
             catch (Exception)
@@ -53,13 +49,13 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                 processId,
                 path
             };
-            serializator.Serialize(client, packet.Endpoint, packet.SyncKey, data);
+            _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, data);
         }
 
         public void KillProcess()
         {
             //this is dumb
-            var id = int.Parse(packet.Args.First().ToString());
+            var id = int.Parse(_packet.Args.First().ToString());
             string processName = null;
             var processKilled = false;
             foreach (var p in Process.GetProcesses().Where(p => p.Id == id))
@@ -76,23 +72,22 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                 id,
                 processName
             };
-            serializator.Serialize(client, packet.Endpoint, packet.SyncKey, data);
+            _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, data);
         }
 
         public void RequestProcessInformation()
         {
             var processInformation = GetProcessInformation();
-            serializator.Serialize(client, packet.Endpoint, packet.SyncKey, processInformation);
+            _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, processInformation);
         }
 
         public void StreamProcessInformation()
         {
-            while (client.IsConnected)
+            while (_client.IsConnected)
             {
                 RequestProcessInformation();
                 Thread.Sleep(1000);
             }
-            Console.WriteLine("Client gone");
         }
 
 
@@ -130,19 +125,15 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                     };
                     processInformation.Add(sysP);
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
 
-                    //System processes usually throw
+                    //Who cares
                 }
             }
             return processInformation;
         }
 
-        public class SimpleProcessInfo
-        {
-            public int id;
-            public string path;
-        }
+      
     }
 }
