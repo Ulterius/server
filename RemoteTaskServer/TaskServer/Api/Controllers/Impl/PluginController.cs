@@ -23,8 +23,8 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
 
         public void ListPlugins()
         {
-            var plugins = (from plugin in PluginHandler._Plugins
-                let pluginPerm = PluginHandler._PluginPermissions[plugin.Value.GUID.ToString()]
+            var plugins = (from plugin in PluginHandler.Plugins
+                let pluginPerm = PluginHandler.PluginPermissions[plugin.Value.GUID.ToString()]
                 select new
                 {
                     plugin.Value.CanonicalName,
@@ -65,9 +65,9 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
 
         public void GetPendingPlugins()
         {
-            var pendingPlugins = PluginHandler._PendingPlugins.ToList();
+            var pendingPlugins = PluginHandler.PendingPlugins.ToList();
             var pendingList = (from pendingPlugin in pendingPlugins
-                let plugin = PluginHandler._Plugins[pendingPlugin.Value]
+                let plugin = PluginHandler.Plugins[pendingPlugin.Value]
                 let Name = plugin.Name
                 let Description = plugin.Description
                 let Version = plugin.Version
@@ -76,7 +76,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                 let CanonicalName = plugin.CanonicalName
                 let Icon = plugin.Icon
                 let Website = plugin.Website
-                let Permissions = PluginHandler._PluginPermissions[pendingPlugin.Value]
+                let Permissions = PluginHandler.PluginPermissions[pendingPlugin.Value]
                 select new
                 {
                     Guid,
@@ -129,7 +129,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                 _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, pluginError);
                 return;
             }
-            if (!PluginHandler._ApprovedPlugins.ContainsValue(guid))
+            if (!PluginHandler.ApprovedPlugins.ContainsValue(guid))
             {
                 var pluginError = new
                 {

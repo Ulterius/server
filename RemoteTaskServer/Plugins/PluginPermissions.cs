@@ -29,7 +29,7 @@ namespace UlteriusServer.Plugins
         public static void SaveApprovedGuids()
         {
             File.WriteAllText(TrustFile, string.Empty);
-            var approvedPlugins = PluginHandler._ApprovedPlugins;
+            var approvedPlugins = PluginHandler.ApprovedPlugins;
             var stringBuilder = new StringBuilder();
             foreach (var plugin in approvedPlugins)
             {
@@ -62,9 +62,9 @@ namespace UlteriusServer.Plugins
         {
             try
             {
-                var pendingPluginKey = PluginHandler._PendingPlugins.FirstOrDefault(x => x.Value == guid).Key;
-                PluginHandler._PendingPlugins.Remove(pendingPluginKey);
-                PluginHandler._ApprovedPlugins.Add(pendingPluginKey, guid);
+                var pendingPluginKey = PluginHandler.PendingPlugins.FirstOrDefault(x => x.Value == guid).Key;
+                PluginHandler.PendingPlugins.Remove(pendingPluginKey);
+                PluginHandler.ApprovedPlugins.Add(pendingPluginKey, guid);
                 SaveApprovedGuids();
                 //plugins approved set it up
                 PluginHandler.SetupPlugin(guid);

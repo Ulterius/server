@@ -10,10 +10,10 @@ namespace UlteriusServer.Plugins
 {
     public class PluginHandler
     {
-        public static Dictionary<string, PluginBase> _Plugins;
-        public static Dictionary<string, List<string>> _PluginPermissions;
-        public static Dictionary<string, string> _ApprovedPlugins;
-        public static Dictionary<string, string> _PendingPlugins;
+        public static Dictionary<string, PluginBase> Plugins;
+        public static Dictionary<string, List<string>> PluginPermissions;
+        public static Dictionary<string, string> ApprovedPlugins;
+        public static Dictionary<string, string> PendingPlugins;
         private static readonly List<string> BadPlugins = new List<string>();
 
 
@@ -21,7 +21,7 @@ namespace UlteriusServer.Plugins
         {
             try
             {
-                var plugin = _Plugins[guid];
+                var plugin = Plugins[guid];
                 return args != null ? plugin.Start(args) : plugin.Start();
             }
             catch (SecurityException e)
@@ -53,7 +53,7 @@ namespace UlteriusServer.Plugins
         {
             try
             {
-                var plugin = _Plugins[guid];
+                var plugin = Plugins[guid];
                 if (plugin.RequiresSetup)
                 {
                     plugin.Setup();
@@ -67,7 +67,7 @@ namespace UlteriusServer.Plugins
 
         public static int GetTotalPlugins()
         {
-            return _Plugins.Count;
+            return Plugins.Count;
         }
 
         public static List<string> GetBadPluginsList()
@@ -78,20 +78,20 @@ namespace UlteriusServer.Plugins
 
         public static void LoadPlugins()
         {
-            if (!File.Exists(PluginPermissions.TrustFile))
+            if (!File.Exists(UlteriusServer.Plugins.PluginPermissions.TrustFile))
             {
-                File.Create(PluginPermissions.TrustFile).Close();
+                File.Create(UlteriusServer.Plugins.PluginPermissions.TrustFile).Close();
             }
-            _Plugins = new Dictionary<string, PluginBase>();
-            _PluginPermissions = new Dictionary<string, List<string>>();
-            _ApprovedPlugins = new Dictionary<string, string>();
-            _PendingPlugins = new Dictionary<string, string>();
-            foreach (var line in new LineReader(() => new StringReader(PluginPermissions.GetApprovedGuids())))
+            Plugins = new Dictionary<string, PluginBase>();
+            PluginPermissions = new Dictionary<string, List<string>>();
+            ApprovedPlugins = new Dictionary<string, string>();
+            PendingPlugins = new Dictionary<string, string>();
+            foreach (var line in new LineReader(() => new StringReader(UlteriusServer.Plugins.PluginPermissions.GetApprovedGuids())))
             {
                 var pluginData = line.Split('|');
                 var name = pluginData[0];
                 var guid = pluginData[1];
-                _ApprovedPlugins.Add(name, guid);
+                ApprovedPlugins.Add(name, guid);
             }
             var plugins = PluginLoader.LoadPlugins();
             if (plugins != null)
@@ -100,13 +100,13 @@ namespace UlteriusServer.Plugins
                 foreach (var plugin in plugins)
                 {
                     var pluginApproved = true;
-                    if (!_ApprovedPlugins.ContainsValue(plugin.GUID.ToString()))
+                    if (!ApprovedPlugins.ContainsValue(plugin.GUID.ToString()))
                     {
                         pluginApproved = false;
                         try
                         {
                             Console.WriteLine(plugin.GUID.ToString());
-                            _PendingPlugins.Add(plugin.Name, plugin.GUID.ToString());
+                            PendingPlugins.Add(plugin.Name, plugin.GUID.ToString());
                         }
                         catch (Exception)
                         {
@@ -115,7 +115,7 @@ namespace UlteriusServer.Plugins
                     }
                     //probably a better way to expose objects
                     plugin.NotificationIcon = UlteriusTray.NotificationIcon;
-                    _Plugins.Add(plugin.GUID.ToString(), plugin);
+                    Plugins.Add(plugin.GUID.ToString(), plugin);
                     if (pluginApproved)
                     {
                         SetupPlugin(plugin.GUID.ToString());

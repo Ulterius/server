@@ -52,7 +52,7 @@ namespace UlteriusServer.Plugins
                         if (plugin.GUID.ToString() != Guid.Empty.ToString())
                         {
                             plugins.Add(plugin);
-                            PluginHandler._PluginPermissions[plugin.GUID.ToString()] = perms;
+                            PluginHandler.PluginPermissions[plugin.GUID.ToString()] = perms;
                         }
                         else
                         {

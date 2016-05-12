@@ -229,7 +229,10 @@ namespace UlteriusServer.TaskServer.Services.System
             return new WindowsPrincipal(WindowsIdentity.GetCurrent()).IsInRole(WindowsBuiltInRole.Administrator);
         }
 
-
+        //If you enjoy your computer eating GB's of ram 
+        //If you enjoy timeouts
+        //When you give up trying to optimize this
+        //Call me maybe.
         public static Dictionary<string, List<EventLogEntry>> GetEventLogs()
         {
             /* var dictionary = new Dictionary<string, List<EventLogEntry>>();
