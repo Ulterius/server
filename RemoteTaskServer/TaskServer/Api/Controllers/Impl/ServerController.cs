@@ -17,8 +17,6 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
 {
     public class ServerController : ApiController
     {
-        private static readonly byte INVALID_PASSWORD = 3;
-        private static readonly byte AUTHENTICATED = 2;
         private readonly WebSocket _client;
         private readonly Packets _packet;
         private readonly ApiSerializator _serializator = new ApiSerializator();
@@ -33,8 +31,8 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
         {
             try
             {
-                var encryptedKey = _packet.Args.ElementAt(0).ToString();
-                var encryptedIv = _packet.Args.ElementAt(1).ToString();
+                var encryptedKey = _packet.Args[0].ToString();
+                var encryptedIv = _packet.Args[1].ToString();
                 foreach (
                     var connectedClient in
                         TaskManagerServer.AllClients.Where(connectedClient => connectedClient.Value.Client == _client))
@@ -68,30 +66,18 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
 
         public void Login()
         {
-            var password = _packet.Args.ElementAt(0).ToString();
-            var code = 3;
-            if (string.IsNullOrEmpty(password))
-            {
-                code = INVALID_PASSWORD;
-            }
+            var password = _packet.Args[0].ToString();
+            bool authenticated;
             using (var context = new PrincipalContext(ContextType.Machine))
             {
-                code = context.ValidateCredentials(GetUsername(), password) ? 2 : 3;
+                authenticated = context.ValidateCredentials(GetUsername(), password);
             }
-            var authenticated = code == AUTHENTICATED;
             foreach (
                 var aClient in
                     TaskManagerServer.AllClients.Select(connectedClient => connectedClient.Value)
                         .Where(aClient => aClient.Client == _client))
             {
-                if (code == INVALID_PASSWORD)
-                {
-                    aClient.Authenticated = false;
-                }
-                else if (code == AUTHENTICATED)
-                {
-                    aClient.Authenticated = true;
-                }
+                aClient.Authenticated = authenticated;
             }
             var authenticationData = new
             {
