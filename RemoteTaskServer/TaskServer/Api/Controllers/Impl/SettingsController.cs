@@ -26,7 +26,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
 
         public void ChangeWebServerPort()
         {
-            var port = int.Parse(_packet.Args.First().ToString());
+            var port = int.Parse(_packet.Args[0].ToString());
             Settings.Write("WebServer", "WebServerPort", port);
             var currentPort = Settings.Read("WebServer", "WebServerPort", 9999);
             var data = new
@@ -39,7 +39,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
 
         public void ChangeWebFilePath()
         {
-            var path = _packet.Args.First().ToString();
+            var path = _packet.Args[0].ToString();
             Settings.Write("WebServer", "WebFilePath", path);
             var currentPath = Settings.Read("WebServer", "WebFilePath", HttpServer.defaultPath);
             var data = new
@@ -52,7 +52,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
 
         public void ChangeVncPassword()
         {
-            var pass = _packet.Args.First().ToString();
+            var pass = _packet.Args[0].ToString();
             Settings.Write("Vnc", "VncPass", pass);
             var currentPass = Settings.Read("Vnc", "VncPass", "");
             var data = new
@@ -65,7 +65,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
 
         public void ChangeVncPort()
         {
-            var port = int.Parse(_packet.Args.First().ToString());
+            var port = int.Parse(_packet.Args[0].ToString());
             Settings.Write("Vnc", "VncPort", port);
             var currentPort = Settings.Read("Vnc", "VncPort", 5900);
             var data = new
@@ -78,7 +78,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
 
         public void ChangeVncProxyPort()
         {
-            var port = int.Parse(_packet.Args.First().ToString());
+            var port = int.Parse(_packet.Args[0].ToString());
             Settings.Write("Vnc", "VncProxyPort", port);
             var currentPort = Settings.Read("Vnc", "VncProxyPort", 5900);
             var data = new
@@ -91,7 +91,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
 
         public void ChangeWebServerUse()
         {
-            var useServer = (bool) _packet.Args.First();
+            var useServer = (bool) _packet.Args[0];
             Settings.Write("WebServer", "UseWebServer", useServer);
             var currentStatus = Settings.Read("WebServer", "UseWebServer", false);
             var data = new
@@ -104,7 +104,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
 
         public void ChangeNetworkResolve()
         {
-            var resolve = (bool) _packet.Args.First();
+            var resolve = (bool) _packet.Args[0];
             Settings.Write("Network", "SkipHostNameResolve", resolve);
             var currentStatus = Settings.Read("Network", "SkipHostNameResolve", false);
             var data = new
@@ -117,7 +117,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
 
         public void ChangeTaskServerPort()
         {
-            var port = int.Parse(_packet.Args.First().ToString());
+            var port = int.Parse(_packet.Args[0].ToString());
             Settings.Write("TaskServer", "TaskServerPort", port);
             var currentPort = Settings.Read("TaskServer", "TaskServerPort", 8387);
             var data = new
@@ -130,7 +130,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
 
         public void ChangeLoadPlugins()
         {
-            var loadPlugins = (bool) _packet.Args.First();
+            var loadPlugins = (bool) _packet.Args[0];
             Settings.Write("Plugins", "LoadPlugins", loadPlugins);
             var currentStatus = Settings.Read("Plugins", "LoadPlugins", true);
             var data = new
@@ -143,7 +143,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
 
         public void ChangeUseTerminal()
         {
-            var useTerminal = (bool) _packet.Args.First();
+            var useTerminal = (bool) _packet.Args[0];
             Settings.Write("Terminal", "AllowTerminal", useTerminal);
             var currentStatus = Settings.Read("Terminal", "AllowTerminal", true);
             var data = new

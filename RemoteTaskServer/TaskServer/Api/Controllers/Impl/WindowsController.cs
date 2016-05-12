@@ -28,7 +28,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
             _packet = packet;
         }
 
-        private bool AllOneColor(Bitmap bmp)
+        private static bool AllOneColor(Bitmap bmp)
         {
             var bmpData = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height), ImageLockMode.ReadOnly,
                 PixelFormat.Format8bppIndexed);
@@ -38,7 +38,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
             return !rgbValues.Where((v, i) => i%bmpData.Stride < bmp.Width && v != rgbValues[0]).Any();
         }
 
-        private string GetUserTilePath(string username)
+        private static string GetUserTilePath(string username)
         {
             // username: use null for current user
             var sb = new StringBuilder(1000);
@@ -67,7 +67,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
             return strBase64;
         }
 
-        private string GetUsername()
+        private static string GetUsername()
         {
             return Environment.UserName;
         }

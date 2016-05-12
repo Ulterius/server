@@ -67,7 +67,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
         public void CreateFileTree()
         {
             var argumentSize = _packet.Args.Count;
-            var path = _packet.Args.First().ToString();
+            var path = _packet.Args[0].ToString();
             var deepWalk = false;
             if (argumentSize > 1)
             {
@@ -134,7 +134,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
 
         public void RequestFile()
         {
-            var path = _packet.Args.First().ToString();
+            var path = _packet.Args[0].ToString();
             var password = _packet.Args[1].ToString();
             if (File.Exists(path))
             {
@@ -154,7 +154,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
 
         public void RemoveFile()
         {
-            var path = _packet.Args.First().ToString();
+            var path = _packet.Args[0].ToString();
 
             //make sure we can only remove tempfiles for now
             if (File.Exists(path) && path.Contains("temp"))

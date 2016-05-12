@@ -29,7 +29,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                 NetworkInformation.PublicIp = NetworkUtilities.GetPublicIp();
                 NetworkInformation.NetworkComputers = NetworkUtilities.ConnectedDevices();
                 NetworkInformation.MacAddress = NetworkUtilities.GetMacAddress().ToString();
-                NetworkInformation.InternalIp = NetworkUtilities.GetIPAddress().ToString();
+                NetworkInformation.InternalIp = NetworkUtilities.GetIpAddress().ToString();
             }
             _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, NetworkInformation.ToObject());
         }

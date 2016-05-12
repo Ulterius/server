@@ -55,7 +55,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
         public void KillProcess()
         {
             //this is dumb
-            var id = int.Parse(_packet.Args.First().ToString());
+            var id = int.Parse(_packet.Args[0].ToString());
             string processName = null;
             var processKilled = false;
             foreach (var p in Process.GetProcesses().Where(p => p.Id == id))

@@ -48,7 +48,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
 
         public void StartCamera()
         {
-            var cameraId = _packet.Args.First().ToString();
+            var cameraId = _packet.Args[0].ToString();
             try
             {
                 var cameraStarted = WebCamManager.StartCamera(cameraId);
@@ -75,7 +75,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
 
         public void StopCamera()
         {
-            var cameraId = _packet.Args.First().ToString();
+            var cameraId = _packet.Args[0].ToString();
             try
             {
                 var cameraStopped = WebCamManager.StopCamera(cameraId);
@@ -103,7 +103,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
 
         public void PauseCamera()
         {
-            var cameraId = _packet.Args.First().ToString();
+            var cameraId = _packet.Args[0].ToString();
             var cameraPaused = WebCamManager.PauseCamera(cameraId);
             var camera = WebCamManager.Cameras[cameraId];
             var data = new
@@ -117,7 +117,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
 
         public void StartStream()
         {
-            var cameraId = _packet.Args.First().ToString();
+            var cameraId = _packet.Args[0].ToString();
             try
             {
                 var cameraStream = new Task(() => GetWebCamFrame(cameraId));
@@ -146,7 +146,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
 
         public void StopStream()
         {
-            var cameraId = _packet.Args.First().ToString();
+            var cameraId = _packet.Args[0].ToString();
 
             try
             {
