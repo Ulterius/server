@@ -1,5 +1,6 @@
 ﻿#region
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Management;
@@ -57,7 +58,6 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
 
             myComputer.Open();
             myComputer.GPUEnabled = true;
-            var gpuTemps = new List<object>();
             foreach (var hardwareItem in myComputer.Hardware)
             {
                 switch (hardwareItem.HardwareType)
@@ -84,6 +84,8 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                             return sensor.Value;
                         }
                         break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
                 }
             }
             return -1;

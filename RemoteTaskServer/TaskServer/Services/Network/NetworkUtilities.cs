@@ -15,33 +15,26 @@ namespace UlteriusServer.TaskServer.Services.Network
 {
     public class NetworkDevices
     {
-        public string name { get; set; }
-        public string ip { get; set; }
-        public string macAddress { get; set; }
+        public string Name { get; set; }
+        public string Ip { get; set; }
+        public string MacAddress { get; set; }
     }
 
     internal class NetworkUtilities
     {
-        /// <summary>
-        ///     Error codes GetIpNetTable returns that we recognise
-        /// </summary>
-        private const int ERROR_INSUFFICIENT_BUFFER = 122;
+      
 
-        private static readonly Settings settings = new Settings();
+        private static readonly Settings Settings = new Settings();
 
         private static readonly List<NetworkDevices> Devices = new List<NetworkDevices>();
 
-        public static string GetReverseDNS(string ip, int timeout)
+        private static string GetReverseDns(string ip, int timeout)
         {
             try
             {
                 GetHostEntryHandler callback = Dns.GetHostEntry;
                 var result = callback.BeginInvoke(ip, null, null);
-                if (result.AsyncWaitHandle.WaitOne(timeout, false))
-                {
-                    return callback.EndInvoke(result).HostName;
-                }
-                return ip;
+                return result.AsyncWaitHandle.WaitOne(timeout, false) ? callback.EndInvoke(result).HostName : ip;
             }
             catch (Exception)
             {
@@ -51,32 +44,32 @@ namespace UlteriusServer.TaskServer.Services.Network
 
         public static List<NetworkDevices> ConnectedDevices()
         {
-            var all = GetAllDevicesOnLAN();
+            var all = GetAllDevicesOnLan();
             foreach (var device in all)
             {
-                var name = "";
-                var currentStatus = settings.Read("Network", "SkipHostNameResolve", false);
+                var name = device.Key.ToString();
+                var currentStatus = Settings.Read("Network", "SkipHostNameResolve", false);
                 if (!currentStatus)
                 {
                     try
                     {
-                        var hostEntry = GetReverseDNS(device.Key.ToString(), 1000);
+                        var hostEntry = GetReverseDns(name, 250);
                         name = hostEntry;
                     }
                     catch (SocketException)
                     {
-                        name = "null";
+                        //name = "null";
                     }
                 }
                 else
                 {
-                    name = "null";
+                    //name = "null";
                 }
                 Devices.Add(new NetworkDevices
                 {
-                    name = name,
-                    ip = device.Key.ToString(),
-                    macAddress = device.Value.ToString()
+                    Name = name,
+                    Ip = device.Key.ToString(),
+                    MacAddress = device.Value.ToString()
                 });
             }
 
@@ -107,11 +100,10 @@ namespace UlteriusServer.TaskServer.Services.Network
         ///     and can be discarded by IP address range.
         /// </remarks>
         /// <returns></returns>
-        private static Dictionary<IPAddress, PhysicalAddress> GetAllDevicesOnLAN()
+        private static Dictionary<IPAddress, PhysicalAddress> GetAllDevicesOnLan()
         {
-            var all = new Dictionary<IPAddress, PhysicalAddress>();
+            var all = new Dictionary<IPAddress, PhysicalAddress> {{GetIpAddress(), GetMacAddress()}};
             // Add this PC to the list...
-            all.Add(GetIPAddress(), GetMacAddress());
             var spaceForNetTable = 0;
             // Get the space needed
             // We do that by requesting the table, but not giving any space at all.
@@ -128,31 +120,30 @@ namespace UlteriusServer.TaskServer.Services.Network
                 if (errorCode != 0)
                 {
                     // Failed for some reason - can do no more here.
-                    throw new Exception(string.Format(
-                        "Unable to retrieve network table. Error code {0}", errorCode));
+                    throw new Exception($"Unable to retrieve network table. Error code {errorCode}");
                 }
                 // Get the rows count
                 var rowsCount = Marshal.ReadInt32(rawTable);
                 var currentBuffer = new IntPtr(rawTable.ToInt64() + Marshal.SizeOf(typeof(int)));
                 // Convert the raw table to individual entries
-                var rows = new MIB_IPNETROW[rowsCount];
+                var rows = new MibIpnetrow[rowsCount];
                 for (var index = 0; index < rowsCount; index++)
                 {
-                    rows[index] = (MIB_IPNETROW) Marshal.PtrToStructure(new IntPtr(currentBuffer.ToInt64() +
+                    rows[index] = (MibIpnetrow) Marshal.PtrToStructure(new IntPtr(currentBuffer.ToInt64() +
                                                                                    index*
-                                                                                   Marshal.SizeOf(typeof(MIB_IPNETROW))
+                                                                                   Marshal.SizeOf(typeof(MibIpnetrow))
                         ),
-                        typeof(MIB_IPNETROW));
+                        typeof(MibIpnetrow));
                 }
                 // Define the dummy entries list (we can discard these)
-                var virtualMAC = new PhysicalAddress(new byte[] {0, 0, 0, 0, 0, 0});
-                var broadcastMAC = new PhysicalAddress(new byte[] {255, 255, 255, 255, 255, 255});
+                var virtualMac = new PhysicalAddress(new byte[] {0, 0, 0, 0, 0, 0});
+                var broadcastMac = new PhysicalAddress(new byte[] {255, 255, 255, 255, 255, 255});
                 foreach (var row in rows)
                 {
                     var ip = new IPAddress(BitConverter.GetBytes(row.dwAddr));
-                    byte[] rawMAC = {row.mac0, row.mac1, row.mac2, row.mac3, row.mac4, row.mac5};
-                    var pa = new PhysicalAddress(rawMAC);
-                    if (!pa.Equals(virtualMAC) && !pa.Equals(broadcastMAC) && !IsMulticast(ip))
+                    byte[] rawMac = {row.mac0, row.mac1, row.mac2, row.mac3, row.mac4, row.mac5};
+                    var pa = new PhysicalAddress(rawMac);
+                    if (!pa.Equals(virtualMac) && !pa.Equals(broadcastMac) && !IsMulticast(ip))
                     {
                         //Console.WriteLine("IP: {0}\t\tMAC: {1}", ip.ToString(), pa.ToString());
                         if (!all.ContainsKey(ip))
@@ -174,7 +165,7 @@ namespace UlteriusServer.TaskServer.Services.Network
         ///     Gets the IP address of the current PC
         /// </summary>
         /// <returns></returns>
-        public static IPAddress GetIPAddress()
+        public static IPAddress GetIpAddress()
         {
             var strHostName = Dns.GetHostName();
             var ipEntry = Dns.GetHostEntry(strHostName);
@@ -209,8 +200,8 @@ namespace UlteriusServer.TaskServer.Services.Network
             var result = true;
             if (!ip.IsIPv6Multicast)
             {
-                var highIP = ip.GetAddressBytes()[0];
-                if (highIP < 224 || highIP > 239)
+                var highIp = ip.GetAddressBytes()[0];
+                if (highIp < 224 || highIp > 239)
                 {
                     result = false;
                 }
@@ -241,20 +232,20 @@ namespace UlteriusServer.TaskServer.Services.Network
         ///     DO NOT MODIFY THIS STRUCTURE.
         /// </summary>
         [StructLayout(LayoutKind.Sequential)]
-        private struct MIB_IPNETROW
+        private struct MibIpnetrow
         {
-            [MarshalAs(UnmanagedType.U4)] public readonly int dwIndex;
-            [MarshalAs(UnmanagedType.U4)] public readonly int dwPhysAddrLen;
+            [MarshalAs(UnmanagedType.U4)] private readonly int dwIndex;
+            [MarshalAs(UnmanagedType.U4)] private readonly int dwPhysAddrLen;
             [MarshalAs(UnmanagedType.U1)] public readonly byte mac0;
             [MarshalAs(UnmanagedType.U1)] public readonly byte mac1;
             [MarshalAs(UnmanagedType.U1)] public readonly byte mac2;
             [MarshalAs(UnmanagedType.U1)] public readonly byte mac3;
             [MarshalAs(UnmanagedType.U1)] public readonly byte mac4;
             [MarshalAs(UnmanagedType.U1)] public readonly byte mac5;
-            [MarshalAs(UnmanagedType.U1)] public readonly byte mac6;
-            [MarshalAs(UnmanagedType.U1)] public readonly byte mac7;
+            [MarshalAs(UnmanagedType.U1)] private readonly byte mac6;
+            [MarshalAs(UnmanagedType.U1)] private readonly byte mac7;
             [MarshalAs(UnmanagedType.U4)] public readonly int dwAddr;
-            [MarshalAs(UnmanagedType.U4)] public readonly int dwType;
+            [MarshalAs(UnmanagedType.U4)] private readonly int dwType;
         }
     }
 }
