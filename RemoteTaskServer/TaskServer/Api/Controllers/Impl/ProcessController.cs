@@ -81,15 +81,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
             _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, processInformation);
         }
 
-        public void StreamProcessInformation()
-        {
-            while (_client.IsConnected)
-            {
-                RequestProcessInformation();
-                Thread.Sleep(1000);
-            }
-        }
-
+     
 
         private List<SystemProcesses> GetProcessInformation()
         {

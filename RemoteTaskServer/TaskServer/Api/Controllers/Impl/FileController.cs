@@ -49,14 +49,14 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                 {
                     if (IntPtr.Size == 8)
                     {
-                        Console.WriteLine("x64 Everything Loaded");
+                        Console.WriteLine(@"x64 Everything Loaded");
                         if (File.Exists(startupDirEndingWithSlash + "Everything64.dll"))
 
                             File.Copy(startupDirEndingWithSlash + "Everything64.dll", resolvedDomainTimeFileName);
                     }
                     else
                     {
-                        Console.WriteLine("x86 Everything Loaded");
+                        Console.WriteLine(@"x86 Everything Loaded");
                         if (File.Exists(startupDirEndingWithSlash + "Everything32.dll"))
                             File.Copy(startupDirEndingWithSlash + "Everything32.dll", resolvedDomainTimeFileName);
                     }
@@ -212,7 +212,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
             var webPath = settings.Read("WebServer", "WebFilePath", HttpServer.defaultPath);
 
             var file = new FileInfo(path);
-            file.Directory.Create(); // If the directory already exists, this method does nothing.
+            file.Directory?.Create(); // If the directory already exists, this method does nothing.
 
 
             var fileName = Path.GetFileName(path);

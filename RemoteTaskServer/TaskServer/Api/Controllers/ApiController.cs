@@ -121,9 +121,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers
                     case PacketType.RequestProcess:
                         processController.RequestProcessInformation();
                         break;
-                    case PacketType.StreamProcesses:
-                        Task.Run(() => { processController.StreamProcessInformation(); });
-                        break;
+                  
                     case PacketType.RequestCpuInformation:
                         cpuController.GetCpuInformation();
                         break;

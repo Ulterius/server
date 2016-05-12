@@ -28,7 +28,7 @@ namespace UlteriusServer.TaskServer
         public Packets(AuthClient client, string packetData)
         {
             //An entire base64 string is an aes encrypted packet
-         /*if (StringUtilities.IsBase64String(packetData))
+         if (StringUtilities.IsBase64String(packetData))
             {
                 try
                 {
@@ -69,7 +69,7 @@ namespace UlteriusServer.TaskServer
                     PacketType = PacketType.InvalidOrEmptyPacket;
                     return;
                 }
-            }*/
+            }
 
 
             JObject deserializedPacket = null;
@@ -122,12 +122,6 @@ namespace UlteriusServer.TaskServer
                         break;
                     case "requestprocessinformation":
                         PacketType = PacketType.RequestProcess;
-                        break;
-                    case "streamprocessinformation":
-                        PacketType = PacketType.StreamProcesses;
-                        break;
-                    case "stopprocessinformationstream":
-                        PacketType = PacketType.StopProcessStream;
                         break;
                     case "requestcpuinformation":
                         PacketType = PacketType.RequestCpuInformation;
@@ -289,8 +283,6 @@ public enum PacketType
     RestartServer,
     GetActiveWindowsSnapshots,
     Authenticate,
-    StreamProcesses,
-    StopProcessStream,
     CreateFileTree,
     RequestGpuInformation,
     Plugin,

@@ -25,7 +25,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
             _packet = packet;
         }
 
-
+        
         private string GetUserTilePath(string username)
         {
             // username: use null for current user
