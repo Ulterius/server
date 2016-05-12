@@ -196,10 +196,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers
                         break;
                     case PacketType.CheckUpdate:
                         serverController.CheckForUpdate();
-                        break;
-                    case PacketType.GetActiveWindowsSnapshots:
-                        windowsController.GetActiveWindowsImages();
-                        break;
+                        break;  
                     case PacketType.RefreshCameras:
                         webcamController.RefreshCameras();
                         break;
