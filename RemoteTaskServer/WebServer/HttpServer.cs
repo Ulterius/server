@@ -217,50 +217,55 @@ namespace RemoteTaskServer.WebServer
             return false;
         }
 
+        private void HandleUpload(HttpListenerContext context)
+        {
+            var request = context.Request;
+            if (request.Url.AbsolutePath.Contains("upload"))
+            {
+                var fileKey = request.Headers["File-Key"];
+                var parser = new MultipartParser(context.Request.InputStream);
+
+                using (var writer = new StreamWriter(context.Response.OutputStream, Encoding.UTF8))
+                {
+                    if (parser.Success)
+                    {
+                        var saved = SaveFile(fileKey, parser.FileContents);
+
+                        var responseObject = new
+                        {
+                            fileKey,
+                            success = saved,
+                            message = "File Uploaded!"
+                        };
+                        var json = new JavaScriptSerializer().Serialize(responseObject);
+                        writer.WriteLine(json);
+                    }
+                    else
+                    {
+                        var responseObject = new
+                        {
+                            fileKey,
+                            success = false,
+                            message = "The posted file was not recognised."
+                        };
+                        var json = new JavaScriptSerializer().Serialize(responseObject);
+                        writer.WriteLine(json);
+                    }
+                    context.Response.AddHeader("Access-Control-Allow-Origin", "*");
+                    context.Response.ContentType = "application/json";
+                    context.Response.StatusCode = 200;
+                    context.Response.Close();
+                }
+            }
+        }
+
         private void Process(HttpListenerContext context)
         {
             var request = context.Request;
             if (request.HttpMethod == "POST")
             {
-                if (request.Url.AbsolutePath.Contains("upload"))
-                {
-                    var fileKey = request.Headers["File-Key"];
-                    var parser = new MultipartParser(context.Request.InputStream);
-
-                    using (var writer = new StreamWriter(context.Response.OutputStream, Encoding.UTF8))
-                    {
-                        if (parser.Success)
-                        {
-                            var saved = SaveFile(fileKey, parser.FileContents);
-
-                            var responseObject = new
-                            {
-                                fileKey,
-                                success = saved,
-                                message = "File Uploaded!"
-                            };
-                            var json = new JavaScriptSerializer().Serialize(responseObject);
-                            Console.WriteLine(json);
-                            writer.WriteLine(json);
-                        }
-                        else
-                        {
-                            var responseObject = new
-                            {
-                                fileKey,
-                                success = false,
-                                message = "The posted file was not recognised."
-                            };
-                            var json = new JavaScriptSerializer().Serialize(responseObject);
-                            writer.WriteLine(json);
-                        }
-                        context.Response.AddHeader("Access-Control-Allow-Origin", "*");
-                        context.Response.ContentType = "application/json";
-                        context.Response.StatusCode = 200;
-                        context.Response.Close();
-                        return;
-                    }
-                }
+                HandleUpload(context);
+                return;
             }
             var filename = context.Request.Url.AbsolutePath;
             filename = filename.Substring(1);

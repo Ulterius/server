@@ -77,6 +77,7 @@ namespace UlteriusServer.TerminalServer.Messaging
                 }
                 catch
                 {
+                    // ignored
                 }
             }
 
