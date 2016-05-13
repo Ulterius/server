@@ -261,14 +261,12 @@ namespace RemoteTaskServer.WebServer
 
         private void Process(HttpListenerContext context)
         {
-
             var request = context.Request;
             if (request.HttpMethod == "OPTIONS")
             {
                 context.Response.AddHeader("Access-Control-Allow-Origin", "*");
-                context.Response.AddHeader("Access-Control-Allow-Methods", "GET, POST");
+                context.Response.AddHeader("Access-Control-Allow-Methods", "POST,GET,OPTIONS");
             }
-          
             if (request.HttpMethod == "POST")
             {
                 HandleUpload(context);
@@ -322,8 +320,16 @@ namespace RemoteTaskServer.WebServer
                 }
             }
             else
+
             {
-                context.Response.StatusCode = (int) HttpStatusCode.NotFound;
+                if (request.Url.AbsolutePath.Contains("upload"))
+                {
+                    context.Response.StatusCode = 200;
+                }
+                else
+                {
+                    context.Response.StatusCode = (int) HttpStatusCode.NotFound;
+                }
             }
 
             context.Response.OutputStream.Close();
