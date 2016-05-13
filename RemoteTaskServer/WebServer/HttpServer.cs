@@ -266,6 +266,7 @@ namespace RemoteTaskServer.WebServer
             {
                 context.Response.AddHeader("Access-Control-Allow-Origin", "*");
                 context.Response.AddHeader("Access-Control-Allow-Methods", "POST,GET,OPTIONS");
+                context.Response.AddHeader("Access-Control-Allow-Headers", "Content-Type, Accept, X-Requested-With, File-Key");
             }
             if (request.HttpMethod == "POST")
             {
