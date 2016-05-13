@@ -261,7 +261,16 @@ namespace RemoteTaskServer.WebServer
 
         private void Process(HttpListenerContext context)
         {
+
             var request = context.Request;
+            if (request.HttpMethod == "OPTIONS")
+            {
+                context.Response.AddHeader("Access-Control-Allow-Origin", "*");
+                context.Response.AddHeader("Access-Control-Allow-Headers", "Content-Type, Accept, X-Requested-With");
+                context.Response.AddHeader("Access-Control-Allow-Methods", "GET, POST");
+                context.Response.AddHeader("Access-Control-Max-Age", "1728000");
+            }
+          
             if (request.HttpMethod == "POST")
             {
                 HandleUpload(context);
