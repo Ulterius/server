@@ -255,6 +255,7 @@ namespace RemoteTaskServer.WebServer
                     context.Response.ContentType = "application/json";
                     context.Response.StatusCode = 200;
                     context.Response.Close();
+                    context.Response.OutputStream.Close();
                 }
             }
         }
