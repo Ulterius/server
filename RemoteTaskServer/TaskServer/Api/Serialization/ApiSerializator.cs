@@ -7,6 +7,8 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web.Script.Serialization;
+using UlteriusServer.Authentication;
+using UlteriusServer.TaskServer.Api.Controllers;
 using UlteriusServer.Utilities.Security;
 using vtortola.WebSockets;
 
@@ -28,16 +30,17 @@ namespace UlteriusServer.TaskServer.Api.Serialization
             //we sanity stuff
             try
             {
-                foreach (var encryptedData in from connectedClient in TaskManagerServer.AllClients
-                    select connectedClient.Value
-                    into authClient
-                    where authClient.Client == client
-                    where authClient.AesShook
-                    let keybytes = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(authClient.AesKey))
-                    let iv = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(authClient.AesIv))
-                    select UlteriusAes.Encrypt(json, keybytes, iv))
+                AuthClient authClient;
+                TaskManagerServer.AllClients.TryGetValue(client.GetHashCode().ToString(), out authClient);
+                if (authClient != null)
                 {
-                    json = Convert.ToBase64String(encryptedData);
+                    if (authClient.AesShook)
+                    {
+                        var keyBytes = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(authClient.AesKey));
+                        var keyIv = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(authClient.AesIv));
+                        var encryptedData = UlteriusAes.Encrypt(json, keyBytes, keyIv);
+                        json = Convert.ToBase64String(encryptedData);
+                    }
                 }
             }
             catch (Exception)

@@ -6,6 +6,7 @@ using System.DirectoryServices.AccountManagement;
 using System.Linq;
 using System.Reflection;
 using System.Xml;
+using UlteriusServer.Authentication;
 using UlteriusServer.TaskServer.Api.Serialization;
 using UlteriusServer.Utilities;
 using UlteriusServer.Utilities.Security;
@@ -31,21 +32,28 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
         {
             try
             {
-                var encryptedKey = _packet.Args[0].ToString();
-                var encryptedIv = _packet.Args[1].ToString();
-                foreach (
-                    var connectedClient in
-                        TaskManagerServer.AllClients.Where(connectedClient => connectedClient.Value.Client == _client))
+                var authKey = _client.GetHashCode().ToString();
+                AuthClient authClient;
+                TaskManagerServer.AllClients.TryGetValue(authKey, out authClient);
+                if (authClient != null)
                 {
-                    var privateKey = connectedClient.Value.PrivateKey;
-                    connectedClient.Value.AesKey = Rsa.Decryption(privateKey, encryptedKey);
-                    connectedClient.Value.AesIv = Rsa.Decryption(privateKey, encryptedIv);
-                    connectedClient.Value.AesShook = true;
+                    var privateKey = authClient.PrivateKey;
+                    var encryptedKey = _packet.Args[0].ToString();
+                    var encryptedIv = _packet.Args[1].ToString();
+                    authClient.AesKey = Rsa.Decryption(privateKey, encryptedKey);
+                    authClient.AesIv = Rsa.Decryption(privateKey, encryptedIv);
+                    authClient.AesShook = true;
+                    //update the auth client
+                    TaskManagerServer.AllClients[authKey] = authClient;
                     var endData = new
                     {
                         shook = true
                     };
                     _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, endData);
+                }
+                else
+                {
+                    throw new Exception("Auth client is null");
                 }
             }
             catch (Exception e)
@@ -72,12 +80,13 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
             {
                 authenticated = context.ValidateCredentials(GetUsername(), password);
             }
-            foreach (
-                var aClient in
-                    TaskManagerServer.AllClients.Select(connectedClient => connectedClient.Value)
-                        .Where(aClient => aClient.Client == _client))
+            var authKey = _client.GetHashCode().ToString();
+            AuthClient authClient;
+            TaskManagerServer.AllClients.TryGetValue(authKey, out authClient);
+            if (authClient != null)
             {
-                aClient.Authenticated = authenticated;
+                authClient.Authenticated = authenticated;
+                TaskManagerServer.AllClients[authKey] = authClient;
             }
             var authenticationData = new
             {
