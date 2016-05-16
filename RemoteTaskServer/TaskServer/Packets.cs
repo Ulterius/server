@@ -70,7 +70,7 @@ namespace UlteriusServer.TaskServer
                     return;
                 }
             }
-           
+            
 
             JObject deserializedPacket = null;
             try
