@@ -27,10 +27,12 @@ namespace UlteriusServer
         [STAThread]
         private static void Main(string[] args)
         {
+            Cleanup();
             if (!Debugger.IsAttached)
                 ExceptionHandler.AddGlobalHandlers();
 
-            AppDomain.CurrentDomain.ProcessExit += new EventHandler(OnProcessExit);
+        
+
 
             var handle = GetConsoleWindow();
             // Hide
@@ -50,11 +52,24 @@ namespace UlteriusServer
             ConsoleMain(args);
         }
         //Evan will have to support me and oumy cat once this gets released into the public.
-        private static void OnProcessExit(object sender, EventArgs e)
+        private static void Cleanup()
         {
-            Console.WriteLine("Goodbye!");
-        }
 
+            var webSockifyInstances = Process.GetProcessesByName("websockify");
+            foreach (var instance in webSockifyInstances)
+            {
+                try
+                {
+                    instance.Kill();
+                }
+                catch (Exception)
+                {
+
+                    //who cares
+                }
+            }
+        }
+     
 
         private static void ConsoleMain(string[] args)
         {
@@ -92,5 +107,7 @@ namespace UlteriusServer
 
         [DllImport("kernel32.dll")]
         private static extern bool AllocConsole();
+
+
     }
 }
