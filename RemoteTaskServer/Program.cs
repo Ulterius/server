@@ -34,21 +34,18 @@ namespace UlteriusServer
         
 
 
-            var handle = GetConsoleWindow();
+         /*   var handle = GetConsoleWindow();
             // Hide
             ShowWindow(handle, SW_HIDE);
             var filestream = new FileStream("log.txt", FileMode.Create);
             var streamwriter = new StreamWriter(filestream) {AutoFlush = true};
             Console.SetOut(streamwriter);
-            Console.SetError(streamwriter);
+            Console.SetError(streamwriter);*/
             Console.Title = Resources.Program_Title;
-            if (!Debugger.IsAttached)
-                ExceptionHandler.AddGlobalHandlers();
-
-            var notifyThread = new Thread(
-                UlteriusTray.ShowTray);
-            notifyThread.Start();
-            AllocConsole();
+         //   var notifyThread = new Thread(
+            //    UlteriusTray.ShowTray);
+          //  notifyThread.Start();
+          //  AllocConsole();
             ConsoleMain(args);
         }
         //Evan will have to support me and oumy cat once this gets released into the public.
@@ -76,13 +73,8 @@ namespace UlteriusServer
             Tools.ConfigureServer();
             var settings = new Settings();
             var useTerminal = settings.Read("Terminal", "AllowTerminal", true);
-            var usePlugins = settings.Read("Plugins", "LoadPlugins", true);
             var useWebServer = settings.Read("WebServer", "UseWebServer", true);
             WebCamManager.LoadWebcams();
-            if (usePlugins)
-            {
-                //  PluginHandler.LoadPlugins();
-            }
             if (useWebServer)
             {
                 HttpServer.Setup();
