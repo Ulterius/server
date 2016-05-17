@@ -79,7 +79,7 @@ namespace UlteriusServer.TaskServer
                     Console.WriteLine("Disconnection from " + clientSocket.RemoteEndpoint);
                     var userCount = AllClients.Count;
                     var extra = userCount < 1 ? "s" : string.Empty;
-                 //   UlteriusTray.ShowMessage($"There are now {userCount} user{extra} connected.", "A user disconnected!");
+                  UlteriusTray.ShowMessage($"There are now {userCount} user{extra} connected.", "A user disconnected!");
                 }
             }
         }
@@ -117,7 +117,7 @@ namespace UlteriusServer.TaskServer
             clientSocket.WriteStringAsync(welcomeMessage, CancellationToken.None);
             var userCount = AllClients.Count;
             var extra = userCount > 1 ? "s" : string.Empty;
-        //    UlteriusTray.ShowMessage($"There are now {userCount} user{extra} connected.", "A new user connected!");
+         UlteriusTray.ShowMessage($"There are now {userCount} user{extra} connected.", "A new user connected!");
         }
 
         private static void Log(string message)
