@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -38,28 +39,37 @@ namespace UlteriusServer.TaskServer.Services.System
             SystemInformation.CdRom = GetCdRom();
             SystemInformation.Bios = GetBiosInfo();
             SystemInformation.RunningAsAdmin = IsRunningAsAdministrator();
-            Task.Factory.StartNew(() =>
+            var backgroundWorker = new BackgroundWorker
             {
-                while (true)
+                WorkerReportsProgress = false,
+                WorkerSupportsCancellation = true
+            };
+            backgroundWorker.DoWork += BackgroundWorkerOnDoWork;
+           backgroundWorker.RunWorkerAsync();
+        }
+
+        private void BackgroundWorkerOnDoWork(object sender, DoWorkEventArgs e)
+        {
+            BackgroundWorker worker = (BackgroundWorker)sender;
+            while (!worker.CancellationPending)
+            {
+                try
                 {
-                    try
-                    {
-                        SystemInformation.AvailableMemory = AvailablePhysicalMemory;
-                        SystemInformation.Drives = GetDriveInformation();
-                        SystemInformation.UsedMemory = GetUsedMemory();
-                        SystemInformation.TotalMemory = GetTotalPhysicalMemory();
-                        SystemInformation.RunningProcesses = GetTotalProcesses();
-                        SystemInformation.UpTime = GetUpTime().TotalMilliseconds;
-                        SystemInformation.NetworkInfo = GetNetworkInfo();
-                        SystemInformation.CpuUsage = GetPerformanceCounters();
-                        SystemInformation.CpuTemps = GetCpuTemps();
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine(e.Message);
-                    }
+                    SystemInformation.AvailableMemory = AvailablePhysicalMemory;
+                    SystemInformation.Drives = GetDriveInformation();
+                    SystemInformation.UsedMemory = GetUsedMemory();
+                    SystemInformation.TotalMemory = GetTotalPhysicalMemory();
+                    SystemInformation.RunningProcesses = GetTotalProcesses();
+                    SystemInformation.UpTime = GetUpTime().TotalMilliseconds;
+                    SystemInformation.NetworkInfo = GetNetworkInfo();
+                    SystemInformation.CpuUsage = GetPerformanceCounters();
+                    SystemInformation.CpuTemps = GetCpuTemps();
                 }
-            });
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
         }
 
         public string GetMotherBoard()

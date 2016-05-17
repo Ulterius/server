@@ -3,12 +3,12 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using UlteriusServer.TaskServer.Api.Models;
 using UlteriusServer.TaskServer.Api.Serialization;
+using UlteriusServer.Utilities;
 using vtortola.WebSockets;
 
 #endregion
@@ -26,6 +26,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
             _client = client;
             _packet = packet;
         }
+
 
         public void StartProcess()
         {
@@ -82,19 +83,19 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
             _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, processInformation);
         }
 
-
-        /// <summary>
-        ///     Gets the icon for a process by its path
-        /// </summary>
-        /// <param name="path"></param>
-        /// <returns></returns>
-        private string GetIconForProcess(string path)
+        public string GetIconForProcess(string path)
         {
-            if (string.IsNullOrEmpty(path)) return "null";
-            var appIcon = Icon.ExtractAssociatedIcon(path);
-            if (appIcon == null) return "null";
+            if (string.IsNullOrEmpty(path))
+            {
+                return "null";
+            }
+            var icon = IconTools.GetIconForFile(
+                path,
+                ShellIconSize.LargeIcon
+                );
+            if (icon == null) return "null";
             var ms = new MemoryStream();
-            appIcon.ToBitmap().Save(ms, ImageFormat.Png);
+            icon.ToBitmap().Save(ms, ImageFormat.Png);
             var byteImage = ms.ToArray();
             var sigBase64 = Convert.ToBase64String(byteImage); //Get Base64
             return sigBase64;
@@ -120,7 +121,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                     var wallTime = DateTime.Now - process.StartTime;
                     if (process.HasExited) wallTime = process.ExitTime - process.StartTime;
                     var procTime = process.TotalProcessorTime;
-                    var cpuUsage = 100 * procTime.TotalMilliseconds / wallTime.TotalMilliseconds;
+                    var cpuUsage = 100*procTime.TotalMilliseconds/wallTime.TotalMilliseconds;
                     var sysP = new SystemProcesses
                     {
                         Id = processId,
