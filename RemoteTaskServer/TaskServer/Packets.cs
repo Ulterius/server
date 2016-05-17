@@ -28,7 +28,7 @@ namespace UlteriusServer.TaskServer
         public Packets(AuthClient client, string packetData)
         {
             //An entire base64 string is an aes encrypted packet
-        if (StringUtilities.IsBase64String(packetData))
+      if (StringUtilities.IsBase64String(packetData))
             {
                 try
                 {
@@ -70,7 +70,7 @@ namespace UlteriusServer.TaskServer
                     return;
                 }
             }
-            
+           
 
             JObject deserializedPacket = null;
             try
@@ -155,6 +155,9 @@ namespace UlteriusServer.TaskServer
                         break;
                     case "startvncserver":
                         PacketType = PacketType.StartVncServer;
+                        break;
+                    case "stopvncserver":
+                        PacketType = PacketType.StopVncServer;
                         break;
                     case "changevncpass":
                         PacketType = PacketType.ChangeVncPass;
@@ -308,5 +311,6 @@ public enum PacketType
     ApproveFile,
     RequestFile,
     RemoveFile,
-    SearchFiles
+    SearchFiles,
+    StopVncServer
 }

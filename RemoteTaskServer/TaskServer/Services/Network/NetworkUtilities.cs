@@ -7,6 +7,7 @@ using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
+using NVNC;
 using UlteriusServer.Utilities;
 
 #endregion
@@ -27,7 +28,7 @@ namespace UlteriusServer.TaskServer.Services.Network
         private static readonly Settings Settings = new Settings();
 
         private static readonly List<NetworkDevices> Devices = new List<NetworkDevices>();
-
+        public static VncServer vncServer;
         private static string GetReverseDns(string ip, int timeout)
         {
             try

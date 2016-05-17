@@ -3,11 +3,12 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.IO;
 using System.Linq;
-using System.Threading;
 using UlteriusServer.TaskServer.Api.Models;
 using UlteriusServer.TaskServer.Api.Serialization;
-using UlteriusServer.Utilities;
 using vtortola.WebSockets;
 
 #endregion
@@ -81,7 +82,23 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
             _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, processInformation);
         }
 
-     
+
+        /// <summary>
+        ///     Gets the icon for a process by its path
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
+        private string GetIconForProcess(string path)
+        {
+            if (string.IsNullOrEmpty(path)) return "null";
+            var appIcon = Icon.ExtractAssociatedIcon(path);
+            if (appIcon == null) return "null";
+            var ms = new MemoryStream();
+            appIcon.ToBitmap().Save(ms, ImageFormat.Png);
+            var byteImage = ms.ToArray();
+            var sigBase64 = Convert.ToBase64String(byteImage); //Get Base64
+            return sigBase64;
+        }
 
         private List<SystemProcesses> GetProcessInformation()
         {
@@ -90,11 +107,12 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
             foreach (var process in processKil)
             {
                 try
-                {
-                    var name = process.ProcessName;
 
+                {
+                    if (process.HasExited) continue;
+                    var name = process.ProcessName;
                     var fullPath = process.MainModule.FileName;
-                    var icon = Tools.GetIconForProcess(fullPath);
+                    var icon = GetIconForProcess(fullPath);
                     var processId = process.Id;
                     var handles = process.HandleCount;
                     var threads = process.Threads.Count;
@@ -102,8 +120,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                     var wallTime = DateTime.Now - process.StartTime;
                     if (process.HasExited) wallTime = process.ExitTime - process.StartTime;
                     var procTime = process.TotalProcessorTime;
-                    var cpuUsage = 100*procTime.TotalMilliseconds/wallTime.TotalMilliseconds;
-
+                    var cpuUsage = 100 * procTime.TotalMilliseconds / wallTime.TotalMilliseconds;
                     var sysP = new SystemProcesses
                     {
                         Id = processId,
@@ -117,16 +134,12 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                     };
                     processInformation.Add(sysP);
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
-                
-                    Console.WriteLine("Process list error ");
-                 Console.WriteLine(e.Message);
+                    //who cares
                 }
             }
             return processInformation;
         }
-
-      
     }
 }

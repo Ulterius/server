@@ -180,6 +180,9 @@ namespace UlteriusServer.TaskServer.Api.Controllers
                     case PacketType.StartVncServer:
                         vncController.StartVncServer();
                         break;
+                    case PacketType.StopVncServer:
+                
+                        break;
                     case PacketType.ApproveFile:
                         fileController.ApproveFile();
                         break;

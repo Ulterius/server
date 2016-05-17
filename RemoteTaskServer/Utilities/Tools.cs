@@ -167,27 +167,6 @@ namespace UlteriusServer.Utilities
             return queryString;
         }
 
-        /// <summary>
-        ///     Gets the icon for a process by its path
-        /// </summary>
-        /// <param name="path"></param>
-        /// <returns></returns>
-        public static string GetIconForProcess(string path)
-        {
-            if (string.IsNullOrEmpty(path))
-            {
-                return "null";
-            }
-            var appIcon = Icon.ExtractAssociatedIcon(path);
-            if (appIcon != null)
-            {
-                var ms = new MemoryStream();
-                appIcon?.ToBitmap().Save(ms, ImageFormat.Png);
-                var byteImage = ms.ToArray();
-                var SigBase64 = Convert.ToBase64String(byteImage); //Get Base64
-                return SigBase64;
-            }
-            return "null";
-        }
+     
     }
 }
