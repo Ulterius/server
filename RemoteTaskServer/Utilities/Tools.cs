@@ -179,11 +179,15 @@ namespace UlteriusServer.Utilities
                 return "null";
             }
             var appIcon = Icon.ExtractAssociatedIcon(path);
-            var ms = new MemoryStream();
-            appIcon?.ToBitmap().Save(ms, ImageFormat.Png);
-            var byteImage = ms.ToArray();
-            var SigBase64 = Convert.ToBase64String(byteImage); //Get Base64
-            return SigBase64;
+            if (appIcon != null)
+            {
+                var ms = new MemoryStream();
+                appIcon?.ToBitmap().Save(ms, ImageFormat.Png);
+                var byteImage = ms.ToArray();
+                var SigBase64 = Convert.ToBase64String(byteImage); //Get Base64
+                return SigBase64;
+            }
+            return "null";
         }
     }
 }

@@ -117,10 +117,11 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                     };
                     processInformation.Add(sysP);
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
-
-                    //Who cares
+                
+                    Console.WriteLine("Process list error ");
+                 Console.WriteLine(e.Message);
                 }
             }
             return processInformation;
