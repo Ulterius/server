@@ -70,6 +70,7 @@ namespace UlteriusServer.TerminalServer.Messaging.Serialization
                     {
                         try
                         {
+                            
                             var keybytes = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(user.PrivateKey));
                             var iv = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(user.AesIv));
                             var packet = Convert.FromBase64String(data);
@@ -87,7 +88,7 @@ namespace UlteriusServer.TerminalServer.Messaging.Serialization
                     {
                         if (user.AesShook)
                         {
-                            return Build("", null, out type);
+                            return Build("alreadyshook", null, out type);
                         }
                         var json = JObject.Parse(data);
                         var typeName = json.Property("type").Value.ToString();
@@ -95,7 +96,7 @@ namespace UlteriusServer.TerminalServer.Messaging.Serialization
                     }
                 }
             }
-            return Build("", null, out type);
+            return Build("error", null, out type);
         }
 
         private IConnectionRequest Build(string typeName, JObject json, out Type type, UserConnection user = null)
