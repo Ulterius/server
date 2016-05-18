@@ -41,11 +41,7 @@ namespace UlteriusServer.TerminalServer.Messaging.TerminalControl.Handlers
             var connection = _connections.GetConnection(message.ConnectionId);
             if (!connection.AesShook)
             {
-                connection.Push(new AesShookEvent
-                {
-                    AesShook = false,
-                     ConnectionId = message.ConnectionId
-                });
+               Console.WriteLine("AES not shook, cannot create terminal");
                 return;
             }
             if (connection == null)
