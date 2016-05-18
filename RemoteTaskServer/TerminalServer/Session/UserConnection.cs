@@ -63,6 +63,7 @@ namespace UlteriusServer.TerminalServer.Session
             {
                 ConnectionId = ConnectionId,
                 UserId = UserId,
+                AesShook = AesShook,
                 PublicKey = Rsa.SecureStringToString(PublicKey),
                 Terminals = _cliSessions.Select(kv => new TerminalDescriptor
                 {
@@ -73,6 +74,22 @@ namespace UlteriusServer.TerminalServer.Session
             });
         }
 
+        public void AesInfo()
+        {
+            Push(new SessionStateEvent
+            {
+                ConnectionId = ConnectionId,
+                UserId = UserId,
+                AesShook = AesShook,
+                PublicKey = Rsa.SecureStringToString(PublicKey),
+                Terminals = _cliSessions.Select(kv => new TerminalDescriptor
+                {
+                    TerminalId = kv.Key,
+                    TerminalType = kv.Value.Type,
+                    CurrentPath = kv.Value.CurrentPath
+                }).ToArray()
+            });
+        }
         public void Append(Guid id, ICliSession cliSession)
         {
             _cliSessions.Add(id, cliSession);

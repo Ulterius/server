@@ -13,6 +13,7 @@ namespace UlteriusServer.TerminalServer.Messaging.TerminalControl.Events
         public Guid UserId { get; set; }
         public TerminalDescriptor[] Terminals { get; set; }
         public string PublicKey { get; set; }
+        public bool AesShook { get; set; }
         public Guid ConnectionId { get; set; }
     }
 

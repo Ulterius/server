@@ -199,11 +199,13 @@
     <Compile Include="TerminalServer\Messaging\IMessageBus.cs" />
     <Compile Include="TerminalServer\Messaging\Serialization\DefaultEventSerializator.cs" />
     <Compile Include="TerminalServer\Messaging\Serialization\IEventSerializator.cs" />
+    <Compile Include="TerminalServer\Messaging\TerminalControl\Events\AesShookEvent.cs" />
     <Compile Include="TerminalServer\Messaging\TerminalControl\Events\ClosedTerminalEvent.cs" />
     <Compile Include="TerminalServer\Messaging\TerminalControl\Events\CreatedTerminalEvent.cs" />
     <Compile Include="TerminalServer\Messaging\TerminalControl\Events\SessionStateEvent.cs" />
     <Compile Include="TerminalServer\Messaging\TerminalControl\Events\TerminalOutputEvent.cs" />
     <Compile Include="TerminalServer\Messaging\TerminalControl\Events\_ITerminalEvent.cs" />
+    <Compile Include="TerminalServer\Messaging\TerminalControl\Handlers\AesHandshakeRequestHandler.cs" />
     <Compile Include="TerminalServer\Messaging\TerminalControl\Handlers\CloseTerminalRequestHandler.cs" />
     <Compile Include="TerminalServer\Messaging\TerminalControl\Handlers\CreateTerminalRequestHandler.cs" />
     <Compile Include="TerminalServer\Messaging\TerminalControl\Handlers\InputTerminalRequestHandler.cs" />

@@ -40,7 +40,6 @@ namespace UlteriusServer.TerminalServer.Messaging
             var unsubs = new List<UnsubscribeAction>();
             var connectionId = GetConnectionId(_ws);
             var sessionId = GetSessionId(_ws);
-            var authClient = AddTerminalClient(_ws);
             try
             {
                 _log.Info("Starting session '{0}' at connection '{1}'", sessionId, connectionId);

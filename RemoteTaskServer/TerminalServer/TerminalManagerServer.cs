@@ -38,6 +38,7 @@ namespace UlteriusServer.TerminalServer
             server.Queue.SubscribeInstance(new CreateTerminalRequestHandler(manager, cliFactories, logger, sysinfo));
             server.Queue.SubscribeInstance(new CloseTerminalRequestHandler(manager, logger));
             server.Queue.SubscribeInstance(new InputTerminalRequestHandler(manager, logger));
+            server.Queue.SubscribeInstance(new AesHandshakeRequestHandler(manager, logger));
 
 
             try

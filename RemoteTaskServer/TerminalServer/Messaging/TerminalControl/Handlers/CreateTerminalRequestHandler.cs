@@ -39,6 +39,15 @@ namespace UlteriusServer.TerminalServer.Messaging.TerminalControl.Handlers
             if (factory == null)
                 throw new ArgumentException("There is no factory for this type");
             var connection = _connections.GetConnection(message.ConnectionId);
+            if (!connection.AesShook)
+            {
+                connection.Push(new AesShookEvent
+                {
+                    AesShook = false,
+                     ConnectionId = message.ConnectionId
+                });
+                return;
+            }
             if (connection == null)
                 throw new ArgumentException("The connection does not exists");
             var id = _sysinfo.Guid();
