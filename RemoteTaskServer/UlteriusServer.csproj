@@ -199,7 +199,6 @@
     <Compile Include="TerminalServer\Messaging\IMessageBus.cs" />
     <Compile Include="TerminalServer\Messaging\Serialization\DefaultEventSerializator.cs" />
     <Compile Include="TerminalServer\Messaging\Serialization\IEventSerializator.cs" />
-    <Compile Include="TerminalServer\Messaging\TerminalControl\Events\AesShookEvent.cs" />
     <Compile Include="TerminalServer\Messaging\TerminalControl\Events\ClosedTerminalEvent.cs" />
     <Compile Include="TerminalServer\Messaging\TerminalControl\Events\CreatedTerminalEvent.cs" />
     <Compile Include="TerminalServer\Messaging\TerminalControl\Events\SessionStateEvent.cs" />
