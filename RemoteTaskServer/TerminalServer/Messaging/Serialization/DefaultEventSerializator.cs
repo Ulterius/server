@@ -21,12 +21,12 @@ namespace UlteriusServer.TerminalServer.Messaging.Serialization
     {
         public void Serialize(Guid connectionId, IConnectionEvent eventObject, Stream output)
         {
+
+
             var serializer = new JsonSerializer {ContractResolver = new CamelCasePropertyNamesContractResolver()};
-            var connectedUsers = ConnectionManager._connections;
-            foreach (
-                var user in
-                    connectedUsers.Select(userObject => userObject.Value)
-                        .Where(user => user.ConnectionId == connectionId))
+            UserConnection user;
+            ConnectionManager._connections.TryGetValue(connectionId, out user);
+            if (user != null)
             {
                 var json = JObject.FromObject(eventObject, serializer);
                 json.Add("type", new JValue(eventObject.GetType().Name));
@@ -53,6 +53,7 @@ namespace UlteriusServer.TerminalServer.Messaging.Serialization
                     }
                 }
             }
+        
         }
 
         public IConnectionRequest Deserialize(Guid connectionId, Stream source, out Type type)

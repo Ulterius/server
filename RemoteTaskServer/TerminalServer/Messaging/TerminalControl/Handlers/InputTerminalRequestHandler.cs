@@ -37,7 +37,6 @@ namespace UlteriusServer.TerminalServer.Messaging.TerminalControl.Handlers
             var cli = connection.GetTerminalSession(message.TerminalId);
             if (cli == null)
                 throw new ArgumentException("CLI does not exist");
-            Console.WriteLine(message.Input + " " + message.CorrelationId);
             if (!connection.IsAuthed && message.Input.Equals("ulterius-auth"))
             {
                 connection.TryingAuth = true;

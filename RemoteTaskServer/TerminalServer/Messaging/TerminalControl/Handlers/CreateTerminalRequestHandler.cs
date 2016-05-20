@@ -35,30 +35,38 @@ namespace UlteriusServer.TerminalServer.Messaging.TerminalControl.Handlers
 
         public void Consume(CreateTerminalRequest message)
         {
-            var factory = _factories.SingleOrDefault(f => f.Type == message.TerminalType);
-            if (factory == null)
-                throw new ArgumentException("There is no factory for this type");
-            var connection = _connections.GetConnection(message.ConnectionId);
-            if (!connection.AesShook)
+            try
             {
-               Console.WriteLine("AES not shook, cannot create terminal");
-                return;
+                var factory = _factories.SingleOrDefault(f => f.Type == message.TerminalType);
+                if (factory == null)
+                    throw new ArgumentException("There is no factory for this type");
+                var connection = _connections.GetConnection(message.ConnectionId);
+                if (connection == null)
+                    throw new ArgumentException("The connection does not exists");
+                if (!connection.AesShook)
+                {
+                    Console.WriteLine("AES not shook, cannot create terminal");
+                    return;
+                }      
+                var id = _sysinfo.Guid();
+                var cli = factory.Create();
+                connection.Append(id, cli);
+                connection.Push(new CreatedTerminalEvent
+                {
+                    TerminalId = id,
+                    TerminalType = message.TerminalType,
+                    CurrentPath = cli.CurrentPath,
+                    CorrelationId = message.CorrelationId
+                });
+                if (!connection.IsAuthed)
+                {
+                    cli.Output("Please Login to continue (ulterius-auth)", 0, true, false);
+                }
             }
-            if (connection == null)
-                throw new ArgumentException("The connection does not exists");
-            var id = _sysinfo.Guid();
-            var cli = factory.Create();
-            connection.Append(id, cli);
-            connection.Push(new CreatedTerminalEvent
+            catch (Exception e)
             {
-                TerminalId = id,
-                TerminalType = message.TerminalType,
-                CurrentPath = cli.CurrentPath,
-                CorrelationId = message.CorrelationId
-            });
-            if (!connection.IsAuthed)
-            {
-                cli.Output("Please Login to continue (ulterius-auth)", 0, true, false);
+
+                Console.WriteLine(e.Message);
             }
         }
     }
