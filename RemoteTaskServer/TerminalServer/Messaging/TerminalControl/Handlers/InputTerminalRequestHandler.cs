@@ -47,7 +47,7 @@ namespace UlteriusServer.TerminalServer.Messaging.TerminalControl.Handlers
                 cli.Output("Logging in please wait...", 1, false, false);
                 var authed = Login(message.Input);
                 cli.Output(authed ? "Login was successfull" : "Login was unsuccessful, enter your password",
-                    Convert.ToInt32(authed), authed, authed);
+                    Convert.ToInt32(authed), authed, authed == false);
                 connection.IsAuthed = authed;
             }
             else if (!connection.IsAuthed)
