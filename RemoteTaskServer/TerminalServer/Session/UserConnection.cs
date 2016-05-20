@@ -101,7 +101,7 @@ namespace UlteriusServer.TerminalServer.Session
                 ConnectionId = ConnectionId,
                 CorrelationId = c,
                 EndOfCommand = e,
-                Sensetive = b
+                Sensitive = b
             });
         }
 

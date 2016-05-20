@@ -71,7 +71,6 @@ namespace UlteriusServer.TerminalServer.Messaging.Serialization
 
                             var keybytes = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(user.AesKey));
                             var iv = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(user.AesIv));
-              
                             var packet = Convert.FromBase64String(data);
                             var packetJson = JObject.Parse(UlteriusAes.Decrypt(packet, keybytes, iv));
                             var typeName = packetJson.Property("type").Value.ToString();
@@ -81,6 +80,7 @@ namespace UlteriusServer.TerminalServer.Messaging.Serialization
                         {
                             Console.WriteLine("Error deserial");
                             Console.WriteLine(exception.Message);
+                            return Build("error", null, out type);
                         }
                     }
                     else
@@ -167,7 +167,8 @@ namespace UlteriusServer.TerminalServer.Messaging.Serialization
                     };
             }
             type = null;
-            throw new IOException("There is no suitable deserialization for this object");
+           Console.WriteLine("There is no suitable deserialization for this object");
+            return null;
         }
     }
 }

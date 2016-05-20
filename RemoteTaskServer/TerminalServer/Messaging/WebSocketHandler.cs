@@ -61,6 +61,10 @@ namespace UlteriusServer.TerminalServer.Messaging
                     if (msg == null) continue;
                     Type type;
                     var queueRequest = _serializer.Deserialize(connectionId, msg, out type);
+                    if (queueRequest == null)
+                    {
+                        continue;
+                    }
                     Console.WriteLine(queueRequest);
                     queueRequest.ConnectionId = connectionId;
 
