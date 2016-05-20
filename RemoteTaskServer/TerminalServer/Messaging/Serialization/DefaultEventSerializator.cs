@@ -32,7 +32,6 @@ namespace UlteriusServer.TerminalServer.Messaging.Serialization
                 json.Add("type", new JValue(eventObject.GetType().Name));
                 json.Remove("connectionId");
                 var jsonString = json.ToString();
-
                 if (user.AesShook)
                 {
                     var keybytes = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(user.AesKey));
@@ -109,7 +108,7 @@ namespace UlteriusServer.TerminalServer.Messaging.Serialization
                     return new CreateTerminalRequest
                     {
                         TerminalType = json.Property("terminalType").Value.ToString(),
-                        CorrelationId = json.Property("correlationId").Value.ToString()
+                        CorrelationId = (int) json.Property("correlationId")
                     };
                 case "AesHandShakeRequest":
                     type = typeof(AesHandshakeRequest);
@@ -158,7 +157,7 @@ namespace UlteriusServer.TerminalServer.Messaging.Serialization
                     {
                         TerminalId = Guid.Parse(json.Property("terminalId").Value.ToString()),
                         Input = json.Property("input").Value.ToString(),
-                        CorrelationId = int.Parse(json.Property("correlationId").Value.ToString())
+                        CorrelationId = (int) json.Property("correlationId")
                     };
                 case "CloseTerminalRequest":
                     type = typeof(CloseTerminalRequest);

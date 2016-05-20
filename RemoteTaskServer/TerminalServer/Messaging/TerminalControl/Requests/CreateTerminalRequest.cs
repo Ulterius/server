@@ -11,7 +11,7 @@ namespace UlteriusServer.TerminalServer.Messaging.TerminalControl.Requests
     public class CreateTerminalRequest : IConnectionRequest
     {
         public string TerminalType { get; set; }
-        public string CorrelationId { get; set; }
+        public int CorrelationId { get; set; }
         public Guid ConnectionId { get; set; }
     }
 }
