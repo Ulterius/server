@@ -57,11 +57,9 @@ namespace UlteriusServer.TerminalServer.Messaging.Serialization
 
         public IConnectionRequest Deserialize(Guid connectionId, Stream source, out Type type)
         {
-            var connectedUsers = ConnectionManager._connections;
-            foreach (
-                var user in
-                    connectedUsers.Select(userObject => userObject.Value)
-                        .Where(user => user.ConnectionId == connectionId))
+            UserConnection user;
+            ConnectionManager._connections.TryGetValue(connectionId, out user);
+            if (user != null)
             {
                 using (var reader = new StreamReader(source, Encoding.UTF8))
                 {
@@ -70,9 +68,10 @@ namespace UlteriusServer.TerminalServer.Messaging.Serialization
                     {
                         try
                         {
-                            
-                            var keybytes = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(user.PrivateKey));
+
+                            var keybytes = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(user.AesKey));
                             var iv = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(user.AesIv));
+              
                             var packet = Convert.FromBase64String(data);
                             var packetJson = JObject.Parse(UlteriusAes.Decrypt(packet, keybytes, iv));
                             var typeName = packetJson.Property("type").Value.ToString();
