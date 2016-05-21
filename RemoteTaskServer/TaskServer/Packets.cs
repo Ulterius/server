@@ -2,8 +2,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.Text;
 using Newtonsoft.Json.Linq;
 using UlteriusServer.Authentication;
+using UlteriusServer.Utilities;
+using UlteriusServer.Utilities.Extensions;
+using UlteriusServer.Utilities.Security;
 
 #endregion
 
@@ -24,7 +28,7 @@ namespace UlteriusServer.TaskServer
         public Packets(AuthClient client, string packetData)
         {
           //An entire base64 string is an aes encrypted packet
-    /* if (StringUtilities.IsBase64String(packetData))
+     if (packetData.IsBase64String())
             {
                 try
                 {
@@ -67,7 +71,7 @@ namespace UlteriusServer.TaskServer
                 }
             }
            
-    */
+    
             JObject deserializedPacket = null;
             try
             {
