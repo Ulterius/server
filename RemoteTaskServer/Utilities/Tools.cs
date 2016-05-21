@@ -126,6 +126,9 @@ namespace UlteriusServer.Utilities
                 {
                     {
                         "TaskServerPort", 22007
+                    },
+                    {
+                        "Encryption", true
                     }
                 };
                 Settings.Get()["Network"] = new Settings.Header
@@ -157,7 +160,14 @@ namespace UlteriusServer.Utilities
                     {
                         "AllowTerminal", true
                     }
-                     };
+                };
+
+                Settings.Get()["Debug"] = new Settings.Header
+                {
+                    {
+                        "TraceDebug", true
+                    }
+                };
 
                 Settings.Save();
             }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using Magnum.Calendar;
 using UlteriusServer.Utilities.Extensions;
 
 namespace UlteriusServer.Utilities
@@ -13,7 +14,7 @@ namespace UlteriusServer.Utilities
 
         #endregion
 
-        public const string TraceFilenameFormat = "Trace {Day}-{Month}-{Year}.log";
+        public static readonly string TraceFilenameFormat = "Trace-" + $"{DateTime.Now:HH-mm-ss tt} {(int)(DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalSeconds}.log";
 
         private static List<TraceDelegate> _traceDelegates;
 
@@ -24,17 +25,19 @@ namespace UlteriusServer.Utilities
 
         public static void Debug(string format, params object[] args)
         {
-            if (Settings.Get("Tracing").TraceDebug)
+            if (Settings.Get("Debug").TraceDebug)
             {
                 Log(format, args);
             }
         }
 
-        public static void Initialize(string tracePrefix)
+        public static void Initialize()
         {
             _traceDelegates = new List<TraceDelegate>();
             var tracePath = Path.Combine(ExceptionHandler.LogsPath, "Traces");
-            var filePath = Path.Combine(tracePath, tracePrefix);
+            var filePath = Path.Combine(tracePath, TraceFilenameFormat);
+            if (!Directory.Exists(Path.GetDirectoryName(filePath)))
+                Directory.CreateDirectory(Path.GetDirectoryName(filePath));
             var textWriter = File.CreateText(filePath);
             AddTraceLogger(s =>
             {

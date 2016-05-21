@@ -22,11 +22,14 @@ namespace UlteriusServer
             Settings.Initialize("Settings.json");
             Cleanup();
 
-            if (!Debugger.IsAttached)
+            if (!Debugger.IsAttached)          
                 ExceptionHandler.AddGlobalHandlers();
+                Console.WriteLine("Exception Handlers attached");
 
             if (!Directory.Exists(AppEnvironment.DataPath))
                 Directory.CreateDirectory(AppEnvironment.DataPath);
+
+
 
             Console.Title = Resources.Program_Title;
             Tools.ConfigureServer();

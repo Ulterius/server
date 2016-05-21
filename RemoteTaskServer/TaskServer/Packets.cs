@@ -16,7 +16,6 @@ namespace UlteriusServer.TaskServer
 {
     public class Packets
     {
-
         public List<object> Args = new List<object>();
         private bool encryptionOff = false;
 
@@ -27,51 +26,54 @@ namespace UlteriusServer.TaskServer
 
         public Packets(AuthClient client, string packetData)
         {
-          //An entire base64 string is an aes encrypted packet
-     if (packetData.IsBase64String())
+            //An entire base64 string is an aes encrypted packet
+            if ((bool) Settings.Get("TaskServer").Encryption)
             {
-                try
+                if (packetData.IsBase64String())
                 {
-                    var keybytes = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(client.AesKey));
-                    var iv = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(client.AesIv));
-                    var packet = Convert.FromBase64String(packetData);
-                    packetData = UlteriusAes.Decrypt(packet, keybytes, iv);
-                }
-                catch (Exception exception)
-                {
-                    Console.WriteLine(exception.Message);
+                    try
+                    {
+                        var keybytes = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(client.AesKey));
+                        var iv = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(client.AesIv));
+                        var packet = Convert.FromBase64String(packetData);
+                        packetData = UlteriusAes.Decrypt(packet, keybytes, iv);
+                    }
+                    catch (Exception exception)
+                    {
+                        Console.WriteLine(exception.Message);
 
-                    PacketType = PacketType.InvalidOrEmptyPacket;
-                    return;
-                }
-            }
-            else
-            {
-                //the only non encrypted packet allowed is the first handshake
-                try
-                {
-                    var validHandshake = JObject.Parse(packetData);
-                    var endpoint = validHandshake["endpoint"].ToString().Trim().ToLower();
-                    if (!endpoint.Equals("aeshandshake"))
-                    {
-                        PacketType = PacketType.InvalidOrEmptyPacket;
-                        return;
-                    }
-                    //prevent sending a new aes key pair after a handshake has already taken place
-                    if (client.AesShook)
-                    {
                         PacketType = PacketType.InvalidOrEmptyPacket;
                         return;
                     }
                 }
-                catch (Exception)
+                else
                 {
-                    PacketType = PacketType.InvalidOrEmptyPacket;
-                    return;
+                    //the only non encrypted packet allowed is the first handshake
+                    try
+                    {
+                        var validHandshake = JObject.Parse(packetData);
+                        var endpoint = validHandshake["endpoint"].ToString().Trim().ToLower();
+                        if (!endpoint.Equals("aeshandshake"))
+                        {
+                            PacketType = PacketType.InvalidOrEmptyPacket;
+                            return;
+                        }
+                        //prevent sending a new aes key pair after a handshake has already taken place
+                        if (client.AesShook)
+                        {
+                            PacketType = PacketType.InvalidOrEmptyPacket;
+                            return;
+                        }
+                    }
+                    catch (Exception)
+                    {
+                        PacketType = PacketType.InvalidOrEmptyPacket;
+                        return;
+                    }
                 }
             }
-           
-    
+
+
             JObject deserializedPacket = null;
             try
             {

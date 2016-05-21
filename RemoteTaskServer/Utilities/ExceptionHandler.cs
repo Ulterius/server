@@ -15,6 +15,7 @@ namespace UlteriusServer.Utilities
 
         public static void AddGlobalHandlers()
         {
+            Trace.Initialize();
 
             AppDomain.CurrentDomain.UnhandledException += (sender, args) =>
             {
@@ -23,13 +24,13 @@ namespace UlteriusServer.Utilities
                     if (!Directory.Exists(LogsPath))
                         Directory.CreateDirectory(LogsPath);
 
-
                     var filePath = Path.Combine(LogsPath,
                         $"UnhandledException_{DateTime.Now.ToShortDateString().Replace("/", "-")}.json");
 
-                    File.AppendAllText(filePath, JsonConvert.SerializeObject(args.ExceptionObject, Formatting.Indented) + "\r\n\r\n");
+                    File.AppendAllText(filePath,
+                        JsonConvert.SerializeObject(args.ExceptionObject, Formatting.Indented) + "\r\n\r\n");
 
-                    Console.WriteLine($"An Unhandled Exception was Caught and Logged to:\r\n{filePath}");
+                    Console.WriteLine(@"An Unhandled Exception was Caught and Logged to:{0}", filePath);
                 }
                 catch
                 {
@@ -59,7 +60,8 @@ namespace UlteriusServer.Utilities
                 }
             };
 
-         
+          
+
         }
     }
 }
