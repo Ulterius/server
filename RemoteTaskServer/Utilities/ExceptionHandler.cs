@@ -10,7 +10,7 @@ namespace UlteriusServer.Utilities
 {
     public static class ExceptionHandler
     {
-        private static readonly string LogsPath = Path.Combine("", "Logs");
+        public static readonly string LogsPath = Path.Combine(AppEnvironment.DataPath, "Logs");
 
         public static void AddGlobalHandlers()
         {

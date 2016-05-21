@@ -1,5 +1,6 @@
 ﻿#region
 
+using System;
 using System.Linq;
 using RemoteTaskServer.WebServer;
 using UlteriusServer.TaskServer.Api.Serialization;
@@ -12,7 +13,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
 {
     public class SettingsController : ApiController
     {
-        private static readonly Settings Settings = new Settings();
+
         private readonly WebSocket _client;
         private readonly Packets _packet;
         private readonly ApiSerializator _serializator = new ApiSerializator();
@@ -27,8 +28,9 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
         public void ChangeWebServerPort()
         {
             var port = int.Parse(_packet.Args[0].ToString());
-            Settings.Write("WebServer", "WebServerPort", port);
-            var currentPort = Settings.Read("WebServer", "WebServerPort", 9999);
+            Settings.Get("WebServer").WebServerPort = port;
+            Settings.Save();
+            var currentPort = (int) Settings.Get("WebServer").WebServerPort;
             var data = new
             {
                 changedStatus = true,
@@ -40,8 +42,9 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
         public void ChangeWebFilePath()
         {
             var path = _packet.Args[0].ToString();
-            Settings.Write("WebServer", "WebFilePath", path);
-            var currentPath = Settings.Read("WebServer", "WebFilePath", HttpServer.defaultPath);
+            Settings.Get("WebServer").WebFilePath = path;
+            Settings.Save();
+            var currentPath = (string) Settings.Get("WebServer").WebFilePath;
             var data = new
             {
                 changedStatus = true,
@@ -53,8 +56,9 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
         public void ChangeVncPassword()
         {
             var pass = _packet.Args[0].ToString();
-            Settings.Write("Vnc", "VncPass", pass);
-            var currentPass = Settings.Read("Vnc", "VncPass", "");
+            Settings.Get("Vnc").VncPass = pass;
+            Settings.Save();
+            var currentPass = (string) Settings.Get("Vnc").VncPass;
             var data = new
             {
                 changedStatus = true,
@@ -66,8 +70,9 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
         public void ChangeVncPort()
         {
             var port = int.Parse(_packet.Args[0].ToString());
-            Settings.Write("Vnc", "VncPort", port);
-            var currentPort = Settings.Read("Vnc", "VncPort", 5900);
+            Settings.Get("Vnc").VncPort = port;
+            Settings.Save();
+            var currentPort = (int) Settings.Get("Vnc").VncPort;
             var data = new
             {
                 changedStatus = true,
@@ -79,8 +84,9 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
         public void ChangeVncProxyPort()
         {
             var port = int.Parse(_packet.Args[0].ToString());
-            Settings.Write("Vnc", "VncProxyPort", port);
-            var currentPort = Settings.Read("Vnc", "VncProxyPort", 5900);
+            Settings.Get("Vnc").VncProxyPort = port;
+            Settings.Save();
+            var currentPort = (int) Settings.Get("Vnc").VncProxyPort;
             var data = new
             {
                 changedStatus = true,
@@ -91,9 +97,10 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
 
         public void ChangeWebServerUse()
         {
-            var useServer = (bool) _packet.Args[0];
-            Settings.Write("WebServer", "UseWebServer", useServer);
-            var currentStatus = Settings.Read("WebServer", "UseWebServer", false);
+            var useServer = Convert.ToBoolean(_packet.Args[0]);
+            Settings.Get("WebServer").UseWebServer = useServer;
+            Settings.Save();
+            var currentStatus = (bool) Settings.Get("WebServer").UseWebServer;
             var data = new
             {
                 changedStatus = true,
@@ -104,9 +111,10 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
 
         public void ChangeNetworkResolve()
         {
-            var resolve = (bool) _packet.Args[0];
-            Settings.Write("Network", "SkipHostNameResolve", resolve);
-            var currentStatus = Settings.Read("Network", "SkipHostNameResolve", false);
+            var resolve = Convert.ToBoolean(_packet.Args[0]);
+            Settings.Get("Network").SkipHostNameResolve = resolve;
+            Settings.Save();
+            var currentStatus = (bool) Settings.Get("Network").SkipHostNameResolve;
             var data = new
             {
                 changedStatus = true,
@@ -118,8 +126,9 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
         public void ChangeTaskServerPort()
         {
             var port = int.Parse(_packet.Args[0].ToString());
-            Settings.Write("TaskServer", "TaskServerPort", port);
-            var currentPort = Settings.Read("TaskServer", "TaskServerPort", 8387);
+            Settings.Get("TaskServer").TaskServerPort = port;
+            Settings.Save();
+            var currentPort = (int) Settings.Get("TaskServer").TaskServerPort;
             var data = new
             {
                 changedStatus = true,
@@ -130,9 +139,11 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
 
         public void ChangeLoadPlugins()
         {
-            var loadPlugins = (bool) _packet.Args[0];
-            Settings.Write("Plugins", "LoadPlugins", loadPlugins);
-            var currentStatus = Settings.Read("Plugins", "LoadPlugins", true);
+            var loadPlugins = Convert.ToBoolean(_packet.Args[0]);
+            Settings.Get("Plugins").LoadPlugins = loadPlugins;
+            Settings.Save();
+
+            var currentStatus = Convert.ToBoolean(Settings.Get("Plugins").LoadPlugins);
             var data = new
             {
                 changedStatus = true,
@@ -143,9 +154,10 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
 
         public void ChangeUseTerminal()
         {
-            var useTerminal = (bool) _packet.Args[0];
-            Settings.Write("Terminal", "AllowTerminal", useTerminal);
-            var currentStatus = Settings.Read("Terminal", "AllowTerminal", true);
+            var useTerminal = Convert.ToBoolean(_packet.Args[0]);
+            Settings.Get("Terminal").AllowTerminal = useTerminal;
+            Settings.Save();
+            var currentStatus = Convert.ToBoolean(Settings.Get("Terminal").AllowTerminal);
             var data = new
             {
                 changedStatus = true,
@@ -155,31 +167,9 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
         }
 
         public void GetCurrentSettings()
-        {
-            var UseWebServer = Settings.Read("WebServer", "UseWebServer", true);
-            var WebServerPort = Settings.Read("WebServer", "WebServerPort", 22006);
-            var WebFilePath = Settings.Read("WebServer", "WebFilePath", HttpServer.defaultPath);
-            var TaskServerPort = Settings.Read("TaskServer", "TaskServerPort", 22007);
-            var SkipHostNameResolve = Settings.Read("Network", "SkipHostNameResolve", false);
-            var VncProxyPort = Settings.Read("Vnc", "VncProxyPort", 5901);
-            var VncPort = Settings.Read("Vnc", "VncPort", 5900);
-            var VncPass = Settings.Read("Vnc", "VncPass", "");
-            var AllowTerminal = Settings.Read("Terminal", "AllowTerminal", true);
-            var LoadPlugins = Settings.Read("Plugins", "LoadPlugins", true);
-            var currentSettingsData = new
-            {
-                UseWebServer,
-                WebServerPort,
-                WebFilePath,
-                TaskServerPort,
-                SkipHostNameResolve,
-                VncPort,
-                VncProxyPort,
-                VncPass,
-                AllowTerminal,
-                LoadPlugins
-            };
-            _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, currentSettingsData);
+
+        {     
+            _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, Settings.GetRaw());
         }
     }
 }

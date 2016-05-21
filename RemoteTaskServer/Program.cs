@@ -2,6 +2,7 @@
 
 using System;
 using System.Diagnostics;
+using System.IO;
 using RemoteTaskServer.WebServer;
 using UlteriusServer.Properties;
 using UlteriusServer.TaskServer;
@@ -18,14 +19,19 @@ namespace UlteriusServer
     {
         private static void Main(string[] args)
         {
+            Settings.Initialize("Settings.json");
             Cleanup();
+
             if (!Debugger.IsAttached)
                 ExceptionHandler.AddGlobalHandlers();
+
+            if (!Directory.Exists(AppEnvironment.DataPath))
+                Directory.CreateDirectory(AppEnvironment.DataPath);
+
             Console.Title = Resources.Program_Title;
             Tools.ConfigureServer();
-            var settings = new Settings();
-            var useTerminal = settings.Read("Terminal", "AllowTerminal", true);
-            var useWebServer = settings.Read("WebServer", "UseWebServer", true);
+            var useTerminal = Convert.ToBoolean(Settings.Get("Terminal").AllowTerminal);
+            var useWebServer = Convert.ToBoolean(Settings.Get("WebServer").UseWebServer);
             WebCamManager.LoadWebcams();
             if (useWebServer)
             {

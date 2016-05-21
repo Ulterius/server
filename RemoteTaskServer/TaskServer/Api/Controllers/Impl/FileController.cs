@@ -208,8 +208,8 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
 
         public void ProcessFile(string path, string password, long totalSize)
         {
-            var settings = new Settings();
-            var webPath = settings.Read("WebServer", "WebFilePath", HttpServer.defaultPath);
+
+            var webPath = Settings.Get("WebServer").WebFilePath.ToString();
 
             var file = new FileInfo(path);
             file.Directory?.Create(); // If the directory already exists, this method does nothing.

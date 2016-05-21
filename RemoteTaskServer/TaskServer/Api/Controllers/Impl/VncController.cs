@@ -1,6 +1,7 @@
 ﻿#region
 
 using System;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
@@ -38,10 +39,12 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
 
         public void StartVncServer()
         {
-            var settings = new Settings();
-            var vncProxyPort = settings.Read("Vnc", "VncProxyPort", 5901);
-            var vncPort = settings.Read("Vnc", "VncPort", 5900);
-            var vncPass = settings.Read("Vnc", "VncPass", "");
+
+          
+            var vncProxyPort = (int) Settings.Get("Vnc").VncProxyPort;
+            var vncPort = (int) Settings.Get("Vnc").VncPort; 
+
+            var vncPass = Settings.Get("Vnc").VncPass.ToString(); 
             if (IsServerRunning(vncProxyPort))
             {
                 var returnData = new
@@ -54,7 +57,11 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                 _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, returnData);
                 return;
             }
-            _vncServer = new VncServer(vncPass, vncProxyPort, vncPort, "Ulterius VNC");
+           var path = AppEnvironment.DataPath +
+                                           @"\websockify\websockify.exe";
+      
+            _vncServer = new VncServer(path, vncPass, vncProxyPort, vncPort, "Ulterius VNC");
+
             try
             {
                 _vncServer.Start();

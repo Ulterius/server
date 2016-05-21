@@ -9,6 +9,7 @@ using System.Security;
 using System.Security.Permissions;
 using Newtonsoft.Json.Linq;
 using UlteriusPluginBase;
+using UlteriusServer.Utilities;
 
 #endregion
 
@@ -16,8 +17,7 @@ namespace UlteriusServer.Plugins
 {
     public class PluginLoader
     {
-        private static readonly string path = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location) +
-                                              @"\data\plugins\";
+        private static readonly string path = Path.Combine(AppEnvironment.DataPath, "/data/plugins/");
 
 
         public static List<string> BrokenPlugins = new List<string>();

@@ -16,7 +16,7 @@ namespace UlteriusServer.TaskServer
 {
     public class Packets
     {
-        private static readonly Settings settings = new Settings();
+
         public List<object> Args = new List<object>();
         private bool encryptionOff = false;
 
@@ -28,7 +28,7 @@ namespace UlteriusServer.TaskServer
         public Packets(AuthClient client, string packetData)
         {
           //An entire base64 string is an aes encrypted packet
-     if (StringUtilities.IsBase64String(packetData))
+    /* if (StringUtilities.IsBase64String(packetData))
             {
                 try
                 {
@@ -71,7 +71,7 @@ namespace UlteriusServer.TaskServer
                 }
             }
            
-
+    */
             JObject deserializedPacket = null;
             try
             {

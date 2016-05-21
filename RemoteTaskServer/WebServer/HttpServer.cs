@@ -23,8 +23,8 @@ namespace RemoteTaskServer.WebServer
 {
     internal class HttpServer
     {
-        public static string defaultPath = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location) +
-                                           @"\data\client\";
+        public static string DefaultPath = AppEnvironment.DataPath +
+                                           @"\client\";
 
         private static readonly IDictionary<string, string> MimeTypeMappings =
             new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase)
@@ -147,12 +147,12 @@ namespace RemoteTaskServer.WebServer
 
         public static void Setup()
         {
-            var settings = new Settings();
-            var useWebServer = settings.Read("WebServer", "UseWebServer", true);
+
+            var useWebServer = Convert.ToBoolean(Settings.Get("WebServer").UseWebServer); 
             if (useWebServer)
             {
-                var root = settings.Read("WebServer", "WebFilePath", defaultPath);
-                var port = settings.Read("WebServer", "WebServerPort", 22006);
+                var root =  Settings.Get("WebServer").WebFilePath.ToString();  
+                var port = (int) Settings.Get("WebServer").WebServerPort; 
                 GlobalPort = port;
                 var httpServer = new HttpServer(root, port);
                 Console.WriteLine(Resources.Program_Main_Web_Server_is_running_on_this_port__ + httpServer.Port);

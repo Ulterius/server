@@ -12,6 +12,7 @@ using System.Security;
 using System.Security.Cryptography;
 using System.Security.Permissions;
 using System.Text;
+using UlteriusServer.Utilities;
 
 #endregion
 
@@ -23,8 +24,7 @@ namespace UlteriusServer.Plugins
     {
         private static readonly byte[] SAditionalEntropy = Encoding.UTF8.GetBytes(Environment.MachineName);
 
-        public static readonly string TrustFile = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location) +
-                                                  @"\data\plugins\trusted.dat";
+        public static readonly string TrustFile = Path.Combine(AppEnvironment.DataPath, @"\plugins\trusted.dat");
 
         public static void SaveApprovedGuids()
         {

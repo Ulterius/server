@@ -2,9 +2,6 @@
 
 using System;
 using System.Diagnostics;
-using System.Drawing;
-using System.Drawing.Imaging;
-using System.IO;
 using System.Net.NetworkInformation;
 using System.Security.Principal;
 using System.Threading;
@@ -99,7 +96,7 @@ namespace UlteriusServer.Utilities
 
         public static void ConfigureServer()
         {
-            if (!File.Exists("UlteriusServer.ini"))
+            if (Settings.Empty)
             {
                 //setup listen sh
                 var prefix = "http://*:22006/";
@@ -112,25 +109,57 @@ namespace UlteriusServer.Utilities
                 OpenPort(22008, "Ulterius Terminal Server");
                 OpenPort(5900, "VNC Server");
                 OpenPort(5901, "Ulterius VNC Proxy Server");
-
-
-                var settings = new Settings();
                 //web server settings
-                settings.Write("WebServer", "UseWebServer", true);
-                settings.Write("WebServer", "WebServerPort", 22006);
-                settings.Write("WebServer", "WebFilePath", HttpServer.defaultPath);
-                //task server settings
-                settings.Write("TaskServer", "TaskServerPort", 22007);
-                //network settings
-                settings.Write("Network", "SkipHostNameResolve", false);
-                //plugin settings
-                settings.Write("Plugins", "LoadPlugins", true);
-                //vnc settings
-                settings.Write("Vnc", "VncPass", "");
-                settings.Write("Vnc", "VncPort", 5900);
-                settings.Write("Vnc", "VncProxyPort", 5901);
-                //terminal settings
-                settings.Write("Terminal", "AllowTerminal", true);
+                Settings.Get()["WebServer"] = new Settings.Header
+                {
+                    {
+                        "WebFilePath", HttpServer.DefaultPath
+                    },
+                    {
+                        "WebServerPort", 22006
+                    },
+                    {
+                        "UseWebServer", true
+                    }
+                };
+                Settings.Get()["TaskServer"] = new Settings.Header
+                {
+                    {
+                        "TaskServerPort", 22007
+                    }
+                };
+                Settings.Get()["Network"] = new Settings.Header
+                {
+                    {
+                        "SkipHostNameResolve", false
+                    }
+                };
+                Settings.Get()["Plugins"] = new Settings.Header
+                {
+                    {
+                        "LoadPlugins", true
+                    }
+                };
+                Settings.Get()["Vnc"] = new Settings.Header
+                {
+                    {
+                        "VncPass", string.Empty
+                    },
+                    {
+                        "VncPort", 5900
+                    },
+                    {
+                        "VncProxyPort", 5901
+                    }
+                };
+                Settings.Get()["Terminal"] = new Settings.Header
+                {
+                    {
+                        "AllowTerminal", true
+                    }
+                     };
+
+                Settings.Save();
             }
         }
 
@@ -166,7 +195,5 @@ namespace UlteriusServer.Utilities
 
             return queryString;
         }
-
-     
     }
 }

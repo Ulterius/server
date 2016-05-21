@@ -43,12 +43,12 @@ namespace UlteriusServer.WebServer
                 // Copy to a string for header parsing
                 var content = encoding.GetString(data);
                 // The first line should contain the delimiter
-                var delimiterEndIndex = content.IndexOf("\r\n");
+                var delimiterEndIndex = content.IndexOf("\r\n", StringComparison.Ordinal);
 
 
                 if (delimiterEndIndex > -1)
                 {
-                    var delimiter = content.Substring(0, content.IndexOf("\r\n"));
+                    var delimiter = content.Substring(0, content.IndexOf("\r\n", StringComparison.Ordinal));
 
 
                     // Look for Content-Type

@@ -25,7 +25,6 @@ namespace UlteriusServer.TaskServer.Services.Network
     {
       
 
-        private static readonly Settings Settings = new Settings();
 
         private static readonly List<NetworkDevices> Devices = new List<NetworkDevices>();
         public static VncServer vncServer;
@@ -49,7 +48,8 @@ namespace UlteriusServer.TaskServer.Services.Network
             foreach (var device in all)
             {
                 var name = device.Key.ToString();
-                var currentStatus = Settings.Read("Network", "SkipHostNameResolve", false);
+              
+                var currentStatus = Convert.ToBoolean(Settings.Get("Network").SkipHostNameResolve);
                 if (!currentStatus)
                 {
                     try
