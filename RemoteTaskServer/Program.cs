@@ -19,7 +19,7 @@ namespace UlteriusServer
     {
         private static void Main(string[] args)
         {
-            Settings.Initialize("Settings.json");
+            Settings.Initialize("Config.json");
             Cleanup();
 
             if (!Debugger.IsAttached)          

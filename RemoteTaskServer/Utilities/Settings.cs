@@ -3,6 +3,7 @@
 using System.Collections.Generic;
 using System.Dynamic;
 using System.IO;
+using System.Web.Script.Serialization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -77,22 +78,15 @@ namespace UlteriusServer.Utilities
             _settings = JsonConvert.DeserializeObject<Settings>(File.ReadAllText(FilePath));
         }
 
+        /// <summary>
+        ///    Returns settings file as a raw object
+        /// </summary>
+        /// <returns>object.</returns>
         public static object GetRaw()
         {
-            var settings = new Dictionary<string, Dictionary<string, object>>();
-
-
-
-
-            foreach (var key in _settings.Keys)
-            {
-                object value;
-                if (_settings.TryGetValue(key, out value))
-                {
-                    var json = JObject.Parse(value.ToString()).ToObject<Dictionary<string, object>>();
-                    settings.Add(key, json);
-                }
-            }
+            var jsonSerializer = new JavaScriptSerializer();
+            //Thanks microsoft
+            var settings = (IDictionary<string, object>)jsonSerializer.DeserializeObject(File.ReadAllText(FilePath));
             return settings;
         }
 

@@ -3,6 +3,7 @@
 using System;
 using System.Diagnostics;
 using System.Net.NetworkInformation;
+using System.Reflection;
 using System.Security.Principal;
 using System.Threading;
 using System.Web;
@@ -110,6 +111,32 @@ namespace UlteriusServer.Utilities
                 OpenPort(5900, "VNC Server");
                 OpenPort(5901, "Ulterius VNC Proxy Server");
                 //web server settings
+                Settings.Get()["General"] = new Settings.Header
+                {
+                    {
+                        "Version", Assembly.GetExecutingAssembly().GetName().Version
+                    },
+                    {
+                        "UploadLogs", false
+                    },
+                    {
+                        "Github", "https://github.com/Ulterius"
+                    },
+                    {
+                        "ServerIssues", "https://github.com/Ulterius/server/issues"
+                    },
+                    {
+                        "ClientIssues", "https://github.com/Ulterius/client/issues"
+                    },
+                    {
+                        //this is kind of nasty 
+                        "Maintainers", new[]
+                        {
+                            new {Name = "Andrew Sampson", Twitter = "https://twitter.com/Andrewmd5", Github = "https://github.com/codeusa", Website = "https://andrew.im/"},
+                            new {Name = "Evan Banyash", Twitter = "https://twitter.com/frobthebuilder", Github = "https://github.com/FrobtheBuilder", Website = "http://banyash.com/"}
+                        }
+                    }
+                };
                 Settings.Get()["WebServer"] = new Settings.Header
                 {
                     {
