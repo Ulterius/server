@@ -3,7 +3,6 @@
 using System;
 using System.Diagnostics;
 using System.DirectoryServices.AccountManagement;
-using System.Linq;
 using System.Reflection;
 using System.Xml;
 using UlteriusServer.Authentication;

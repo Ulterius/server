@@ -1,11 +1,9 @@
 ﻿#region
 
 using System;
-using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
-using System.Net.Sockets;
 using NVNC;
 using UlteriusServer.TaskServer.Api.Serialization;
 using UlteriusServer.TaskServer.Services.Network;

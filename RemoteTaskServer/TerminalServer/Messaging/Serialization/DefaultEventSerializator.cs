@@ -10,6 +10,7 @@ using UlteriusServer.TerminalServer.Messaging.Connection;
 using UlteriusServer.TerminalServer.Messaging.TerminalControl.Requests;
 using UlteriusServer.TerminalServer.Session;
 using UlteriusServer.Utilities;
+using UlteriusServer.Utilities.Extensions;
 using UlteriusServer.Utilities.Security;
 
 #endregion
@@ -64,7 +65,7 @@ namespace UlteriusServer.TerminalServer.Messaging.Serialization
                 using (var reader = new StreamReader(source, Encoding.UTF8))
                 {
                     var data = reader.ReadToEnd();
-                    if (StringUtilities.IsBase64String(data))
+                    if (data.IsBase64String())
                     {
                         try
                         {

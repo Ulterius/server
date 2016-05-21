@@ -62,10 +62,6 @@ namespace UlteriusServer.TaskServer.Services.Network
                         //name = "null";
                     }
                 }
-                else
-                {
-                    //name = "null";
-                }
                 Devices.Add(new NetworkDevices
                 {
                     Name = name,

@@ -1,7 +1,6 @@
 ﻿#region
 
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 using UlteriusServer.TaskServer.Api.Serialization;
 using UlteriusServer.WebCams;

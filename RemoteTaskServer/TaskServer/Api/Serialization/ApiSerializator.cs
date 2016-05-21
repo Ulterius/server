@@ -2,13 +2,11 @@
 
 using System;
 using System.IO;
-using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web.Script.Serialization;
 using UlteriusServer.Authentication;
-using UlteriusServer.TaskServer.Api.Controllers;
 using UlteriusServer.Utilities.Security;
 using vtortola.WebSockets;
 

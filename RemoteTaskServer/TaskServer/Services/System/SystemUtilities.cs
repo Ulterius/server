@@ -11,7 +11,6 @@ using System.Net.NetworkInformation;
 using System.Runtime.InteropServices;
 using System.Security.Principal;
 using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.VisualBasic.Devices;
 using OpenHardwareMonitor.Hardware;
 using UlteriusServer.TaskServer.Api.Models;

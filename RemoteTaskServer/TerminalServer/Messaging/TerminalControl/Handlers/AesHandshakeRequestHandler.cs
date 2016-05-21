@@ -1,6 +1,4 @@
-﻿using System;
-using UlteriusServer.TerminalServer.Infrastructure;
-using UlteriusServer.TerminalServer.Messaging.TerminalControl.Events;
+﻿using UlteriusServer.TerminalServer.Infrastructure;
 using UlteriusServer.TerminalServer.Messaging.TerminalControl.Requests;
 using UlteriusServer.TerminalServer.Session;
 

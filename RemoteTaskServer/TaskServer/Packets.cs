@@ -2,12 +2,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.Text;
 using Newtonsoft.Json.Linq;
 using UlteriusServer.Authentication;
-using UlteriusServer.TaskServer.Api.Controllers.Impl;
-using UlteriusServer.Utilities;
-using UlteriusServer.Utilities.Security;
 
 #endregion
 

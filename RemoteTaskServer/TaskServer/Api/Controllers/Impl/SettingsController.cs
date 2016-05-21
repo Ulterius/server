@@ -1,8 +1,6 @@
 ﻿#region
 
 using System;
-using System.Linq;
-using RemoteTaskServer.WebServer;
 using UlteriusServer.TaskServer.Api.Serialization;
 using UlteriusServer.Utilities;
 using vtortola.WebSockets;
