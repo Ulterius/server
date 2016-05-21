@@ -2,7 +2,6 @@
 
 using System;
 using System.IO;
-using System.Linq;
 using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -58,6 +57,7 @@ namespace UlteriusServer.TerminalServer.Messaging.Serialization
         public IConnectionRequest Deserialize(Guid connectionId, Stream source, out Type type)
         {
             UserConnection user;
+            var typeName = string.Empty;
             ConnectionManager._connections.TryGetValue(connectionId, out user);
             if (user != null)
             {
@@ -73,7 +73,7 @@ namespace UlteriusServer.TerminalServer.Messaging.Serialization
                             var iv = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(user.AesIv));
                             var packet = Convert.FromBase64String(data);
                             var packetJson = JObject.Parse(UlteriusAes.Decrypt(packet, keybytes, iv));
-                            var typeName = packetJson.Property("type").Value.ToString();
+                            typeName = packetJson.Property("type").Value.ToString();
                             return Build(typeName, packetJson, out type, user);
                         }
                         catch (Exception exception)
@@ -83,16 +83,13 @@ namespace UlteriusServer.TerminalServer.Messaging.Serialization
                             return Build("error", null, out type);
                         }
                     }
-                    else
+                    if (user.AesShook)
                     {
-                        if (user.AesShook)
-                        {
-                            return Build("alreadyshook", null, out type);
-                        }
-                        var json = JObject.Parse(data);
-                        var typeName = json.Property("type").Value.ToString();
-                        return Build(typeName, json, out type, user);
+                        return Build("alreadyshook", null, out type);
                     }
+                    var json = JObject.Parse(data);
+                    typeName = json.Property("type").Value.ToString();
+                    return Build(typeName, json, out type, user);
                 }
             }
             return Build("error", null, out type);
