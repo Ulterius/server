@@ -19,15 +19,18 @@ namespace UlteriusServer
     {
         private static void Main(string[] args)
         {
-            Settings.Initialize("Config.json");
+          
             Cleanup();
+            if (!Directory.Exists(AppEnvironment.DataPath))
+                Directory.CreateDirectory(AppEnvironment.DataPath);
 
             if (!Debugger.IsAttached)          
                 ExceptionHandler.AddGlobalHandlers();
                 Console.WriteLine("Exception Handlers attached");
 
-            if (!Directory.Exists(AppEnvironment.DataPath))
-                Directory.CreateDirectory(AppEnvironment.DataPath);
+         
+
+            Settings.Initialize("Config.json");
 
 
 
