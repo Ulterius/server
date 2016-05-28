@@ -4,6 +4,8 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using RemoteTaskServer.WebServer;
+using UlteriusPluginBase;
+using UlteriusServer.Plugins;
 using UlteriusServer.Properties;
 using UlteriusServer.TaskServer;
 using UlteriusServer.TaskServer.Services.System;
@@ -37,8 +39,13 @@ namespace UlteriusServer
             Console.Title = Resources.Program_Title;
             Tools.ConfigureServer();
             var useTerminal = Convert.ToBoolean(Settings.Get("Terminal").AllowTerminal);
+            var usePlugins = Convert.ToBoolean(Settings.Get("Plugins").LoadPlugins);
             var useWebServer = Convert.ToBoolean(Settings.Get("WebServer").UseWebServer);
             WebCamManager.LoadWebcams();
+            if (usePlugins)
+            {
+                PluginHandler.LoadPlugins();
+            }
             if (useWebServer)
             {
                 HttpServer.Setup();

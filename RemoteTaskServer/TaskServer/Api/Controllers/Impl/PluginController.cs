@@ -43,7 +43,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
 
         public void ApprovePlugin()
         {
-            var guid = _packet.Args?.First().ToString();
+            /*var guid = _packet.Args?.First().ToString();
             if (guid == null)
             {
                 var pluginError = new
@@ -60,7 +60,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                 guid,
                 setupRan = true
             };
-            _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, pluginApproveResponse);
+            _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, pluginApproveResponse);*/
         }
 
         public void GetPendingPlugins()
@@ -129,7 +129,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                 _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, pluginError);
                 return;
             }
-            if (!PluginHandler.ApprovedPlugins.ContainsValue(guid))
+         /*   if (!PluginHandler.ApprovedPlugins.ContainsValue(guid))
             {
                 var pluginError = new
                 {
@@ -138,7 +138,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                 };
                 _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, pluginError);
                 return;
-            }
+            }*/
             object returnData = null;
             var pluginStarted = false;
             //lets check if we have any other arguments to clean the list

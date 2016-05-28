@@ -16,7 +16,8 @@ namespace UlteriusServer.Plugins
 {
     public class PluginLoader
     {
-        private static readonly string path = Path.Combine(AppEnvironment.DataPath, "/data/plugins/");
+        public static readonly string PluginPath = Path.Combine(AppEnvironment.DataPath, "Plugins");
+
 
 
         public static List<string> BrokenPlugins = new List<string>();
@@ -24,10 +25,15 @@ namespace UlteriusServer.Plugins
 
         public static List<PluginBase> LoadPlugins()
         {
-            if (!Directory.Exists(path)) return null;
+            Console.WriteLine(PluginPath);
+            if (!Directory.Exists(PluginPath))
+            {
+                Directory.CreateDirectory(PluginPath);
+                return null;
+            }
 
             var plugins = new List<PluginBase>();
-            var installedPlugins = Directory.GetFiles(path, "*.plugin.dll").ToList();
+            var installedPlugins = Directory.GetFiles(PluginPath, "*.plugin.dll").ToList();
             foreach (var installedPlugin in installedPlugins)
             {
                 var permissionSet = new PermissionSet(PermissionState.None);

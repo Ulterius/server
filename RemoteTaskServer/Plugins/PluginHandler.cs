@@ -1,10 +1,13 @@
-﻿using System;
+﻿#region
+
+using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Security;
-using MiscUtil.IO;
+using System.Windows.Forms;
 using UlteriusPluginBase;
 using UlteriusServer.Forms.Utilities;
+
+#endregion
 
 namespace UlteriusServer.Plugins
 {
@@ -12,7 +15,6 @@ namespace UlteriusServer.Plugins
     {
         public static Dictionary<string, PluginBase> Plugins;
         public static Dictionary<string, List<string>> PluginPermissions;
-        public static Dictionary<string, string> ApprovedPlugins;
         public static Dictionary<string, string> PendingPlugins;
         private static readonly List<string> BadPlugins = new List<string>();
 
@@ -22,7 +24,20 @@ namespace UlteriusServer.Plugins
             try
             {
                 var plugin = Plugins[guid];
-                return args != null ? plugin.Start(args) : plugin.Start();
+                if (args != null)
+                {
+                    plugin.Start(args);
+                }
+                else
+                {
+                    plugin.Start();
+                }
+                var pluginResponse = new
+                {
+                    pluginRan = true,
+                    withArgs = args != null
+                };
+                return pluginResponse;
             }
             catch (SecurityException e)
             {
@@ -48,6 +63,8 @@ namespace UlteriusServer.Plugins
                 return pluginResponse;
             }
         }
+
+
 
         public static void SetupPlugin(string guid)
         {
@@ -78,29 +95,28 @@ namespace UlteriusServer.Plugins
 
         public static void LoadPlugins()
         {
-            if (!File.Exists(UlteriusServer.Plugins.PluginPermissions.TrustFile))
-            {
-                File.Create(UlteriusServer.Plugins.PluginPermissions.TrustFile).Close();
-            }
+            // if (!File.Exists(UlteriusServer.Plugins.PluginPermissions.TrustFile))
+            //  {
+            //  File.Create(UlteriusServer.Plugins.PluginPermissions.TrustFile).Close();
+            //  }
             Plugins = new Dictionary<string, PluginBase>();
             PluginPermissions = new Dictionary<string, List<string>>();
-            ApprovedPlugins = new Dictionary<string, string>();
             PendingPlugins = new Dictionary<string, string>();
-            foreach (var line in new LineReader(() => new StringReader(UlteriusServer.Plugins.PluginPermissions.GetApprovedGuids())))
+            /* foreach (var line in new LineReader(() => new StringReader(UlteriusServer.Plugins.PluginPermissions.GetApprovedGuids())))
             {
                 var pluginData = line.Split('|');
                 var name = pluginData[0];
                 var guid = pluginData[1];
                 ApprovedPlugins.Add(name, guid);
-            }
+            }*/
+            Console.WriteLine("Test");
             var plugins = PluginLoader.LoadPlugins();
-            if (plugins != null)
+            Console.WriteLine(plugins.Count + " plugins loaded");
+            BadPlugins.AddRange(PluginLoader.BrokenPlugins);
+            Console.WriteLine("Bad plugins: " + BadPlugins.Count);
+            foreach (var plugin in plugins)
             {
-                BadPlugins.AddRange(PluginLoader.BrokenPlugins);
-                foreach (var plugin in plugins)
-                {
-                    var pluginApproved = true;
-                    if (!ApprovedPlugins.ContainsValue(plugin.GUID.ToString()))
+                /*    if (!ApprovedPlugins.ContainsValue(plugin.GUID.ToString()))
                     {
                         pluginApproved = false;
                         try
@@ -112,16 +128,21 @@ namespace UlteriusServer.Plugins
                         {
                             continue;
                         }
-                    }
-                    //probably a better way to expose objects
-                    plugin.NotificationIcon = UlteriusTray.NotificationIcon;
-                    Plugins.Add(plugin.GUID.ToString(), plugin);
-                    if (pluginApproved)
-                    {
-                        SetupPlugin(plugin.GUID.ToString());
-                    }
-                }
+                    }*/
+                //probably a better way to expose objects
+               
+
+                Plugins.Add(plugin.GUID.ToString(), plugin);
+                // if (pluginApproved)
+                //  {
+                SetupPlugin(plugin.GUID.ToString());
+                // }
             }
+        }
+
+        private static void OnRunHandler(object sender, EventArgs e)
+        {
+          Console.WriteLine("Plugin Ran");
         }
     }
 }
