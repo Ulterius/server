@@ -21,12 +21,13 @@ namespace UlteriusServer.TaskServer
     {
         public static ConcurrentDictionary<string, AuthClient> AllClients { get; set; }
         public static ConcurrentDictionary<string, ApiController> ApiControllers { get; set; }
+        public static ScreenShare ScreenShare { get; set; }
 
         public static void Start()
         {
             AllClients = new ConcurrentDictionary<string, AuthClient>();
             ApiControllers = new ConcurrentDictionary<string, ApiController>();
-    
+            ScreenShare = new ScreenShare();
             var port = (int) Settings.Get("TaskServer").TaskServerPort;  
             var cancellation = new CancellationTokenSource();
             var endpoint = new IPEndPoint(IPAddress.Parse( /*NetworkUtilities.GetIPv4Address()*/ "0.0.0.0"), port);
@@ -59,11 +60,9 @@ namespace UlteriusServer.TaskServer
         {
             ApiController controller;
             ApiControllers.TryGetValue(websocket.GetHashCode().ToString(), out controller);
-            if (controller != null)
-            {
-                var packet = new Packets(controller.AuthClient, message);
-                controller.HandlePacket(packet);
-            }
+            if (controller == null) return;
+            var packet = new Packets(controller.AuthClient, message);
+            controller.HandlePacket(packet);
         }
 
         private static void HandleDisconnect(WebSocket clientSocket)

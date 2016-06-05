@@ -1,10 +1,15 @@
-﻿using System;
+﻿#region
+
+using System;
 using System.Collections.Generic;
+using System.Security;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Web.UI;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+
+#endregion
 
 namespace UlteriusServer.Utilities.Extensions
 {
@@ -75,10 +80,11 @@ namespace UlteriusServer.Utilities.Extensions
         {
             return string.Equals(@this, other, StringComparison.OrdinalIgnoreCase);
         }
+
         public static bool IsBase64String(this string s)
         {
             s = s.Trim();
-            return (s.Length % 4 == 0) && Regex.IsMatch(s, @"^[a-zA-Z0-9\+/]*={0,3}$", RegexOptions.None);
+            return (s.Length%4 == 0) && Regex.IsMatch(s, @"^[a-zA-Z0-9\+/]*={0,3}$", RegexOptions.None);
         }
 
         public static bool IsValidJson(this string strInput)
@@ -104,6 +110,8 @@ namespace UlteriusServer.Utilities.Extensions
             }
             return false;
         }
+
+       
 
         /// <summary>
         ///     Replaces one or more format items in a specified string with the string representation of a specified object.
@@ -156,14 +164,21 @@ namespace UlteriusServer.Utilities.Extensions
                 case FormatTokenFlags.SpecifierToken:
                     var stringBuilder = new StringBuilder();
                     for (int i = 0,
-                             argIndex = 0; i < format.Length; i++)
+                        argIndex = 0;
+                        i < format.Length;
+                        i++)
                     {
-                        stringBuilder.Append(format[i] == '%' && argIndex < arguments.Length ? "{" + argIndex++ + "}" : format.Substring(i, 1));
+                        stringBuilder.Append(format[i] == '%' && argIndex < arguments.Length
+                            ? "{" + argIndex++ + "}"
+                            : format.Substring(i, 1));
                     }
                     return string.Format(stringBuilder.ToString(), arguments);
 
                 case FormatTokenFlags.MemberToken:
-                    return string.Format(_regexReformatter(name => (name == "0") ? arguments[0] : DataBinder.Eval(arguments[0], name), format, arguments), arguments);
+                    return
+                        string.Format(
+                            _regexReformatter(name => name == "0" ? arguments[0] : DataBinder.Eval(arguments[0], name),
+                                format, arguments), arguments);
 
                 default:
                     return format;
@@ -182,14 +197,15 @@ namespace UlteriusServer.Utilities.Extensions
                 var rewrittenFormat = _objectMemberRegex.Replace(format, match =>
                 {
                     Group startGroup = match.Groups["start"],
-                          propertyGroup = match.Groups["property"],
-                          endGroup = match.Groups["end"];
+                        propertyGroup = match.Groups["property"],
+                        endGroup = match.Groups["end"];
 
                     var result = valueFetcher(propertyGroup.Value);
 
                     argumentCollection.Add(result);
                     var index = argumentCollection.Count - 1;
-                    var fmt = new string('{', startGroup.Captures.Count) + index + new string('}', endGroup.Captures.Count);
+                    var fmt = new string('{', startGroup.Captures.Count) + index +
+                              new string('}', endGroup.Captures.Count);
                     return string.Format(fmt, argumentCollection.ToArray());
                 });
 

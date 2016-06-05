@@ -156,10 +156,10 @@ namespace UlteriusServer.TaskServer
                         PacketType = PacketType.ChangeWebFilePath;
                         break;
                     case "startvncserver":
-                        PacketType = PacketType.StartVncServer;
+                        PacketType = PacketType.StartScreenShare;
                         break;
                     case "stopvncserver":
-                        PacketType = PacketType.StopVncServer;
+                        PacketType = PacketType.StopScreenShare;
                         break;
                     case "changevncpass":
                         PacketType = PacketType.ChangeVncPass;
@@ -293,7 +293,7 @@ public enum PacketType
     Plugin,
     ChangeVncPort,
     ChangeVncProxyPort,
-    StartVncServer,
+    StartScreenShare,
     ChangeVncPass,
     GetPlugins,
     GetBadPlugins,
@@ -314,5 +314,5 @@ public enum PacketType
     RequestFile,
     RemoveFile,
     SearchFiles,
-    StopVncServer
+    StopScreenShare
 }

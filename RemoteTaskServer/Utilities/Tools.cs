@@ -108,8 +108,7 @@ namespace UlteriusServer.Utilities
                 OpenPort(22006, "Ulterius Web Server");
                 OpenPort(22007, "Ulterius Task Server");
                 OpenPort(22008, "Ulterius Terminal Server");
-                OpenPort(5900, "VNC Server");
-                OpenPort(5901, "Ulterius VNC Proxy Server");
+                OpenPort(22009, "Ulterius ScreenShare");
                 //web server settings
                 Settings.Get()["General"] = new Settings.Header
                 {
@@ -170,16 +169,13 @@ namespace UlteriusServer.Utilities
                         "LoadPlugins", true
                     }
                 };
-                Settings.Get()["Vnc"] = new Settings.Header
+                Settings.Get()["ScreenShare"] = new Settings.Header
                 {
                     {
-                        "VncPass", string.Empty
+                        "ScreenSharePass", string.Empty
                     },
                     {
-                        "VncPort", 5900
-                    },
-                    {
-                        "VncProxyPort", 5901
+                        "ScreenSharePort", 22009
                     }
                 };
                 Settings.Get()["Terminal"] = new Settings.Header

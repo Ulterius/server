@@ -37,7 +37,7 @@ namespace UlteriusServer.Utilities.Security
 
         public static byte[] DecryptFile(byte[] bytesToBeDecrypted, byte[] passwordBytes)
         {
-            byte[] decryptedBytes = null;
+            byte[] decryptedBytes;
 
             using (var ms = new MemoryStream())
             {

@@ -27,18 +27,12 @@ namespace UlteriusServer.Utilities
         ///     Exposes the base ExpandoObject with an IDictionary interface
         /// </summary>
         /// <value>The dictionary.</value>
-        private IDictionary<string, object> Dictionary
-        {
-            get { return _mapExpandoObject; }
-        }
+        private IDictionary<string, object> Dictionary => _mapExpandoObject;
 
         /// <summary>
         ///     Gets the current map instance as a dynamic type
         /// </summary>
-        public dynamic @this
-        {
-            get { return this; }
-        }
+        public dynamic This => this;
 
         #region IDictionary<string,object> Members
 
@@ -118,10 +112,7 @@ namespace UlteriusServer.Utilities
         /// <returns>
         ///     The number of elements contained in the <see cref="T:System.Collections.Generic.ICollection`1" />.
         /// </returns>
-        public int Count
-        {
-            get { return Dictionary.Count; }
-        }
+        public int Count => Dictionary.Count;
 
         /// <summary>
         ///     Gets a value indicating whether the <see cref="T:System.Collections.Generic.ICollection`1" /> is read-only.
@@ -130,10 +121,7 @@ namespace UlteriusServer.Utilities
         /// <returns>
         ///     true if the <see cref="T:System.Collections.Generic.ICollection`1" /> is read-only; otherwise, false.
         /// </returns>
-        public bool IsReadOnly
-        {
-            get { return Dictionary.IsReadOnly; }
-        }
+        public bool IsReadOnly => Dictionary.IsReadOnly;
 
         /// <summary>
         ///     Determines whether the <see cref="T:System.Collections.Generic.IDictionary`2" /> contains an element with the
@@ -210,10 +198,7 @@ namespace UlteriusServer.Utilities
         ///     An <see cref="T:System.Collections.Generic.ICollection`1" /> containing the keys of the object that implements
         ///     <see cref="T:System.Collections.Generic.IDictionary`2" />.
         /// </returns>
-        public ICollection<string> Keys
-        {
-            get { return Dictionary.Keys; }
-        }
+        public ICollection<string> Keys => Dictionary.Keys;
 
         /// <summary>
         ///     Gets an <see cref="T:System.Collections.Generic.ICollection`1" /> containing the values in the
@@ -224,10 +209,7 @@ namespace UlteriusServer.Utilities
         ///     An <see cref="T:System.Collections.Generic.ICollection`1" /> containing the values in the object that implements
         ///     <see cref="T:System.Collections.Generic.IDictionary`2" />.
         /// </returns>
-        public ICollection<object> Values
-        {
-            get { return Dictionary.Values; }
-        }
+        public ICollection<object> Values => Dictionary.Values;
 
         /// <summary>
         ///     Adds an item to the <see cref="T:System.Collections.Generic.ICollection`1" />.

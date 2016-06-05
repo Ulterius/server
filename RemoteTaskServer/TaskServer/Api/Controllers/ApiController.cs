@@ -65,7 +65,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers
                 var networkController = new NetworkController(Client, packet);
 
                 var gpuController = new GpuController(Client, packet);
-                var vncController = new VncController(Client, packet);
+                var screenShareController = new ScreenShareController(Client, packet);
                 var pluginController = new PluginController(Client, packet);
                 var webcamController = new WebCamController(Client, packet);
 
@@ -177,11 +177,11 @@ namespace UlteriusServer.TaskServer.Api.Controllers
                         //WHO REENABLED THIS
                         // Task.Factory.StartNew(() => operatingSystemController.GetEventLogs());
                         break;
-                    case PacketType.StartVncServer:
-                        vncController.StartVncServer();
+                    case PacketType.StartScreenShare:
+                        screenShareController.StartScreenShare();
                         break;
-                    case PacketType.StopVncServer:
-                
+                    case PacketType.StopScreenShare:
+                        screenShareController.StopScreenShare();
                         break;
                     case PacketType.ApproveFile:
                         fileController.ApproveFile();

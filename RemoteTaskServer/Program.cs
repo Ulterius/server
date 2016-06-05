@@ -3,8 +3,8 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Runtime.InteropServices;
 using RemoteTaskServer.WebServer;
-using UlteriusPluginBase;
 using UlteriusServer.Plugins;
 using UlteriusServer.Properties;
 using UlteriusServer.TaskServer;
@@ -21,20 +21,20 @@ namespace UlteriusServer
     {
         private static void Main(string[] args)
         {
-          
-            Cleanup();
+            //fixes wrong screensize for screen share
+            if (Environment.OSVersion.Version.Major >= 6) SetProcessDPIAware();
+
             if (!Directory.Exists(AppEnvironment.DataPath))
                 Directory.CreateDirectory(AppEnvironment.DataPath);
 
-            if (!Debugger.IsAttached)          
+            if (!Debugger.IsAttached)
                 ExceptionHandler.AddGlobalHandlers();
-                Console.WriteLine("Exception Handlers attached");
 
-         
+
+            Console.WriteLine("Exception Handlers attached");
+
 
             Settings.Initialize("Config.json");
-
-
 
             Console.Title = Resources.Program_Title;
             Tools.ConfigureServer();
@@ -62,20 +62,9 @@ namespace UlteriusServer
         }
 
         //Evan will have to support me and oumy cat once this gets released into the public.
-        private static void Cleanup()
-        {
-            var webSockifyInstances = Process.GetProcessesByName("websockify");
-            foreach (var instance in webSockifyInstances)
-            {
-                try
-                {
-                    instance.Kill();
-                }
-                catch (Exception)
-                {
-                    //who cares
-                }
-            }
-        }
+
+
+        [DllImport("user32.dll")]
+        private static extern bool SetProcessDPIAware();
     }
 }
