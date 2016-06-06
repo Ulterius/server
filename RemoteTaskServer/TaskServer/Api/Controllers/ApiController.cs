@@ -152,8 +152,8 @@ namespace UlteriusServer.TaskServer.Api.Controllers
                     case PacketType.ChangeScreenSharePort:
                         settingsController.ChangeScreenSharePort();
                         break;
-                    case PacketType.ChangeVncPass:
-                        settingsController.ChangeVncPassword();
+                    case PacketType.ChangeScreenSharePass:
+                        settingsController.ChangeScreenSharePass();
                         break;
                   
                     case PacketType.ChangeNetworkResolve:

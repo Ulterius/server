@@ -172,7 +172,7 @@ namespace UlteriusServer.Utilities
                 Settings.Get()["ScreenShare"] = new Settings.Header
                 {
                     {
-                        "ScreenSharePass", string.Empty
+                        "ChangeScreenSharePass", string.Empty
                     },
                     {
                         "ScreenSharePort", 22009

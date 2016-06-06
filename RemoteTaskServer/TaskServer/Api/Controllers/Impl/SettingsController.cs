@@ -51,7 +51,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
             _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, data);
         }
 
-        public void ChangeVncPassword()
+        public void ChangeScreenSharePass()
         {
             var pass = _packet.Args[0].ToString();
             Settings.Get("ScreenShare").ScreenSharePass = pass;
@@ -60,7 +60,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
             var data = new
             {
                 changedStatus = true,
-                VncPass = currentPass
+                ScreenSharePass = currentPass
             };
             _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, data);
         }
