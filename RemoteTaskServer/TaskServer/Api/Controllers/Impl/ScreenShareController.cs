@@ -93,4 +93,3 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
     }
 }
 
-}
