@@ -54,9 +54,9 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
         public void ChangeVncPassword()
         {
             var pass = _packet.Args[0].ToString();
-            Settings.Get("ScreenShare").VncPass = pass;
+            Settings.Get("ScreenShare").ScreenSharePass = pass;
             Settings.Save();
-            var currentPass = (string) Settings.Get("ScreenShare").VncPass;
+            var currentPass = (string) Settings.Get("ScreenShare").ScreenSharePass;
             var data = new
             {
                 changedStatus = true,
@@ -65,33 +65,21 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
             _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, data);
         }
 
-        public void ChangeVncPort()
+        public void ChangeScreenSharePort()
         {
             var port = int.Parse(_packet.Args[0].ToString());
-            Settings.Get("ScreenShare").VncPort = port;
+            Settings.Get("ScreenShare").ScreenSharePort = port;
             Settings.Save();
-            var currentPort = (int) Settings.Get("ScreenShare").VncPort;
+            var currentPort = (int) Settings.Get("ScreenShare").ScreenSharePort;
             var data = new
             {
                 changedStatus = true,
-                VncPort = currentPort
+                ScreenSharePort = currentPort
             };
             _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, data);
         }
 
-        public void ChangeVncProxyPort()
-        {
-            var port = int.Parse(_packet.Args[0].ToString());
-            Settings.Get("ScreenShare").VncProxyPort = port;
-            Settings.Save();
-            var currentPort = (int) Settings.Get("ScreenShare").VncProxyPort;
-            var data = new
-            {
-                changedStatus = true,
-                VncProxyPort = currentPort
-            };
-            _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, data);
-        }
+      
 
         public void ChangeWebServerUse()
         {

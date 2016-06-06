@@ -155,24 +155,22 @@ namespace UlteriusServer.TaskServer
                     case "changewebfilepath":
                         PacketType = PacketType.ChangeWebFilePath;
                         break;
-                    case "startvncserver":
+                    case "startscreenshare":
                         PacketType = PacketType.StartScreenShare;
                         break;
-                    case "stopvncserver":
+                    case "stopscreenshare":
                         PacketType = PacketType.StopScreenShare;
                         break;
-                    case "changevncpass":
-                        PacketType = PacketType.ChangeVncPass;
+                    case "changescreensharepass":
+                        PacketType = PacketType.ChangeScreenSharePass;
                         break;
                     case "changetaskserverport":
                         PacketType = PacketType.ChangeTaskServerPort;
                         break;
-                    case "changevncport":
-                        PacketType = PacketType.ChangeVncPort;
+                    case "changescreenshareport":
+                        PacketType = PacketType.ChangeScreenSharePort;
                         break;
-                    case "changevncproxyport":
-                        PacketType = PacketType.ChangeVncProxyPort;
-                        break;
+                  
                     case "changenetworkresolve":
                         PacketType = PacketType.ChangeNetworkResolve;
                         break;
@@ -291,10 +289,9 @@ public enum PacketType
     CreateFileTree,
     RequestGpuInformation,
     Plugin,
-    ChangeVncPort,
-    ChangeVncProxyPort,
+    ChangeScreenSharePort,
     StartScreenShare,
-    ChangeVncPass,
+    ChangeScreenSharePass,
     GetPlugins,
     GetBadPlugins,
     PauseCamera,

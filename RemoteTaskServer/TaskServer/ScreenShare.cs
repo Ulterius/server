@@ -17,8 +17,8 @@ namespace UlteriusServer.TaskServer
 
         public ScreenShare()
         {
-            var screenSharePort = (int) Settings.Get("ScreenShare").VncPort;
-            SecureString screenSharePass = ToSecureString(Settings.Get("ScreenShare").VncPass.ToString());
+            var screenSharePort = (int) Settings.Get("ScreenShare").ScreenSharePort;
+            SecureString screenSharePass = ToSecureString(Settings.Get("ScreenShare").ScreenSharePass.ToString());
             _server = new ScreenShareServer(_serverName, screenSharePass, IPAddress.Any, screenSharePort);
         }
 
