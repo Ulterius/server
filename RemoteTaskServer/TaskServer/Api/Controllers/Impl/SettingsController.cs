@@ -54,9 +54,9 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
         public void ChangeVncPassword()
         {
             var pass = _packet.Args[0].ToString();
-            Settings.Get("Vnc").VncPass = pass;
+            Settings.Get("ScreenShare").VncPass = pass;
             Settings.Save();
-            var currentPass = (string) Settings.Get("Vnc").VncPass;
+            var currentPass = (string) Settings.Get("ScreenShare").VncPass;
             var data = new
             {
                 changedStatus = true,
@@ -68,9 +68,9 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
         public void ChangeVncPort()
         {
             var port = int.Parse(_packet.Args[0].ToString());
-            Settings.Get("Vnc").VncPort = port;
+            Settings.Get("ScreenShare").VncPort = port;
             Settings.Save();
-            var currentPort = (int) Settings.Get("Vnc").VncPort;
+            var currentPort = (int) Settings.Get("ScreenShare").VncPort;
             var data = new
             {
                 changedStatus = true,
@@ -82,9 +82,9 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
         public void ChangeVncProxyPort()
         {
             var port = int.Parse(_packet.Args[0].ToString());
-            Settings.Get("Vnc").VncProxyPort = port;
+            Settings.Get("ScreenShare").VncProxyPort = port;
             Settings.Save();
-            var currentPort = (int) Settings.Get("Vnc").VncProxyPort;
+            var currentPort = (int) Settings.Get("ScreenShare").VncProxyPort;
             var data = new
             {
                 changedStatus = true,
