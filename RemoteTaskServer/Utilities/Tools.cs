@@ -95,22 +95,10 @@ namespace UlteriusServer.Utilities
         }
 
 
-        public static void ConfigureServer()
+        public static void GenerateSettings()
         {
-            if (Settings.Empty)
-            {
-                //setup listen sh
-                var prefix = "http://*:22006/";
-                var username = Environment.GetEnvironmentVariable("USERNAME");
-                var userdomain = Environment.GetEnvironmentVariable("USERDOMAIN");
-                var command = $@"/C netsh http add urlacl url={prefix} user={userdomain}\{username} listen=yes";
-                Process.Start("CMD.exe", command);
-                OpenPort(22006, "Ulterius Web Server");
-                OpenPort(22007, "Ulterius Task Server");
-                OpenPort(22008, "Ulterius Terminal Server");
-                OpenPort(22009, "Ulterius ScreenShare");
-                //web server settings
-                Settings.Get()["General"] = new Settings.Header
+            //web server settings
+            Settings.Get()["General"] = new Settings.Header
                 {
                     {
                         "Version", Assembly.GetExecutingAssembly().GetName().Version
@@ -136,7 +124,7 @@ namespace UlteriusServer.Utilities
                         }
                     }
                 };
-                Settings.Get()["WebServer"] = new Settings.Header
+            Settings.Get()["WebServer"] = new Settings.Header
                 {
                     {
                         "WebFilePath", HttpServer.DefaultPath
@@ -148,7 +136,7 @@ namespace UlteriusServer.Utilities
                         "UseWebServer", true
                     }
                 };
-                Settings.Get()["TaskServer"] = new Settings.Header
+            Settings.Get()["TaskServer"] = new Settings.Header
                 {
                     {
                         "TaskServerPort", 22007
@@ -157,19 +145,19 @@ namespace UlteriusServer.Utilities
                         "Encryption", true
                     }
                 };
-                Settings.Get()["Network"] = new Settings.Header
+            Settings.Get()["Network"] = new Settings.Header
                 {
                     {
                         "SkipHostNameResolve", false
                     }
                 };
-                Settings.Get()["Plugins"] = new Settings.Header
+            Settings.Get()["Plugins"] = new Settings.Header
                 {
                     {
                         "LoadPlugins", true
                     }
                 };
-                Settings.Get()["ScreenShare"] = new Settings.Header
+            Settings.Get()["ScreenShare"] = new Settings.Header
                 {
                     {
                         "ScreenSharePass", string.Empty
@@ -178,21 +166,38 @@ namespace UlteriusServer.Utilities
                         "ScreenSharePort", 22009
                     }
                 };
-                Settings.Get()["Terminal"] = new Settings.Header
+            Settings.Get()["Terminal"] = new Settings.Header
                 {
                     {
                         "AllowTerminal", true
                     }
                 };
 
-                Settings.Get()["Debug"] = new Settings.Header
+            Settings.Get()["Debug"] = new Settings.Header
                 {
                     {
                         "TraceDebug", true
                     }
                 };
 
-                Settings.Save();
+            Settings.Save();
+
+        }
+        public static void ConfigureServer()
+        {
+            if (Settings.Empty)
+            {
+                //setup listen sh
+                var prefix = "http://*:22006/";
+                var username = Environment.GetEnvironmentVariable("USERNAME");
+                var userdomain = Environment.GetEnvironmentVariable("USERDOMAIN");
+                var command = $@"/C netsh http add urlacl url={prefix} user={userdomain}\{username} listen=yes";
+                Process.Start("CMD.exe", command);
+                OpenPort(22006, "Ulterius Web Server");
+                OpenPort(22007, "Ulterius Task Server");
+                OpenPort(22008, "Ulterius Terminal Server");
+                OpenPort(22009, "Ulterius ScreenShare");
+                GenerateSettings();
             }
         }
 

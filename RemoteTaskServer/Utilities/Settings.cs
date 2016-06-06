@@ -1,11 +1,11 @@
 ﻿#region
 
+using System;
 using System.Collections.Generic;
 using System.Dynamic;
 using System.IO;
 using System.Web.Script.Serialization;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 #endregion
 
@@ -22,7 +22,7 @@ namespace UlteriusServer.Utilities
         private static Settings _settings;
 
         public static bool Empty;
-
+        private static bool _generating;
 
         /// <summary>
         ///     Gets or sets the file path.
@@ -46,7 +46,24 @@ namespace UlteriusServer.Utilities
         /// <returns>dynamic.</returns>
         public static dynamic Get(string headerName)
         {
-            return _settings[headerName];
+            try
+            {
+                return _settings[headerName];
+            }
+            catch (Exception)
+            {
+                if (_generating)
+                {
+                    _generating = false;
+                    return null;
+                }
+                Console.WriteLine("Header does not exist. Generating new sections file.");
+                _generating = true;
+                Tools.GenerateSettings();
+                var header = Get(headerName);
+                _generating = false;
+                return header;
+            }
         }
 
 
@@ -79,14 +96,14 @@ namespace UlteriusServer.Utilities
         }
 
         /// <summary>
-        ///    Returns settings file as a raw object
+        ///     Returns settings file as a raw object
         /// </summary>
         /// <returns>object.</returns>
         public static object GetRaw()
         {
             var jsonSerializer = new JavaScriptSerializer();
             //Thanks microsoft
-            var settings = (IDictionary<string, object>)jsonSerializer.DeserializeObject(File.ReadAllText(FilePath));
+            var settings = (IDictionary<string, object>) jsonSerializer.DeserializeObject(File.ReadAllText(FilePath));
             return settings;
         }
 
