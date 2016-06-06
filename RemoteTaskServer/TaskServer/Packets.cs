@@ -158,6 +158,9 @@ namespace UlteriusServer.TaskServer
                     case "startscreenshare":
                         PacketType = PacketType.StartScreenShare;
                         break;
+                    case "checkscreenshare":
+                        PacketType = PacketType.CheckScreenShare;
+                        break;
                     case "stopscreenshare":
                         PacketType = PacketType.StopScreenShare;
                         break;
@@ -311,5 +314,6 @@ public enum PacketType
     RequestFile,
     RemoveFile,
     SearchFiles,
-    StopScreenShare
+    StopScreenShare,
+    CheckScreenShare
 }

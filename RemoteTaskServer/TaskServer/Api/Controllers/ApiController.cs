@@ -155,7 +155,9 @@ namespace UlteriusServer.TaskServer.Api.Controllers
                     case PacketType.ChangeScreenSharePass:
                         settingsController.ChangeScreenSharePass();
                         break;
-                  
+                    case PacketType.CheckScreenShare:
+                        screenShareController.CheckServer();
+                        break;
                     case PacketType.ChangeNetworkResolve:
                         settingsController.ChangeNetworkResolve();
                         break;

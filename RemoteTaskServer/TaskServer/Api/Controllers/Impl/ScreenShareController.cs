@@ -12,6 +12,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
         private readonly WebSocket _client;
         private readonly Packets _packet;
         private readonly ApiSerializator _serializator = new ApiSerializator();
+        private readonly ScreenShare _share = TaskManagerServer.ScreenShare;
 
         public ScreenShareController(WebSocket client, Packets packet)
         {
@@ -21,13 +22,12 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
 
         public void StopScreenShare()
         {
-            var share = TaskManagerServer.ScreenShare;
-            if (share.Stop())
+            if (_share.Stop())
             {
                 var endData = new
                 {
                     stopped = true,
-                    shareName = share.GetServerName(),
+                    shareName = _share.GetServerName(),
                     message = "Screenshare Stopped"
                 };
                 _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, endData);
@@ -37,49 +37,60 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                 var endData = new
                 {
                     stopped = false,
-                    shareName = share.GetServerName(),
+                    shareName = _share.GetServerName(),
                     message = "Screenshare Not Stopped"
                 };
                 _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, endData);
             }
         }
 
+        public void CheckServer()
+        {
+            var serverAvailable = _share.ServerAvailable();
+            var endData = new
+            {
+                serverAvailable,
+                shareName = _share.GetServerName()
+            };
+            _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, endData);
+        }
+
         public void StartScreenShare()
         {
-            var share = TaskManagerServer.ScreenShare;
-            if (share.ServerAvailable())
+            if (!_share.ServerAvailable())
             {
-                if (share.Start())
+                var endData = new
                 {
-                    var endData = new
-                    {
-                        started = true,
-                        shareName = share.GetServerName(),
-                        message = "Screenshare Started"
-                    };
-                    _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, endData);
-                }
-                else
+                    started = false,
+                    shareName = _share.GetServerName(),
+                    message = "Server already running"
+                };
+                _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, endData);
+                return;
+            }
+
+            if (_share.Start())
+            {
+                var endData = new
                 {
-                    var endData = new
-                    {
-                        started = false,
-                        shareName = share.GetServerName(),
-                        message = "Screenshare Not Started"
-                    };
-                    _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, endData);
-                }
+                    started = true,
+                    shareName = _share.GetServerName(),
+                    message = "Screenshare Started"
+                };
+                _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, endData);
             }
             else
             {
                 var endData = new
                 {
                     started = false,
-                    shareName = share.GetServerName(),
-                    message = "Server already running"
+                    shareName = _share.GetServerName(),
+                    message = "Screenshare Not Started"
                 };
                 _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, endData);
             }
         }
     }
+}
+
 }
