@@ -18,10 +18,7 @@ No release at this moment.
 
 Plugins
 ----
-Ulterius currently (kinda) supports the following plugins:
-
-* Torrent client
-* More to come!
+Ulterius currently (kinda) supports the plugins, data cannot be returned and they run in a sandbox. 
 
 Development
 ----
