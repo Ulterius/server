@@ -150,8 +150,8 @@ namespace UlteriusServer.Plugins
                 case "System.Security.Permissions.PublisherIdentityPermission":
                     //Represents the identity of a software publisher.
                     return new PublisherIdentityPermission(PermissionState.Unrestricted);
-                 case "System.Security.Permissions.ReflectionPermission": //Controls access to non-public types and members through the System.Reflection APIs.
-                   return new ReflectionPermission(PermissionState.Unrestricted);
+             //    case "System.Security.Permissions.ReflectionPermission": //Controls access to non-public types and members through the System.Reflection APIs.
+                  // return new ReflectionPermission(PermissionState.Unrestricted);
                 case "System.Security.Permissions.RegistryPermission":
                     //Controls the ability to access registry variables.
                     return new RegistryPermission(PermissionState.Unrestricted);

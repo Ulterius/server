@@ -173,7 +173,6 @@ namespace UlteriusServer.TaskServer
                     case "changescreenshareport":
                         PacketType = PacketType.ChangeScreenSharePort;
                         break;
-                  
                     case "changenetworkresolve":
                         PacketType = PacketType.ChangeNetworkResolve;
                         break;

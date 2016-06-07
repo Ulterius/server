@@ -8,6 +8,7 @@ using System.Web.Script.Serialization;
 using UlteriusServer.Authentication;
 using UlteriusServer.Forms.Utilities;
 using UlteriusServer.TaskServer.Api.Controllers;
+using UlteriusServer.TaskServer.Services.Network;
 using UlteriusServer.Utilities;
 using UlteriusServer.Utilities.Security;
 using UlteriusServer.WebSocketAPI;
@@ -30,7 +31,7 @@ namespace UlteriusServer.TaskServer
             ScreenShare = new ScreenShare();
             var port = (int) Settings.Get("TaskServer").TaskServerPort;  
             var cancellation = new CancellationTokenSource();
-            var endpoint = new IPEndPoint(IPAddress.Parse( /*NetworkUtilities.GetIPv4Address()*/ "0.0.0.0"), port);
+            var endpoint = new IPEndPoint(NetworkUtilities.GetAddress(), port);
             var server = new WebSocketEventListener(endpoint, new WebSocketListenerOptions
             {
                 SubProtocols = new[] {"text"},

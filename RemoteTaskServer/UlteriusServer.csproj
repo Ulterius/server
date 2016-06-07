@@ -62,7 +62,7 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>Ulterius_Icon.ico</ApplicationIcon>
+    <ApplicationIcon>twitter-profile.ico</ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup>
     <StartupObject />
@@ -290,6 +290,7 @@
     <Content Include="FodyWeavers.xml">
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="twitter-profile.ico" />
     <Content Include="Ulterius_Icon.ico" />
     <Content Include="Ulterius_Logo.ico" />
   </ItemGroup>

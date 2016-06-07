@@ -9,6 +9,7 @@ using UlteriusServer.TerminalServer.Infrastructure;
 using UlteriusServer.TerminalServer.Messaging;
 using UlteriusServer.TerminalServer.Messaging.TerminalControl.Handlers;
 using UlteriusServer.TerminalServer.Session;
+using UlteriusServer.Utilities;
 
 #endregion
 
@@ -20,7 +21,7 @@ namespace UlteriusServer.TerminalServer
         {
             var logger = new Log4NetLogger();
             var sysinfo = new SystemInfo();
-            var endpoint = new IPEndPoint(IPAddress.Parse( /*NetworkUtilities.GetIPv4Address()*/ "0.0.0.0"), 22008);
+            var endpoint = new IPEndPoint(NetworkUtilities.GetAddress(), 22008);
 
 
             var server = new WebSocketQueueServer(endpoint, sysinfo, logger);

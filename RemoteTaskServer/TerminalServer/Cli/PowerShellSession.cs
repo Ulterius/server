@@ -87,8 +87,7 @@ namespace UlteriusServer.TerminalServer.Cli
 
             foreach (var line in lines)
             {
-                if (Output != null)
-                    Output(line, commandCorrelationId, line == lines.Last(), false);
+                Output?.Invoke(line, commandCorrelationId, line == lines.Last(), false);
             }
         }
 

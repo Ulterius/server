@@ -2,6 +2,8 @@
 
 using System;
 using System.Diagnostics;
+using System.Linq;
+using System.Net;
 using System.Net.NetworkInformation;
 using System.Reflection;
 using System.Security.Principal;
@@ -9,6 +11,7 @@ using System.Threading;
 using System.Web;
 using NetFwTypeLib;
 using RemoteTaskServer.WebServer;
+using UlteriusServer.TaskServer.Services.Network;
 using static System.Security.Principal.WindowsIdentity;
 
 #endregion
@@ -81,108 +84,126 @@ namespace UlteriusServer.Utilities
 
         private static void OpenPort(ushort port, string name)
         {
-            var firewallRule = getComObject<INetFwRule2>(INetFwRuleProgID);
-            firewallRule.Description = name;
-            firewallRule.Name = name;
-            firewallRule.Action = NET_FW_ACTION_.NET_FW_ACTION_ALLOW;
-            firewallRule.Enabled = true;
-            firewallRule.InterfaceTypes = "All";
-            firewallRule.Protocol = (int) NET_FW_IP_PROTOCOL_.NET_FW_IP_PROTOCOL_TCP;
-            firewallRule.LocalPorts = port.ToString();
-
             var firewallPolicy = getComObject<INetFwPolicy2>(INetFwPolicy2ProgID);
-            firewallPolicy.Rules.Add(firewallRule);
+            var firewallRule = getComObject<INetFwRule2>(INetFwRuleProgID);
+            var existingRule = firewallPolicy.Rules.OfType<INetFwRule>().FirstOrDefault(x => x.Name == name);
+            if (existingRule == null)
+            {
+                firewallRule.Description = name;
+                firewallRule.Name = name;
+                firewallRule.Action = NET_FW_ACTION_.NET_FW_ACTION_ALLOW;
+                firewallRule.Enabled = true;
+                firewallRule.InterfaceTypes = "All";
+                firewallRule.Protocol = (int) NET_FW_IP_PROTOCOL_.NET_FW_IP_PROTOCOL_TCP;
+                firewallRule.LocalPorts = port.ToString();
+                firewallPolicy.Rules.Add(firewallRule);
+            }
         }
 
-
+  
         public static void GenerateSettings()
         {
             //web server settings
             Settings.Get()["General"] = new Settings.Header
+            {
                 {
+                    "Version", Assembly.GetExecutingAssembly().GetName().Version
+                },
+                {
+                    "UploadLogs", false
+                },
+                {
+                    "Github", "https://github.com/Ulterius"
+                },
+                {
+                    "ServerIssues", "https://github.com/Ulterius/server/issues"
+                },
+                {
+                    "ClientIssues", "https://github.com/Ulterius/client/issues"
+                },
+                {
+                    //this is kind of nasty 
+                    "Maintainers", new[]
                     {
-                        "Version", Assembly.GetExecutingAssembly().GetName().Version
-                    },
-                    {
-                        "UploadLogs", false
-                    },
-                    {
-                        "Github", "https://github.com/Ulterius"
-                    },
-                    {
-                        "ServerIssues", "https://github.com/Ulterius/server/issues"
-                    },
-                    {
-                        "ClientIssues", "https://github.com/Ulterius/client/issues"
-                    },
-                    {
-                        //this is kind of nasty 
-                        "Maintainers", new[]
+                        new
                         {
-                            new {Name = "Andrew Sampson", Twitter = "https://twitter.com/Andrewmd5", Github = "https://github.com/codeusa", Website = "https://andrew.im/"},
-                            new {Name = "Evan Banyash", Twitter = "https://twitter.com/frobthebuilder", Github = "https://github.com/FrobtheBuilder", Website = "http://banyash.com/"}
+                            Name = "Andrew Sampson",
+                            Twitter = "https://twitter.com/Andrewmd5",
+                            Github = "https://github.com/codeusa",
+                            Website = "https://andrew.im/"
+                        },
+                        new
+                        {
+                            Name = "Evan Banyash",
+                            Twitter = "https://twitter.com/frobthebuilder",
+                            Github = "https://github.com/FrobtheBuilder",
+                            Website = "http://banyash.com/"
                         }
                     }
-                };
+                }
+            };
             Settings.Get()["WebServer"] = new Settings.Header
+            {
                 {
-                    {
-                        "WebFilePath", HttpServer.DefaultPath
-                    },
-                    {
-                        "WebServerPort", 22006
-                    },
-                    {
-                        "UseWebServer", true
-                    }
-                };
+                    "WebFilePath", HttpServer.DefaultPath
+                },
+                {
+                    "WebServerPort", 22006
+                },
+                {
+                    "UseWebServer", true
+                }
+            };
             Settings.Get()["TaskServer"] = new Settings.Header
+            {
                 {
-                    {
-                        "TaskServerPort", 22007
-                    },
-                    {
-                        "Encryption", true
-                    }
-                };
+                    "TaskServerPort", 22007
+                },
+                {
+                    "Encryption", true
+                }
+            };
             Settings.Get()["Network"] = new Settings.Header
+            {
                 {
-                    {
-                        "SkipHostNameResolve", false
-                    }
-                };
+                    "SkipHostNameResolve", false
+                },
+                {
+                    "BindLocal", false
+                }
+            };
             Settings.Get()["Plugins"] = new Settings.Header
+            {
                 {
-                    {
-                        "LoadPlugins", true
-                    }
-                };
+                    "LoadPlugins", true
+                }
+            };
             Settings.Get()["ScreenShare"] = new Settings.Header
+            {
                 {
-                    {
-                        "ScreenSharePass", string.Empty
-                    },
-                    {
-                        "ScreenSharePort", 22009
-                    }
-                };
+                    "ScreenSharePass", string.Empty
+                },
+                {
+                    "ScreenSharePort", 22009
+                }
+            };
             Settings.Get()["Terminal"] = new Settings.Header
+            {
                 {
-                    {
-                        "AllowTerminal", true
-                    }
-                };
+                    "AllowTerminal", true
+                }
+            };
 
             Settings.Get()["Debug"] = new Settings.Header
+            {
                 {
-                    {
-                        "TraceDebug", true
-                    }
-                };
+                    "TraceDebug", true
+                }
+            };
 
             Settings.Save();
-
         }
+
         public static void ConfigureServer()
         {
             if (Settings.Empty)
@@ -201,18 +222,6 @@ namespace UlteriusServer.Utilities
             }
         }
 
-        public static string GenerateAPIKey()
-        {
-            var res = "";
-            var rnd = new Random();
-            while (res.Length < 35)
-                res += new Func<Random, string>(r =>
-                {
-                    var c = (char) (r.Next(123)*DateTime.Now.Millisecond%123);
-                    return char.IsLetterOrDigit(c) ? c.ToString() : "";
-                })(rnd);
-            return res;
-        }
 
         public static bool IsAdmin()
         {

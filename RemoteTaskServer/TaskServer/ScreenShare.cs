@@ -3,6 +3,7 @@
 using System.Net;
 using System.Security;
 using UlteriusScreenShare;
+using UlteriusServer.TaskServer.Services.Network;
 using UlteriusServer.Utilities;
 
 #endregion
@@ -19,7 +20,7 @@ namespace UlteriusServer.TaskServer
         {
             var screenSharePort = (int) Settings.Get("ScreenShare").ScreenSharePort;
             SecureString screenSharePass = ToSecureString(Settings.Get("ScreenShare").ScreenSharePass.ToString());
-            _server = new ScreenShareServer(_serverName, screenSharePass, IPAddress.Any, screenSharePort);
+            _server = new ScreenShareServer(_serverName, screenSharePass, NetworkUtilities.GetAddress(), screenSharePort);
         }
 
         public string GetServerName()

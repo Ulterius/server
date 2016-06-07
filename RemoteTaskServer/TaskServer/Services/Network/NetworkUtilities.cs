@@ -22,8 +22,14 @@ namespace UlteriusServer.TaskServer.Services.Network
 
     internal class NetworkUtilities
     {
-      
 
+
+
+        public static IPAddress GetAddress()
+        {
+            var bindLocal = (bool)Settings.Get("Network").BindLocal;
+            return bindLocal ? IPAddress.Parse(NetworkUtilities.GetIPv4Address()) : IPAddress.Any;
+        }
 
         private static readonly List<NetworkDevices> Devices = new List<NetworkDevices>();
        

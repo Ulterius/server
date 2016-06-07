@@ -11,6 +11,7 @@ using System.Threading;
 using System.Web;
 using System.Web.Script.Serialization;
 using UlteriusServer.Properties;
+using UlteriusServer.TaskServer.Services.Network;
 using UlteriusServer.Utilities;
 using UlteriusServer.Utilities.Files;
 using UlteriusServer.WebServer.RemoteTaskServer.WebServer;
@@ -131,18 +132,15 @@ namespace RemoteTaskServer.WebServer
         public HttpServer(string path)
         {
             //get an empty port
-            var l = new TcpListener(IPAddress.Loopback, 0);
+            var bindLocal = (bool)Settings.Get("Network").BindLocal;     
+            var l = new TcpListener(bindLocal ? IPAddress.Parse(NetworkUtilities.GetIPv4Address()) : IPAddress.Any, 0);
             l.Start();
             var port = ((IPEndPoint) l.LocalEndpoint).Port;
             l.Stop();
             Initialize(path, port);
         }
 
-        public int Port
-        {
-            get { return _port; }
-            private set { }
-        }
+        public int Port => _port;
 
         public static void Setup()
         {
