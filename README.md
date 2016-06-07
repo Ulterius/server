@@ -14,10 +14,7 @@ Features
 
 Installation and use:
 ----
-1. Download the installer.
-2. Run as administrator on the target machine.
-3. Visit the IP displayed on guest machine.
-4. Log in with your regular Windows login information. You're done!
+No release at this moment. 
 
 Plugins
 ----
