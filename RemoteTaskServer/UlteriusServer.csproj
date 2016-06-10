@@ -156,12 +156,16 @@
     <Reference Include="UlteriusScreenShare">
       <HintPath>extensions\UlteriusScreenShare.dll</HintPath>
     </Reference>
-    <Reference Include="vtortola.WebSockets.Deflate, Version=2.2.0.2, Culture=neutral, PublicKeyToken=7f78616efb4a208d, processorArchitecture=MSIL">
-      <HintPath>..\packages\vtortola.WebSocketListener.2.2.0.2\lib\net45\vtortola.WebSockets.Deflate.dll</HintPath>
+    <Reference Include="vtortola.WebSockets, Version=2.2.0.3, Culture=neutral, PublicKeyToken=7f78616efb4a208d, processorArchitecture=MSIL">
+      <HintPath>..\packages\vtortola.WebSocketListener.2.2.0.3\lib\net45\vtortola.WebSockets.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="vtortola.WebSockets.Rfc6455, Version=2.2.0.2, Culture=neutral, PublicKeyToken=7f78616efb4a208d, processorArchitecture=MSIL">
-      <HintPath>..\packages\vtortola.WebSocketListener.2.2.0.2\lib\net45\vtortola.WebSockets.Rfc6455.dll</HintPath>
+    <Reference Include="vtortola.WebSockets.Deflate, Version=2.2.0.3, Culture=neutral, PublicKeyToken=7f78616efb4a208d, processorArchitecture=MSIL">
+      <HintPath>..\packages\vtortola.WebSocketListener.2.2.0.3\lib\net45\vtortola.WebSockets.Deflate.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="vtortola.WebSockets.Rfc6455, Version=2.2.0.3, Culture=neutral, PublicKeyToken=7f78616efb4a208d, processorArchitecture=MSIL">
+      <HintPath>..\packages\vtortola.WebSocketListener.2.2.0.3\lib\net45\vtortola.WebSockets.Rfc6455.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="WindowsBase" />
