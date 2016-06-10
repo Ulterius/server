@@ -116,6 +116,10 @@
       <HintPath>..\packages\Newtonsoft.Json.8.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="nQuant.Core, Version=1.0.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\nQuant.1.0.3\lib\net40\nQuant.Core.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="OpenHardwareMonitorLib, Version=0.7.1.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\OpenHardwareMonitor.0.7.1\lib\net40\OpenHardwareMonitorLib.dll</HintPath>
       <Private>True</Private>
@@ -151,10 +155,6 @@
     </Reference>
     <Reference Include="UlteriusScreenShare">
       <HintPath>extensions\UlteriusScreenShare.dll</HintPath>
-    </Reference>
-    <Reference Include="vtortola.WebSockets, Version=2.2.0.2, Culture=neutral, PublicKeyToken=7f78616efb4a208d, processorArchitecture=MSIL">
-      <HintPath>..\packages\vtortola.WebSocketListener.2.2.0.2\lib\net45\vtortola.WebSockets.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="vtortola.WebSockets.Deflate, Version=2.2.0.2, Culture=neutral, PublicKeyToken=7f78616efb4a208d, processorArchitecture=MSIL">
       <HintPath>..\packages\vtortola.WebSocketListener.2.2.0.2\lib\net45\vtortola.WebSockets.Deflate.dll</HintPath>
