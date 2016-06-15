@@ -82,9 +82,7 @@ namespace UlteriusServer.Utilities.Security
             using (var rijAlg = new RijndaelManaged())
             {
                 rijAlg.Mode = CipherMode.CBC;
-                rijAlg.Padding = PaddingMode.PKCS7;
-                rijAlg.FeedbackSize = 128;
-
+                rijAlg.Padding = PaddingMode.None;
                 rijAlg.Key = key;
                 rijAlg.IV = iv;
 
@@ -135,8 +133,7 @@ namespace UlteriusServer.Utilities.Security
             {
                 //Settings  
                 rijAlg.Mode = CipherMode.CBC;
-                rijAlg.Padding = PaddingMode.PKCS7;
-                rijAlg.FeedbackSize = 128;
+                rijAlg.Padding = PaddingMode.None;
                 rijAlg.Key = key;
                 rijAlg.IV = iv;
 
