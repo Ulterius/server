@@ -89,29 +89,34 @@ namespace UlteriusServer.WebSocketAPI
                 while (websocket.IsConnected)
                 {
                     var messageReadStream = await websocket.ReadMessageAsync(CancellationToken.None);
-                    switch (messageReadStream.MessageType)
+                    if (messageReadStream != null)
                     {
-                        case WebSocketMessageType.Text:
-                            using (var sr = new StreamReader(messageReadStream, Encoding.UTF8))
-                            {
-                                var stringMessage = await sr.ReadToEndAsync();
-                                if (!string.IsNullOrEmpty(stringMessage))
+                        switch (messageReadStream.MessageType)
+                        {
+                            case WebSocketMessageType.Text:
+                                using (var sr = new StreamReader(messageReadStream, Encoding.UTF8))
                                 {
-                                    OnPlainTextMessage?.Invoke(websocket, stringMessage);
+                                    var stringMessage = await sr.ReadToEndAsync();
+                                    if (!string.IsNullOrEmpty(stringMessage))
+                                    {
+                                        OnPlainTextMessage?.Invoke(websocket, stringMessage);
+                                    }
                                 }
-                            }
-                            break;
-                        case WebSocketMessageType.Binary:
-                            using (var ms = new MemoryStream())
-                            {
-                                await messageReadStream.CopyToAsync(ms);
-                                var data = ms.ToArray();
-                                if (data.Length > 0)
+                                break;
+                            case WebSocketMessageType.Binary:
+                                using (var ms = new MemoryStream())
                                 {
-                                    OnEncryptedMessage?.Invoke(websocket, data);
+                                    await messageReadStream.CopyToAsync(ms);
+                                    var data = ms.ToArray();
+                                    if (data.Length > 0)
+                                    {
+                                        OnEncryptedMessage?.Invoke(websocket, data);
+                                    }
                                 }
-                            }
-                            break;
+                                break;
+                            default:
+                                throw new ArgumentOutOfRangeException();
+                        }
                     }
                 }
                 OnDisconnect?.Invoke(websocket);
