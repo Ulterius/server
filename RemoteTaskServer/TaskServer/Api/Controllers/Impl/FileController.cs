@@ -195,7 +195,6 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
             var fileKey = _packet.Args[0].ToString();
             var destPath = _packet.Args[1].ToString();
             var password = _packet.Args[2].ToString();
-
             FileManager.AddFile(password, destPath, fileKey);
             var approved = new
             {

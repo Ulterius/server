@@ -23,24 +23,22 @@ namespace UlteriusServer.TaskServer
         public PacketType PacketType;
         public string SyncKey;
 
-        public Packets(AuthClient client, string packetData)
+        public Packets(AuthClient client, object packetData, bool encrypted = false)
         {
             //An entire base64 string is an aes encrypted packet
             if ((bool) Settings.Get("TaskServer").Encryption)
             {
-                if (packetData.IsBase64String())
+                if (encrypted)
                 {
                     try
                     {
                         var keybytes = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(client.AesKey));
                         var iv = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(client.AesIv));
-                        var packet = Convert.FromBase64String(packetData);
-                        packetData = UlteriusAes.Decrypt(packet, keybytes, iv);
+                        packetData = UlteriusAes.Decrypt((byte[]) packetData, keybytes, iv);
                     }
                     catch (Exception exception)
                     {
                         Console.WriteLine(exception.Message);
-
                         PacketType = PacketType.InvalidOrEmptyPacket;
                         return;
                     }
@@ -50,7 +48,7 @@ namespace UlteriusServer.TaskServer
                     //the only non encrypted packet allowed is the first handshake
                     try
                     {
-                        var validHandshake = JObject.Parse(packetData);
+                        var validHandshake = JObject.Parse((string) packetData);
                         var endpoint = validHandshake["endpoint"].ToString().Trim().ToLower();
                         if (!endpoint.Equals("aeshandshake"))
                         {
@@ -76,7 +74,7 @@ namespace UlteriusServer.TaskServer
             JObject deserializedPacket = null;
             try
             {
-                deserializedPacket = JObject.Parse(packetData);
+                deserializedPacket = JObject.Parse((string) packetData);
             }
             catch (Exception)
             {

@@ -46,10 +46,20 @@ namespace UlteriusServer.TaskServer
 
             server.OnConnect += HandleConnect;
             server.OnDisconnect += HandleDisconnect;
-            server.OnMessage += HandleMessage;
+            server.OnPlainTextMessage += HandlePlainTextMessage;
+            server.OnEncryptedMessage += HandleEncryptedMessage;
             server.OnError += HandleError;
             server.Start();
             Log("Task TServer started at " + endpoint);
+        }
+
+        private static void HandleEncryptedMessage(WebSocket websocket, byte[] message)
+        {
+            ApiController controller;
+            ApiControllers.TryGetValue(websocket.GetHashCode().ToString(), out controller);
+            if (controller == null) return;
+            var packet = new Packets(controller.AuthClient, message, true);
+            controller.HandlePacket(packet);
         }
 
         private static void HandleError(WebSocket websocket, Exception error)
@@ -57,7 +67,7 @@ namespace UlteriusServer.TaskServer
             Console.WriteLine(error.StackTrace + " " + error.Message);
         }
 
-        private static void HandleMessage(WebSocket websocket, string message)
+        private static void HandlePlainTextMessage(WebSocket websocket, string message)
         {
             ApiController controller;
             ApiControllers.TryGetValue(websocket.GetHashCode().ToString(), out controller);

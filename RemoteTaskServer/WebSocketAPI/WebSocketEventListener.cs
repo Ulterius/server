@@ -1,7 +1,9 @@
 ﻿#region
 
 using System;
+using System.IO;
 using System.Net;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using vtortola.WebSockets;
@@ -16,7 +18,8 @@ namespace UlteriusServer.WebSocketAPI
 
     public delegate void WebSocketEventListenerOnDisconnect(WebSocket webSocket);
 
-    public delegate void WebSocketEventListenerOnMessage(WebSocket webSocket, string message);
+    public delegate void WebSocketEventListenerOnPlainTextMessage(WebSocket webSocket, string message);
+    public delegate void WebSocketEventListenerOnEncryptedMessage(WebSocket webSocket, byte[] message);
 
     public delegate void WebSocketEventListenerOnError(WebSocket webSocket, Exception error);
 
@@ -44,7 +47,8 @@ namespace UlteriusServer.WebSocketAPI
 
         public event WebSocketEventListenerOnConnect OnConnect;
         public event WebSocketEventListenerOnDisconnect OnDisconnect;
-        public event WebSocketEventListenerOnMessage OnMessage;
+        public event WebSocketEventListenerOnEncryptedMessage OnEncryptedMessage;
+        public event WebSocketEventListenerOnPlainTextMessage OnPlainTextMessage;
         public event WebSocketEventListenerOnError OnError;
 
         public void Start()
@@ -84,13 +88,32 @@ namespace UlteriusServer.WebSocketAPI
 
                 while (websocket.IsConnected)
                 {
-                    var message = await websocket.ReadStringAsync(CancellationToken.None)
-                        .ConfigureAwait(false);
-
-                    if (message != null)
-                        OnMessage?.Invoke(websocket, message);
+                    var messageReadStream = await websocket.ReadMessageAsync(CancellationToken.None);
+                    switch (messageReadStream.MessageType)
+                    {
+                        case WebSocketMessageType.Text:
+                            using (var sr = new StreamReader(messageReadStream, Encoding.UTF8))
+                            {
+                                var stringMessage = await sr.ReadToEndAsync();
+                                if (!string.IsNullOrEmpty(stringMessage))
+                                {
+                                    OnPlainTextMessage?.Invoke(websocket, stringMessage);
+                                }
+                            }
+                            break;
+                        case WebSocketMessageType.Binary:
+                            using (var ms = new MemoryStream())
+                            {
+                                await messageReadStream.CopyToAsync(ms);
+                                var data = ms.ToArray();
+                                if (data.Length > 0)
+                                {
+                                    OnEncryptedMessage?.Invoke(websocket, data);
+                                }
+                            }
+                            break;
+                    }
                 }
-
                 OnDisconnect?.Invoke(websocket);
             }
             catch (Exception ex)
