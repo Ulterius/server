@@ -58,7 +58,7 @@ namespace UlteriusServer.TaskServer
             ApiController controller;
             ApiControllers.TryGetValue(websocket.GetHashCode().ToString(), out controller);
             if (controller == null) return;
-            var packet = new Packets(controller.AuthClient, message, true);
+            var packet = new Packets(controller.AuthClient, message);
             controller.HandlePacket(packet);
         }
 

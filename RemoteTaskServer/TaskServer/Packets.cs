@@ -6,7 +6,6 @@ using System.Text;
 using Newtonsoft.Json.Linq;
 using UlteriusServer.Authentication;
 using UlteriusServer.Utilities;
-using UlteriusServer.Utilities.Extensions;
 using UlteriusServer.Utilities.Security;
 
 #endregion
@@ -23,66 +22,62 @@ namespace UlteriusServer.TaskServer
         public PacketType PacketType;
         public string SyncKey;
 
-        public Packets(AuthClient client, object packetData, bool encrypted = false)
+
+        public Packets(AuthClient client, byte[] data)
         {
-            //An entire base64 string is an aes encrypted packet
-            if ((bool) Settings.Get("TaskServer").Encryption)
-            {
-                if (encrypted)
-                {
-                    try
-                    {
-                        var keybytes = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(client.AesKey));
-                        var iv = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(client.AesIv));
-                        packetData = UlteriusAes.Decrypt((byte[]) packetData, keybytes, iv);
-                        Console.WriteLine("Decrypted data  " + packetData.ToString());
-                    }
-                    catch (Exception exception)
-                    {
-                        Console.WriteLine("Decryption error " + exception.Message);
-                        PacketType = PacketType.InvalidOrEmptyPacket;
-                        return;
-                    }
-                }
-                else
-                {
-                    //the only non encrypted packet allowed is the first handshake
-                    try
-                    {
-                        var validHandshake = JObject.Parse(packetData.ToString());
-                        var endpoint = validHandshake["endpoint"].ToString().Trim().ToLower();
-                        if (!endpoint.Equals("aeshandshake"))
-                        {
-                            Console.WriteLine("Invalid 1");
-                            PacketType = PacketType.InvalidOrEmptyPacket;
-                            return;
-                        }
-                        //prevent sending a new aes key pair after a handshake has already taken place
-                        if (client.AesShook)
-                        {
-                            Console.WriteLine("Invalid 2");
-                            PacketType = PacketType.InvalidOrEmptyPacket;
-                            return;
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine("Invalid " + e.Message);
-                        PacketType = PacketType.InvalidOrEmptyPacket;
-                        return;
-                    }
-                }
-            }
-
-
-            JObject deserializedPacket = null;
             try
             {
-                deserializedPacket = JObject.Parse(packetData.ToString());
+                var keybytes = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(client.AesKey));
+                var iv = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(client.AesIv));
+                var packet = UlteriusAes.Decrypt(data, keybytes, iv);
+                ConfigurePacket(packet);
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine("Decryption error " + exception.Message);
+                PacketType = PacketType.InvalidOrEmptyPacket;
+            }
+        }
+
+        public Packets(AuthClient client, string packetData)
+        {
+            try
+            {
+                var validHandshake = JObject.Parse(packetData);
+                var endpoint = validHandshake["endpoint"].ToString().Trim().ToLower();
+                if (!endpoint.Equals("aeshandshake"))
+                {
+                    Console.WriteLine("The only unecrypted packet allowed is the handshake");
+                    PacketType = PacketType.InvalidOrEmptyPacket;
+                    return;
+                }
+                //prevent sending a new aes key pair after a handshake has already taken place
+                if (client.AesShook)
+                {
+                    Console.WriteLine("Invalid 2");
+                    PacketType = PacketType.InvalidOrEmptyPacket;
+                }
             }
             catch (Exception e)
             {
-                Console.WriteLine("Invalid 23 "  + e.Message);
+                Console.WriteLine("Invalid " + e.Message);
+                PacketType = PacketType.InvalidOrEmptyPacket;
+            }
+            ConfigurePacket(packetData);
+        }
+
+ 
+
+        private void ConfigurePacket(string message)
+        {
+            JObject deserializedPacket = null;
+            try
+            {
+                deserializedPacket = JObject.Parse(message);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Invalid 23 " + e.Message);
                 PacketType = PacketType.InvalidOrEmptyPacket;
                 return;
             }
