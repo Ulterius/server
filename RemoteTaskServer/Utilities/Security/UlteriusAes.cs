@@ -156,12 +156,11 @@ namespace UlteriusServer.Utilities.Security
                         }
                     }
                 }
-                catch
+                catch(Exception e)
                 {
-                    plaintext = "keyError";
+                    throw e;
                 }
             }
-
             return plaintext;
         }
     }
