@@ -48,22 +48,25 @@ namespace UlteriusServer.TaskServer
                     //the only non encrypted packet allowed is the first handshake
                     try
                     {
-                        var validHandshake = JObject.Parse((string) packetData);
+                        var validHandshake = JObject.Parse(packetData.ToString());
                         var endpoint = validHandshake["endpoint"].ToString().Trim().ToLower();
                         if (!endpoint.Equals("aeshandshake"))
                         {
+                            Console.WriteLine("Invalid 1");
                             PacketType = PacketType.InvalidOrEmptyPacket;
                             return;
                         }
                         //prevent sending a new aes key pair after a handshake has already taken place
                         if (client.AesShook)
                         {
+                            Console.WriteLine("Invalid 2");
                             PacketType = PacketType.InvalidOrEmptyPacket;
                             return;
                         }
                     }
-                    catch (Exception)
+                    catch (Exception e)
                     {
+                        Console.WriteLine("Invalid " + e.Message);
                         PacketType = PacketType.InvalidOrEmptyPacket;
                         return;
                     }
@@ -76,8 +79,9 @@ namespace UlteriusServer.TaskServer
             {
                 deserializedPacket = JObject.Parse((string) packetData);
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                Console.WriteLine("Invalid 23 "  + e.Message);
                 PacketType = PacketType.InvalidOrEmptyPacket;
                 return;
             }
@@ -87,8 +91,9 @@ namespace UlteriusServer.TaskServer
                 {
                     Endpoint = deserializedPacket["endpoint"].ToString().Trim().ToLower();
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
+                    Console.WriteLine("Invalid endpoint " + e.Message);
                     PacketType = PacketType.InvalidOrEmptyPacket;
                     return;
                 }
