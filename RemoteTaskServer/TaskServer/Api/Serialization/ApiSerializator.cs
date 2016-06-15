@@ -39,6 +39,7 @@ namespace UlteriusServer.TaskServer.Api.Serialization
                         var encryptedData = UlteriusAes.Encrypt(json, keyBytes, keyIv);
                         //json = Convert.ToBase64String(encryptedData);
                         PushBinary(client, encryptedData);
+                        return;
                     }
                 }
             }
