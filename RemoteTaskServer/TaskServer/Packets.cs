@@ -41,27 +41,30 @@ namespace UlteriusServer.TaskServer
 
         public Packets(AuthClient client, string packetData)
         {
-            try
+            if ((bool) Settings.Get("TaskServer").Encryption)
             {
-                var validHandshake = JObject.Parse(packetData);
-                var endpoint = validHandshake["endpoint"].ToString().Trim().ToLower();
-                if (!endpoint.Equals("aeshandshake"))
+                try
                 {
-                    Console.WriteLine("The only unecrypted packet allowed is the handshake");
-                    PacketType = PacketType.InvalidOrEmptyPacket;
-                    return;
+                    var validHandshake = JObject.Parse(packetData);
+                    var endpoint = validHandshake["endpoint"].ToString().Trim().ToLower();
+                    if (!endpoint.Equals("aeshandshake"))
+                    {
+                        Console.WriteLine("The only unecrypted packet allowed is the handshake");
+                        PacketType = PacketType.InvalidOrEmptyPacket;
+                        return;
+                    }
+                    //prevent sending a new aes key pair after a handshake has already taken place
+                    if (client.AesShook)
+                    {
+                        Console.WriteLine("Invalid 2");
+                        PacketType = PacketType.InvalidOrEmptyPacket;
+                    }
                 }
-                //prevent sending a new aes key pair after a handshake has already taken place
-                if (client.AesShook)
+                catch (Exception e)
                 {
-                    Console.WriteLine("Invalid 2");
+                    Console.WriteLine("Invalid " + e.Message);
                     PacketType = PacketType.InvalidOrEmptyPacket;
                 }
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("Invalid " + e.Message);
-                PacketType = PacketType.InvalidOrEmptyPacket;
             }
             ConfigurePacket(packetData);
         }
