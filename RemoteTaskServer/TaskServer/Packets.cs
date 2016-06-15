@@ -35,6 +35,7 @@ namespace UlteriusServer.TaskServer
                         var keybytes = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(client.AesKey));
                         var iv = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(client.AesIv));
                         packetData = UlteriusAes.Decrypt((byte[]) packetData, keybytes, iv);
+                        Console.WriteLine(packetData.ToString());
                     }
                     catch (Exception exception)
                     {
