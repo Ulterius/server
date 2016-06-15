@@ -35,11 +35,11 @@ namespace UlteriusServer.TaskServer
                         var keybytes = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(client.AesKey));
                         var iv = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(client.AesIv));
                         packetData = UlteriusAes.Decrypt((byte[]) packetData, keybytes, iv);
-                        Console.WriteLine(packetData.ToString());
+                        Console.WriteLine("Decrypted data  " + packetData.ToString());
                     }
                     catch (Exception exception)
                     {
-                        Console.WriteLine(exception.Message);
+                        Console.WriteLine("Decryption error " + exception.Message);
                         PacketType = PacketType.InvalidOrEmptyPacket;
                         return;
                     }
@@ -78,7 +78,7 @@ namespace UlteriusServer.TaskServer
             JObject deserializedPacket = null;
             try
             {
-                deserializedPacket = JObject.Parse((string) packetData);
+                deserializedPacket = JObject.Parse(packetData.ToString());
             }
             catch (Exception e)
             {
