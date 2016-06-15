@@ -44,7 +44,7 @@ namespace UlteriusServer.Utilities.Security
                 using (var aes = new RijndaelManaged())
                 {
                     aes.Mode = CipherMode.CBC;
-                    aes.Padding = PaddingMode.None;
+                    aes.Padding = PaddingMode.PKCS7;
 
                     using (
                         var cs = new CryptoStream(ms, aes.CreateDecryptor(passwordBytes, passwordBytes),
@@ -133,7 +133,7 @@ namespace UlteriusServer.Utilities.Security
             {
                 //Settings  
                 rijAlg.Mode = CipherMode.CBC;
-                rijAlg.Padding = PaddingMode.None;
+                rijAlg.Padding = PaddingMode.PKCS7;
                 rijAlg.Key = key;
                 rijAlg.IV = iv;
 
