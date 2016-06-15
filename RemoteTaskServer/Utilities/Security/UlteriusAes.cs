@@ -13,7 +13,7 @@ namespace UlteriusServer.Utilities.Security
             // with the specified key and IV.  
             using (var aes = new RijndaelManaged())
             {
-                aes.Mode = CipherMode.ECB;
+                aes.Mode = CipherMode.CBC;
                 aes.Padding = PaddingMode.PKCS7;
                 aes.Key = passwordBytes;
                 aes.IV = passwordBytes;
@@ -43,7 +43,7 @@ namespace UlteriusServer.Utilities.Security
             {
                 using (var aes = new RijndaelManaged())
                 {
-                    aes.Mode = CipherMode.ECB;
+                    aes.Mode = CipherMode.CBC;
                     aes.Padding = PaddingMode.PKCS7;
 
                     using (

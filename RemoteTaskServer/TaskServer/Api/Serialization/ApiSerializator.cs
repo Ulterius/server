@@ -37,7 +37,8 @@ namespace UlteriusServer.TaskServer.Api.Serialization
                         var keyBytes = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(authClient.AesKey));
                         var keyIv = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(authClient.AesIv));
                         var encryptedData = UlteriusAes.Encrypt(json, keyBytes, keyIv);
-                        json = Convert.ToBase64String(encryptedData);
+                        //json = Convert.ToBase64String(encryptedData);
+                        PushBinary(client, encryptedData);
                     }
                 }
             }
@@ -102,6 +103,24 @@ namespace UlteriusServer.TaskServer.Api.Serialization
                     using (var stream = new MemoryStream(data))
                     {
                         await CopyToProgress(stream, messageWriter, 1000000, fileName, client);
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                // ignored
+            }
+        }
+
+        public void PushBinary(WebSocket client, byte[] data)
+        {
+            try
+            {
+                using (var messageWriter = client.CreateMessageWriter(WebSocketMessageType.Binary))
+                {
+                    using (var stream = new MemoryStream(data))
+                    {
+                        stream.CopyTo(messageWriter);
                     }
                 }
             }

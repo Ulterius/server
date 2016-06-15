@@ -62,7 +62,7 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>twitter-profile.ico</ApplicationIcon>
+    <ApplicationIcon>256.ico</ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup>
     <StartupObject />
@@ -286,6 +286,7 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="256.ico" />
     <Content Include="favicon %281%29.ico" />
     <Content Include="FodyWeavers.xml">
       <SubType>Designer</SubType>
