@@ -1,26 +1,19 @@
 ﻿#region
 
 using System;
-using UlteriusServer.TaskServer.Api.Serialization;
+using UlteriusServer.Authentication;
+using UlteriusServer.TaskServer.Network.Messages;
 using UlteriusServer.Utilities;
-using vtortola.WebSockets;
 
 #endregion
 
-namespace UlteriusServer.TaskServer.Api.Controllers.Impl
+namespace UlteriusServer.TaskServer.Network.PacketHandlers
 {
-    public class SettingsController : ApiController
+    public class SettingsPacketHandler : PacketHandler
     {
-
-        private readonly WebSocket _client;
-        private readonly Packets _packet;
-        private readonly ApiSerializator _serializator = new ApiSerializator();
-
-        public SettingsController(WebSocket client, Packets packet)
-        {
-            _client = client;
-            _packet = packet;
-        }
+        private PacketBuilder _builder;
+        private AuthClient _client;
+        private Packet _packet;
 
 
         public void ChangeWebServerPort()
@@ -34,7 +27,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                 changedStatus = true,
                 WebServerPort = currentPort
             };
-            _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, data);
+            _builder.WriteMessage(data);
         }
 
         public void ChangeWebFilePath()
@@ -48,7 +41,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                 changedStatus = true,
                 WebFilePath = currentPath
             };
-            _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, data);
+            _builder.WriteMessage(data);
         }
 
         public void ChangeScreenSharePass()
@@ -62,7 +55,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                 changedStatus = true,
                 ScreenSharePass = currentPass
             };
-            _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, data);
+            _builder.WriteMessage(data);
         }
 
         public void ChangeScreenSharePort()
@@ -76,10 +69,9 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                 changedStatus = true,
                 ScreenSharePort = currentPort
             };
-            _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, data);
+            _builder.WriteMessage(data);
         }
 
-      
 
         public void ChangeWebServerUse()
         {
@@ -92,7 +84,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                 changedStatus = true,
                 UseWebServer = currentStatus
             };
-            _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, data);
+            _builder.WriteMessage(data);
         }
 
         public void ChangeNetworkResolve()
@@ -106,7 +98,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                 changedStatus = true,
                 SkipHostNameResolve = currentStatus
             };
-            _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, data);
+            _builder.WriteMessage(data);
         }
 
         public void ChangeTaskServerPort()
@@ -120,7 +112,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                 changedStatus = true,
                 TaskServerPort = currentPort
             };
-            _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, data);
+            _builder.WriteMessage(data);
         }
 
         public void ChangeLoadPlugins()
@@ -135,7 +127,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                 changedStatus = true,
                 LoadPlugins = currentStatus
             };
-            _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, data);
+            _builder.WriteMessage(data);
         }
 
         public void ChangeUseTerminal()
@@ -149,13 +141,53 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                 changedStatus = true,
                 AllowTerminal = currentStatus
             };
-            _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, data);
+            _builder.WriteMessage(data);
         }
 
         public void GetCurrentSettings()
 
-        {     
-            _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, Settings.GetRaw());
+        {
+            _builder.WriteMessage(Settings.GetRaw());
+        }
+
+        public override void HandlePacket(Packet packet)
+        {
+            _client = packet.AuthClient;
+            _packet = packet;
+            _builder = new PacketBuilder(_client, _packet.EndPoint, _packet.SyncKey);
+            switch (_packet.PacketType)
+            {
+                case PacketManager.PacketTypes.ToggleWebServer:
+                    ChangeWebServerUse();
+                    break;
+                case PacketManager.PacketTypes.ChangeWebServerPort:
+                    ChangeWebServerPort();
+                    break;
+                case PacketManager.PacketTypes.ChangeWebFilePath:
+                    ChangeWebFilePath();
+                    break;
+                case PacketManager.PacketTypes.ChangeTaskServerPort:
+                    ChangeTaskServerPort();
+                    break;
+                case PacketManager.PacketTypes.ChangeScreenSharePort:
+                    ChangeScreenSharePort();
+                    break;
+                case PacketManager.PacketTypes.ChangeScreenSharePass:
+                    ChangeScreenSharePass();
+                    break;
+                case PacketManager.PacketTypes.ChangeNetworkResolve:
+                    ChangeNetworkResolve();
+                    break;
+                case PacketManager.PacketTypes.ChangeLoadPlugins:
+                    ChangeLoadPlugins();
+                    break;
+                case PacketManager.PacketTypes.ChangeUseTerminal:
+                    ChangeUseTerminal();
+                    break;
+                case PacketManager.PacketTypes.GetCurrentSettings:
+                    GetCurrentSettings();
+                    break;
+            }
         }
     }
 }

@@ -6,26 +6,20 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
-using UlteriusServer.TaskServer.Api.Serialization;
-using vtortola.WebSockets;
+using UlteriusServer.Authentication;
+using UlteriusServer.TaskServer.Network.Messages;
 
 #endregion
 
-namespace UlteriusServer.TaskServer.Api.Controllers.Impl
+namespace UlteriusServer.TaskServer.Network.PacketHandlers
 {
-    public class WindowsController : ApiController
+    public class WindowsPacketHandler : PacketHandler
     {
-        private readonly WebSocket _client;
-        private readonly Packets _packet;
-        private readonly ApiSerializator _serializator = new ApiSerializator();
+        private PacketBuilder _builder;
+        private AuthClient _client;
+        private Packet _packet;
 
-        public WindowsController(WebSocket client, Packets packet)
-        {
-            _client = client;
-            _packet = packet;
-        }
 
-        
         private string GetUserTilePath(string username)
         {
             // username: use null for current user
@@ -60,14 +54,14 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
             return Environment.UserName;
         }
 
-        public void GetWindowsInformation()
+        public void GetWindowsData()
         {
             var data = new
             {
                 avatar = GetUserAvatar(),
                 username = GetUsername()
             };
-            _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, data);
+            _builder.WriteMessage(data);
         }
 
         #region
@@ -80,5 +74,18 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
             StringBuilder picpath, int maxLength);
 
         #endregion
+
+        public override void HandlePacket(Packet packet)
+        {
+            _client = packet.AuthClient;
+            _packet = packet;
+            _builder = new PacketBuilder(_client, _packet.EndPoint, _packet.SyncKey);
+            switch (_packet.PacketType)
+            {
+                case PacketManager.PacketTypes.GetWindowsData:
+                    GetWindowsData();
+                    break;
+            }
+        }
     }
 }

@@ -7,7 +7,7 @@ using System.Threading;
 using System.Web.Script.Serialization;
 using UlteriusServer.Authentication;
 using UlteriusServer.Forms.Utilities;
-using UlteriusServer.TaskServer.Api.Controllers;
+using UlteriusServer.TaskServer.Network;
 using UlteriusServer.TaskServer.Services.Network;
 using UlteriusServer.Utilities;
 using UlteriusServer.Utilities.Security;
@@ -21,15 +21,14 @@ namespace UlteriusServer.TaskServer
     internal class TaskManagerServer
     {
         public static ConcurrentDictionary<string, AuthClient> AllClients { get; set; }
-        public static ConcurrentDictionary<string, ApiController> ApiControllers { get; set; }
+
         public static ScreenShare ScreenShare { get; set; }
 
         public static void Start()
         {
             AllClients = new ConcurrentDictionary<string, AuthClient>();
-            ApiControllers = new ConcurrentDictionary<string, ApiController>();
             ScreenShare = new ScreenShare();
-            var port = (int) Settings.Get("TaskServer").TaskServerPort;  
+            var port = (int) Settings.Get("TaskServer").TaskServerPort;
             var cancellation = new CancellationTokenSource();
             var endpoint = new IPEndPoint(NetworkUtilities.GetAddress(), port);
             var server = new WebSocketEventListener(endpoint, new WebSocketListenerOptions
@@ -50,16 +49,20 @@ namespace UlteriusServer.TaskServer
             server.OnEncryptedMessage += HandleEncryptedMessage;
             server.OnError += HandleError;
             server.Start();
-            Log("Task TServer started at " + endpoint);
+            Log("Task Server started at " + endpoint);
         }
 
         private static void HandleEncryptedMessage(WebSocket websocket, byte[] message)
         {
-            ApiController controller;
-            ApiControllers.TryGetValue(websocket.GetHashCode().ToString(), out controller);
-            if (controller == null) return;
-            var packet = new Packets(controller.AuthClient, message);
-            controller.HandlePacket(packet);
+            var authKey = websocket.GetHashCode().ToString();
+            AuthClient authClient;
+            if (AllClients.TryGetValue(authKey, out authClient))
+            {
+                var packetManager = new PacketManager(authClient, message);
+                var packet = packetManager.GetPacket();
+               
+                packet?.HandlePacket();
+            }
         }
 
         private static void HandleError(WebSocket websocket, Exception error)
@@ -69,27 +72,25 @@ namespace UlteriusServer.TaskServer
 
         private static void HandlePlainTextMessage(WebSocket websocket, string message)
         {
-            ApiController controller;
-            ApiControllers.TryGetValue(websocket.GetHashCode().ToString(), out controller);
-            if (controller == null) return;
-            var packet = new Packets(controller.AuthClient, message);
-            controller.HandlePacket(packet);
+            var authKey = websocket.GetHashCode().ToString();
+            AuthClient authClient;
+            if (AllClients.TryGetValue(authKey, out authClient))
+            {
+                var packetManager = new PacketManager(authClient, message);
+                var packet = packetManager.GetPacket();
+                packet?.HandlePacket();
+            }
         }
 
         private static void HandleDisconnect(WebSocket clientSocket)
         {
-
             AuthClient temp = null;
             if (AllClients.TryRemove(clientSocket.GetHashCode().ToString(), out temp))
             {
-                ApiController temp2 = null;
-                if (ApiControllers.TryRemove(clientSocket.GetHashCode().ToString(), out temp2))
-                {
-                    Console.WriteLine("Disconnection from " + clientSocket.RemoteEndpoint);
-                    var userCount = AllClients.Count;
-                    var extra = userCount < 1 ? "s" : string.Empty;
-                  UlteriusTray.ShowMessage($"There are now {userCount} user{extra} connected.", "A user disconnected!");
-                }
+                Console.WriteLine("Disconnection from " + clientSocket.RemoteEndpoint);
+                var userCount = AllClients.Count;
+                var extra = userCount < 1 ? "s" : string.Empty;
+                UlteriusTray.ShowMessage($"There are now {userCount} user{extra} connected.", "A user disconnected!");
             }
         }
 
@@ -101,14 +102,7 @@ namespace UlteriusServer.TaskServer
             rsa.GenerateKeyPairs();
             client.PublicKey = rsa.PublicKey;
             client.PrivateKey = rsa.PrivateKey;
-            var apiController = new ApiController(clientSocket)
-            {
-                //set the auth Client so we can use it later
-                AuthClient = client
-            };
             AllClients.AddOrUpdate(clientSocket.GetHashCode().ToString(), client, (key, value) => value);
-            ApiControllers.AddOrUpdate(clientSocket.GetHashCode().ToString(), apiController,
-                (key, value) => value);
             SendWelcomeMessage(client, clientSocket);
         }
 
@@ -126,7 +120,7 @@ namespace UlteriusServer.TaskServer
             clientSocket.WriteStringAsync(welcomeMessage, CancellationToken.None);
             var userCount = AllClients.Count;
             var extra = userCount > 1 ? "s" : string.Empty;
-         UlteriusTray.ShowMessage($"There are now {userCount} user{extra} connected.", "A new user connected!");
+            UlteriusTray.ShowMessage($"There are now {userCount} user{extra} connected.", "A new user connected!");
         }
 
         private static void Log(string message)

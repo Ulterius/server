@@ -3,30 +3,25 @@
 using System;
 using System.Linq;
 using System.Management;
-using UlteriusServer.TaskServer.Api.Models;
-using UlteriusServer.TaskServer.Api.Serialization;
+using UlteriusServer.Authentication;
+using UlteriusServer.TaskServer.Network.Messages;
+using UlteriusServer.TaskServer.Network.Models;
 using UlteriusServer.TaskServer.Services.System;
-using vtortola.WebSockets;
 
 #endregion
 
-namespace UlteriusServer.TaskServer.Api.Controllers.Impl
+namespace UlteriusServer.TaskServer.Network.PacketHandlers
 {
-    public class OperatingSystemController : ApiController
+    public class OperatingSystemPacketHandler : PacketHandler
     {
-        private readonly WebSocket client;
-        private readonly Packets packet;
-        private readonly ApiSerializator serializator = new ApiSerializator();
+        private PacketBuilder _builder;
+        private AuthClient _client;
+        private Packet _packet;
 
-        public OperatingSystemController(WebSocket client, Packets packet)
-        {
-            this.client = client;
-            this.packet = packet;
-        }
 
         public void GetEventLogs()
         {
-            serializator.Serialize(client, packet.Endpoint, packet.SyncKey, SystemUtilities.GetEventLogs());
+            _builder.WriteMessage(SystemUtilities.GetEventLogs());
             GC.Collect();
         }
 
@@ -48,7 +43,23 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                 ServerOperatingSystem.SerialNumber = (string) wmi["SerialNumber"];
                 ServerOperatingSystem.Build = (string) wmi["BuildNumber"];
             }
-            serializator.Serialize(client, packet.Endpoint, packet.SyncKey, ServerOperatingSystem.ToObject());
+            _builder.WriteMessage(ServerOperatingSystem.ToObject());
+        }
+
+        public override void HandlePacket(Packet packet)
+        {
+            _client = packet.AuthClient;
+            _packet = packet;
+            _builder = new PacketBuilder(_client, _packet.EndPoint, _packet.SyncKey);
+            switch (_packet.PacketType)
+            {
+                case PacketManager.PacketTypes.RequestOsInformation:
+                    GetOperatingSystemInformation();
+                    break;
+                case PacketManager.PacketTypes.GetEventLogs:
+                    // GetEventLogs();
+                    break;
+            }
         }
     }
 }

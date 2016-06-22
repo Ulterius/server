@@ -6,26 +6,21 @@ using System.Diagnostics;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
-using UlteriusServer.TaskServer.Api.Models;
-using UlteriusServer.TaskServer.Api.Serialization;
+using UlteriusServer.Authentication;
+using UlteriusServer.TaskServer.Network;
+using UlteriusServer.TaskServer.Network.Messages;
+using UlteriusServer.TaskServer.Network.Models;
 using UlteriusServer.Utilities;
-using vtortola.WebSockets;
 
 #endregion
 
 namespace UlteriusServer.TaskServer.Api.Controllers.Impl
 {
-    public class ProcessController : ApiController
+    public class ProcessPacketHandler : PacketHandler
     {
-        private readonly WebSocket _client;
-        private readonly Packets _packet;
-        private readonly ApiSerializator _serializator = new ApiSerializator();
-
-        public ProcessController(WebSocket client, Packets packet)
-        {
-            _client = client;
-            _packet = packet;
-        }
+        private PacketBuilder _builder;
+        private AuthClient _client;
+        private Packet _packet;
 
 
         public void StartProcess()
@@ -51,7 +46,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                 processId,
                 path
             };
-            _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, data);
+            _builder.WriteMessage(data);
         }
 
         public void KillProcess()
@@ -74,13 +69,13 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                 id,
                 processName
             };
-            _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, data);
+            _builder.WriteMessage(data);
         }
 
         public void RequestProcessInformation()
         {
             var processInformation = GetProcessInformation();
-            _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, processInformation);
+            _builder.WriteMessage(processInformation);
         }
 
         public string GetIconForProcess(string path)
@@ -141,6 +136,25 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                 }
             }
             return processInformation;
+        }
+
+        public override void HandlePacket(Packet packet)
+        {
+            _client = packet.AuthClient;
+            _packet = packet;
+            _builder = new PacketBuilder(_client, _packet.EndPoint, _packet.SyncKey);
+            switch (_packet.PacketType)
+            {
+                case PacketManager.PacketTypes.RequestProcessInformation:
+                    RequestProcessInformation();
+                    break;
+                case PacketManager.PacketTypes.StartProcess:
+                    StartProcess();
+                    break;
+                case PacketManager.PacketTypes.KillProcess:
+                    KillProcess();
+                    break;
+            }
         }
     }
 }

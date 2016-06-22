@@ -13,7 +13,7 @@ using System.Security.Principal;
 using System.Threading;
 using Microsoft.VisualBasic.Devices;
 using OpenHardwareMonitor.Hardware;
-using UlteriusServer.TaskServer.Api.Models;
+using UlteriusServer.TaskServer.Network.Models;
 using Computer = OpenHardwareMonitor.Hardware.Computer;
 
 #endregion

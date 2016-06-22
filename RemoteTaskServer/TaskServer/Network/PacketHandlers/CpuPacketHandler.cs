@@ -3,25 +3,20 @@
 using System;
 using System.Linq;
 using System.Management;
-using UlteriusServer.TaskServer.Api.Models;
-using UlteriusServer.TaskServer.Api.Serialization;
-using vtortola.WebSockets;
+using UlteriusServer.Authentication;
+using UlteriusServer.TaskServer.Network.Messages;
+using UlteriusServer.TaskServer.Network.Models;
 
 #endregion
 
-namespace UlteriusServer.TaskServer.Api.Controllers.Impl
+namespace UlteriusServer.TaskServer.Network.PacketHandlers
 {
-    public class CpuController : ApiController
+    public class CpuPacketHandler : PacketHandler
     {
-        private readonly WebSocket _client;
-        private readonly Packets _packet;
-        private readonly ApiSerializator _serializator = new ApiSerializator();
+        private PacketBuilder _builder;
+        private AuthClient _client;
+        private Packet _packet;
 
-        public CpuController(WebSocket client, Packets packet)
-        {
-            _client = client;
-            _packet = packet;
-        }
 
         public void GetCpuInformation()
         {
@@ -58,7 +53,20 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                         .Replace("    ", " ")
                         .Replace("  ", " ");
             }
-            _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, CpuInformation.ToObject());
+            _builder.WriteMessage(CpuInformation.ToObject());
+        }
+
+        public override void HandlePacket(Packet packet)
+        {
+            _client = packet.AuthClient;
+            _packet = packet;
+            _builder = new PacketBuilder(_client, _packet.EndPoint, _packet.SyncKey);
+            switch (_packet.PacketType)
+            {
+                case PacketManager.PacketTypes.RequestCpuInformation:
+                    GetCpuInformation();
+                    break;
+            }
         }
     }
 }

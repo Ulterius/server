@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 #endregion
 
-namespace UlteriusServer.TaskServer.Api.Models
+namespace UlteriusServer.TaskServer.Network.Models
 
 {
     public static class SystemInformation

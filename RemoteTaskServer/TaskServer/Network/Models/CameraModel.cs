@@ -1,6 +1,10 @@
-﻿using AForge.Video.DirectShow;
+﻿#region
 
-namespace UlteriusServer.TaskServer.Api.Models
+using AForge.Video.DirectShow;
+
+#endregion
+
+namespace UlteriusServer.TaskServer.Network.Models
 {
     public static class CameraModel
     {

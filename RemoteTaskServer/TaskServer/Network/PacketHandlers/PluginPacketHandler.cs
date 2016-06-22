@@ -1,27 +1,22 @@
 ﻿#region
 
 using System.Linq;
+using UlteriusServer.Authentication;
 using UlteriusServer.Plugins;
-using UlteriusServer.TaskServer.Api.Serialization;
-using vtortola.WebSockets;
+using UlteriusServer.TaskServer.Network.Messages;
 
 #endregion
 
-namespace UlteriusServer.TaskServer.Api.Controllers.Impl
+namespace UlteriusServer.TaskServer.Network.PacketHandlers
 {
-    public class PluginController : ApiController
+    public class PluginPacketHandler : PacketHandler
     {
-        private readonly WebSocket _client;
-        private readonly Packets _packet;
-        private readonly ApiSerializator _serializator = new ApiSerializator();
+        private PacketBuilder _builder;
+        private AuthClient _client;
+        private Packet _packet;
 
-        public PluginController(WebSocket client, Packets packet)
-        {
-            _client = client;
-            _packet = packet;
-        }
 
-        public void ListPlugins()
+        public void GetPlugins()
         {
             var plugins = (from plugin in PluginHandler.Plugins
                 let pluginPerm = PluginHandler.PluginPermissions[plugin.Value.GUID.ToString()]
@@ -38,7 +33,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                     plugin.Value.Javascript,
                     Permissions = pluginPerm
                 }).Cast<object>().ToList();
-            _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, plugins);
+            _builder.WriteMessage(plugins);
         }
 
         public void ApprovePlugin()
@@ -89,10 +84,10 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                     Permissions,
                     Website
                 }).Cast<object>().ToList();
-            _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, pendingList);
+            _builder.WriteMessage(pendingList);
         }
 
-        public void ListBadPlugins()
+        public void GetBadPlugins()
         {
             var badPlugins = (from plugin in PluginHandler.GetBadPluginsList()
                 select plugin.Split('|')
@@ -104,7 +99,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                     pluginName,
                     pluginError
                 }).Cast<object>().ToList();
-            _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, badPlugins);
+            _builder.WriteMessage(badPlugins);
         }
 
         public void StartPlugin()
@@ -115,7 +110,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                 {
                     noPluginsLoaded = true
                 };
-                _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, pluginError);
+                _builder.WriteMessage(pluginError);
                 return;
             }
             //GUID should always be the first argument
@@ -126,10 +121,10 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                 {
                     missingGuid = true
                 };
-                _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, pluginError);
+                _builder.WriteMessage(pluginError);
                 return;
             }
-         /*   if (!PluginHandler.ApprovedPlugins.ContainsValue(guid))
+            /*   if (!PluginHandler.ApprovedPlugins.ContainsValue(guid))
             {
                 var pluginError = new
                 {
@@ -161,7 +156,32 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                 pluginData = returnData,
                 pluginStarted
             };
-            _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, pluginResponse);
+            _builder.WriteMessage(pluginResponse);
+        }
+
+        public override void HandlePacket(Packet packet)
+        {
+            _client = packet.AuthClient;
+            _packet = packet;
+            _builder = new PacketBuilder(_client, _packet.EndPoint, _packet.SyncKey);
+            switch (_packet.PacketType)
+            {
+                case PacketManager.PacketTypes.Plugin:
+                    StartPlugin();
+                    break;
+                case PacketManager.PacketTypes.ApprovePlugin:
+                    ApprovePlugin();
+                    break;
+                case PacketManager.PacketTypes.GetPendingPlugins:
+                    GetPendingPlugins();
+                    break;
+                case PacketManager.PacketTypes.GetPlugins:
+                    GetPlugins();
+                    break;
+                case PacketManager.PacketTypes.GetBadPlugins:
+                    GetBadPlugins();
+                    break;
+            }
         }
     }
 }

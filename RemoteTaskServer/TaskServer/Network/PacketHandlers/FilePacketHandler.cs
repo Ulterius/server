@@ -8,18 +8,19 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using RemoteTaskServer.WebServer;
-using UlteriusServer.TaskServer.Api.Serialization;
+using UlteriusServer.Authentication;
+using UlteriusServer.TaskServer.Network.Messages;
 using UlteriusServer.TaskServer.Services.Network;
 using UlteriusServer.Utilities;
 using UlteriusServer.Utilities.Files;
-using vtortola.WebSockets;
+using static UlteriusServer.TaskServer.Network.PacketManager;
 using File = System.IO.File;
 
 #endregion
 
-namespace UlteriusServer.TaskServer.Api.Controllers.Impl
+namespace UlteriusServer.TaskServer.Network.PacketHandlers
 {
-    public class FileController : ApiController
+    public class FilePacketHandler : PacketHandler
     {
         private const int EVERYTHING_OK = 0;
         private const int EVERYTHING_ERROR_MEMORY = 1;
@@ -30,39 +31,10 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
         private const int EVERYTHING_ERROR_INVALIDINDEX = 6;
         private const int EVERYTHING_ERROR_INVALIDCALL = 7;
 
-        private readonly WebSocket _client;
-        private readonly Packets _packet;
-        private readonly ApiSerializator _serializator = new ApiSerializator();
+        private PacketBuilder _builder;
+        private AuthClient _client;
+        private Packet _packet;
 
-
-        public FileController(WebSocket client, Packets packet)
-        {
-            _client = client;
-            _packet = packet;
-            //only do this operation on search request
-            if (_packet.PacketType == PacketType.SearchFiles)
-            {
-                var startupDirEndingWithSlash = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName) +
-                                                "\\";
-                var resolvedDomainTimeFileName = startupDirEndingWithSlash + "Everything.dll";
-                if (!File.Exists(resolvedDomainTimeFileName))
-                {
-                    if (IntPtr.Size == 8)
-                    {
-                        Console.WriteLine(@"x64 Everything Loaded");
-                        if (File.Exists(startupDirEndingWithSlash + "Everything64.dll"))
-
-                            File.Copy(startupDirEndingWithSlash + "Everything64.dll", resolvedDomainTimeFileName);
-                    }
-                    else
-                    {
-                        Console.WriteLine(@"x86 Everything Loaded");
-                        if (File.Exists(startupDirEndingWithSlash + "Everything32.dll"))
-                            File.Copy(startupDirEndingWithSlash + "Everything32.dll", resolvedDomainTimeFileName);
-                    }
-                }
-            }
-        }
 
         public void CreateFileTree()
         {
@@ -74,7 +46,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                 deepWalk = (bool) _packet.Args[1];
             }
             var tree = new FileTree(path, deepWalk);
-            _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, tree);
+            _builder.WriteMessage(tree);
         }
 
 
@@ -91,6 +63,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
 
         public void SearchFile()
         {
+            ConfigureSearch();
             if (Process.GetProcessesByName("Everything").Length > 0)
             {
                 var query = _packet.Args[0].ToString();
@@ -118,7 +91,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                     totalResults,
                     searchResults
                 };
-                _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, data);
+                _builder.WriteMessage(data);
             }
             else
             {
@@ -127,7 +100,30 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                     success = false,
                     message = "Everything is not running."
                 };
-                _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, error);
+                _builder.WriteMessage(error);
+            }
+        }
+
+        private void ConfigureSearch()
+        {
+            var startupDirEndingWithSlash = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName) +
+                                            "\\";
+            var resolvedDomainTimeFileName = startupDirEndingWithSlash + "Everything.dll";
+            if (!File.Exists(resolvedDomainTimeFileName))
+            {
+                if (IntPtr.Size == 8)
+                {
+                    Console.WriteLine(@"x64 Everything Loaded");
+                    if (File.Exists(startupDirEndingWithSlash + "Everything64.dll"))
+
+                        File.Copy(startupDirEndingWithSlash + "Everything64.dll", resolvedDomainTimeFileName);
+                }
+                else
+                {
+                    Console.WriteLine(@"x86 Everything Loaded");
+                    if (File.Exists(startupDirEndingWithSlash + "Everything32.dll"))
+                        File.Copy(startupDirEndingWithSlash + "Everything32.dll", resolvedDomainTimeFileName);
+                }
             }
         }
 
@@ -148,7 +144,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                     path,
                     fileValid = false
                 };
-                _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, data);
+                _builder.WriteMessage(data);
             }
         }
 
@@ -167,7 +163,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                         deleted = true,
                         message = "File removed."
                     };
-                    _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, deleteData);
+                    _builder.WriteMessage(deleteData);
                 }
                 catch (Exception e)
                 {
@@ -176,7 +172,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                         deleted = false,
                         message = e.Message
                     };
-                    _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, deleteDataException);
+                    _builder.WriteMessage(deleteDataException);
                 }
             }
             else
@@ -186,7 +182,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                     deleted = false,
                     message = "File does not exist or cannot be deleted"
                 };
-                _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, deleteData);
+                _builder.WriteMessage(deleteData);
             }
         }
 
@@ -201,13 +197,12 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                 fileApproved = true,
                 message = "File added to whitelist"
             };
-            _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, approved);
+            _builder.WriteMessage(approved);
         }
 
 
         public void ProcessFile(string path, string password, long totalSize)
         {
-
             var webPath = Settings.Get("WebServer").WebFilePath.ToString();
 
             var file = new FileInfo(path);
@@ -220,7 +215,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
             var httpPort = HttpServer.GlobalPort;
             var data = File.ReadAllBytes(path);
 
-            var encryptedFile = _serializator.SerializeFile(_client, password, data);
+            var encryptedFile = _builder.PackFile(password, data);
             try
             {
                 if (encryptedFile != null)
@@ -233,7 +228,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                         tempWebPath,
                         totalSize
                     };
-                    _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, downloadData);
+                    _builder.WriteMessage(downloadData);
                 }
                 else
                 {
@@ -242,7 +237,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                         error = true,
                         message = "Unable to encrypt file"
                     };
-                    _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, errorData);
+                    _builder.WriteMessage(errorData);
                 }
             }
             catch (
@@ -254,7 +249,32 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                     message = e.Message
                 };
 
-                _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, exceptionData);
+                _builder.WriteMessage(exceptionData);
+            }
+        }
+
+        public override void HandlePacket(Packet packet)
+        {
+            _client = packet.AuthClient;
+            _packet = packet;
+            _builder = new PacketBuilder(_client, _packet.EndPoint, _packet.SyncKey);
+            switch (_packet.PacketType)
+            {
+                case PacketTypes.SearchFiles:
+                    SearchFile();
+                    break;
+                case PacketTypes.ApproveFile:
+                    ApproveFile();
+                    break;
+                case PacketTypes.RequestFile:
+                    RequestFile();
+                    break;
+                case PacketTypes.RemoveFile:
+                    RemoveFile();
+                    break;
+                case PacketTypes.CreateFileTree:
+                    CreateFileTree();
+                    break;
             }
         }
 

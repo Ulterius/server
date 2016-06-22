@@ -151,7 +151,7 @@ namespace UlteriusServer.Utilities
                     "WebServerPort", 22006
                 },
                 {
-                    "UseWebServer", true
+                    "ToggleWebServer", true
                 }
             };
             Settings.Get()["TaskServer"] = new Settings.Header

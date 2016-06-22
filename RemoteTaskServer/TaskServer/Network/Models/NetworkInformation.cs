@@ -5,7 +5,7 @@ using UlteriusServer.TaskServer.Services.Network;
 
 #endregion
 
-namespace UlteriusServer.TaskServer.Api.Models
+namespace UlteriusServer.TaskServer.Network.Models
 
 {
     public static class NetworkInformation

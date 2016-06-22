@@ -6,32 +6,26 @@ using System.DirectoryServices.AccountManagement;
 using System.Reflection;
 using System.Xml;
 using UlteriusServer.Authentication;
-using UlteriusServer.TaskServer.Api.Serialization;
+using UlteriusServer.TaskServer.Network.Messages;
 using UlteriusServer.Utilities;
 using UlteriusServer.Utilities.Security;
-using vtortola.WebSockets;
 
 #endregion
 
-namespace UlteriusServer.TaskServer.Api.Controllers.Impl
+namespace UlteriusServer.TaskServer.Network.PacketHandlers
 {
-    public class ServerController : ApiController
+    public class ServerPacketHandler : PacketHandler
     {
-        private readonly WebSocket _client;
-        private readonly Packets _packet;
-        private readonly ApiSerializator _serializator = new ApiSerializator();
+        private PacketBuilder _builder;
+        private AuthClient _authClient;
+        private Packet _packet;
 
-        public ServerController(WebSocket client, Packets packet)
-        {
-            _client = client;
-            _packet = packet;
-        }
 
         public void AesHandshake()
         {
             try
             {
-                var authKey = _client.GetHashCode().ToString();
+                var authKey = _authClient.Client.GetHashCode().ToString();
                 AuthClient authClient;
                 TaskManagerServer.AllClients.TryGetValue(authKey, out authClient);
                 if (authClient != null)
@@ -48,7 +42,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                     {
                         shook = true
                     };
-                    _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, endData);
+                    _builder.WriteMessage(endData);
                 }
                 else
                 {
@@ -62,7 +56,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                     shook = false,
                     message = e.Message
                 };
-                _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, endData);
+                _builder.WriteMessage(endData);
             }
         }
 
@@ -79,7 +73,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
             {
                 authenticated = context.ValidateCredentials(GetUsername(), password);
             }
-            var authKey = _client.GetHashCode().ToString();
+            var authKey = _authClient.Client.GetHashCode().ToString();
             AuthClient authClient;
             TaskManagerServer.AllClients.TryGetValue(authKey, out authClient);
             if (authClient != null)
@@ -92,7 +86,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                 authenticated,
                 message = authenticated ? "Login was successfull" : "Login was unsuccessful"
             };
-            _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, authenticationData);
+            _builder.WriteMessage(authenticationData);
         }
 
         public void CheckForUpdate()
@@ -161,7 +155,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                             error = errorData,
                             message = "Error retrieving update information: " + errorData
                         };
-                        _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, data);
+                        _builder.WriteMessage(data);
                     }
                     else if (applicationVersion.CompareTo(newVersion) < 0)
                     {
@@ -173,7 +167,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                             changeNotes,
                             message = "New version available: " + newVersion
                         };
-                        _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, data);
+                        _builder.WriteMessage(data);
                     }
                     else
                     {
@@ -182,7 +176,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                             update = false,
                             message = "You have the latest version."
                         };
-                        _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, data);
+                        _builder.WriteMessage(data);
                     }
                 }
                 catch (Exception e)
@@ -193,7 +187,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                         error = e.Message,
                         message = "General bad thing has happened: " + e.Message
                     };
-                    _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, data);
+                    _builder.WriteMessage(data);
                 }
             }
             var endData = new
@@ -202,7 +196,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                 error = "No connection",
                 message = "Unable to connect to the internet to check for update."
             };
-            _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, endData);
+            _builder.WriteMessage(endData);
         }
 
         public void RestartServer()
@@ -211,10 +205,32 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
             {
                 serverRestarting = true
             };
-            _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, data);
+            _builder.WriteMessage(data);
             var fileName = Assembly.GetExecutingAssembly().Location;
             Process.Start(fileName);
             Environment.Exit(0);
+        }
+
+        public override void HandlePacket(Packet packet)
+        {
+            _authClient = packet.AuthClient;
+            _packet = packet;
+            _builder = new PacketBuilder(_authClient, _packet.EndPoint, _packet.SyncKey);
+            switch (_packet.PacketType)
+            {
+                case PacketManager.PacketTypes.Authenticate:
+                    Login();
+                    break;
+                case PacketManager.PacketTypes.AesHandshake:
+                    AesHandshake();
+                    break;
+                case PacketManager.PacketTypes.RestartServer:
+                    RestartServer();
+                    break;
+                case PacketManager.PacketTypes.CheckUpdate:
+                    CheckForUpdate();
+                    break;
+            }
         }
     }
 }

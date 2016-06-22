@@ -173,27 +173,29 @@
   <ItemGroup>
     <Compile Include="Authentication\AuthClient.cs" />
     <Compile Include="Forms\Utilities\UlteriusTray.cs" />
+    <Compile Include="TaskServer\Network\Messages\Packet.cs" />
+    <Compile Include="TaskServer\Network\Messages\PacketBuilder.cs" />
+    <Compile Include="TaskServer\Network\PacketHandler.cs" />
+    <Compile Include="TaskServer\Network\PacketHandlers\ErrorPacketHandler.cs" />
+    <Compile Include="TaskServer\Network\PacketManager.cs" />
     <Compile Include="Plugins\PluginHandler.cs" />
     <Compile Include="Plugins\PluginLoader.cs" />
     <Compile Include="Plugins\PluginPermissions.cs" />
-    <Compile Include="TaskServer\Api\Controllers\ApiController.cs" />
-    <Compile Include="TaskServer\Api\Controllers\Impl\WebCamController.cs" />
-    <Compile Include="TaskServer\Api\Controllers\Impl\PluginController.cs" />
-    <Compile Include="TaskServer\Api\Controllers\Impl\ErrorController.cs" />
-    <Compile Include="TaskServer\Api\Controllers\Impl\FileController.cs" />
-    <Compile Include="TaskServer\Api\Controllers\Impl\GpuController.cs" />
-    <Compile Include="TaskServer\Api\Controllers\Impl\ScreenShareController.cs" />
-    <Compile Include="TaskServer\Api\Controllers\Impl\WindowsController.cs" />
-    <Compile Include="TaskServer\Api\Controllers\Impl\SettingsController.cs" />
-    <Compile Include="TaskServer\Api\Controllers\Impl\NetworkController.cs" />
-    <Compile Include="TaskServer\Api\Controllers\Impl\CpuController.cs" />
-    <Compile Include="TaskServer\Api\Controllers\Impl\OperatingSystemController.cs" />
-    <Compile Include="TaskServer\Api\Controllers\Impl\ProcessController.cs" />
-    <Compile Include="TaskServer\Api\Controllers\Impl\ServerController.cs" />
-    <Compile Include="TaskServer\Api\Controllers\Impl\SystemController.cs" />
-    <Compile Include="TaskServer\Api\Models\CameraModel.cs" />
-    <Compile Include="TaskServer\Api\Models\GpuInformation.cs" />
-    <Compile Include="TaskServer\Api\Serialization\ApiSerializator.cs" />
+    <Compile Include="TaskServer\Network\PacketHandlers\WebCamPacketHandler.cs" />
+    <Compile Include="TaskServer\Network\PacketHandlers\PluginPacketHandler.cs" />
+    <Compile Include="TaskServer\Network\PacketHandlers\FilePacketHandler.cs" />
+    <Compile Include="TaskServer\Network\PacketHandlers\GpuPacketHandler.cs" />
+    <Compile Include="TaskServer\Network\PacketHandlers\ScreenSharePacketHandler.cs" />
+    <Compile Include="TaskServer\Network\PacketHandlers\WindowsPacketHandler.cs" />
+    <Compile Include="TaskServer\Network\PacketHandlers\SettingsPacketHandler.cs" />
+    <Compile Include="TaskServer\Network\PacketHandlers\NetworkPacketHandler.cs" />
+    <Compile Include="TaskServer\Network\PacketHandlers\CpuPacketHandler.cs" />
+    <Compile Include="TaskServer\Network\PacketHandlers\OperatingSystemPacketHandler.cs" />
+    <Compile Include="TaskServer\Network\PacketHandlers\ProcessPacketHandler.cs" />
+    <Compile Include="TaskServer\Network\PacketHandlers\ServerPacketHandler.cs" />
+    <Compile Include="TaskServer\Network\PacketHandlers\SystemPacketHandler.cs" />
+    <Compile Include="TaskServer\Network\Models\CameraModel.cs" />
+    <Compile Include="TaskServer\Network\Models\GpuInformation.cs" />
     <Compile Include="TaskServer\ScreenShare.cs" />
     <Compile Include="TerminalServer\Cli\CommandSession.cs" />
     <Compile Include="TerminalServer\Cli\PowerShellSession.cs" />
@@ -246,19 +248,18 @@
     <Compile Include="WebCams\WebCamManager.cs" />
     <Compile Include="WebServer\MultipartParser.cs" />
     <Compile Include="WebSocketAPI\WebSocketEventListener.cs" />
-    <Compile Include="TaskServer\Api\Models\DriveInformation.cs" />
-    <Compile Include="TaskServer\Api\Models\SystemInformation.cs" />
-    <Compile Include="TaskServer\Api\Models\NetworkInformation.cs" />
-    <Compile Include="TaskServer\Api\Models\CpuInformation.cs" />
-    <Compile Include="TaskServer\Api\Models\ServerOperatingSystem.cs" />
+    <Compile Include="TaskServer\Network\Models\DriveInformation.cs" />
+    <Compile Include="TaskServer\Network\Models\SystemInformation.cs" />
+    <Compile Include="TaskServer\Network\Models\NetworkInformation.cs" />
+    <Compile Include="TaskServer\Network\Models\CpuInformation.cs" />
+    <Compile Include="TaskServer\Network\Models\ServerOperatingSystem.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="TaskServer\Packets.cs" />
-    <Compile Include="TaskServer\Api\Models\SystemProcesses.cs" />
+    <Compile Include="TaskServer\Network\Models\SystemProcesses.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utilities\ExceptionHandler.cs" />
     <Compile Include="TaskServer\Services\Network\NetworkUtilities.cs" />

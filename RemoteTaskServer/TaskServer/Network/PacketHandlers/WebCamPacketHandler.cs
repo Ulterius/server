@@ -2,26 +2,20 @@
 
 using System;
 using System.Threading.Tasks;
-using UlteriusServer.TaskServer.Api.Serialization;
+using UlteriusServer.Authentication;
+using UlteriusServer.TaskServer.Network.Messages;
 using UlteriusServer.WebCams;
-using vtortola.WebSockets;
 
 #endregion
 
-namespace UlteriusServer.TaskServer.Api.Controllers.Impl
+namespace UlteriusServer.TaskServer.Network.PacketHandlers
 {
-    public class WebCamController : ApiController
+    public class WebCamPacketHandler : PacketHandler
     {
-        private readonly WebSocket _client;
-        private readonly Packets _packet;
-        private readonly ApiSerializator _serializator = new ApiSerializator();
+        private PacketBuilder _builder;
+        private AuthClient _client;
+        private Packet _packet;
 
-
-        public WebCamController(WebSocket client, Packets packet)
-        {
-            _client = client;
-            _packet = packet;
-        }
 
         public void RefreshCameras()
         {
@@ -31,7 +25,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                 cameraFresh = true,
                 message = "Camera have been refreshed!"
             };
-            _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, data);
+            _builder.WriteMessage(data);
         }
 
         public void GetCameras()
@@ -41,7 +35,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
             {
                 cameraInfo = cameras
             };
-            _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, data);
+            _builder.WriteMessage(data);
         }
 
 
@@ -58,7 +52,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                     cameraRunning = camera.IsRunning,
                     cameraStarted
                 };
-                _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, data);
+                _builder.WriteMessage(data);
             }
             catch (Exception)
             {
@@ -68,7 +62,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                     cameraRunning = false,
                     cameraStarted = false
                 };
-                _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, data);
+                _builder.WriteMessage(data);
             }
         }
 
@@ -85,7 +79,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                     cameraRunning = camera.IsRunning,
                     cameraStopped
                 };
-                _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, data);
+                _builder.WriteMessage(data);
             }
             catch (Exception e)
             {
@@ -96,7 +90,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                     cameraRunning = false,
                     cameraStarted = false
                 };
-                _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, data);
+                _builder.WriteMessage(data);
             }
         }
 
@@ -110,7 +104,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                 cameraRunning = camera.IsRunning,
                 cameraPaused
             };
-            _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, data);
+            _builder.WriteMessage(data);
         }
 
 
@@ -127,7 +121,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                     cameraId,
                     cameraStreamStarted = true
                 };
-                _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, data);
+                _builder.WriteMessage(data);
             }
             catch (Exception exception)
             {
@@ -138,7 +132,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                     cameraStreamStarted = false
                 };
 
-                _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, data);
+                _builder.WriteMessage(data);
             }
         }
 
@@ -154,28 +148,28 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                     streamThread.Status == TaskStatus.Running)
                 {
                     streamThread.Dispose();
-                    if (_client.IsConnected)
+                    if (_client.Client.IsConnected)
                     {
                         var data = new
                         {
                             cameraId,
                             cameraStreamStopped = true
                         };
-                        _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, data);
+                        _builder.WriteMessage(data);
                     }
                 }
             }
             catch (Exception e)
             {
                 Console.WriteLine(e.Message);
-                if (_client.IsConnected)
+                if (_client.Client.IsConnected)
                 {
                     var data = new
                     {
                         cameraId,
                         cameraStreamStopped = false
                     };
-                    _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, data);
+                    _builder.WriteMessage(data);
                 }
             }
         }
@@ -184,7 +178,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
         public void GetWebCamFrame(string cameraId)
         {
             var camera = WebCamManager.Cameras[cameraId];
-            while (_client.IsConnected && camera.IsRunning)
+            while (_client.Client.IsConnected && camera.IsRunning)
             {
                 try
                 {
@@ -197,7 +191,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                             cameraId,
                             cameraFrame = imageBytes
                         };
-                        _serializator.Serialize(_client, "getcameraframe", _packet.SyncKey, data);
+                        _builder.WriteMessage(data);
                     }
                     else
                     {
@@ -213,8 +207,39 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                         message = "Something went wrong and we were unable to get a feed from this camera!",
                         exceptionMessage = e.Message
                     };
-                    _serializator.Serialize(_client, "getcameraframe", _packet.SyncKey, data);
+                    _builder.WriteMessage(data);
                 }
+            }
+        }
+
+        public override void HandlePacket(Packet packet)
+        {
+            _client = packet.AuthClient;
+            _packet = packet;
+            _builder = new PacketBuilder(_client, _packet.EndPoint, _packet.SyncKey);
+            switch (_packet.PacketType)
+            {
+                case PacketManager.PacketTypes.StartCamera:
+                    StartCamera();
+                    break;
+                case PacketManager.PacketTypes.StopCamera:
+                    StopCamera();
+                    break;
+                case PacketManager.PacketTypes.PauseCamera:
+                    PauseCamera();
+                    break;
+                case PacketManager.PacketTypes.StopCameraStream:
+                    StopStream();
+                    break;
+                case PacketManager.PacketTypes.StartCameraStream:
+                    StartStream();
+                    break;
+                case PacketManager.PacketTypes.GetCameras:
+                    GetCameras();
+                    break;
+                case PacketManager.PacketTypes.GetCameraFrame:
+                 
+                    break;
             }
         }
 

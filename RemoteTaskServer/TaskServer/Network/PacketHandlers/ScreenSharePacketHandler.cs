@@ -1,24 +1,19 @@
 ﻿#region
 
-using UlteriusServer.TaskServer.Api.Serialization;
-using vtortola.WebSockets;
+using UlteriusServer.Authentication;
+using UlteriusServer.TaskServer.Network.Messages;
 
 #endregion
 
-namespace UlteriusServer.TaskServer.Api.Controllers.Impl
+namespace UlteriusServer.TaskServer.Network.PacketHandlers
 {
-    internal class ScreenShareController : ApiController
+    internal class ScreenSharePacketHandler : PacketHandler
     {
-        private readonly WebSocket _client;
-        private readonly Packets _packet;
-        private readonly ApiSerializator _serializator = new ApiSerializator();
         private readonly ScreenShare _share = TaskManagerServer.ScreenShare;
+        private PacketBuilder _builder;
+        private AuthClient _client;
+        private Packet _packet;
 
-        public ScreenShareController(WebSocket client, Packets packet)
-        {
-            _client = client;
-            _packet = packet;
-        }
 
         public void StopScreenShare()
         {
@@ -30,7 +25,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                     shareName = _share.GetServerName(),
                     message = "Screenshare Stopped"
                 };
-                _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, endData);
+                _builder.WriteMessage(endData);
             }
             else
             {
@@ -40,7 +35,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                     shareName = _share.GetServerName(),
                     message = "Screenshare Not Stopped"
                 };
-                _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, endData);
+                _builder.WriteMessage(endData);
             }
         }
 
@@ -52,7 +47,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                 serverAvailable,
                 shareName = _share.GetServerName()
             };
-            _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, endData);
+            _builder.WriteMessage(endData);
         }
 
         public void StartScreenShare()
@@ -65,7 +60,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                     shareName = _share.GetServerName(),
                     message = "Server already running"
                 };
-                _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, endData);
+                _builder.WriteMessage(endData);
                 return;
             }
 
@@ -77,7 +72,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                     shareName = _share.GetServerName(),
                     message = "Screenshare Started"
                 };
-                _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, endData);
+                _builder.WriteMessage(endData);
             }
             else
             {
@@ -87,9 +82,27 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                     shareName = _share.GetServerName(),
                     message = "Screenshare Not Started"
                 };
-                _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, endData);
+                _builder.WriteMessage(endData);
+            }
+        }
+
+        public override void HandlePacket(Packet packet)
+        {
+            _client = packet.AuthClient;
+            _packet = packet;
+            _builder = new PacketBuilder(_client, _packet.EndPoint, _packet.SyncKey);
+            switch (_packet.PacketType)
+            {
+                case PacketManager.PacketTypes.CheckScreenShare:
+                    CheckServer();
+                    break;
+                case PacketManager.PacketTypes.StartScreenShare:
+                    StartScreenShare();
+                    break;
+                case PacketManager.PacketTypes.StopScreenShare:
+                    StopScreenShare();
+                    break;
             }
         }
     }
 }
-

@@ -4,25 +4,21 @@ using System;
 using System.Linq;
 using System.Management;
 using OpenHardwareMonitor.Hardware;
-using UlteriusServer.TaskServer.Api.Models;
-using UlteriusServer.TaskServer.Api.Serialization;
-using vtortola.WebSockets;
+using UlteriusServer.Authentication;
+using UlteriusServer.TaskServer.Network.Messages;
+using UlteriusServer.TaskServer.Network.Models;
+using static UlteriusServer.TaskServer.Network.PacketManager;
 
 #endregion
 
-namespace UlteriusServer.TaskServer.Api.Controllers.Impl
+namespace UlteriusServer.TaskServer.Network.PacketHandlers
 {
-    internal class GpuController : ApiController
+    internal class GpuPacketHandler : PacketHandler
     {
-        private readonly Packets _packet;
-        private readonly ApiSerializator _serializator = new ApiSerializator();
-        private readonly WebSocket client;
+        private PacketBuilder _builder;
+        private AuthClient _client;
+        private Packet _packet;
 
-        public GpuController(WebSocket client, Packets packet)
-        {
-            this.client = client;
-            _packet = packet;
-        }
 
         public void GetGpuInformation()
         {
@@ -45,7 +41,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                     Availability = int.Parse(mo["Availability"]?.ToString() ?? "0"),
                     Temperature = GetGpuTemp(mo["Name"]?.ToString())
                 }).ToList();
-            _serializator.Serialize(client, _packet.Endpoint, _packet.SyncKey, new
+            _builder.WriteMessage(new
             {
                 gpus
             });
@@ -88,6 +84,19 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                 }
             }
             return -1;
+        }
+
+        public override void HandlePacket(Packet packet)
+        {
+            _client = packet.AuthClient;
+            _packet = packet;
+            _builder = new PacketBuilder(_client, _packet.EndPoint, _packet.SyncKey);
+            switch (_packet.PacketType)
+            {
+                case PacketTypes.RequestGpuInformation:
+                    GetGpuInformation();
+                    break;
+            }
         }
     }
 }
