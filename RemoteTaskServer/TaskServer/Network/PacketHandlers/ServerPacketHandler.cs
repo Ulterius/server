@@ -78,6 +78,15 @@ namespace UlteriusServer.TaskServer.Network.PacketHandlers
             TaskManagerServer.AllClients.TryGetValue(authKey, out authClient);
             if (authClient != null)
             {
+                if (authClient.Authenticated)
+                {
+                    _builder.WriteMessage(new
+                    {
+                        authenticated,
+                        message = "Already logged in."
+                    });
+                    return;
+                }
                 authClient.Authenticated = authenticated;
                 TaskManagerServer.AllClients[authKey] = authClient;
             }

@@ -44,27 +44,24 @@ namespace UlteriusServer.TaskServer.Network.Messages
                 dynamic handler = Activator.CreateInstance(_packetHandler);
                 Console.WriteLine(handler.GetType().ToString());
                 //no auth needed for these
-                switch (PacketType)
-                {
-                    case PacketTypes.GetWindowsData:
-                        handler.HandlePacket(this);
-                        return;
-                    case PacketTypes.AesHandshake:
-                        handler.HandlePacket(this);
-                        return;
-                }
-                if (!AuthClient.Authenticated && PacketType == PacketTypes.Authenticate)
-                {
-                    handler.HandlePacket(this);
-                    return;
-                }
                 if (AuthClient.Authenticated)
                 {
                     Task.Run(() => { handler.HandlePacket(this); });
                 }
                 else
                 {
-
+                    switch (PacketType)
+                    {
+                        case PacketTypes.GetWindowsData:
+                            handler.HandlePacket(this);
+                            return;
+                        case PacketTypes.AesHandshake:
+                            handler.HandlePacket(this);
+                            return;
+                            case PacketTypes.Authenticate:
+                            handler.HandlePacket(this);
+                            return;
+                    }
                     PacketType = PacketTypes.NoAuth;
                     handler = Activator.CreateInstance(typeof(ErrorPacketHandler));
                     handler.HandlePacket(this);
