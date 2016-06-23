@@ -6,7 +6,7 @@ using vtortola.WebSockets;
 
 #endregion
 
-namespace UlteriusServer.Authentication
+namespace UlteriusServer.WebSocketAPI.Authentication
 {
     public class AuthClient
     {

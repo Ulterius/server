@@ -44,7 +44,7 @@ namespace UlteriusServer
             WebCamManager.LoadWebcams();
             if (usePlugins)
             {
-               // PluginHandler.LoadPlugins();
+                PluginHandler.LoadPlugins();
             }
             if (useWebServer)
             {

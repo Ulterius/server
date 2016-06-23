@@ -3,10 +3,10 @@
 using System;
 using System.Linq;
 using System.Management;
-using UlteriusServer.Authentication;
 using UlteriusServer.TaskServer.Network.Messages;
 using UlteriusServer.TaskServer.Network.Models;
 using UlteriusServer.TaskServer.Services.System;
+using UlteriusServer.WebSocketAPI.Authentication;
 
 #endregion
 

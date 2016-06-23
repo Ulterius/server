@@ -9,7 +9,6 @@ using Newtonsoft.Json.Serialization;
 using UlteriusServer.TerminalServer.Messaging.Connection;
 using UlteriusServer.TerminalServer.Messaging.TerminalControl.Requests;
 using UlteriusServer.TerminalServer.Session;
-using UlteriusServer.Utilities;
 using UlteriusServer.Utilities.Extensions;
 using UlteriusServer.Utilities.Security;
 

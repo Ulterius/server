@@ -6,8 +6,8 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
-using UlteriusServer.Authentication;
 using UlteriusServer.TaskServer.Network.Messages;
+using UlteriusServer.WebSocketAPI.Authentication;
 
 #endregion
 

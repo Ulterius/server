@@ -2,9 +2,9 @@
 
 using System;
 using System.Threading.Tasks;
-using UlteriusServer.Authentication;
 using UlteriusServer.TaskServer.Network.Messages;
 using UlteriusServer.WebCams;
+using UlteriusServer.WebSocketAPI.Authentication;
 
 #endregion
 

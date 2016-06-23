@@ -5,11 +5,11 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using MassTransit;
-using UlteriusServer.Authentication;
 using UlteriusServer.TerminalServer.Infrastructure;
 using UlteriusServer.TerminalServer.Messaging.Connection;
 using UlteriusServer.TerminalServer.Messaging.Serialization;
 using UlteriusServer.TerminalServer.Session;
+using UlteriusServer.WebSocketAPI.Authentication;
 using vtortola.WebSockets;
 
 #endregion

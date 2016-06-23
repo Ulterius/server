@@ -1,9 +1,9 @@
 ﻿#region
 
 using System.Linq;
-using UlteriusServer.Authentication;
 using UlteriusServer.Plugins;
 using UlteriusServer.TaskServer.Network.Messages;
+using UlteriusServer.WebSocketAPI.Authentication;
 
 #endregion
 
@@ -18,88 +18,14 @@ namespace UlteriusServer.TaskServer.Network.PacketHandlers
 
         public void GetPlugins()
         {
-            var plugins = (from plugin in PluginHandler.Plugins
-                let pluginPerm = PluginHandler.PluginPermissions[plugin.Value.GUID.ToString()]
-                select new
-                {
-                    plugin.Value.CanonicalName,
-                    GUID = plugin.Value.GUID.ToString(),
-                    plugin.Value.Name,
-                    plugin.Value.Author,
-                    plugin.Value.Description,
-                    plugin.Value.Website,
-                    plugin.Value.Icon,
-                    plugin.Value.Version,
-                    plugin.Value.Javascript,
-                    Permissions = pluginPerm
-                }).Cast<object>().ToList();
+            var plugins = PluginLoader.Plugins.Select(plugin => plugin.Value).ToList();
             _builder.WriteMessage(plugins);
         }
 
-        public void ApprovePlugin()
-        {
-            /*var guid = _packet.Args?.First().ToString();
-            if (guid == null)
-            {
-                var pluginError = new
-                {
-                    missingGuid = true
-                };
-                _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, pluginError);
-                return;
-            }
-            var pluginApproved = PluginPermissions.ApprovePlugin(guid);
-            var pluginApproveResponse = new
-            {
-                pluginApproved,
-                guid,
-                setupRan = true
-            };
-            _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, pluginApproveResponse);*/
-        }
-
-        public void GetPendingPlugins()
-        {
-            var pendingPlugins = PluginHandler.PendingPlugins.ToList();
-            var pendingList = (from pendingPlugin in pendingPlugins
-                let plugin = PluginHandler.Plugins[pendingPlugin.Value]
-                let Name = plugin.Name
-                let Description = plugin.Description
-                let Version = plugin.Version
-                let Author = plugin.Author
-                let Guid = plugin.GUID.ToString()
-                let CanonicalName = plugin.CanonicalName
-                let Icon = plugin.Icon
-                let Website = plugin.Website
-                let Permissions = PluginHandler.PluginPermissions[pendingPlugin.Value]
-                select new
-                {
-                    Guid,
-                    Name,
-                    Description,
-                    Version,
-                    Author,
-                    CanonicalName,
-                    Icon,
-                    Permissions,
-                    Website
-                }).Cast<object>().ToList();
-            _builder.WriteMessage(pendingList);
-        }
 
         public void GetBadPlugins()
         {
-            var badPlugins = (from plugin in PluginHandler.GetBadPluginsList()
-                select plugin.Split('|')
-                into pluginInfo
-                let pluginName = pluginInfo[0]
-                let pluginError = pluginInfo[1]
-                select new
-                {
-                    pluginName,
-                    pluginError
-                }).Cast<object>().ToList();
-            _builder.WriteMessage(badPlugins);
+            _builder.WriteMessage(PluginLoader.BrokenPlugins);
         }
 
         public void StartPlugin()
@@ -124,16 +50,6 @@ namespace UlteriusServer.TaskServer.Network.PacketHandlers
                 _builder.WriteMessage(pluginError);
                 return;
             }
-            /*   if (!PluginHandler.ApprovedPlugins.ContainsValue(guid))
-            {
-                var pluginError = new
-                {
-                    notApproved = true,
-                    guid
-                };
-                _serializator.Serialize(_client, _packet.Endpoint, _packet.SyncKey, pluginError);
-                return;
-            }*/
             object returnData = null;
             var pluginStarted = false;
             //lets check if we have any other arguments to clean the list
@@ -142,12 +58,12 @@ namespace UlteriusServer.TaskServer.Network.PacketHandlers
                 var cleanedArgs = _packet.Args;
                 //remove guid from the arguments.
                 cleanedArgs.RemoveAt(0);
-                returnData = PluginHandler.StartPlugin(guid, cleanedArgs);
+                returnData = PluginHandler.StartPlugin(_client.Client, guid, cleanedArgs);
                 pluginStarted = true;
             }
             else
             {
-                returnData = PluginHandler.StartPlugin(guid);
+                returnData = PluginHandler.StartPlugin(_client.Client, guid);
                 pluginStarted = true;
             }
             var pluginResponse = new
@@ -170,10 +86,10 @@ namespace UlteriusServer.TaskServer.Network.PacketHandlers
                     StartPlugin();
                     break;
                 case PacketManager.PacketTypes.ApprovePlugin:
-                    ApprovePlugin();
+                    //  ApprovePlugin();
                     break;
                 case PacketManager.PacketTypes.GetPendingPlugins:
-                    GetPendingPlugins();
+                    // GetPendingPlugins();
                     break;
                 case PacketManager.PacketTypes.GetPlugins:
                     GetPlugins();

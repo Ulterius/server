@@ -3,8 +3,8 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using UlteriusServer.Authentication;
 using UlteriusServer.TaskServer.Network.PacketHandlers;
+using UlteriusServer.WebSocketAPI.Authentication;
 using static UlteriusServer.TaskServer.Network.PacketManager;
 
 #endregion

@@ -16,7 +16,7 @@ namespace UlteriusServer.Utilities
         public static void AddGlobalHandlers()
         {
             Trace.Initialize();
-
+         
             AppDomain.CurrentDomain.UnhandledException += (sender, args) =>
             {
                 try

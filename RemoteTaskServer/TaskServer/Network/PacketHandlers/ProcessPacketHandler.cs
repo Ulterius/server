@@ -6,11 +6,11 @@ using System.Diagnostics;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
-using UlteriusServer.Authentication;
 using UlteriusServer.TaskServer.Network;
 using UlteriusServer.TaskServer.Network.Messages;
 using UlteriusServer.TaskServer.Network.Models;
 using UlteriusServer.Utilities;
+using UlteriusServer.WebSocketAPI.Authentication;
 
 #endregion
 

@@ -5,13 +5,13 @@ using System.Collections.Concurrent;
 using System.Net;
 using System.Threading;
 using System.Web.Script.Serialization;
-using UlteriusServer.Authentication;
 using UlteriusServer.Forms.Utilities;
 using UlteriusServer.TaskServer.Network;
 using UlteriusServer.TaskServer.Services.Network;
 using UlteriusServer.Utilities;
 using UlteriusServer.Utilities.Security;
 using UlteriusServer.WebSocketAPI;
+using UlteriusServer.WebSocketAPI.Authentication;
 using vtortola.WebSockets;
 
 #endregion

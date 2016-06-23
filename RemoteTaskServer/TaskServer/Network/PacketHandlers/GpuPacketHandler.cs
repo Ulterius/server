@@ -4,9 +4,9 @@ using System;
 using System.Linq;
 using System.Management;
 using OpenHardwareMonitor.Hardware;
-using UlteriusServer.Authentication;
 using UlteriusServer.TaskServer.Network.Messages;
 using UlteriusServer.TaskServer.Network.Models;
+using UlteriusServer.WebSocketAPI.Authentication;
 using static UlteriusServer.TaskServer.Network.PacketManager;
 
 #endregion

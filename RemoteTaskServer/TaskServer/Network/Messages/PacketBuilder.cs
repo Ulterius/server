@@ -5,8 +5,8 @@ using System.IO;
 using System.Text;
 using System.Threading;
 using System.Web.Script.Serialization;
-using UlteriusServer.Authentication;
 using UlteriusServer.Utilities.Security;
+using UlteriusServer.WebSocketAPI.Authentication;
 using vtortola.WebSockets;
 
 #endregion
@@ -76,7 +76,7 @@ namespace UlteriusServer.TaskServer.Network.Messages
                     synckey,
                     results = data
                 });
-
+                Console.WriteLine(json);
                 try
                 {
                     if (_authClient != null)

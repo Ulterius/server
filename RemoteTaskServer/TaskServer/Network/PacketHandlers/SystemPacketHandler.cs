@@ -1,8 +1,8 @@
 ﻿#region
 
-using UlteriusServer.Authentication;
 using UlteriusServer.TaskServer.Network.Messages;
 using UlteriusServer.TaskServer.Network.Models;
+using UlteriusServer.WebSocketAPI.Authentication;
 
 #endregion
 

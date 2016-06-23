@@ -8,11 +8,11 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using RemoteTaskServer.WebServer;
-using UlteriusServer.Authentication;
 using UlteriusServer.TaskServer.Network.Messages;
 using UlteriusServer.TaskServer.Services.Network;
 using UlteriusServer.Utilities;
 using UlteriusServer.Utilities.Files;
+using UlteriusServer.WebSocketAPI.Authentication;
 using static UlteriusServer.TaskServer.Network.PacketManager;
 using File = System.IO.File;
 

@@ -5,10 +5,10 @@ using System.Diagnostics;
 using System.DirectoryServices.AccountManagement;
 using System.Reflection;
 using System.Xml;
-using UlteriusServer.Authentication;
 using UlteriusServer.TaskServer.Network.Messages;
 using UlteriusServer.Utilities;
 using UlteriusServer.Utilities.Security;
+using UlteriusServer.WebSocketAPI.Authentication;
 
 #endregion
 

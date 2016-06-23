@@ -9,7 +9,6 @@ using UlteriusServer.TerminalServer.Infrastructure;
 using UlteriusServer.TerminalServer.Messaging;
 using UlteriusServer.TerminalServer.Messaging.TerminalControl.Handlers;
 using UlteriusServer.TerminalServer.Session;
-using UlteriusServer.Utilities;
 
 #endregion
 

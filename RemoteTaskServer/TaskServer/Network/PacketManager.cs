@@ -4,12 +4,12 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using Newtonsoft.Json.Linq;
-using UlteriusServer.Authentication;
 using UlteriusServer.TaskServer.Api.Controllers.Impl;
 using UlteriusServer.TaskServer.Network.Messages;
 using UlteriusServer.TaskServer.Network.PacketHandlers;
 using UlteriusServer.Utilities;
 using UlteriusServer.Utilities.Security;
+using UlteriusServer.WebSocketAPI.Authentication;
 
 #endregion
 
