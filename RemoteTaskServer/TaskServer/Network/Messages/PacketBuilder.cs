@@ -76,7 +76,6 @@ namespace UlteriusServer.TaskServer.Network.Messages
                     synckey,
                     results = data
                 });
-                Console.WriteLine(json);
                 try
                 {
                     if (_authClient != null)

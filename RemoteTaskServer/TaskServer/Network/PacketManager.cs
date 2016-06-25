@@ -237,7 +237,7 @@ namespace UlteriusServer.TaskServer.Network
                 if (deserializedPacket != null)
                 {
                     _endPoint = deserializedPacket["endpoint"]?.ToString().Trim().ToLower();
-                    _syncKey = deserializedPacket["syncKey"]?.ToString().Trim();
+                    _syncKey = deserializedPacket["synckey"]?.ToString().Trim();
                     if (deserializedPacket["args"] != null)
                     {
                         _args.AddRange(JArray.Parse(deserializedPacket["args"]?.ToString()));
