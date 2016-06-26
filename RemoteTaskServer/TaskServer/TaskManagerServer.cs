@@ -33,7 +33,6 @@ namespace UlteriusServer.TaskServer
             var endpoint = new IPEndPoint(NetworkUtilities.GetAddress(), port);
             var server = new WebSocketEventListener(endpoint, new WebSocketListenerOptions
             {
-                SubProtocols = new[] {"text"},
                 PingTimeout = TimeSpan.FromSeconds(15),
                 NegotiationTimeout = TimeSpan.FromSeconds(15),
                 WebSocketSendTimeout = TimeSpan.FromSeconds(15),
@@ -60,7 +59,6 @@ namespace UlteriusServer.TaskServer
             {
                 var packetManager = new PacketManager(authClient, message);
                 var packet = packetManager.GetPacket();
-               
                 packet?.HandlePacket();
             }
         }
