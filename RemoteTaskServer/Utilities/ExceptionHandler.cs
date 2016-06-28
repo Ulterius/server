@@ -38,6 +38,7 @@ namespace UlteriusServer.Utilities
                 }
             };
 
+            
 
             Application.ThreadException += (sender, args) =>
             {

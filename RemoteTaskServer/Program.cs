@@ -4,6 +4,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Threading;
 using RemoteTaskServer.WebServer;
 using UlteriusServer.Plugins;
 using UlteriusServer.Properties;
@@ -19,8 +20,12 @@ namespace UlteriusServer
 {
     internal class Program
     {
+        private static bool _quitFlag;
+
         private static void Main(string[] args)
         {
+            Console.CancelKeyPress += delegate { _quitFlag = true; };
+
             //fixes wrong screensize for screen share
             if (Environment.OSVersion.Version.Major >= 6) SetProcessDPIAware();
 
@@ -58,7 +63,10 @@ namespace UlteriusServer
             {
                 TerminalManagerServer.Start();
             }
-            Console.ReadLine();
+            while (!_quitFlag)
+            {
+                Thread.Sleep(1);
+            }
         }
 
         //Evan will have to support me and oumy cat once this gets released into the public.

@@ -45,8 +45,6 @@ namespace UlteriusServer.TerminalServer
             {
                 server.StartAsync();
                 Console.WriteLine("Terminal Server bound to " + NetworkUtilities.GetIPv4Address() + ":" + 22008);
-                Console.ReadKey(true);
-                server.Dispose();
             }
             catch (Exception ex)
             {
@@ -54,9 +52,6 @@ namespace UlteriusServer.TerminalServer
                 Console.WriteLine(ex);
                 Console.ResetColor();
             }
-
-            Console.WriteLine("End.");
-            Console.ReadKey(true);
         }
     }
 }
