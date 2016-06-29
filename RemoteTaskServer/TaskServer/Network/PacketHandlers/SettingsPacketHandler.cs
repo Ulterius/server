@@ -76,9 +76,9 @@ namespace UlteriusServer.TaskServer.Network.PacketHandlers
         public void ChangeWebServerUse()
         {
             var useServer = Convert.ToBoolean(_packet.Args[0]);
-            Settings.Get("WebServer").UseWebServer = useServer;
+            Settings.Get("WebServer").ToggleWebServer = useServer;
             Settings.Save();
-            var currentStatus = (bool) Settings.Get("WebServer").UseWebServer;
+            var currentStatus = (bool) Settings.Get("WebServer").ToggleWebServer;
             var data = new
             {
                 changedStatus = true,

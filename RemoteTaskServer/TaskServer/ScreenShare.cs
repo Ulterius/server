@@ -17,8 +17,17 @@ namespace UlteriusServer.TaskServer
 
         public ScreenShare()
         {
+           SecureString screenSharePass;
             var screenSharePort = (int) Settings.Get("ScreenShare").ScreenSharePort;
-            SecureString screenSharePass = ToSecureString(Settings.Get("ScreenShare").ScreenSharePass.ToString());
+            try
+            {
+                 screenSharePass = ToSecureString(Settings.Get("ScreenShare").ScreenSharePass.ToString());
+            }
+            catch (System.Exception)
+            {
+
+                screenSharePass = ToSecureString(string.Empty);
+            }
             _server = new ScreenShareServer(_serverName, screenSharePass, NetworkUtilities.GetAddress(), screenSharePort);
         }
 

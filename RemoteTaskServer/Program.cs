@@ -45,7 +45,7 @@ namespace UlteriusServer
             Tools.ConfigureServer();
             var useTerminal = Convert.ToBoolean(Settings.Get("Terminal").AllowTerminal);
             var usePlugins = Convert.ToBoolean(Settings.Get("Plugins").LoadPlugins);
-            var useWebServer = Convert.ToBoolean(Settings.Get("WebServer").UseWebServer);
+            var useWebServer = Convert.ToBoolean(Settings.Get("WebServer").ToggleWebServer);
             WebCamManager.LoadWebcams();
             if (usePlugins)
             {

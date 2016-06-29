@@ -145,7 +145,7 @@ namespace RemoteTaskServer.WebServer
         public static void Setup()
         {
 
-            var useWebServer = Convert.ToBoolean(Settings.Get("WebServer").UseWebServer); 
+            var useWebServer = Convert.ToBoolean(Settings.Get("WebServer").ToggleWebServer); 
             if (useWebServer)
             {
                 var root =  Settings.Get("WebServer").WebFilePath.ToString();  
