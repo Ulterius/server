@@ -1,5 +1,6 @@
 ﻿#region
 
+using System;
 using UlteriusServer.TaskServer.Network.Messages;
 using UlteriusServer.TaskServer.Network.Models;
 using UlteriusServer.TaskServer.Services.Network;
@@ -36,7 +37,7 @@ namespace UlteriusServer.TaskServer.Network.PacketHandlers
             _builder = new MessageBuilder(_client, _packet.EndPoint, _packet.SyncKey);
             switch (_packet.PacketType)
             {
-                case PacketTypes.RequestGpuInformation:
+                case PacketTypes.RequestNetworkInformation:
                     GetNetworkInformation();
                     break;
             }
