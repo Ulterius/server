@@ -42,7 +42,6 @@ namespace UlteriusServer.TaskServer.Network.Messages
                 //Build a handler Workshop
                 //THIS COULD BE BETTER
                 dynamic handler = Activator.CreateInstance(_packetHandler);
-                Console.WriteLine(handler.GetType().ToString());
                 //no auth needed for these
                 if (AuthClient.Authenticated)
                 {

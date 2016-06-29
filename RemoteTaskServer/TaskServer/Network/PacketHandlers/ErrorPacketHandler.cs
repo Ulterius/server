@@ -9,7 +9,7 @@ namespace UlteriusServer.TaskServer.Network.PacketHandlers
 {
     public class ErrorPacketHandler : PacketHandler
     {
-        private PacketBuilder _builder;
+        private MessageBuilder _builder;
         private AuthClient _client;
         private Packet _packet;
 
@@ -17,7 +17,7 @@ namespace UlteriusServer.TaskServer.Network.PacketHandlers
         {
             _client = packet.AuthClient;
             _packet = packet;
-            _builder = new PacketBuilder(_client, _packet.EndPoint, _packet.SyncKey);
+            _builder = new MessageBuilder(_client, _packet.EndPoint, _packet.SyncKey);
             switch (_packet.PacketType)
             {
                 case PacketManager.PacketTypes.InvalidOrEmptyPacket:

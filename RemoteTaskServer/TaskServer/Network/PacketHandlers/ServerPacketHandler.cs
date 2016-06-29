@@ -16,7 +16,7 @@ namespace UlteriusServer.TaskServer.Network.PacketHandlers
 {
     public class ServerPacketHandler : PacketHandler
     {
-        private PacketBuilder _builder;
+        private MessageBuilder _builder;
         private AuthClient _authClient;
         private Packet _packet;
 
@@ -224,7 +224,7 @@ namespace UlteriusServer.TaskServer.Network.PacketHandlers
         {
             _authClient = packet.AuthClient;
             _packet = packet;
-            _builder = new PacketBuilder(_authClient, _packet.EndPoint, _packet.SyncKey);
+            _builder = new MessageBuilder(_authClient, _packet.EndPoint, _packet.SyncKey);
             switch (_packet.PacketType)
             {
                 case PacketManager.PacketTypes.Authenticate:

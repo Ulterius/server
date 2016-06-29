@@ -5,6 +5,7 @@ using System.Collections.Concurrent;
 using System.Net;
 using System.Threading;
 using System.Web.Script.Serialization;
+
 using UlteriusServer.Forms.Utilities;
 using UlteriusServer.TaskServer.Network;
 using UlteriusServer.TaskServer.Services.Network;
@@ -21,7 +22,7 @@ namespace UlteriusServer.TaskServer
     internal class TaskManagerServer
     {
         public static ConcurrentDictionary<string, AuthClient> AllClients { get; set; }
-
+        public static Network.Messages.MessageQueueManager MessageQueueManager = new Network.Messages.MessageQueueManager();
         public static ScreenShare ScreenShare { get; set; }
 
         public static void Start()

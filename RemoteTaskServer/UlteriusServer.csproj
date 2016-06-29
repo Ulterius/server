@@ -174,10 +174,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Plugins\PluginHost.cs" />
+    <Compile Include="TaskServer\Network\Messages\Message.cs" />
+    <Compile Include="TaskServer\Network\Messages\MessageQueueManager.cs" />
     <Compile Include="WebSocketAPI\Authentication\AuthClient.cs" />
     <Compile Include="Forms\Utilities\UlteriusTray.cs" />
     <Compile Include="TaskServer\Network\Messages\Packet.cs" />
-    <Compile Include="TaskServer\Network\Messages\PacketBuilder.cs" />
+    <Compile Include="TaskServer\Network\Messages\MessageBuilder.cs" />
     <Compile Include="TaskServer\Network\PacketHandler.cs" />
     <Compile Include="TaskServer\Network\PacketHandlers\ErrorPacketHandler.cs" />
     <Compile Include="TaskServer\Network\PacketManager.cs" />
