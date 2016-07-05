@@ -1,7 +1,9 @@
 ﻿#region
 
 using System;
+using System.IO;
 using System.Threading.Tasks;
+using Ionic.Zlib;
 using UlteriusServer.TaskServer.Network.Messages;
 using UlteriusServer.WebCams;
 using UlteriusServer.WebSocketAPI.Authentication;
@@ -178,24 +180,23 @@ namespace UlteriusServer.TaskServer.Network.PacketHandlers
         public void GetWebCamFrame(string cameraId)
         {
             var camera = WebCamManager.Cameras[cameraId];
+            var imageBytes = WebCamManager.Frames[cameraId];
             while (_client.Client.IsConnected && camera.IsRunning)
             {
                 try
                 {
-                    var cameraHash = cameraId;
-                    var imageBytes = WebCamManager.Frames[cameraHash];
-                    if (imageBytes.Length > 0)
+                    using (var memoryStream = new MemoryStream())
                     {
-                        var data = new
+                        using (var binaryWriter = new BinaryWriter(memoryStream))
                         {
-                            cameraId,
-                            cameraFrame = imageBytes
-                        };
-                        _builder.WriteMessage(data);
-                    }
-                    else
-                    {
-                        break;
+                            binaryWriter.Write(Guid.Parse(cameraId).ToByteArray());
+                            var compressed = ZlibStream.CompressBuffer(imageBytes);
+                            binaryWriter.Write(compressed);
+                        }
+                        if (imageBytes.Length > 0)
+                        {
+                            _builder.WriteMessage(memoryStream.ToArray());
+                        }
                     }
                 }
                 catch (Exception e)
@@ -204,7 +205,7 @@ namespace UlteriusServer.TaskServer.Network.PacketHandlers
                     {
                         cameraFrameFailed = true,
                         cameraId,
-                        message = "Something went wrong and we were unable to get a feed from this camera!",
+                        message = "Something went wrong and we were unable to get a frame from this camera!",
                         exceptionMessage = e.Message
                     };
                     _builder.WriteMessage(data);
