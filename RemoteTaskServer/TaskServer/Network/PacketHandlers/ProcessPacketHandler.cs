@@ -25,18 +25,19 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
 
         public void StartProcess()
         {
-            var path = _packet.Args.AsEnumerable().First();
+           
+            var path =  _packet.Args[0].ToString();
             bool processStarted;
             var processId = -1;
             try
             {
-                var processStartInfo = new ProcessStartInfo((string) path);
+                var processStartInfo = new ProcessStartInfo(path);
 
                 var process = new Process {StartInfo = processStartInfo};
                 processStarted = process.Start();
                 processId = process.Id;
             }
-            catch (Exception)
+            catch (Exception e)
             {
                 processStarted = false;
             }
@@ -149,6 +150,7 @@ namespace UlteriusServer.TaskServer.Api.Controllers.Impl
                     RequestProcessInformation();
                     break;
                 case PacketManager.PacketTypes.StartProcess:
+                 
                     StartProcess();
                     break;
                 case PacketManager.PacketTypes.KillProcess:

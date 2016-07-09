@@ -51,6 +51,7 @@ namespace UlteriusServer.TaskServer.Network.Messages
                     synckey,
                     results = data
                 });
+     
                 try
                 {
                     if (_authClient != null)
