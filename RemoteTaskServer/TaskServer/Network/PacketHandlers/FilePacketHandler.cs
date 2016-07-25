@@ -7,7 +7,6 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
-using RemoteTaskServer.WebServer;
 using UlteriusServer.TaskServer.Network.Messages;
 using UlteriusServer.TaskServer.Services.Network;
 using UlteriusServer.Utilities;
@@ -150,39 +149,48 @@ namespace UlteriusServer.TaskServer.Network.PacketHandlers
 
         public void RemoveFile()
         {
-            var path = _packet.Args[0].ToString();
-
-            //make sure we can only remove tempfiles for now
-            if (File.Exists(path) && path.Contains("temp"))
+            var fileName = _packet.Args[0].ToString();
+            var webPath = Settings.Get("WebServer").WebFilePath.ToString();
+            var tempFolderPath = webPath + "temp\\";
+            string[] filePaths = Directory.GetFiles(tempFolderPath, "*.*",
+                SearchOption.TopDirectoryOnly);
+            foreach (var file in filePaths)
             {
-                try
+                var path = Path.GetFileName(file);
+                if (path != null && path.Equals(fileName))
                 {
-                    File.Delete(path);
-                    var deleteData = new
+                    if (File.Exists(file))
                     {
-                        deleted = true,
-                        message = "File removed."
-                    };
-                    _builder.WriteMessage(deleteData);
-                }
-                catch (Exception e)
-                {
-                    var deleteDataException = new
+                        try
+                        {
+                            File.Delete(file);
+                            var deleteData = new
+                            {
+                                deleted = true,
+                                message = "File removed."
+                            };
+                            _builder.WriteMessage(deleteData);
+                        }
+                        catch (Exception e)
+                        {
+                            var deleteDataException = new
+                            {
+                                deleted = false,
+                                message = e.Message
+                            };
+                            _builder.WriteMessage(deleteDataException);
+                        }
+                    }
+                    else
                     {
-                        deleted = false,
-                        message = e.Message
-                    };
-                    _builder.WriteMessage(deleteDataException);
+                        var deleteData = new
+                        {
+                            deleted = false,
+                            message = "File does not exist or cannot be deleted"
+                        };
+                        _builder.WriteMessage(deleteData);
+                    }
                 }
-            }
-            else
-            {
-                var deleteData = new
-                {
-                    deleted = false,
-                    message = "File does not exist or cannot be deleted"
-                };
-                _builder.WriteMessage(deleteData);
             }
         }
 
@@ -216,7 +224,7 @@ namespace UlteriusServer.TaskServer.Network.PacketHandlers
             var fileName = Path.GetFileName(path);
 
             var ip = NetworkUtilities.GetIPv4Address();
-            var port = (int)Settings.Get("WebServer").WebServerPort;
+            var port = (int) Settings.Get("WebServer").WebServerPort;
             var data = File.ReadAllBytes(path);
 
             var encryptedFile = _builder.PackFile(password, data);
