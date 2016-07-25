@@ -216,7 +216,7 @@ namespace UlteriusServer.TaskServer.Network.PacketHandlers
             var fileName = Path.GetFileName(path);
 
             var ip = NetworkUtilities.GetIPv4Address();
-            var httpPort = HttpServer.GlobalPort;
+            var port = (int)Settings.Get("WebServer").WebServerPort;
             var data = File.ReadAllBytes(path);
 
             var encryptedFile = _builder.PackFile(password, data);
@@ -224,10 +224,10 @@ namespace UlteriusServer.TaskServer.Network.PacketHandlers
             {
                 if (encryptedFile != null)
                 {
-                    var tempPath = Path.Combine(webPath + "temp\\", fileName);
+                    var tempPath = Path.Combine(tempFolderPath, fileName);
 
                     File.WriteAllBytes(tempPath, encryptedFile);
-                    var tempWebPath = $"http://{ip}:{httpPort}/temp/{fileName}";
+                    var tempWebPath = $"http://{ip}:{port}/temp/{fileName}";
                     var downloadData = new
                     {
                         tempWebPath,
