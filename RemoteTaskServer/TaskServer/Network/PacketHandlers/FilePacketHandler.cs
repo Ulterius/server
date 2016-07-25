@@ -205,7 +205,7 @@ namespace UlteriusServer.TaskServer.Network.PacketHandlers
         {
             var webPath = Settings.Get("WebServer").WebFilePath.ToString();
             var tempFolderPath = webPath + "temp\\";
-            if (!Directory.Exists(tempFolderPath)) { 
+            if (!Directory.Exists(tempFolderPath))
             {
                 Directory.CreateDirectory(tempFolderPath);
             }
@@ -224,8 +224,8 @@ namespace UlteriusServer.TaskServer.Network.PacketHandlers
             {
                 if (encryptedFile != null)
                 {
-                    var tempPath = Path.Combine(tempFolderPath, fileName);
-                
+                    var tempPath = Path.Combine(webPath + "temp\\", fileName);
+
                     File.WriteAllBytes(tempPath, encryptedFile);
                     var tempWebPath = $"http://{ip}:{httpPort}/temp/{fileName}";
                     var downloadData = new
