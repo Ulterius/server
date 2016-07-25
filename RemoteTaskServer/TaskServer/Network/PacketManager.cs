@@ -142,7 +142,7 @@ namespace UlteriusServer.TaskServer.Network
                 case "aeshandshake":
                     return new PacketInfo { Type = PacketTypes.AesHandshake, Handler = typeof(ServerPacketHandler) };
                 case "requestfile":
-                    return new PacketInfo { Type = PacketTypes.SearchFiles, Handler = typeof(FilePacketHandler) };
+                    return new PacketInfo { Type = PacketTypes.RequestFile, Handler = typeof(FilePacketHandler) };
                 case "approvefile":
                     return new PacketInfo { Type = PacketTypes.ApproveFile, Handler = typeof(FilePacketHandler) };
                 case "refreshcameras":

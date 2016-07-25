@@ -44,7 +44,7 @@ namespace UlteriusServer.TaskServer.Services.System
                 WorkerSupportsCancellation = true
             };
             backgroundWorker.DoWork += BackgroundWorkerOnDoWork;
-           backgroundWorker.RunWorkerAsync();
+            backgroundWorker.RunWorkerAsync();
         }
 
         private void BackgroundWorkerOnDoWork(object sender, DoWorkEventArgs e)
@@ -311,13 +311,13 @@ namespace UlteriusServer.TaskServer.Services.System
             myComputer.Open();
             myComputer.CPUEnabled = true;
             return (from hardwareItem in myComputer.Hardware
-                where hardwareItem.HardwareType == HardwareType.CPU
-                from sensor in hardwareItem.Sensors
-                where sensor.SensorType == SensorType.Temperature
-                let value = sensor.Value
-                where value != null
-                where value != null
-                select (float) value).ToList();
+                    where hardwareItem.HardwareType == HardwareType.CPU
+                    from sensor in hardwareItem.Sensors
+                    where sensor.SensorType == SensorType.Temperature
+                    let value = sensor.Value
+                    where value != null
+                    where value != null
+                    select (float)value).ToList();
         }
 
 
