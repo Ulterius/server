@@ -204,7 +204,11 @@ namespace UlteriusServer.TaskServer.Network.PacketHandlers
         public void ProcessFile(string path, string password, long totalSize)
         {
             var webPath = Settings.Get("WebServer").WebFilePath.ToString();
-
+            var tempFolderPath = webPath + "temp\\";
+            if (!Directory.Exists(tempFolderPath)) { 
+            {
+                Directory.CreateDirectory(tempFolderPath);
+            }
             var file = new FileInfo(path);
             file.Directory?.Create(); // If the directory already exists, this method does nothing.
 
@@ -220,13 +224,8 @@ namespace UlteriusServer.TaskServer.Network.PacketHandlers
             {
                 if (encryptedFile != null)
                 {
-                    var tempPath = Path.Combine(webPath + "temp\\", fileName);
-                    if (!Directory.Exists(webPath + "temp\\"))
-                    {
-                        var di = Directory.CreateDirectory(path);
-                        Console.WriteLine(
-                            $"The directory was created successfully at {Directory.GetCreationTime(path)}.");
-                    }
+                    var tempPath = Path.Combine(tempFolderPath, fileName);
+                
                     File.WriteAllBytes(tempPath, encryptedFile);
                     var tempWebPath = $"http://{ip}:{httpPort}/temp/{fileName}";
                     var downloadData = new
