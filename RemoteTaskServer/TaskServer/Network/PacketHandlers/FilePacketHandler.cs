@@ -221,6 +221,12 @@ namespace UlteriusServer.TaskServer.Network.PacketHandlers
                 if (encryptedFile != null)
                 {
                     var tempPath = Path.Combine(webPath + "temp\\", fileName);
+                    if (!Directory.Exists(tempPath))
+                    {
+                        var di = Directory.CreateDirectory(path);
+                        Console.WriteLine(
+                            $"The directory was created successfully at {Directory.GetCreationTime(path)}.");
+                    }
                     File.WriteAllBytes(tempPath, encryptedFile);
                     var tempWebPath = $"http://{ip}:{httpPort}/temp/{fileName}";
                     var downloadData = new
