@@ -221,7 +221,7 @@ namespace UlteriusServer.TaskServer.Network.PacketHandlers
                 if (encryptedFile != null)
                 {
                     var tempPath = Path.Combine(webPath + "temp\\", fileName);
-                    if (!Directory.Exists(tempPath))
+                    if (!Directory.Exists(webPath + "temp\\"))
                     {
                         var di = Directory.CreateDirectory(path);
                         Console.WriteLine(
