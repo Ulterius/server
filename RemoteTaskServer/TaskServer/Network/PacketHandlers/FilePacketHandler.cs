@@ -89,7 +89,7 @@ namespace UlteriusServer.TaskServer.Network.PacketHandlers
                     Everything_SetSearchW(query);
                     Console.WriteLine("Search set");
                     //execute the query
-                    Everything_QueryW(true);
+                    Everything_QueryW(false);
                     Console.WriteLine("Search executed");
                     var totalResults = Everything_GetNumResults();
                     var searchResults = new List<string>();
