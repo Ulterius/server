@@ -62,42 +62,69 @@ namespace UlteriusServer.TaskServer.Network.PacketHandlers
 
         public void SearchFile()
         {
-            ConfigureSearch();
-            if (Process.GetProcessesByName("Everything").Length > 0)
+            try
             {
-                var query = _packet.Args[0].ToString();
-                var stopwatch = Stopwatch.StartNew();
-                const int bufferSize = 260;
-                var buffer = new StringBuilder(bufferSize);
-                // set the search
-                Everything_SetSearchW(query);
-                //execute the query
-                Everything_QueryW(true);
-                var totalResults = Everything_GetNumResults();
-                var searchResults = new List<string>();
-                for (var index = 0; index < totalResults; index++)
-                {
-                    Everything_GetResultFullPathNameW(index, buffer, bufferSize);
-                    var filePath = buffer.ToString();
-                    searchResults.Add(filePath);
-                }
-                stopwatch.Stop();
-                var searchGenerationTime = stopwatch.ElapsedMilliseconds;
-                var data = new
-                {
-                    success = true,
-                    searchGenerationTime,
-                    totalResults,
-                    searchResults
-                };
-                _builder.WriteMessage(data);
+                ConfigureSearch();
             }
-            else
+            catch (Exception)
             {
                 var error = new
                 {
                     success = false,
-                    message = "Everything is not running."
+                    message = "Everything failed to configure."
+                };
+                _builder.WriteMessage(error);
+                return;
+            }
+            try
+            {
+                if (Process.GetProcessesByName("Everything").Length > 0)
+                {
+                    var query = _packet.Args[0].ToString();
+                    Console.WriteLine(query);
+                    var stopwatch = Stopwatch.StartNew();
+                    const int bufferSize = 260;
+                    var buffer = new StringBuilder(bufferSize);
+                    // set the search
+                    Everything_SetSearchW(query);
+                    //execute the query
+                    Everything_QueryW(true);
+                    var totalResults = Everything_GetNumResults();
+                    var searchResults = new List<string>();
+                    for (var index = 0; index < totalResults; index++)
+                    {
+                        Everything_GetResultFullPathNameW(index, buffer, bufferSize);
+                        var filePath = buffer.ToString();
+                        searchResults.Add(filePath);
+                    }
+                    stopwatch.Stop();
+                    var searchGenerationTime = stopwatch.ElapsedMilliseconds;
+                    var data = new
+                    {
+                        success = true,
+                        searchGenerationTime,
+                        totalResults,
+                        searchResults
+                    };
+                    _builder.WriteMessage(data);
+                }
+                else
+                {
+                    var error = new
+                    {
+                        success = false,
+                        message = "Everything is not running."
+                    };
+                    _builder.WriteMessage(error);
+                }
+            }
+            catch (Exception e)
+            {
+
+                var error = new
+                {
+                    success = false,
+                    message = e.Message
                 };
                 _builder.WriteMessage(error);
             }
@@ -180,7 +207,7 @@ namespace UlteriusServer.TaskServer.Network.PacketHandlers
                             };
                             _builder.WriteMessage(deleteDataException);
                         }
-                    }
+                    } 
                     else
                     {
                         var deleteData = new
