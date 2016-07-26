@@ -87,18 +87,22 @@ namespace UlteriusServer.TaskServer.Network.PacketHandlers
                     var buffer = new StringBuilder(bufferSize);
                     // set the search
                     Everything_SetSearchW(query);
+                    Console.WriteLine("Search set");
                     //execute the query
                     Everything_QueryW(true);
+                    Console.WriteLine("Search executed");
                     var totalResults = Everything_GetNumResults();
                     var searchResults = new List<string>();
                     for (var index = 0; index < totalResults; index++)
                     {
                         Everything_GetResultFullPathNameW(index, buffer, bufferSize);
                         var filePath = buffer.ToString();
+                        Console.WriteLine(filePath);
                         searchResults.Add(filePath);
                     }
                     stopwatch.Stop();
                     var searchGenerationTime = stopwatch.ElapsedMilliseconds;
+                    Console.WriteLine(searchGenerationTime);
                     var data = new
                     {
                         success = true,
