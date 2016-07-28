@@ -34,7 +34,6 @@ namespace UlteriusServer.TaskServer.Network.PacketHandlers
         private AuthClient _client;
         private Packet _packet;
 
-
         public void CreateFileTree()
         {
             var argumentSize = _packet.Args.Count;
@@ -42,12 +41,16 @@ namespace UlteriusServer.TaskServer.Network.PacketHandlers
             var deepWalk = false;
             if (argumentSize > 1)
             {
-                deepWalk = (bool) _packet.Args[1];
+                deepWalk = (bool)_packet.Args[1];
             }
             var tree = new FileTree(path, deepWalk);
             _builder.WriteMessage(tree);
         }
 
+        public IEnumerable<string> Search(string keyWord)
+        {
+            return Search(keyWord, 0, int.MaxValue);
+        }
 
         public long DirSize(DirectoryInfo d)
         {
@@ -58,6 +61,56 @@ namespace UlteriusServer.TaskServer.Network.PacketHandlers
             var dis = d.GetDirectories();
             size += dis.Sum(di => DirSize(di));
             return size;
+        }
+
+        public void EverythingReset()
+        {
+            Everything_Reset();
+        }
+
+        public IEnumerable<string> Search(string keyWord, int offset, int maxCount)
+        {
+            if (string.IsNullOrEmpty(keyWord))
+                throw new ArgumentNullException("keyWord");
+
+            if (offset < 0)
+                throw new ArgumentOutOfRangeException("offset");
+
+            if (maxCount < 0)
+                throw new ArgumentOutOfRangeException("maxCount");
+
+            Everything_SetSearch(keyWord);
+            Everything_SetOffset(offset);
+            Everything_SetMax(maxCount);
+            if (!Everything_Query())
+            {
+                switch (Everything_GetLastError())
+                {
+                    case StateCode.CreateThreadError:
+                        throw new CreateThreadException();
+                    case StateCode.CreateWindowError:
+                        throw new CreateWindowException();
+                    case StateCode.InvalidCallError:
+                        throw new InvalidCallException();
+                    case StateCode.InvalidIndexError:
+                        throw new InvalidIndexException();
+                    case StateCode.IPCError:
+                        throw new IPCErrorException();
+                    case StateCode.MemoryError:
+                        throw new MemoryErrorException();
+                    case StateCode.RegisterClassExError:
+                        throw new RegisterClassExException();
+                }
+                yield break;
+            }
+
+            const int bufferSize = 256;
+            var buffer = new StringBuilder(bufferSize);
+            for (var idx = 0; idx < Everything_GetNumResults(); ++idx)
+            {
+                Everything_GetResultFullPathName(idx, buffer, bufferSize);
+                yield return buffer.ToString();
+            }
         }
 
         public void SearchFile()
@@ -83,24 +136,13 @@ namespace UlteriusServer.TaskServer.Network.PacketHandlers
                     var query = _packet.Args[0].ToString();
                     Console.WriteLine(query);
                     var stopwatch = Stopwatch.StartNew();
-                    const int bufferSize = 260;
-                    var buffer = new StringBuilder(bufferSize);
-                    // set the search
-                    Everything_SetSearchW(query);
-                    Console.WriteLine("Search set");
-                    //execute the query
-                    Everything_QueryW(true);
-                    var totalResults = Everything_GetNumResults();
-                    var searchResults = new List<string>();
-                    for (var index = 0; index < totalResults; index++)
-                    {
-                        Everything_GetResultFullPathNameW(index, buffer, bufferSize);
-                        var filePath = buffer.ToString();
-                        Console.WriteLine(filePath);
-                        searchResults.Add(filePath);
-                    }
+
+                    var searchResults = Search(query);
+                    var totalResults = searchResults.Count();
+
                     stopwatch.Stop();
                     var searchGenerationTime = stopwatch.ElapsedMilliseconds;
+                    Console.WriteLine(searchGenerationTime);
                     var data = new
                     {
                         success = true,
@@ -122,7 +164,6 @@ namespace UlteriusServer.TaskServer.Network.PacketHandlers
             }
             catch (Exception e)
             {
-
                 var error = new
                 {
                     success = false,
@@ -209,7 +250,7 @@ namespace UlteriusServer.TaskServer.Network.PacketHandlers
                             };
                             _builder.WriteMessage(deleteDataException);
                         }
-                    } 
+                    }
                     else
                     {
                         var deleteData = new
@@ -253,7 +294,7 @@ namespace UlteriusServer.TaskServer.Network.PacketHandlers
             var fileName = Path.GetFileName(path);
 
             var ip = NetworkUtilities.GetIPv4Address();
-            var port = (int) Settings.Get("WebServer").WebServerPort;
+            var port = (int)Settings.Get("WebServer").WebServerPort;
             var data = File.ReadAllBytes(path);
 
             var encryptedFile = _builder.PackFile(password, data);
@@ -320,10 +361,74 @@ namespace UlteriusServer.TaskServer.Network.PacketHandlers
             }
         }
 
+        /// <summary>
+        ///     ///
+        /// </summary>
+        public class MemoryErrorException : ApplicationException
+        {
+        }
+
+        /// <summary>
+        ///     ///
+        /// </summary>
+        public class IPCErrorException : ApplicationException
+        {
+        }
+
+        /// <summary>
+        ///     ///
+        /// </summary>
+        public class RegisterClassExException : ApplicationException
+        {
+        }
+
+        /// <summary>
+        ///     ///
+        /// </summary>
+        public class CreateWindowException : ApplicationException
+        {
+        }
+
+        /// <summary>
+        ///     ///
+        /// </summary>
+        public class CreateThreadException : ApplicationException
+        {
+        }
+
+        /// <summary>
+        ///     ///
+        /// </summary>
+        public class InvalidIndexException : ApplicationException
+        {
+        }
+
+        /// <summary>
+        ///     ///
+        /// </summary>
+        public class InvalidCallException : ApplicationException
+        {
+        }
+
+        private enum StateCode
+        {
+            OK,
+            MemoryError,
+            IPCError,
+            RegisterClassExError,
+            CreateWindowError,
+            CreateThreadError,
+            InvalidIndexError,
+            InvalidCallError
+        }
+
         #region everything
 
         [DllImport("Everything.dll", CharSet = CharSet.Unicode)]
         public static extern int Everything_SetSearchW(string lpSearchString);
+
+        [DllImport("Everything.dll")]
+        private static extern int Everything_SetSearch(string lpSearchString);
 
         [DllImport("Everything.dll")]
         public static extern void Everything_SetMatchPath(bool bEnable);
@@ -364,8 +469,6 @@ namespace UlteriusServer.TaskServer.Network.PacketHandlers
         [DllImport("Everything.dll")]
         public static extern string Everything_GetSearchW();
 
-        [DllImport("Everything.dll")]
-        public static extern int Everything_GetLastError();
 
         [DllImport("Everything.dll")]
         public static extern bool Everything_QueryW(bool bWait);
@@ -392,6 +495,9 @@ namespace UlteriusServer.TaskServer.Network.PacketHandlers
         public static extern int Everything_GetTotResults();
 
         [DllImport("Everything.dll")]
+        private static extern void Everything_GetResultFullPathName(int nIndex, StringBuilder lpString, int nMaxCount);
+
+        [DllImport("Everything.dll")]
         public static extern bool Everything_IsVolumeResult(int nIndex);
 
         [DllImport("Everything.dll")]
@@ -405,6 +511,12 @@ namespace UlteriusServer.TaskServer.Network.PacketHandlers
 
         [DllImport("Everything.dll")]
         public static extern void Everything_Reset();
+
+        [DllImport("Everything.dll")]
+        private static extern bool Everything_Query();
+
+        [DllImport("Everything.dll")]
+        private static extern StateCode Everything_GetLastError();
 
         #endregion
     }
