@@ -13,14 +13,14 @@ namespace UlteriusServer.TaskServer.Network.Messages
     public class MessageBuilder
     {
         private readonly AuthClient _authClient;
-        private readonly string endpoint;
+        public  string Endpoint;
         private readonly string synckey;
 
 
         public MessageBuilder(AuthClient authClient, string endpoint, string syncKey)
         {
             _authClient = authClient;
-            this.endpoint = endpoint;
+            this.Endpoint = endpoint;
             synckey = syncKey;
         }
 
@@ -70,7 +70,7 @@ namespace UlteriusServer.TaskServer.Network.Messages
                 var serializer = new JavaScriptSerializer {MaxJsonLength = int.MaxValue};
                 var json = serializer.Serialize(new
                 {
-                    endpoint,
+                    endpoint = Endpoint,
                     synckey,
                     results = data
                 });

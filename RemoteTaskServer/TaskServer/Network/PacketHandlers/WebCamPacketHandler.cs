@@ -198,13 +198,17 @@ namespace UlteriusServer.TaskServer.Network.PacketHandlers
                             {
                                 using (var binaryWriter = new BinaryWriter(memoryStream))
                                 {
-                                    binaryWriter.Write(cameraId);
                                     var compressed = ZlibStream.CompressBuffer(imageBytes);
                                     binaryWriter.Write(compressed);
                                 }
 
-                                _builder.WriteBinary(memoryStream.ToArray());
-                                Console.WriteLine(cameraId + " sent ");
+                                var cameraData = new
+                                {
+                                    cameraId,
+                                    cameraData = memoryStream.ToArray()
+                                };
+                                _builder.Endpoint = "cameraframe";
+                                _builder.WriteMessage(cameraData);
                             }
                         }
                     }
