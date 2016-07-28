@@ -56,13 +56,14 @@ namespace UlteriusServer.TaskServer.Network.PacketHandlers
                 };
                 _builder.WriteMessage(data);
             }
-            catch (Exception)
+            catch (Exception e)
             {
                 var data = new
                 {
                     cameraId,
                     cameraRunning = false,
-                    cameraStarted = false
+                    cameraStarted = false,
+                    message = e.Message 
                 };
                 _builder.WriteMessage(data);
             }
@@ -84,13 +85,14 @@ namespace UlteriusServer.TaskServer.Network.PacketHandlers
                 _builder.WriteMessage(data);
             }
             catch (Exception e)
-            {
-                Console.WriteLine(e.Message);
+
+            { 
                 var data = new
                 {
                     cameraId,
                     cameraRunning = false,
-                    cameraStarted = false
+                    cameraStarted = false,
+                    message = e.Message
                 };
                 _builder.WriteMessage(data);
             }
@@ -118,20 +120,22 @@ namespace UlteriusServer.TaskServer.Network.PacketHandlers
                 var cameraStream = new Task(() => GetWebCamFrame(cameraId));
                 WebCamManager.Streams[cameraId] = cameraStream;
                 WebCamManager.Streams[cameraId].Start();
+             
                 var data = new
                 {
                     cameraId,
                     cameraStreamStarted = true
                 };
                 _builder.WriteMessage(data);
+                Console.WriteLine("stream started for "  + cameraId);
             }
             catch (Exception exception)
             {
-                Console.WriteLine(exception.Message);
                 var data = new
                 {
                     cameraId,
-                    cameraStreamStarted = false
+                    cameraStreamStarted = false,
+                    message = exception.Message
                 };
 
                 _builder.WriteMessage(data);
@@ -163,13 +167,14 @@ namespace UlteriusServer.TaskServer.Network.PacketHandlers
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message);
+               
                 if (_client.Client.IsConnected)
                 {
                     var data = new
                     {
                         cameraId,
-                        cameraStreamStopped = false
+                        cameraStreamStopped = false,
+                        message =e.Message
                     };
                     _builder.WriteMessage(data);
                 }
