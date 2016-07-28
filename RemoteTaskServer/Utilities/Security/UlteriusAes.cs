@@ -6,6 +6,7 @@ namespace UlteriusServer.Utilities.Security
 {
     public class UlteriusAes
     {
+
         public static byte[] EncryptFile(byte[] bytesToBeEncrypted, byte[] passwordBytes)
         {
             byte[] encrypted;
@@ -17,6 +18,34 @@ namespace UlteriusServer.Utilities.Security
                 aes.Padding = PaddingMode.PKCS7;
                 aes.Key = passwordBytes;
                 aes.IV = passwordBytes;
+
+                // Create a decrytor to perform the stream transform.  
+                var encryptor = aes.CreateEncryptor(aes.Key, aes.IV);
+
+                // Create the streams used for encryption.  
+                using (var msEncrypt = new MemoryStream())
+                {
+                    using (var csEncrypt = new CryptoStream(msEncrypt, encryptor, CryptoStreamMode.Write))
+                    {
+                        csEncrypt.Write(bytesToBeEncrypted, 0, bytesToBeEncrypted.Length);
+                    }
+                    encrypted = msEncrypt.ToArray();
+                }
+            }
+            // Return the encrypted bytes from the memory stream.  
+            return encrypted;
+        }
+        public static byte[] EncryptFile(byte[] bytesToBeEncrypted, byte[] passwordBytes, byte[] ivBytes)
+        {
+            byte[] encrypted;
+            // Create a RijndaelManaged object  
+            // with the specified key and IV.  
+            using (var aes = new RijndaelManaged())
+            {
+                aes.Mode = CipherMode.CBC;
+                aes.Padding = PaddingMode.PKCS7;
+                aes.Key = passwordBytes;
+                aes.IV = ivBytes;
 
                 // Create a decrytor to perform the stream transform.  
                 var encryptor = aes.CreateEncryptor(aes.Key, aes.IV);

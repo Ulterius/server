@@ -39,6 +39,29 @@ namespace UlteriusServer.TaskServer.Network.Messages
             }
         }
 
+        private byte[] EncryptBytes(byte[] data, byte[] keyBytes, byte[] keyIv)
+        { 
+            return UlteriusAes.EncryptFile(data, keyBytes, keyIv);
+        }
+
+        public void WriteBinary(byte[] data)
+        {
+            if (_authClient.Client == null) return;
+            try
+            {
+                if (_authClient == null) return;
+                if (!_authClient.AesShook) return;
+                var keyBytes = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(_authClient.AesKey));
+                var keyIv = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(_authClient.AesIv));
+                var encryptedData = EncryptBytes(data, keyBytes, keyIv);
+                var message = new Message(_authClient, encryptedData, Message.MessageType.Binary);
+                TaskManagerServer.MessageQueueManager.SendQueue.Add(message);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"Could not send encrypted message: {e.Message}");
+            }
+        }
 
         public void WriteMessage(object data)
         {

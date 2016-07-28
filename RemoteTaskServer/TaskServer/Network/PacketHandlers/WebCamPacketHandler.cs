@@ -203,7 +203,7 @@ namespace UlteriusServer.TaskServer.Network.PacketHandlers
                                     binaryWriter.Write(compressed);
                                 }
 
-                                _builder.WriteMessage(memoryStream.ToArray());
+                                _builder.WriteBinary(memoryStream.ToArray());
                                 Console.WriteLine(cameraId + " sent ");
                             }
                         }
