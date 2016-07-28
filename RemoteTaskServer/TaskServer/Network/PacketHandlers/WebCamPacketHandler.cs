@@ -2,6 +2,7 @@
 
 using System;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using Ionic.Zlib;
 using UlteriusServer.TaskServer.Network.Messages;
@@ -63,7 +64,7 @@ namespace UlteriusServer.TaskServer.Network.PacketHandlers
                     cameraId,
                     cameraRunning = false,
                     cameraStarted = false,
-                    message = e.Message 
+                    message = e.Message
                 };
                 _builder.WriteMessage(data);
             }
@@ -86,7 +87,7 @@ namespace UlteriusServer.TaskServer.Network.PacketHandlers
             }
             catch (Exception e)
 
-            { 
+            {
                 var data = new
                 {
                     cameraId,
@@ -120,14 +121,14 @@ namespace UlteriusServer.TaskServer.Network.PacketHandlers
                 var cameraStream = new Task(() => GetWebCamFrame(cameraId));
                 WebCamManager.Streams[cameraId] = cameraStream;
                 WebCamManager.Streams[cameraId].Start();
-             
+
                 var data = new
                 {
                     cameraId,
                     cameraStreamStarted = true
                 };
                 _builder.WriteMessage(data);
-                Console.WriteLine("stream started for "  + cameraId);
+                Console.WriteLine("stream started for " + cameraId);
             }
             catch (Exception exception)
             {
@@ -167,14 +168,13 @@ namespace UlteriusServer.TaskServer.Network.PacketHandlers
             }
             catch (Exception e)
             {
-               
                 if (_client.Client.IsConnected)
                 {
                     var data = new
                     {
                         cameraId,
                         cameraStreamStopped = false,
-                        message =e.Message
+                        message = e.Message
                     };
                     _builder.WriteMessage(data);
                 }
@@ -184,24 +184,28 @@ namespace UlteriusServer.TaskServer.Network.PacketHandlers
 
         public void GetWebCamFrame(string cameraId)
         {
-            var camera = WebCamManager.Cameras[cameraId];
-            var imageBytes = WebCamManager.Frames[cameraId];
-            while (_client.Client.IsConnected && camera.IsRunning)
+            while (_client.Client.IsConnected)
             {
                 try
                 {
-                    using (var memoryStream = new MemoryStream())
+                    var camera = WebCamManager.Cameras[cameraId];
+                    if (camera != null && camera.IsRunning)
                     {
-                        using (var binaryWriter = new BinaryWriter(memoryStream))
-                        {
-                            binaryWriter.Write(Guid.Parse(cameraId).ToByteArray());
-                            var compressed = ZlibStream.CompressBuffer(imageBytes);
-                            binaryWriter.Write(compressed);
-                        }
+                        var imageBytes = WebCamManager.Frames[cameraId];
                         if (imageBytes.Length > 0)
                         {
-                            _builder.WriteMessage(memoryStream.ToArray());
-                            Console.WriteLine(cameraId + " sent");
+                            using (var memoryStream = new MemoryStream())
+                            {
+                                using (var binaryWriter = new BinaryWriter(memoryStream))
+                                {
+                                    binaryWriter.Write(Guid.Parse(cameraId).ToByteArray());
+                                    var compressed = ZlibStream.CompressBuffer(imageBytes);
+                                    binaryWriter.Write(compressed);
+                                }
+
+                                _builder.WriteMessage(memoryStream.ToArray());
+                                Console.WriteLine(cameraId + " sent ");
+                            }
                         }
                     }
                 }
@@ -215,6 +219,7 @@ namespace UlteriusServer.TaskServer.Network.PacketHandlers
                         exceptionMessage = e.Message
                     };
                     _builder.WriteMessage(data);
+                    Thread.Sleep(2500);
                 }
             }
         }
@@ -245,7 +250,7 @@ namespace UlteriusServer.TaskServer.Network.PacketHandlers
                     GetCameras();
                     break;
                 case PacketManager.PacketTypes.GetCameraFrame:
-                 
+
                     break;
             }
         }
