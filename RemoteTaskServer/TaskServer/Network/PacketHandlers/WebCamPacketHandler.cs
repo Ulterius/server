@@ -201,6 +201,7 @@ namespace UlteriusServer.TaskServer.Network.PacketHandlers
                         if (imageBytes.Length > 0)
                         {
                             _builder.WriteMessage(memoryStream.ToArray());
+                            Console.WriteLine(cameraId + " sent");
                         }
                     }
                 }
