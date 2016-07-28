@@ -108,7 +108,7 @@ namespace UlteriusServer.WebCams
                 for (var i = 0; i < videoDevices.Count; i++)
                 {
                     var camera = new VideoCaptureDevice(videoDevices[i].MonikerString);
-                    var cameraId = Guid.NewGuid().ToString();
+                    var cameraId = Guid.NewGuid().ToString("N").ToUpper();
                     camera.NewFrame +=
                         (sender, e) =>
                             HandleFrame(sender, e, cameraId);
