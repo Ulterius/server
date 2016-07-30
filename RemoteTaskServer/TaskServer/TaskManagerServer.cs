@@ -24,7 +24,7 @@ namespace UlteriusServer.TaskServer
         public static ConcurrentDictionary<string, AuthClient> AllClients { get; set; }
         public static Network.Messages.MessageQueueManager MessageQueueManager = new Network.Messages.MessageQueueManager();
         public static ScreenShare ScreenShare { get; set; }
-
+            
         public static void Start()
         {
             AllClients = new ConcurrentDictionary<string, AuthClient>();
