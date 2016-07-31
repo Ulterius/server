@@ -3,6 +3,7 @@
   <Costura>
     <ExcludeAssemblies>
       UlteriusPluginBase
+      UlteriusScreenShare
     </ExcludeAssemblies>
   </Costura>
 
