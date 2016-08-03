@@ -48,8 +48,17 @@ namespace UlteriusServer.TerminalServer.Messaging
                 {
                     lock (_ws)
                     {
-                        using (var wsmsg = _ws.CreateMessageWriter(WebSocketMessageType.Text))
-                            _serializer.Serialize(connectionId, msg, wsmsg);
+                        UserConnection user;
+                        ConnectionManager._connections.TryGetValue(connectionId, out user);
+                        if (user != null)
+                        {
+                            using (
+                                var wsmsg =
+                                    _ws.CreateMessageWriter(user.AesShook
+                                        ? WebSocketMessageType.Binary
+                                        : WebSocketMessageType.Text))
+                                _serializer.Serialize(connectionId, msg, wsmsg);
+                        }
                     }
                 }, con => _ws.IsConnected && con.ConnectionId == connectionId));
 

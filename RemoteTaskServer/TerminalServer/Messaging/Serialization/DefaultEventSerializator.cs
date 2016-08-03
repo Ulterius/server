@@ -32,6 +32,7 @@ namespace UlteriusServer.TerminalServer.Messaging.Serialization
                 jsonString = Encoding.UTF8.GetString(utfJson);
                 if (user.AesShook)
                 {
+              
                     var keybytes = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(user.AesKey));
                     var iv = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(user.AesIv));
                     var encrpytedJson = UlteriusAes.Encrypt(jsonString, keybytes, iv);
