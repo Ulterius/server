@@ -30,12 +30,14 @@ namespace UlteriusServer.TerminalServer.Messaging.Serialization
                 var jsonString = json.ToString();
                 if (user.AesShook)
                 {
+
                     var keybytes = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(user.AesKey));
                     var iv = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(user.AesIv));
                     //convert packet json into base64
                     var encrpytedJson = UlteriusAes.Encrypt(jsonString, keybytes, iv);
-                    using (var writer = new StreamWriter(output, Encoding.UTF8, 4096, true))
+                    using (var writer = new BinaryWriter(output, Encoding.UTF8, true))
                     {
+                        Console.WriteLine("Writing Encrypted Terminal Message");
                         writer.Write(encrpytedJson);
                     }
                 }
@@ -44,6 +46,7 @@ namespace UlteriusServer.TerminalServer.Messaging.Serialization
                     using (var writer = new StreamWriter(output, Encoding.UTF8, 4096, true))
                     using (var jwriter = new JsonTextWriter(writer))
                     {
+                        Console.WriteLine("Writing UnEncrypted Terminal Message");
                         json.WriteTo(jwriter);
                     }
                 }
