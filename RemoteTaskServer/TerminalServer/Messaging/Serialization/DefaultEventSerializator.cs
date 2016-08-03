@@ -28,12 +28,13 @@ namespace UlteriusServer.TerminalServer.Messaging.Serialization
                 json.Add("type", new JValue(eventObject.GetType().Name));
                 json.Remove("connectionId");
                 var jsonString = json.ToString();
+                byte[] utfJson = Encoding.Default.GetBytes(jsonString);
+                jsonString = Encoding.UTF8.GetString(utfJson);
                 if (user.AesShook)
                 {
 
                     var keybytes = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(user.AesKey));
                     var iv = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(user.AesIv));
-                    //convert packet json into base64
                     var encrpytedJson = UlteriusAes.Encrypt(jsonString, keybytes, iv);
                     using (var writer = new BinaryWriter(output, Encoding.UTF8, true))
                     {
@@ -63,6 +64,7 @@ namespace UlteriusServer.TerminalServer.Messaging.Serialization
                 var data = ReadFully(source);
                 if (data != null && data.Length > 0)
                 {
+                  
                     if (user.AesShook)
                     {
                         try
