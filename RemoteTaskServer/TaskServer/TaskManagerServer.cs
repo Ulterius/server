@@ -23,15 +23,15 @@ namespace UlteriusServer.TaskServer
     {
         public static ConcurrentDictionary<string, AuthClient> AllClients { get; set; }
         public static Network.Messages.MessageQueueManager MessageQueueManager = new Network.Messages.MessageQueueManager();
-        public static ScreenShare ScreenShare { get; set; }
+        public static ScreenShareService ScreenShareService { get; set; }
             
         public static void Start()
         {
             AllClients = new ConcurrentDictionary<string, AuthClient>();
-            ScreenShare = new ScreenShare();
+            ScreenShareService = new ScreenShareService();
             var port = (int) Settings.Get("TaskServer").TaskServerPort;
             var cancellation = new CancellationTokenSource();
-            var endpoint = new IPEndPoint(NetworkUtilities.GetAddress(), port);
+            var endpoint = new IPEndPoint(NetworkService.GetAddress(), port);
             var server = new WebSocketEventListener(endpoint, new WebSocketListenerOptions
             {
                 PingTimeout = TimeSpan.FromSeconds(15),

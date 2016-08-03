@@ -22,10 +22,10 @@ namespace UlteriusServer.TaskServer.Network.PacketHandlers
         {
             if (string.IsNullOrEmpty(NetworkInformation.PublicIp))
             {
-                NetworkInformation.PublicIp = NetworkUtilities.GetPublicIp();
-                NetworkInformation.NetworkComputers = NetworkUtilities.ConnectedDevices();
-                NetworkInformation.MacAddress = NetworkUtilities.GetMacAddress().ToString();
-                NetworkInformation.InternalIp = NetworkUtilities.GetIpAddress().ToString();
+                NetworkInformation.PublicIp = NetworkService.GetPublicIp();
+                NetworkInformation.NetworkComputers = NetworkService.ConnectedDevices();
+                NetworkInformation.MacAddress = NetworkService.GetMacAddress().ToString();
+                NetworkInformation.InternalIp = NetworkService.GetIpAddress().ToString();
             }
             _builder.WriteMessage(NetworkInformation.ToObject());
         }

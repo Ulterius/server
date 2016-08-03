@@ -176,7 +176,7 @@ namespace UlteriusServer.Utilities
                     "LoadPlugins", true
                 }
             };
-            Settings.Get()["ScreenShare"] = new Settings.Header
+            Settings.Get()["ScreenShareService"] = new Settings.Header
             {
                 {
                     "ScreenSharePass", string.Empty
@@ -215,7 +215,7 @@ namespace UlteriusServer.Utilities
                 OpenPort(22006, "Ulterius Web Server");
                 OpenPort(22007, "Ulterius Task Server");
                 OpenPort(22008, "Ulterius Terminal Server");
-                OpenPort(22009, "Ulterius ScreenShare");
+                OpenPort(22009, "Ulterius ScreenShareService");
                 GenerateSettings();
             }
         }

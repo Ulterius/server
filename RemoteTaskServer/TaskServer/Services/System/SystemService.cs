@@ -20,7 +20,7 @@ using Computer = OpenHardwareMonitor.Hardware.Computer;
 
 namespace UlteriusServer.TaskServer.Services.System
 {
-    internal class SystemUtilities
+    internal class SystemService
     {
         private string _biosCaption;
         private string _biosManufacturer;

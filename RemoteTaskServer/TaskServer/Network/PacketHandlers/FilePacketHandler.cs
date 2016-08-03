@@ -293,7 +293,7 @@ namespace UlteriusServer.TaskServer.Network.PacketHandlers
 
             var fileName = Path.GetFileName(path);
 
-            var ip = NetworkUtilities.GetIPv4Address();
+            var ip = NetworkService.GetIPv4Address();
             var port = (int)Settings.Get("WebServer").WebServerPort;
             var data = File.ReadAllBytes(path);
 

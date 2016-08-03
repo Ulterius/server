@@ -9,7 +9,6 @@ using Newtonsoft.Json.Serialization;
 using UlteriusServer.TerminalServer.Messaging.Connection;
 using UlteriusServer.TerminalServer.Messaging.TerminalControl.Requests;
 using UlteriusServer.TerminalServer.Session;
-using UlteriusServer.Utilities.Extensions;
 using UlteriusServer.Utilities.Security;
 
 #endregion
@@ -20,8 +19,6 @@ namespace UlteriusServer.TerminalServer.Messaging.Serialization
     {
         public void Serialize(Guid connectionId, IConnectionEvent eventObject, Stream output)
         {
-
-
             var serializer = new JsonSerializer {ContractResolver = new CamelCasePropertyNamesContractResolver()};
             UserConnection user;
             ConnectionManager._connections.TryGetValue(connectionId, out user);
@@ -36,7 +33,7 @@ namespace UlteriusServer.TerminalServer.Messaging.Serialization
                     var keybytes = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(user.AesKey));
                     var iv = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(user.AesIv));
                     //convert packet json into base64
-                    var encrpytedJson = Convert.ToBase64String(UlteriusAes.Encrypt(jsonString, keybytes, iv));
+                    var encrpytedJson = UlteriusAes.Encrypt(jsonString, keybytes, iv);
                     using (var writer = new StreamWriter(output, Encoding.UTF8, 4096, true))
                     {
                         writer.Write(encrpytedJson);
@@ -51,7 +48,6 @@ namespace UlteriusServer.TerminalServer.Messaging.Serialization
                     }
                 }
             }
-        
         }
 
         public IConnectionRequest Deserialize(Guid connectionId, Stream source, out Type type)
@@ -61,18 +57,17 @@ namespace UlteriusServer.TerminalServer.Messaging.Serialization
             ConnectionManager._connections.TryGetValue(connectionId, out user);
             if (user != null)
             {
-                using (var reader = new StreamReader(source, Encoding.UTF8))
+                var data = ReadFully(source);
+                if (data != null && data.Length > 0)
                 {
-                    var data = reader.ReadToEnd();
-                    if (data.IsBase64String())
+                    if (user.AesShook)
                     {
                         try
                         {
-
                             var keybytes = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(user.AesKey));
                             var iv = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(user.AesIv));
-                            var packet = Convert.FromBase64String(data);
-                            var packetJson = JObject.Parse(UlteriusAes.Decrypt(packet, keybytes, iv));
+
+                            var packetJson = JObject.Parse(UlteriusAes.Decrypt(data, keybytes, iv));
                             typeName = packetJson.Property("type").Value.ToString();
                             return Build(typeName, packetJson, out type, user);
                         }
@@ -83,16 +78,26 @@ namespace UlteriusServer.TerminalServer.Messaging.Serialization
                             return Build("error", null, out type);
                         }
                     }
-                    if (user.AesShook)
-                    {
-                        return Build("alreadyshook", null, out type);
-                    }
-                    var json = JObject.Parse(data);
+                    var json = JObject.Parse(Encoding.UTF8.GetString(data));
                     typeName = json.Property("type").Value.ToString();
                     return Build(typeName, json, out type, user);
                 }
             }
             return Build("error", null, out type);
+        }
+
+        private byte[] ReadFully(Stream input)
+        {
+            var buffer = new byte[16*1024];
+            using (var ms = new MemoryStream())
+            {
+                int read;
+                while ((read = input.Read(buffer, 0, buffer.Length)) > 0)
+                {
+                    ms.Write(buffer, 0, read);
+                }
+                return ms.ToArray();
+            }
         }
 
         private IConnectionRequest Build(string typeName, JObject json, out Type type, UserConnection user = null)
@@ -164,7 +169,7 @@ namespace UlteriusServer.TerminalServer.Messaging.Serialization
                     };
             }
             type = null;
-           Console.WriteLine("There is no suitable deserialization for this object");
+            Console.WriteLine("There is no suitable deserialization for this object");
             return null;
         }
     }

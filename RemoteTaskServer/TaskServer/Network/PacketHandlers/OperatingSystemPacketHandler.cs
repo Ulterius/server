@@ -21,7 +21,7 @@ namespace UlteriusServer.TaskServer.Network.PacketHandlers
 
         public void GetEventLogs()
         {
-            _builder.WriteMessage(SystemUtilities.GetEventLogs());
+            _builder.WriteMessage(SystemService.GetEventLogs());
             GC.Collect();
         }
 

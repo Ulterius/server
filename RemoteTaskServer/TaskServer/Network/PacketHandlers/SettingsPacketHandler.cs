@@ -47,9 +47,9 @@ namespace UlteriusServer.TaskServer.Network.PacketHandlers
         public void ChangeScreenSharePass()
         {
             var pass = _packet.Args[0].ToString();
-            Settings.Get("ScreenShare").ScreenSharePass = pass;
+            Settings.Get("ScreenShareService").ScreenSharePass = pass;
             Settings.Save();
-            var currentPass = (string) Settings.Get("ScreenShare").ScreenSharePass;
+            var currentPass = (string) Settings.Get("ScreenShareService").ScreenSharePass;
             var data = new
             {
                 changedStatus = true,
@@ -61,9 +61,9 @@ namespace UlteriusServer.TaskServer.Network.PacketHandlers
         public void ChangeScreenSharePort()
         {
             var port = int.Parse(_packet.Args[0].ToString());
-            Settings.Get("ScreenShare").ScreenSharePort = port;
+            Settings.Get("ScreenShareService").ScreenSharePort = port;
             Settings.Save();
-            var currentPort = (int) Settings.Get("ScreenShare").ScreenSharePort;
+            var currentPort = (int) Settings.Get("ScreenShareService").ScreenSharePort;
             var data = new
             {
                 changedStatus = true,

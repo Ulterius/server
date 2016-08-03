@@ -4,6 +4,7 @@ using System;
 using System.Diagnostics;
 using System.DirectoryServices.AccountManagement;
 using System.Reflection;
+using System.Threading.Tasks;
 using System.Xml;
 using UlteriusServer.TaskServer.Network.Messages;
 using UlteriusServer.Utilities;
@@ -65,14 +66,18 @@ namespace UlteriusServer.TaskServer.Network.PacketHandlers
             return Environment.UserName;
         }
 
+      
+
         public void Login()
         {
             var password = _packet.Args[0].ToString();
             bool authenticated;
+            //first trying using local machine
             using (var context = new PrincipalContext(ContextType.Machine))
             {
                 authenticated = context.ValidateCredentials(GetUsername(), password);
             }
+          
             var authKey = _authClient.Client.GetHashCode().ToString();
             AuthClient authClient;
             TaskManagerServer.AllClients.TryGetValue(authKey, out authClient);

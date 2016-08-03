@@ -9,26 +9,26 @@ using UlteriusServer.Utilities;
 
 namespace UlteriusServer.TaskServer
 {
-    public class ScreenShare
+    public class ScreenShareService
     {
         private readonly ScreenShareServer _server;
         //temp let people set this
         private readonly string _serverName = "Ulterius Screen Share";
 
-        public ScreenShare()
+        public ScreenShareService()
         {
            SecureString screenSharePass;
-            var screenSharePort = (int) Settings.Get("ScreenShare").ScreenSharePort;
+            var screenSharePort = (int) Settings.Get("ScreenShareService").ScreenSharePort;
             try
             {
-                 screenSharePass = ToSecureString(Settings.Get("ScreenShare").ScreenSharePass.ToString());
+                 screenSharePass = ToSecureString(Settings.Get("ScreenShareService").ScreenSharePass.ToString());
             }
             catch (System.Exception)
             {
 
                 screenSharePass = ToSecureString(string.Empty);
             }
-            _server = new ScreenShareServer(_serverName, screenSharePass, NetworkUtilities.GetAddress(), screenSharePort);
+            _server = new ScreenShareServer(_serverName, screenSharePass, NetworkService.GetAddress(), screenSharePort);
         }
 
         public string GetServerName()

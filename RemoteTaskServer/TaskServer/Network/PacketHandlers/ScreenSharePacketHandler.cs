@@ -9,7 +9,7 @@ namespace UlteriusServer.TaskServer.Network.PacketHandlers
 {
     internal class ScreenSharePacketHandler : PacketHandler
     {
-        private readonly ScreenShare _share = TaskManagerServer.ScreenShare;
+        private readonly ScreenShareService _shareService = TaskManagerServer.ScreenShareService;
         private MessageBuilder _builder;
         private AuthClient _client;
         private Packet _packet;
@@ -17,12 +17,12 @@ namespace UlteriusServer.TaskServer.Network.PacketHandlers
 
         public void StopScreenShare()
         {
-            if (_share.Stop())
+            if (_shareService.Stop())
             {
                 var endData = new
                 {
                     stopped = true,
-                    shareName = _share.GetServerName(),
+                    shareName = _shareService.GetServerName(),
                     message = "Screenshare Stopped"
                 };
                 _builder.WriteMessage(endData);
@@ -32,7 +32,7 @@ namespace UlteriusServer.TaskServer.Network.PacketHandlers
                 var endData = new
                 {
                     stopped = false,
-                    shareName = _share.GetServerName(),
+                    shareName = _shareService.GetServerName(),
                     message = "Screenshare Not Stopped"
                 };
                 _builder.WriteMessage(endData);
@@ -41,35 +41,35 @@ namespace UlteriusServer.TaskServer.Network.PacketHandlers
 
         public void CheckServer()
         {
-            var serverAvailable = _share.ServerAvailable();
+            var serverAvailable = _shareService.ServerAvailable();
             var endData = new
             {
                 serverAvailable,
-                shareName = _share.GetServerName()
+                shareName = _shareService.GetServerName()
             };
             _builder.WriteMessage(endData);
         }
 
         public void StartScreenShare()
         {
-            if (!_share.ServerAvailable())
+            if (!_shareService.ServerAvailable())
             {
                 var endData = new
                 {
                     started = false,
-                    shareName = _share.GetServerName(),
+                    shareName = _shareService.GetServerName(),
                     message = "Server already running"
                 };
                 _builder.WriteMessage(endData);
                 return;
             }
 
-            if (_share.Start())
+            if (_shareService.Start())
             {
                 var endData = new
                 {
                     started = true,
-                    shareName = _share.GetServerName(),
+                    shareName = _shareService.GetServerName(),
                     message = "Screenshare Started"
                 };
                 _builder.WriteMessage(endData);
@@ -79,7 +79,7 @@ namespace UlteriusServer.TaskServer.Network.PacketHandlers
                 var endData = new
                 {
                     started = false,
-                    shareName = _share.GetServerName(),
+                    shareName = _shareService.GetServerName(),
                     message = "Screenshare Not Started"
                 };
                 _builder.WriteMessage(endData);
