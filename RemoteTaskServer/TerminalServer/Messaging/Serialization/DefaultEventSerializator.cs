@@ -28,11 +28,10 @@ namespace UlteriusServer.TerminalServer.Messaging.Serialization
                 json.Add("type", new JValue(eventObject.GetType().Name));
                 json.Remove("connectionId");
                 var jsonString = json.ToString();
-                byte[] utfJson = Encoding.Default.GetBytes(jsonString);
+                var utfJson = Encoding.Default.GetBytes(jsonString);
                 jsonString = Encoding.UTF8.GetString(utfJson);
                 if (user.AesShook)
                 {
-
                     var keybytes = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(user.AesKey));
                     var iv = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(user.AesIv));
                     var encrpytedJson = UlteriusAes.Encrypt(jsonString, keybytes, iv);
@@ -45,10 +44,8 @@ namespace UlteriusServer.TerminalServer.Messaging.Serialization
                 else
                 {
                     using (var writer = new StreamWriter(output, Encoding.UTF8, 4096, true))
-                    using (var jwriter = new JsonTextWriter(writer))
                     {
-                        Console.WriteLine("Writing UnEncrypted Terminal Message");
-                        json.WriteTo(jwriter);
+                        writer.Write(jsonString);
                     }
                 }
             }
@@ -64,7 +61,6 @@ namespace UlteriusServer.TerminalServer.Messaging.Serialization
                 var data = ReadFully(source);
                 if (data != null && data.Length > 0)
                 {
-                  
                     if (user.AesShook)
                     {
                         try
