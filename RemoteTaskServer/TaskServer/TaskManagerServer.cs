@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Concurrent;
+using System.IO;
 using System.Net;
 using System.Threading;
 using System.Web.Script.Serialization;
@@ -9,6 +10,7 @@ using System.Web.Script.Serialization;
 using UlteriusServer.Forms.Utilities;
 using UlteriusServer.TaskServer.Network;
 using UlteriusServer.TaskServer.Services.Network;
+using UlteriusServer.TaskServer.Services.System;
 using UlteriusServer.Utilities;
 using UlteriusServer.Utilities.Security;
 using UlteriusServer.WebSocketAPI;
@@ -24,14 +26,18 @@ namespace UlteriusServer.TaskServer
         public static ConcurrentDictionary<string, AuthClient> AllClients { get; set; }
         public static Network.Messages.MessageQueueManager MessageQueueManager = new Network.Messages.MessageQueueManager();
         public static ScreenShareService ScreenShareService { get; set; }
-            
+        public static FileSearchService FileSearchService { get; set; }
+
         public static void Start()
         {
             AllClients = new ConcurrentDictionary<string, AuthClient>();
             ScreenShareService = new ScreenShareService();
+            FileSearchService = new FileSearchService(Path.Combine(AppEnvironment.DataPath, "fileindex.bin"));
+           FileSearchService.Start();
             var port = (int) Settings.Get("TaskServer").TaskServerPort;
             var cancellation = new CancellationTokenSource();
-            var endpoint = new IPEndPoint(NetworkService.GetAddress(), port);
+            var address = NetworkService.GetAddress();
+            var endpoint = new IPEndPoint(address, port);
             var server = new WebSocketEventListener(endpoint, new WebSocketListenerOptions
             {
                 PingTimeout = TimeSpan.FromSeconds(15),
@@ -49,7 +55,7 @@ namespace UlteriusServer.TaskServer
             server.OnEncryptedMessage += HandleEncryptedMessage;
             server.OnError += HandleError;
             server.Start();
-            Log("Task Server started at " + endpoint);
+            Log("Task Server started at " + address);
         }
 
         private static void HandleEncryptedMessage(WebSocket websocket, byte[] message)

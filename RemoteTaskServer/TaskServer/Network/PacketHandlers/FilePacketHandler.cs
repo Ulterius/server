@@ -47,10 +47,10 @@ namespace UlteriusServer.TaskServer.Network.PacketHandlers
             _builder.WriteMessage(tree);
         }
 
-        public IEnumerable<string> Search(string keyWord)
+     /*   public IEnumerable<string> Search(string keyWord)
         {
             return Search(keyWord, 0, int.MaxValue);
-        }
+        }*/
 
         public long DirSize(DirectoryInfo d)
         {
@@ -63,7 +63,7 @@ namespace UlteriusServer.TaskServer.Network.PacketHandlers
             return size;
         }
 
-        public void EverythingReset()
+      /*  public void EverythingReset()
         {
             Everything_Reset();
         }
@@ -111,11 +111,16 @@ namespace UlteriusServer.TaskServer.Network.PacketHandlers
                 Everything_GetResultFullPathName(idx, buffer, bufferSize);
                 yield return buffer.ToString();
             }
+        }*/
+
+        private List<string> Search(string keyword)
+        {
+            return TaskManagerServer.FileSearchService.Search(keyword);
         }
 
         public void SearchFile()
         {
-            try
+            /*try
             {
                 ConfigureSearch();
             }
@@ -128,10 +133,10 @@ namespace UlteriusServer.TaskServer.Network.PacketHandlers
                 };
                 _builder.WriteMessage(error);
                 return;
-            }
+            }*/
             try
             {
-                if (Process.GetProcessesByName("Everything").Length > 0)
+                if (!TaskManagerServer.FileSearchService.IsScanning())
                 {
                     var query = _packet.Args[0].ToString();
                     Console.WriteLine(query);
@@ -139,10 +144,10 @@ namespace UlteriusServer.TaskServer.Network.PacketHandlers
 
                     var searchResults = Search(query);
                     var totalResults = searchResults.Count();
+                    Console.WriteLine(totalResults);
 
                     stopwatch.Stop();
                     var searchGenerationTime = stopwatch.ElapsedMilliseconds;
-                    Console.WriteLine(searchGenerationTime);
                     var data = new
                     {
                         success = true,
@@ -157,7 +162,7 @@ namespace UlteriusServer.TaskServer.Network.PacketHandlers
                     var error = new
                     {
                         success = false,
-                        message = "Everything is not running."
+                        message = $"File index is currently scanning drive: {TaskManagerServer.FileSearchService.CurrentScanDrive()}" 
                     };
                     _builder.WriteMessage(error);
                 }

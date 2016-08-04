@@ -4,6 +4,7 @@
     <ExcludeAssemblies>
       UlteriusPluginBase
       UlteriusScreenShare
+      UlteriusFileSearch
     </ExcludeAssemblies>
   </Costura>
 

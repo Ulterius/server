@@ -44,7 +44,7 @@ namespace UlteriusServer.TerminalServer
             try
             {
                 server.StartAsync();
-                Console.WriteLine("Terminal Server bound to " + NetworkService.GetIPv4Address() + ":" + 22008);
+                Console.WriteLine("Terminal Server bound to " + NetworkService.GetAddress() + ":" + 22008);
             }
             catch (Exception ex)
             {
