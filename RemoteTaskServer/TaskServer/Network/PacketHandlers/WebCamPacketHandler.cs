@@ -155,6 +155,9 @@ namespace UlteriusServer.TaskServer.Network.PacketHandlers
                     streamThread.Status == TaskStatus.Running)
                 {
                     streamThread.Dispose();
+                    WebCamManager.Frames.Clear();
+
+
                     if (_client.Client.IsConnected)
                     {
                         var data = new
@@ -184,35 +187,38 @@ namespace UlteriusServer.TaskServer.Network.PacketHandlers
 
         public void GetWebCamFrame(string cameraId)
         {
-            while (_client.Client.IsConnected)
-            {
-                try
-                {
-                    var camera = WebCamManager.Cameras[cameraId];
-                    if (camera != null && camera.IsRunning)
-                    {
-                        var imageBytes = WebCamManager.Frames[cameraId];
-                        if (imageBytes.Length > 0)
-                        {
-                            using (var memoryStream = new MemoryStream())
-                            {
-                                using (var binaryWriter = new BinaryWriter(memoryStream))
-                                {
-                                    var compressed = ZlibStream.CompressBuffer(imageBytes);
-                                    binaryWriter.Write(compressed);
-                                }
+            var camera = WebCamManager.Cameras[cameraId];
 
-                                var cameraData = new
-                                {
-                                    cameraId,
-                                    cameraData = memoryStream.ToArray()
-                                };
-                                _builder.Endpoint = "cameraframe";
-                                _builder.WriteMessage(cameraData);
+            while (_client.Client.IsConnected && camera != null && camera.IsRunning)
+            {
+                Console.WriteLine("test");
+                try
+
+                {
+                    var imageBytes = WebCamManager.Frames[cameraId];
+                    if (imageBytes.Length > 0)
+                    {
+
+                        using (var memoryStream = new MemoryStream())
+                        {
+                            using (var binaryWriter = new BinaryWriter(memoryStream))
+                            {
+                                var compressed = ZlibStream.CompressBuffer(imageBytes);
+                                binaryWriter.Write(compressed);
                             }
+
+                            var cameraData = new
+                            {
+                                cameraId,
+                                cameraData = memoryStream.ToArray()
+                            };
+                            _builder.Endpoint = "cameraframe";
+                            _builder.WriteMessage(cameraData);
+                            Thread.Sleep(1200);
                         }
                     }
                 }
+
                 catch (Exception e)
                 {
                     var data = new
