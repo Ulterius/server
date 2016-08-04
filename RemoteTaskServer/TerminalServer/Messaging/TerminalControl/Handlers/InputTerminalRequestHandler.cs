@@ -44,10 +44,10 @@ namespace UlteriusServer.TerminalServer.Messaging.TerminalControl.Handlers
             }
             else if (!connection.IsAuthed && connection.TryingAuth)
             {
-                cli.Output("Logging in please wait...", 1, false, false);
+                cli.Output("Logging in please wait...", message.CorrelationId, false, false);
                 var authed = Login(message.Input);
                 cli.Output(authed ? "Login was successfull" : "Login was unsuccessful, enter your password",
-                    Convert.ToInt32(authed), authed, authed == false);
+                    message.CorrelationId, authed, authed == false);
                 connection.IsAuthed = authed;
             }
             else if (!connection.IsAuthed)
