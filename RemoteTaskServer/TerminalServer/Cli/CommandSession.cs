@@ -69,10 +69,7 @@ namespace UlteriusServer.TerminalServer.Cli
             Task.Run(ReadErrorAsync);
         }
 
-        public string Type
-        {
-            get { return TypeName; }
-        }
+        public string Type => TypeName;
 
         public string CurrentPath { get; private set; }
         public Action<string, int, bool, bool> Output { get; set; }
@@ -135,6 +132,7 @@ namespace UlteriusServer.TerminalServer.Cli
                 {
                     var line = await _proc.StandardOutput.ReadLineAsync().ConfigureAwait(false);
                     if (line != null)
+                        Console.WriteLine(line);
                         Push(line);
                 }
                 catch (TaskCanceledException)
