@@ -38,7 +38,6 @@ namespace UlteriusServer.TerminalServer.Messaging.Serialization
                     var encrpytedJson = UlteriusAes.Encrypt(jsonString, keybytes, iv);
                     using (var writer = new BinaryWriter(output, Encoding.UTF8, true))
                     {
-                        Console.WriteLine("Writing Encrypted Terminal Message");
                         writer.Write(encrpytedJson);
                     }
                 }
@@ -75,7 +74,7 @@ namespace UlteriusServer.TerminalServer.Messaging.Serialization
                         }
                         catch (Exception exception)
                         {
-                            Console.WriteLine("Error deserial");
+                     
                             Console.WriteLine(exception.Message);
                             return Build("error", null, out type);
                         }
@@ -104,7 +103,7 @@ namespace UlteriusServer.TerminalServer.Messaging.Serialization
 
         private IConnectionRequest Build(string typeName, JObject json, out Type type, UserConnection user = null)
         {
-            Console.WriteLine(typeName);
+
             switch (typeName)
             {
                 case "CreateTerminalRequest":
@@ -133,7 +132,7 @@ namespace UlteriusServer.TerminalServer.Messaging.Serialization
                             user.AesKey = Rsa.Decryption(privateKey, encryptedKey);
                             user.AesIv = Rsa.Decryption(privateKey, encryptedIv);
                             user.AesShook = true;
-                            Console.WriteLine("goood");
+
                             return new AesHandshakeRequest
                             {
                                 AesShook = user.AesShook
@@ -141,14 +140,14 @@ namespace UlteriusServer.TerminalServer.Messaging.Serialization
                         }
                         catch (Exception)
                         {
-                            Console.WriteLine("bad");
+                     
                             return new AesHandshakeRequest
                             {
                                 AesShook = false
                             };
                         }
                     }
-                    Console.WriteLine("wgs");
+                  
                     return new AesHandshakeRequest
                     {
                         AesShook = false
@@ -171,7 +170,7 @@ namespace UlteriusServer.TerminalServer.Messaging.Serialization
                     };
             }
             type = null;
-            Console.WriteLine("There is no suitable deserialization for this object");
+
             return null;
         }
     }

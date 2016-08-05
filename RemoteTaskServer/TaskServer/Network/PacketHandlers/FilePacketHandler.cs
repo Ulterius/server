@@ -115,6 +115,7 @@ namespace UlteriusServer.TaskServer.Network.PacketHandlers
 
         private List<string> Search(string keyword)
         {
+            Console.WriteLine(keyword);
             return TaskManagerServer.FileSearchService.Search(keyword);
         }
 
@@ -138,14 +139,15 @@ namespace UlteriusServer.TaskServer.Network.PacketHandlers
             {
                 if (!TaskManagerServer.FileSearchService.IsScanning())
                 {
+
                     var query = _packet.Args[0].ToString();
-                    Console.WriteLine(query);
+              
                     var stopwatch = Stopwatch.StartNew();
 
                     var searchResults = Search(query);
                     var totalResults = searchResults.Count();
-                    Console.WriteLine(totalResults);
-
+                    
+                  
                     stopwatch.Stop();
                     var searchGenerationTime = stopwatch.ElapsedMilliseconds;
                     var data = new
@@ -159,6 +161,7 @@ namespace UlteriusServer.TaskServer.Network.PacketHandlers
                 }
                 else
                 {
+                    Console.WriteLine("Scan running");
                     var error = new
                     {
                         success = false,
@@ -427,102 +430,6 @@ namespace UlteriusServer.TaskServer.Network.PacketHandlers
             InvalidCallError
         }
 
-        #region everything
-
-        [DllImport("Everything.dll", CharSet = CharSet.Unicode)]
-        public static extern int Everything_SetSearchW(string lpSearchString);
-
-        [DllImport("Everything.dll")]
-        private static extern int Everything_SetSearch(string lpSearchString);
-
-        [DllImport("Everything.dll")]
-        public static extern void Everything_SetMatchPath(bool bEnable);
-
-        [DllImport("Everything.dll")]
-        public static extern void Everything_SetMatchCase(bool bEnable);
-
-        [DllImport("Everything.dll")]
-        public static extern void Everything_SetMatchWholeWord(bool bEnable);
-
-        [DllImport("Everything.dll")]
-        public static extern void Everything_SetRegex(bool bEnable);
-
-        [DllImport("Everything.dll")]
-        public static extern void Everything_SetMax(int dwMax);
-
-        [DllImport("Everything.dll")]
-        public static extern void Everything_SetOffset(int dwOffset);
-
-        [DllImport("Everything.dll")]
-        public static extern bool Everything_GetMatchPath();
-
-        [DllImport("Everything.dll")]
-        public static extern bool Everything_GetMatchCase();
-
-        [DllImport("Everything.dll")]
-        public static extern bool Everything_GetMatchWholeWord();
-
-        [DllImport("Everything.dll")]
-        public static extern bool Everything_GetRegex();
-
-        [DllImport("Everything32.dll")]
-        public static extern uint Everything_GetMax();
-
-        [DllImport("Everything.dll")]
-        public static extern uint Everything_GetOffset();
-
-        [DllImport("Everything.dll")]
-        public static extern string Everything_GetSearchW();
-
-
-        [DllImport("Everything.dll")]
-        public static extern bool Everything_QueryW(bool bWait);
-
-        [DllImport("Everything.dll")]
-        public static extern void Everything_SortResultsByPath();
-
-        [DllImport("Everything.dll")]
-        public static extern int Everything_GetNumFileResults();
-
-        [DllImport("Everything.dll")]
-        public static extern int Everything_GetNumFolderResults();
-
-        [DllImport("Everything.dll")]
-        public static extern int Everything_GetNumResults();
-
-        [DllImport("Everything.dll")]
-        public static extern int Everything_GetTotFileResults();
-
-        [DllImport("Everything.dll")]
-        public static extern int Everything_GetTotFolderResults();
-
-        [DllImport("Everything.dll")]
-        public static extern int Everything_GetTotResults();
-
-        [DllImport("Everything.dll")]
-        private static extern void Everything_GetResultFullPathName(int nIndex, StringBuilder lpString, int nMaxCount);
-
-        [DllImport("Everything.dll")]
-        public static extern bool Everything_IsVolumeResult(int nIndex);
-
-        [DllImport("Everything.dll")]
-        public static extern bool Everything_IsFolderResult(int nIndex);
-
-        [DllImport("Everything.dll")]
-        public static extern bool Everything_IsFileResult(int nIndex);
-
-        [DllImport("Everything.dll", CharSet = CharSet.Unicode)]
-        public static extern void Everything_GetResultFullPathNameW(int nIndex, StringBuilder lpString, int nMaxCount);
-
-        [DllImport("Everything.dll")]
-        public static extern void Everything_Reset();
-
-        [DllImport("Everything.dll")]
-        private static extern bool Everything_Query();
-
-        [DllImport("Everything.dll")]
-        private static extern StateCode Everything_GetLastError();
-
-        #endregion
+      
     }
 }
