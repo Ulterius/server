@@ -132,8 +132,9 @@ namespace UlteriusServer.TerminalServer.Cli
                 {
                     var line = await _proc.StandardOutput.ReadLineAsync().ConfigureAwait(false);
                     if (line != null)
-                        Console.WriteLine(line);
+                       Console.WriteLine(line);
                         Push(line);
+                    Thread.Sleep(100);
                 }
                 catch (TaskCanceledException)
                 {
