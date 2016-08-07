@@ -22,7 +22,7 @@ Ulterius currently (kinda) supports the plugins, data cannot be returned and the
 
 Development
 ----
-Visual Studio 2015 is required to build the server.
+Visual Studio 2015 is required to build the server. Alternatively you can use MSBUILD and the Windows SDK.
 
 ToDo
 ----
