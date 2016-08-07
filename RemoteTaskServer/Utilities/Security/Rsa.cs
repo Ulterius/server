@@ -1,4 +1,6 @@
-﻿using System;
+﻿#region
+
+using System;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Security;
@@ -11,6 +13,8 @@ using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.Crypto.Prng;
 using Org.BouncyCastle.OpenSsl;
 using Org.BouncyCastle.Security;
+
+#endregion
 
 namespace UlteriusServer.Utilities.Security
 {

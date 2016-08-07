@@ -1,28 +1,28 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿#region
+
 using System.Web.Script.Serialization;
 using UlteriusPluginBase;
+
+#endregion
 
 namespace UlteriusServer.Plugins
 {
     public class PluginHost
     {
-        public string Guid;
-        public string Title;
-        public string Description;
         public string Company;
-        public string Product;
         public string Copyright;
-        public string Trademark;
+        public string Description;
         public string FileVersion;
-        public string Website;
+        public string Guid;
         public string Icon;
+
+        [ScriptIgnore] public IUlteriusPlugin Instance;
+
         public string JavaScript;
+        public string Product;
         public bool RequiresSetup;
-        [ScriptIgnore]
-        public IUlteriusPlugin Instance;
+        public string Title;
+        public string Trademark;
+        public string Website;
     }
 }

@@ -1,11 +1,16 @@
-﻿using System;
+﻿#region
+
+using System;
 using System.Diagnostics;
-using System.Drawing;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using RemoteTaskServer.WebServer;
+using UlteriusServer.Api.Services.Network;
 using UlteriusServer.Properties;
-using UlteriusServer.TaskServer.Services.Network;
+using UlteriusServer.Utilities;
+
+#endregion
 
 namespace UlteriusServer.Forms.Utilities
 {
@@ -19,10 +24,10 @@ namespace UlteriusServer.Forms.Utilities
         public static MenuItem RestartProgram;
         public static NotifyIcon NotificationIcon;
 
-      
+
         private static void OpenLogsEvent(object sender, EventArgs e)
         {
-            Process.Start("log.txt");
+            Process.Start(Path.Combine(AppEnvironment.DataPath, "server.log"));
         }
 
         private static void RestartEvent(object sender, EventArgs e)
@@ -33,7 +38,7 @@ namespace UlteriusServer.Forms.Utilities
 
         private static void OpenSettingsEvent(object sender, EventArgs e)
         {
-            Process.Start("UlteriusServer.ini");
+            Process.Start(Settings.FilePath);
         }
 
         private static void OpenClientEvent(object sender, EventArgs e)
@@ -50,16 +55,10 @@ namespace UlteriusServer.Forms.Utilities
 
         public static void ShowMessage(string message, string title = "")
         {
-            var notification = new NotifyIcon
-            {
-                Visible = true,
-                Icon = SystemIcons.Information,
-                BalloonTipIcon = ToolTipIcon.Info,
-                BalloonTipTitle = title,
-                BalloonTipText = message
-            };
-            notification.ShowBalloonTip(5000);
-            notification.Dispose();
+            if (NotificationIcon == null) return;
+            NotificationIcon.BalloonTipText = message;
+            NotificationIcon.BalloonTipTitle = title;
+            NotificationIcon.ShowBalloonTip(5000);
             RefreshTrayArea();
         }
 
@@ -69,9 +68,9 @@ namespace UlteriusServer.Forms.Utilities
             Menu = new ContextMenu();
             RestartProgram = new MenuItem("Restart Server");
             ExitProgram = new MenuItem("Exit");
-            OpenClient = new MenuItem("OpenPort AuthClient");
-            OpenLogs = new MenuItem("OpenPort Logs");
-            OpenSettings = new MenuItem("OpenPort Settings");
+            OpenClient = new MenuItem("Open Client");
+            OpenLogs = new MenuItem("Open Logs");
+            OpenSettings = new MenuItem("Open Settings");
             Menu.MenuItems.Add(0, ExitProgram);
             Menu.MenuItems.Add(1, RestartProgram);
             Menu.MenuItems.Add(2, OpenClient);
@@ -80,9 +79,9 @@ namespace UlteriusServer.Forms.Utilities
 
             NotificationIcon = new NotifyIcon
             {
-                Icon = Resources.icon,
+                Icon = Resources.ApplicationIcon,
                 BalloonTipIcon = ToolTipIcon.Info,
-                BalloonTipText = "Ulterius Server Started ",
+                BalloonTipText = "Ulterius Server Started",
                 ContextMenu = Menu,
                 Text = "Main"
             };

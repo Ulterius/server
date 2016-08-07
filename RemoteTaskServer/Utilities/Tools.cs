@@ -2,12 +2,15 @@
 
 using System;
 using System.Diagnostics;
+using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Net.NetworkInformation;
 using System.Reflection;
 using System.Security.Principal;
 using System.Threading;
 using System.Web;
+
 using NetFwTypeLib;
 using RemoteTaskServer.WebServer;
 using static System.Security.Principal.WindowsIdentity;
@@ -98,7 +101,7 @@ namespace UlteriusServer.Utilities
             }
         }
 
-  
+
         public static void GenerateSettings()
         {
             //web server settings
@@ -204,6 +207,7 @@ namespace UlteriusServer.Utilities
 
         public static void ConfigureServer()
         {
+           
             if (Settings.Empty)
             {
                 //setup listen sh
@@ -218,6 +222,24 @@ namespace UlteriusServer.Utilities
                 OpenPort(22009, "Ulterius ScreenShareService");
                 GenerateSettings();
             }
+            if (File.Exists("client.zip"))
+            {
+                InstallClient();
+            }
+            var filestream = new FileStream(Path.Combine(AppEnvironment.DataPath, "server.log"),
+                FileMode.Create);
+            var streamwriter = new StreamWriter(filestream) {AutoFlush = true};
+            Console.SetOut(streamwriter);
+            Console.SetError(streamwriter);
+        }
+
+        private static void InstallClient()
+        {
+            var clientPath = Path.Combine(AppEnvironment.DataPath, "client");
+            Directory.CreateDirectory(clientPath);
+            Console.WriteLine("Extracting client archive");
+            ZipFile.ExtractToDirectory("client.zip", clientPath);
+            File.Delete("client.zip");
         }
 
 

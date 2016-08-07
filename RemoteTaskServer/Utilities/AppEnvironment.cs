@@ -28,14 +28,16 @@ namespace UlteriusServer.Utilities
                 try
                 {
                     // Version, but chopped out
-                    return Application.UserAppDataPath.Substring(0, Application.UserAppDataPath.LastIndexOf("\\", StringComparison.Ordinal));
+                    return Application.UserAppDataPath.Substring(0,
+                        Application.UserAppDataPath.LastIndexOf("\\", StringComparison.Ordinal));
                 }
                 catch
                 {
                     try
                     {
                         // App launch folder
-                        return Application.ExecutablePath.Substring(0, Application.ExecutablePath.LastIndexOf("\\", StringComparison.Ordinal));
+                        return Application.ExecutablePath.Substring(0,
+                            Application.ExecutablePath.LastIndexOf("\\", StringComparison.Ordinal));
                     }
                     catch
                     {

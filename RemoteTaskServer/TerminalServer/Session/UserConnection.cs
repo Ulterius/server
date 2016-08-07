@@ -90,6 +90,7 @@ namespace UlteriusServer.TerminalServer.Session
                 }).ToArray()
             });
         }
+
         public void Append(Guid id, ICliSession cliSession)
         {
             _cliSessions.Add(id, cliSession);

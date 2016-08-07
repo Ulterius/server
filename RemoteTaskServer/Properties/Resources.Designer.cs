@@ -63,9 +63,9 @@ namespace UlteriusServer.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
         /// </summary>
-        internal static System.Drawing.Icon icon {
+        internal static System.Drawing.Icon ApplicationIcon {
             get {
-                object obj = ResourceManager.GetObject("icon", resourceCulture);
+                object obj = ResourceManager.GetObject("ApplicationIcon", resourceCulture);
                 return ((System.Drawing.Icon)(obj));
             }
         }
@@ -89,7 +89,7 @@ namespace UlteriusServer.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Starting TaskTServer on .
+        ///   Looks up a localized string similar to Starting Task Api On .
         /// </summary>
         internal static string Program_Main_Starting_TaskServer_on_ {
             get {
@@ -98,7 +98,7 @@ namespace UlteriusServer.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Web TServer is running on this port: .
+        ///   Looks up a localized string similar to Web Server is running on this port: .
         /// </summary>
         internal static string Program_Main_Web_Server_is_running_on_this_port__ {
             get {
@@ -107,7 +107,7 @@ namespace UlteriusServer.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Ulterius Task Manager.
+        ///   Looks up a localized string similar to Ulterius Server.
         /// </summary>
         internal static string Program_Title {
             get {

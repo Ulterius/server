@@ -1,12 +1,15 @@
-﻿using System;
+﻿#region
+
+using System;
 using System.IO;
 using System.Security.Cryptography;
+
+#endregion
 
 namespace UlteriusServer.Utilities.Security
 {
     public class UlteriusAes
     {
-
         public static byte[] EncryptFile(byte[] bytesToBeEncrypted, byte[] passwordBytes)
         {
             byte[] encrypted;
@@ -35,6 +38,7 @@ namespace UlteriusServer.Utilities.Security
             // Return the encrypted bytes from the memory stream.  
             return encrypted;
         }
+
         public static byte[] EncryptFile(byte[] bytesToBeEncrypted, byte[] passwordBytes, byte[] ivBytes)
         {
             byte[] encrypted;
@@ -185,7 +189,7 @@ namespace UlteriusServer.Utilities.Security
                         }
                     }
                 }
-                catch(Exception e)
+                catch (Exception e)
                 {
                     throw e;
                 }

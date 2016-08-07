@@ -1,8 +1,12 @@
-﻿using System;
+﻿#region
+
+using System;
 using System.Collections.Concurrent;
 using System.IO;
 using System.Text;
 using UlteriusServer.Utilities.Security;
+
+#endregion
 
 namespace UlteriusServer.Utilities.Files
 {

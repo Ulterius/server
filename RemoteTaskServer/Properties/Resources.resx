@@ -127,16 +127,16 @@
     <value>Its recommended You need to elevate this server to administrator.</value>
   </data>
   <data name="Program_Main_Web_Server_is_running_on_this_port__" xml:space="preserve">
-    <value>Web TServer is running on this port: </value>
+    <value>Web Server is running on this port: </value>
   </data>
   <data name="Program_Title" xml:space="preserve">
-    <value>Ulterius Task Manager</value>
+    <value>Ulterius Server</value>
   </data>
   <data name="Program_Main_Starting_TaskServer_on_" xml:space="preserve">
-    <value>Starting TaskTServer on </value>
+    <value>Starting Task Api On </value>
   </data>
   <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
-  <data name="icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\favicon (1).ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="ApplicationIcon" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\ApplicationIcon.ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
 </root>

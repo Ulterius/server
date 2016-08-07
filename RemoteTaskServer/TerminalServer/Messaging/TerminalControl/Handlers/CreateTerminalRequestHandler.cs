@@ -47,7 +47,7 @@ namespace UlteriusServer.TerminalServer.Messaging.TerminalControl.Handlers
                 {
                     Console.WriteLine("AES not shook, cannot create terminal");
                     return;
-                }      
+                }
                 var id = _sysinfo.Guid();
                 var cli = factory.Create();
                 connection.Append(id, cli);
@@ -65,7 +65,6 @@ namespace UlteriusServer.TerminalServer.Messaging.TerminalControl.Handlers
             }
             catch (Exception e)
             {
-
                 Console.WriteLine(e.Message);
             }
         }

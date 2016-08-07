@@ -6,14 +6,11 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using System.Security;
 using System.Security.Permissions;
 using System.Security.Policy;
 using System.Text;
-using Magnum.FileSystem;
 using UlteriusPluginBase;
 using UlteriusServer.Utilities;
-using Directory = System.IO.Directory;
 
 #endregion
 
@@ -41,14 +38,14 @@ namespace UlteriusServer.Plugins
             if (assembly == null)
                 throw new ArgumentNullException("assembly");
 
-            AssemblyName assemblyName = assembly.GetName();
+            var assemblyName = assembly.GetName();
 
             // Get the public key blob. 
-            byte[] publicKey = assemblyName.GetPublicKey();
+            var publicKey = assemblyName.GetPublicKey();
             if (publicKey == null || publicKey.Length == 0)
                 throw new InvalidOperationException("Assembly is not strongly named");
 
-            StrongNamePublicKeyBlob keyBlob = new StrongNamePublicKeyBlob(publicKey);
+            var keyBlob = new StrongNamePublicKeyBlob(publicKey);
 
             // Return the strong name. 
             return new StrongName(keyBlob, assemblyName.Name, assemblyName.Version);
@@ -67,16 +64,17 @@ namespace UlteriusServer.Plugins
             {
                 try
                 {
-
                     var pluginAssembly = Assembly.LoadFrom(installedPlugin);
-                    foreach (Type pluginType in pluginAssembly.GetTypes())
+                    foreach (var pluginType in pluginAssembly.GetTypes())
                     {
                         if (pluginType.IsPublic && !pluginType.IsAbstract)
                         {
-                            Type typeInterface = pluginType.GetInterface("UlteriusPluginBase.IUlteriusPlugin", true);
+                            var typeInterface = pluginType.GetInterface("UlteriusPluginBase.IUlteriusPlugin", true);
                             if (typeInterface != null)
                             {
-                                var runnable = (IUlteriusPlugin)Activator.CreateInstance(pluginAssembly.GetType(pluginType.ToString()));
+                                var runnable =
+                                    (IUlteriusPlugin)
+                                        Activator.CreateInstance(pluginAssembly.GetType(pluginType.ToString()));
                                 var guid = GetAttribute<GuidAttribute>(pluginAssembly).Value;
                                 var title = GetAttribute<AssemblyTitleAttribute>(pluginAssembly).Title;
                                 var company = GetAttribute<AssemblyCompanyAttribute>(pluginAssembly).Company;
@@ -103,8 +101,6 @@ namespace UlteriusServer.Plugins
                             }
                         }
                     }
-
-                  
                 }
                 catch (ReflectionTypeLoadException ex)
                 {

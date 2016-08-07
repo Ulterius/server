@@ -1,6 +1,10 @@
-﻿using UlteriusServer.TerminalServer.Infrastructure;
+﻿#region
+
+using UlteriusServer.TerminalServer.Infrastructure;
 using UlteriusServer.TerminalServer.Messaging.TerminalControl.Requests;
 using UlteriusServer.TerminalServer.Session;
+
+#endregion
 
 namespace UlteriusServer.TerminalServer.Messaging.TerminalControl.Handlers
 {

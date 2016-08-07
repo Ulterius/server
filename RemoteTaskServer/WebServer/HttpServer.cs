@@ -10,8 +10,8 @@ using System.Text;
 using System.Threading;
 using System.Web;
 using System.Web.Script.Serialization;
+using UlteriusServer.Api.Services.Network;
 using UlteriusServer.Properties;
-using UlteriusServer.TaskServer.Services.Network;
 using UlteriusServer.Utilities;
 using UlteriusServer.Utilities.Files;
 using UlteriusServer.WebServer.RemoteTaskServer.WebServer;
@@ -111,7 +111,6 @@ namespace RemoteTaskServer.WebServer
         };
 
         private HttpListener _listener;
-        private int _port;
         private string _rootDirectory;
         private Thread _serverThread;
 
@@ -132,7 +131,7 @@ namespace RemoteTaskServer.WebServer
         public HttpServer(string path)
         {
             //get an empty port
-            var bindLocal = (bool)Settings.Get("Network").BindLocal;     
+            var bindLocal = (bool) Settings.Get("Network").BindLocal;
             var l = new TcpListener(bindLocal ? IPAddress.Parse(NetworkService.GetIPv4Address()) : IPAddress.Any, 0);
             l.Start();
             var port = ((IPEndPoint) l.LocalEndpoint).Port;
@@ -140,16 +139,15 @@ namespace RemoteTaskServer.WebServer
             Initialize(path, port);
         }
 
-        public int Port => _port;
+        public int Port { get; private set; }
 
         public static void Setup()
         {
-
-            var useWebServer = Convert.ToBoolean(Settings.Get("WebServer").ToggleWebServer); 
+            var useWebServer = Convert.ToBoolean(Settings.Get("WebServer").ToggleWebServer);
             if (useWebServer)
             {
-                var root =  Settings.Get("WebServer").WebFilePath.ToString();  
-                var port = (int) Settings.Get("WebServer").WebServerPort; 
+                var root = Settings.Get("WebServer").WebFilePath.ToString();
+                var port = (int) Settings.Get("WebServer").WebServerPort;
                 GlobalPort = port;
                 var httpServer = new HttpServer(root, port);
                 Console.WriteLine(Resources.Program_Main_Web_Server_is_running_on_this_port__ + httpServer.Port);
@@ -171,7 +169,7 @@ namespace RemoteTaskServer.WebServer
             var username = Environment.GetEnvironmentVariable("USERNAME");
             var userdomain = Environment.GetEnvironmentVariable("USERDOMAIN");
             _listener = new HttpListener();
-            _listener.Prefixes.Add("http://*:" + _port + "/");
+            _listener.Prefixes.Add("http://*:" + Port + "/");
 
             try
             {
@@ -264,7 +262,8 @@ namespace RemoteTaskServer.WebServer
             {
                 context.Response.AddHeader("Access-Control-Allow-Origin", "*");
                 context.Response.AddHeader("Access-Control-Allow-Methods", "POST,GET,OPTIONS");
-                context.Response.AddHeader("Access-Control-Allow-Headers", "Content-Type, Accept, X-Requested-With, File-Key");
+                context.Response.AddHeader("Access-Control-Allow-Headers",
+                    "Content-Type, Accept, X-Requested-With, File-Key");
             }
             if (request.HttpMethod == "POST")
             {
@@ -338,7 +337,7 @@ namespace RemoteTaskServer.WebServer
             (string path, int port)
         {
             _rootDirectory = path;
-            _port = port;
+            Port = port;
             _serverThread = new Thread(Listen) {IsBackground = true};
             _serverThread.Start();
         }

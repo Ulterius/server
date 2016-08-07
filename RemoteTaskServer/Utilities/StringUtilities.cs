@@ -2,7 +2,6 @@
 {
     internal class StringUtilities
     {
-       
         // Returns the human-readable file totalSize for an arbitrary, 64-bit file totalSize 
         // The default format is "0.### XB", e.g. "4.2 KB" or "1.434 GB"
         public static string GetBytesReadable(long i)

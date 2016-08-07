@@ -1,7 +1,11 @@
-﻿using System;
+﻿#region
+
+using System;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
+
+#endregion
 
 namespace UlteriusServer.WebServer
 {

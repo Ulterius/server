@@ -110,7 +110,6 @@ namespace UlteriusServer.Utilities.Extensions
             return false;
         }
 
-       
 
         /// <summary>
         ///     Replaces one or more format items in a specified string with the string representation of a specified object.

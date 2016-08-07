@@ -11,7 +11,6 @@ namespace UlteriusServer.Plugins
 {
     public class PluginHandler
     {
-
         public static object StartPlugin(WebSocket client, string guid, List<object> args = null)
         {
             try
@@ -64,7 +63,7 @@ namespace UlteriusServer.Plugins
 
         public static List<string> GetBadPluginsList()
         {
-            return  null;
+            return null;
         }
 
 

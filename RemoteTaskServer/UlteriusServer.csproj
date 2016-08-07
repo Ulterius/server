@@ -10,7 +10,7 @@
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>UlteriusServer</RootNamespace>
-    <AssemblyName>UlteriusServer</AssemblyName>
+    <AssemblyName>Ulterius™ Server</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <NuGetPackageImportStamp>
@@ -128,6 +128,7 @@
     <Reference Include="System.DirectoryServices" />
     <Reference Include="System.DirectoryServices.AccountManagement" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.IO.Compression.FileSystem" />
     <Reference Include="System.Management" />
     <Reference Include="System.Management.Automation, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -173,34 +174,34 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Plugins\PluginHost.cs" />
-    <Compile Include="TaskServer\Network\Messages\Message.cs" />
-    <Compile Include="TaskServer\Network\Messages\MessageQueueManager.cs" />
-    <Compile Include="TaskServer\Services\System\FileSearchService.cs" />
+    <Compile Include="Api\Network\Messages\Message.cs" />
+    <Compile Include="Api\Network\Messages\MessageQueueManager.cs" />
+    <Compile Include="Api\Services\System\FileSearchService.cs" />
     <Compile Include="WebSocketAPI\Authentication\AuthClient.cs" />
     <Compile Include="Forms\Utilities\UlteriusTray.cs" />
-    <Compile Include="TaskServer\Network\Messages\Packet.cs" />
-    <Compile Include="TaskServer\Network\Messages\MessageBuilder.cs" />
-    <Compile Include="TaskServer\Network\PacketHandler.cs" />
-    <Compile Include="TaskServer\Network\PacketHandlers\ErrorPacketHandler.cs" />
-    <Compile Include="TaskServer\Network\PacketManager.cs" />
+    <Compile Include="Api\Network\Messages\Packet.cs" />
+    <Compile Include="Api\Network\Messages\MessageBuilder.cs" />
+    <Compile Include="Api\Network\PacketHandler.cs" />
+    <Compile Include="Api\Network\PacketHandlers\ErrorPacketHandler.cs" />
+    <Compile Include="Api\Network\PacketManager.cs" />
     <Compile Include="Plugins\PluginHandler.cs" />
     <Compile Include="Plugins\PluginLoader.cs" />
-    <Compile Include="TaskServer\Network\PacketHandlers\WebCamPacketHandler.cs" />
-    <Compile Include="TaskServer\Network\PacketHandlers\PluginPacketHandler.cs" />
-    <Compile Include="TaskServer\Network\PacketHandlers\FilePacketHandler.cs" />
-    <Compile Include="TaskServer\Network\PacketHandlers\GpuPacketHandler.cs" />
-    <Compile Include="TaskServer\Network\PacketHandlers\ScreenSharePacketHandler.cs" />
-    <Compile Include="TaskServer\Network\PacketHandlers\WindowsPacketHandler.cs" />
-    <Compile Include="TaskServer\Network\PacketHandlers\SettingsPacketHandler.cs" />
-    <Compile Include="TaskServer\Network\PacketHandlers\NetworkPacketHandler.cs" />
-    <Compile Include="TaskServer\Network\PacketHandlers\CpuPacketHandler.cs" />
-    <Compile Include="TaskServer\Network\PacketHandlers\OperatingSystemPacketHandler.cs" />
-    <Compile Include="TaskServer\Network\PacketHandlers\ProcessPacketHandler.cs" />
-    <Compile Include="TaskServer\Network\PacketHandlers\ServerPacketHandler.cs" />
-    <Compile Include="TaskServer\Network\PacketHandlers\SystemPacketHandler.cs" />
-    <Compile Include="TaskServer\Network\Models\CameraModel.cs" />
-    <Compile Include="TaskServer\Network\Models\GpuInformation.cs" />
-    <Compile Include="TaskServer\Services\System\ScreenShareService.cs" />
+    <Compile Include="Api\Network\PacketHandlers\WebCamPacketHandler.cs" />
+    <Compile Include="Api\Network\PacketHandlers\PluginPacketHandler.cs" />
+    <Compile Include="Api\Network\PacketHandlers\FilePacketHandler.cs" />
+    <Compile Include="Api\Network\PacketHandlers\GpuPacketHandler.cs" />
+    <Compile Include="Api\Network\PacketHandlers\ScreenSharePacketHandler.cs" />
+    <Compile Include="Api\Network\PacketHandlers\WindowsPacketHandler.cs" />
+    <Compile Include="Api\Network\PacketHandlers\SettingsPacketHandler.cs" />
+    <Compile Include="Api\Network\PacketHandlers\NetworkPacketHandler.cs" />
+    <Compile Include="Api\Network\PacketHandlers\CpuPacketHandler.cs" />
+    <Compile Include="Api\Network\PacketHandlers\OperatingSystemPacketHandler.cs" />
+    <Compile Include="Api\Network\PacketHandlers\ProcessPacketHandler.cs" />
+    <Compile Include="Api\Network\PacketHandlers\ServerPacketHandler.cs" />
+    <Compile Include="Api\Network\PacketHandlers\SystemPacketHandler.cs" />
+    <Compile Include="Api\Network\Models\CameraModel.cs" />
+    <Compile Include="Api\Network\Models\GpuInformation.cs" />
+    <Compile Include="Api\Services\System\ScreenShareService.cs" />
     <Compile Include="TerminalServer\Cli\CommandSession.cs" />
     <Compile Include="TerminalServer\Cli\PowerShellSession.cs" />
     <Compile Include="TerminalServer\Cli\_ICliSession.cs" />
@@ -236,7 +237,7 @@
     <Compile Include="TerminalServer\Session\UserConnection.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="TaskServer\TaskManagerServer.cs" />
+    <Compile Include="Api\UlteriusApiServer.cs" />
     <Compile Include="TerminalServer\TerminalManagerServer.cs" />
     <Compile Include="Utilities\AppEnvironment.cs" />
     <Compile Include="Utilities\DynamicMap.cs" />
@@ -252,22 +253,22 @@
     <Compile Include="WebCams\WebCamManager.cs" />
     <Compile Include="WebServer\MultipartParser.cs" />
     <Compile Include="WebSocketAPI\WebSocketEventListener.cs" />
-    <Compile Include="TaskServer\Network\Models\DriveInformation.cs" />
-    <Compile Include="TaskServer\Network\Models\SystemInformation.cs" />
-    <Compile Include="TaskServer\Network\Models\NetworkInformation.cs" />
-    <Compile Include="TaskServer\Network\Models\CpuInformation.cs" />
-    <Compile Include="TaskServer\Network\Models\ServerOperatingSystem.cs" />
+    <Compile Include="Api\Network\Models\DriveInformation.cs" />
+    <Compile Include="Api\Network\Models\SystemInformation.cs" />
+    <Compile Include="Api\Network\Models\NetworkInformation.cs" />
+    <Compile Include="Api\Network\Models\CpuInformation.cs" />
+    <Compile Include="Api\Network\Models\ServerOperatingSystem.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="TaskServer\Network\Models\SystemProcesses.cs" />
+    <Compile Include="Api\Network\Models\SystemProcesses.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utilities\ExceptionHandler.cs" />
-    <Compile Include="TaskServer\Services\Network\NetworkService.cs" />
-    <Compile Include="TaskServer\Services\System\SystemService.cs" />
+    <Compile Include="Api\Services\Network\NetworkService.cs" />
+    <Compile Include="Api\Services\System\SystemService.cs" />
     <Compile Include="Utilities\Tools.cs" />
     <Compile Include="WebServer\HttpServer.cs" />
   </ItemGroup>
@@ -296,6 +297,7 @@
     <Content Include="FodyWeavers.xml">
       <SubType>Designer</SubType>
     </Content>
+    <None Include="Resources\ApplicationIcon.ico" />
     <Content Include="twitter-profile.ico" />
     <Content Include="Ulterius_Icon.ico" />
     <Content Include="Ulterius_Logo.ico" />

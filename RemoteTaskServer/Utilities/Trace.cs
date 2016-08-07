@@ -1,7 +1,11 @@
-﻿using System;
+﻿#region
+
+using System;
 using System.Collections.Generic;
 using System.IO;
 using UlteriusServer.Utilities.Extensions;
+
+#endregion
 
 namespace UlteriusServer.Utilities
 {
@@ -13,7 +17,8 @@ namespace UlteriusServer.Utilities
 
         #endregion
 
-        public static readonly string TraceFilenameFormat = "Trace-" + $"{DateTime.Now:HH-mm-ss tt} {(int)(DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalSeconds}.log";
+        public static readonly string TraceFilenameFormat = "Trace-" +
+                                                            $"{DateTime.Now:HH-mm-ss tt} {(int) (DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalSeconds}.log";
 
         private static List<TraceDelegate> _traceDelegates;
 

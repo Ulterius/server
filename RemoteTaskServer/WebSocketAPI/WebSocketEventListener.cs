@@ -19,6 +19,7 @@ namespace UlteriusServer.WebSocketAPI
     public delegate void WebSocketEventListenerOnDisconnect(WebSocket webSocket);
 
     public delegate void WebSocketEventListenerOnPlainTextMessage(WebSocket webSocket, string message);
+
     public delegate void WebSocketEventListenerOnEncryptedMessage(WebSocket webSocket, byte[] message);
 
     public delegate void WebSocketEventListenerOnError(WebSocket webSocket, Exception error);

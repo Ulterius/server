@@ -16,7 +16,7 @@ namespace UlteriusServer.Utilities
         public static void AddGlobalHandlers()
         {
             Trace.Initialize();
-         
+
             AppDomain.CurrentDomain.UnhandledException += (sender, args) =>
             {
                 try
@@ -38,7 +38,6 @@ namespace UlteriusServer.Utilities
                 }
             };
 
-            
 
             Application.ThreadException += (sender, args) =>
             {
@@ -48,21 +47,19 @@ namespace UlteriusServer.Utilities
                         Directory.CreateDirectory(LogsPath);
 
                     var filePath = Path.Combine(LogsPath,
-                      $"ThreadException_{DateTime.Now.ToShortDateString().Replace("/", "-")}.json");
-                 
+                        $"ThreadException_{DateTime.Now.ToShortDateString().Replace("/", "-")}.json");
 
-                    File.AppendAllText(filePath, JsonConvert.SerializeObject(args.Exception, Formatting.Indented) + "\r\n\r\n");
 
-                   Console.WriteLine($"An Unhandled Thread Exception was Caught and Logged to:\r\n{filePath}");
+                    File.AppendAllText(filePath,
+                        JsonConvert.SerializeObject(args.Exception, Formatting.Indented) + "\r\n\r\n");
+
+                    Console.WriteLine($"An Unhandled Thread Exception was Caught and Logged to:\r\n{filePath}");
                 }
                 catch
                 {
                     // ignored
                 }
             };
-
-          
-
         }
     }
 }

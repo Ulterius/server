@@ -32,7 +32,6 @@ namespace UlteriusServer.TerminalServer.Messaging.Serialization
                 jsonString = Encoding.UTF8.GetString(utfJson);
                 if (user.AesShook)
                 {
-              
                     var keybytes = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(user.AesKey));
                     var iv = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(user.AesIv));
                     var encrpytedJson = UlteriusAes.Encrypt(jsonString, keybytes, iv);
@@ -74,7 +73,6 @@ namespace UlteriusServer.TerminalServer.Messaging.Serialization
                         }
                         catch (Exception exception)
                         {
-                     
                             Console.WriteLine(exception.Message);
                             return Build("error", null, out type);
                         }
@@ -103,7 +101,6 @@ namespace UlteriusServer.TerminalServer.Messaging.Serialization
 
         private IConnectionRequest Build(string typeName, JObject json, out Type type, UserConnection user = null)
         {
-
             switch (typeName)
             {
                 case "CreateTerminalRequest":
@@ -140,14 +137,13 @@ namespace UlteriusServer.TerminalServer.Messaging.Serialization
                         }
                         catch (Exception)
                         {
-                     
                             return new AesHandshakeRequest
                             {
                                 AesShook = false
                             };
                         }
                     }
-                  
+
                     return new AesHandshakeRequest
                     {
                         AesShook = false
