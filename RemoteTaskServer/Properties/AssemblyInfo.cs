@@ -10,7 +10,7 @@ using log4net.Config;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 
-[assembly: AssemblyTitle("Ulterius Server")]
+[assembly: AssemblyTitle("Ulterius™ Server")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Ulterius")]

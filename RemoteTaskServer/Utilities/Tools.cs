@@ -8,9 +8,8 @@ using System.Linq;
 using System.Net.NetworkInformation;
 using System.Reflection;
 using System.Security.Principal;
-using System.Threading;
 using System.Web;
-
+using Ionic.Zip;
 using NetFwTypeLib;
 using RemoteTaskServer.WebServer;
 using static System.Security.Principal.WindowsIdentity;
@@ -21,8 +20,8 @@ namespace UlteriusServer.Utilities
 {
     internal class Tools
     {
-        private const string INetFwPolicy2ProgID = "HNetCfg.FwPolicy2";
-        private const string INetFwRuleProgID = "HNetCfg.FWRule";
+        private const string NetFwPolicy2ProgId = "HNetCfg.FwPolicy2";
+        private const string NetFwRuleProgId = "HNetCfg.FWRule";
 
         public static bool HasInternetConnection
         {
@@ -55,38 +54,17 @@ namespace UlteriusServer.Utilities
             }
         }
 
-        public static void ShowNetworkTraffic()
+
+        private static T GetComObject<T>(string progId)
         {
-            var performanceCounterCategory = new PerformanceCounterCategory("Network Interface");
-            var instance = performanceCounterCategory.GetInstanceNames()[0]; // 1st NIC !
-            var performanceCounterSent = new PerformanceCounter("Network Interface", "Bytes Sent/sec", instance);
-            var performanceCounterReceived = new PerformanceCounter("Network Interface", "Bytes Received/sec", instance);
-
-            for (var i = 0; i < 10; i++)
-            {
-                Console.WriteLine("bytes sent: {0}k\tbytes received: {1}k", performanceCounterSent.NextValue()/1024,
-                    performanceCounterReceived.NextValue()/1024);
-                Thread.Sleep(500);
-            }
-        }
-
-
-        private void ClosePort(string name)
-        {
-            var firewallPolicy = getComObject<INetFwPolicy2>(INetFwPolicy2ProgID);
-            firewallPolicy.Rules.Remove(name);
-        }
-
-        private static T getComObject<T>(string progID)
-        {
-            var t = Type.GetTypeFromProgID(progID, true);
+            var t = Type.GetTypeFromProgID(progId, true);
             return (T) Activator.CreateInstance(t);
         }
 
         private static void OpenPort(ushort port, string name)
         {
-            var firewallPolicy = getComObject<INetFwPolicy2>(INetFwPolicy2ProgID);
-            var firewallRule = getComObject<INetFwRule2>(INetFwRuleProgID);
+            var firewallPolicy = GetComObject<INetFwPolicy2>(NetFwPolicy2ProgId);
+            var firewallRule = GetComObject<INetFwRule2>(NetFwRuleProgId);
             var existingRule = firewallPolicy.Rules.OfType<INetFwRule>().FirstOrDefault(x => x.Name == name);
             if (existingRule == null)
             {
@@ -207,7 +185,6 @@ namespace UlteriusServer.Utilities
 
         public static void ConfigureServer()
         {
-           
             if (Settings.Empty)
             {
                 //setup listen sh
@@ -233,13 +210,25 @@ namespace UlteriusServer.Utilities
             Console.SetError(streamwriter);
         }
 
-        private static void InstallClient()
+        public static void InstallClient()
         {
-            var clientPath = Path.Combine(AppEnvironment.DataPath, "client");
-            Directory.CreateDirectory(clientPath);
-            Console.WriteLine("Extracting client archive");
-            ZipFile.ExtractToDirectory("client.zip", clientPath);
-            File.Delete("client.zip");
+            try
+            {
+                var clientPath = Path.Combine(AppEnvironment.DataPath, "client/");
+                Console.WriteLine("Extracting client archive");
+                using (var zip = Ionic.Zip.ZipFile.Read("client.zip"))
+                {
+                    zip.ExtractAll(clientPath
+                                  , ExtractExistingFileAction.OverwriteSilently);
+                }
+                File.Delete("client.zip");
+                Console.WriteLine("Client deleted");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                Console.WriteLine(e.StackTrace);
+            }
         }
 
 

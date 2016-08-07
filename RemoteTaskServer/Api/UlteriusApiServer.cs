@@ -10,6 +10,7 @@ using UlteriusServer.Api.Network;
 using UlteriusServer.Api.Network.Messages;
 using UlteriusServer.Api.Services.Network;
 using UlteriusServer.Api.Services.System;
+using UlteriusServer.Api.Services.Update;
 using UlteriusServer.Forms.Utilities;
 using UlteriusServer.Utilities;
 using UlteriusServer.Utilities.Security;
@@ -31,6 +32,7 @@ namespace UlteriusServer.Api
         public static void Start()
         {
             AllClients = new ConcurrentDictionary<string, AuthClient>();
+            var clientUpdateService = new ClientUpdateService();
             ScreenShareService = new ScreenShareService();
             FileSearchService = new FileSearchService(Path.Combine(AppEnvironment.DataPath, "fileindex.bin"));
             FileSearchService.Start();

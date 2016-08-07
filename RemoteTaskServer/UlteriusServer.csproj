@@ -138,6 +138,7 @@
     <Reference Include="System.DirectoryServices" />
     <Reference Include="System.DirectoryServices.AccountManagement" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.IO.Compression" />
     <Reference Include="System.IO.Compression.FileSystem" />
     <Reference Include="System.Management" />
     <Reference Include="System.Management.Automation, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
@@ -183,6 +184,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Api\Services\Update\ClientUpdateService.cs" />
     <Compile Include="Plugins\PluginHost.cs" />
     <Compile Include="Api\Network\Messages\Message.cs" />
     <Compile Include="Api\Network\Messages\MessageQueueManager.cs" />
