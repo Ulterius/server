@@ -24,15 +24,6 @@ Development
 ----
 Visual Studio 2015 is required to build the server. Alternatively you can use MSBUILD and the Windows SDK.
 
-ToDo
-----
- - Better config handling
- - Tray icon and controls
- - Full plugin support
- - Auto-updater
- - Service mode
- - Launch
-
 License
 ----
 
