@@ -3,13 +3,13 @@
 using System;
 using System.Diagnostics;
 using System.IO;
-using System.IO.Compression;
 using System.Linq;
 using System.Net.NetworkInformation;
 using System.Reflection;
 using System.Security.Principal;
 using System.Web;
 using Ionic.Zip;
+using Microsoft.Win32;
 using NetFwTypeLib;
 using RemoteTaskServer.WebServer;
 using static System.Security.Principal.WindowsIdentity;
@@ -87,6 +87,9 @@ namespace UlteriusServer.Utilities
             {
                 {
                     "Version", Assembly.GetExecutingAssembly().GetName().Version
+                },
+                {
+                    "RunStartup", true
                 },
                 {
                     "UploadLogs", false
@@ -199,6 +202,7 @@ namespace UlteriusServer.Utilities
                 OpenPort(22009, "Ulterius ScreenShareService");
                 GenerateSettings();
             }
+            SetStartup();
             if (File.Exists("client.zip"))
             {
                 InstallClient();
@@ -210,16 +214,28 @@ namespace UlteriusServer.Utilities
             Console.SetError(streamwriter);
         }
 
+        private static void SetStartup()
+        {
+            var rk = Registry.CurrentUser.OpenSubKey
+                ("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true);
+
+            var runStartup = Convert.ToBoolean(Settings.Get("General").RunStartup);
+            if (runStartup)
+                rk?.SetValue("Ulterius Server", $"\"{Assembly.GetExecutingAssembly().Location}\"");
+            else
+                rk?.DeleteValue("Ulterius Server", false);
+        }
+
         public static void InstallClient()
         {
             try
             {
                 var clientPath = Path.Combine(AppEnvironment.DataPath, "client/");
                 Console.WriteLine("Extracting client archive");
-                using (var zip = Ionic.Zip.ZipFile.Read("client.zip"))
+                using (var zip = ZipFile.Read("client.zip"))
                 {
                     zip.ExtractAll(clientPath
-                                  , ExtractExistingFileAction.OverwriteSilently);
+                        , ExtractExistingFileAction.OverwriteSilently);
                 }
                 File.Delete("client.zip");
                 Console.WriteLine("Client deleted");
