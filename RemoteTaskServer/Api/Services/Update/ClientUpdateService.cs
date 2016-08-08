@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Text.RegularExpressions;
 using System.Threading;
 using UlteriusServer.Utilities;
 
@@ -41,7 +42,7 @@ namespace UlteriusServer.Api.Services.Update
                     {
                         var hash = webpage.DownloadString("https://ulterius.xyz/updates/client.txt").Trim();
                         //incase cloudflare was downloaded
-                        if (IsValidMd5(hash))
+                        if (IsValidSha1(hash))
                         {
                             Console.WriteLine("Client needs to be updated");
                             var localHash = File.ReadAllText("client.bin");
@@ -67,10 +68,9 @@ namespace UlteriusServer.Api.Services.Update
             }
         }
 
-        private bool IsValidMd5(string md5)
+        private bool IsValidSha1(string sha1)
         {
-            if (md5 == null || md5.Length != 32) return false;
-            return md5.All(x => (x >= '0' && x <= '9') || (x >= 'a' && x <= 'f') || (x >= 'A' && x <= 'F'));
+            return new Regex("[a-fA-F0-9]{40}").IsMatch(sha1);
         }
     }
 }
