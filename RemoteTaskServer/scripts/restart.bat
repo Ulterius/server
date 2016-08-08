@@ -1,5 +1,5 @@
-@echo off
-taskkill /f /IM "Ulterius Server.exe"
-pushd %~dp0
-"Ulterius Server.exe"
-popd
+@echo off
+taskkill /f /im "Ulterius Server.exe"
+:exit
+start "" "%~dp0Ulterius Server.exe"
+

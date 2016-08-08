@@ -97,7 +97,7 @@ namespace UlteriusServer.Forms.Utilities
             {
                 Icon = Resources.ApplicationIcon,
                 BalloonTipIcon = ToolTipIcon.Info,
-                BalloonTipText = "Ulterius Server Started",
+                BalloonTipText = "Ulterius Server Started -- Open the Client in the Tray Icon",
                 ContextMenu = Menu,
                 Text = "Main"
             };

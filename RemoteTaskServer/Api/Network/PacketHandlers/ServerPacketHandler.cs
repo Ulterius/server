@@ -3,7 +3,6 @@
 using System;
 using System.Diagnostics;
 using System.DirectoryServices.AccountManagement;
-using System.IO;
 using System.Reflection;
 using System.Xml;
 using UlteriusServer.Api.Network.Messages;
@@ -214,15 +213,17 @@ namespace UlteriusServer.Api.Network.PacketHandlers
 
         public void RestartServer()
         {
-            if (File.Exists("restart.bat"))
+            var data = new
             {
-                var data = new
-                {
-                    serverRestarting = true
-                };
-                _builder.WriteMessage(data);
-                Process.Start("restart.bat");
-            }
+                serverRestarting = true
+            };
+            _builder.WriteMessage(data);
+            // Starts a new instance of the program itself
+            var fileName = Assembly.GetExecutingAssembly().Location;
+            Process.Start(fileName);
+
+            // Closes the current process
+            Environment.Exit(0);
         }
 
         public override void HandlePacket(Packet packet)
