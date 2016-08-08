@@ -74,8 +74,19 @@ namespace UlteriusServer
             {
                 TerminalManagerServer.Start();
             }
-
-
+            Console.WriteLine("Opening");
+            try
+            {
+                var useUpnp = Convert.ToBoolean(Settings.Get("Network").UPnpEnabled);
+                if (useUpnp)
+                {
+                    Tools.OpenPort();
+                }
+            }
+            catch (Exception)
+            {
+                Console.WriteLine("Failed to forward ports");
+            }
             while (!_quitFlag)
             {
                 Thread.Sleep(1);
@@ -92,9 +103,8 @@ namespace UlteriusServer
             //fixes wrong screensize for screen share
             if (Environment.OSVersion.Version.Major >= 6) SetProcessDPIAware();
             Task.Factory.StartNew(Run);
-
-
             UlteriusTray.ShowTray();
+
         }
 
         //Evan will have to support me and my cat once this gets released into the public.

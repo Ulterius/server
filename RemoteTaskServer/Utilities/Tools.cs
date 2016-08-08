@@ -4,13 +4,19 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Net.NetworkInformation;
+using System.Net.Sockets;
 using System.Reflection;
 using System.Security.Principal;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Web;
 using Ionic.Zip;
 using Microsoft.Win32;
 using NetFwTypeLib;
+using Open.Nat;
 using RemoteTaskServer.WebServer;
 using static System.Security.Principal.WindowsIdentity;
 
@@ -150,6 +156,9 @@ namespace UlteriusServer.Utilities
                 {
                     "SkipHostNameResolve", false
                 },
+                 {
+                    "UPnpEnabled", true
+                },
                 {
                     "BindLocal", false
                 }
@@ -186,36 +195,106 @@ namespace UlteriusServer.Utilities
             Settings.Save();
         }
 
+        public static void OpenPort()
+        {
+            var webServerPort = (int)Settings.Get("WebServer").WebServerPort;
+            var apiPort = (int)Settings.Get("TaskServer").TaskServerPort;
+            var terminalPort = 22008;
+            var screenSharePort = (int)Settings.Get("ScreenShareService").ScreenSharePort;
+            var nat = new NatDiscoverer();
+            var cts = new CancellationTokenSource();
+            cts.CancelAfter(5000);
+
+            NatDevice device = null;
+            var sb = new StringBuilder();
+            IPAddress ip = null;
+            var t = nat.DiscoverDeviceAsync(PortMapper.Upnp, cts);
+            t.ContinueWith(tt =>
+            {
+                device = tt.Result;
+                device.GetExternalIPAsync()
+                    .ContinueWith(task =>
+                    {;
+                        return device.CreatePortMapAsync(
+                             new Mapping(Protocol.Tcp, webServerPort, webServerPort, 0, "Ulterius Web Server"));
+                    })
+                    .Unwrap()
+                    .ContinueWith(task =>
+                    {
+                        return device.CreatePortMapAsync(
+                             new Mapping(Protocol.Tcp, screenSharePort, screenSharePort, 0, "Ulterius Screen Share"));
+                    })
+                    .Unwrap()
+                    .ContinueWith(task =>
+                    {
+                        return device.CreatePortMapAsync(
+                               new Mapping(Protocol.Tcp, apiPort, apiPort, 0, "Ulterius Api"));
+                    })
+                    .Unwrap()
+                    .ContinueWith(task =>
+                    {
+                        return device.CreatePortMapAsync(
+                             new Mapping(Protocol.Tcp, terminalPort, terminalPort, 0, "Ulterius Terminal"));
+                    })
+
+                    .Unwrap()
+                    .ContinueWith(task =>
+                    {
+                       Console.WriteLine("Ports forwarded!");
+                    });
+            }, TaskContinuationOptions.OnlyOnRanToCompletion);
+
+            try
+            {
+                t.Wait();
+            }
+            catch (AggregateException e)
+            {
+                if (e.InnerException is NatDeviceNotFoundException)
+                {
+                    Console.WriteLine("No NAT Device Found");
+                }
+            }
+        }
+
         public static void ConfigureServer()
         {
-            if (Settings.Empty)
-            {
-                //setup listen sh
-                var prefix = "http://*:22006/";
-                var username = Environment.GetEnvironmentVariable("USERNAME");
-                var userdomain = Environment.GetEnvironmentVariable("USERDOMAIN");
-                var command = $@"/C netsh http add urlacl url={prefix} user={userdomain}\{username} listen=yes";
-                Process.Start("CMD.exe", command);
-                OpenPort(22006, "Ulterius Web Server");
-                OpenPort(22007, "Ulterius Task Server");
-                OpenPort(22008, "Ulterius Terminal Server");
-                OpenPort(22009, "Ulterius ScreenShareService");
-                GenerateSettings();
-            }
-            SetStartup();
-            if (File.Exists("client.zip"))
-            {
-                InstallClient();
-            }
             var filestream = new FileStream(Path.Combine(AppEnvironment.DataPath, "server.log"),
                 FileMode.Create);
             var streamwriter = new StreamWriter(filestream) {AutoFlush = true};
             Console.SetOut(streamwriter);
             Console.SetError(streamwriter);
+            if (Settings.Empty)
+            {
+                //setup listen sh
+                GenerateSettings();
+                var webServerPort = (ushort) Settings.Get("WebServer").WebServerPort;
+                var apiPort = (ushort) Settings.Get("TaskServer").TaskServerPort;
+                var terminalPort = (ushort) 22008;
+                var screenSharePort = (ushort)Settings.Get("ScreenShareService").ScreenSharePort;
+                var prefix = $"http://*:{webServerPort}/";
+                var username = Environment.GetEnvironmentVariable("USERNAME");
+                var userdomain = Environment.GetEnvironmentVariable("USERDOMAIN");
+                var command = $@"/C netsh http add urlacl url={prefix} user={userdomain}\{username} listen=yes";
+                Process.Start("CMD.exe", command);
+                OpenPort(webServerPort, "Ulterius Web Server");
+                OpenPort(apiPort, "Ulterius Task Server");
+                OpenPort(terminalPort, "Ulterius Terminal Server");
+                OpenPort(screenSharePort, "Ulterius ScreenShareService");
+               
+            }
+            SetStartup();
+
+            if (File.Exists("client.zip"))
+            {
+                InstallClient();
+            }
         }
+
 
         private static void SetStartup()
         {
+            Console.WriteLine("Set Startup");
             var rk = Registry.CurrentUser.OpenSubKey
                 ("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true);
 

@@ -2,6 +2,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Drawing;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
@@ -27,7 +28,14 @@ namespace UlteriusServer.Forms.Utilities
 
         private static void OpenLogsEvent(object sender, EventArgs e)
         {
-            Process.Start(Path.Combine(AppEnvironment.DataPath, "server.log"));
+            try
+            {
+                Process.Start(Path.Combine(AppEnvironment.DataPath, "server.log"));
+            }
+            catch (Exception)
+            {
+              //rare but can fail
+            }
         }
 
         private static void RestartEvent(object sender, EventArgs e)
@@ -38,7 +46,14 @@ namespace UlteriusServer.Forms.Utilities
 
         private static void OpenSettingsEvent(object sender, EventArgs e)
         {
-            Process.Start(Settings.FilePath);
+            try
+            {
+                Process.Start(Settings.FilePath);
+            }
+            catch (Exception)
+            {
+                //rare but can fail
+            }
         }
 
         private static void OpenClientEvent(object sender, EventArgs e)
@@ -64,7 +79,8 @@ namespace UlteriusServer.Forms.Utilities
 
         public static void ShowTray()
         {
-            RefreshTrayArea();
+
+         RefreshTrayArea();
             Menu = new ContextMenu();
             RestartProgram = new MenuItem("Restart Server");
             ExitProgram = new MenuItem("Exit");
@@ -85,6 +101,7 @@ namespace UlteriusServer.Forms.Utilities
                 ContextMenu = Menu,
                 Text = "Main"
             };
+           
 
 
             ExitProgram.Click += ExitEvent;
@@ -95,6 +112,8 @@ namespace UlteriusServer.Forms.Utilities
             NotificationIcon.Visible = true;
             NotificationIcon.ShowBalloonTip(5000);
             Application.Run();
+
+
         }
 
         [DllImport("user32.dll")]
