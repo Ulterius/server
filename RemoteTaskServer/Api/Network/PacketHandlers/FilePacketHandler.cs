@@ -138,7 +138,16 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                 if (!UlteriusApiServer.FileSearchService.IsScanning())
                 {
                     var query = _packet.Args[0].ToString();
-
+                    if (query.Length < 3)
+                    {
+                        var shortResponse = new
+                        {
+                            success = false,
+                            message = "Query not long enough, must be 3 characters."
+                        };
+                        _builder.WriteMessage(shortResponse);
+                        return;
+                    }
                     var stopwatch = Stopwatch.StartNew();
 
                     var searchResults = Search(query);
@@ -226,6 +235,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
         public void RemoveFile()
         {
             var fileName = _packet.Args[0].ToString();
+       
             var webPath = Settings.Get("WebServer").WebFilePath.ToString();
             var tempFolderPath = webPath + "temp\\";
             string[] filePaths = Directory.GetFiles(tempFolderPath, "*.*",
