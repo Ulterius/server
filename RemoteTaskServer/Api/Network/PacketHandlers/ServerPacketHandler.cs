@@ -3,8 +3,8 @@
 using System;
 using System.Diagnostics;
 using System.DirectoryServices.AccountManagement;
+using System.DirectoryServices.ActiveDirectory;
 using System.Reflection;
-using System.Security.Principal;
 using UlteriusServer.Api.Network.Messages;
 using UlteriusServer.Utilities.Security;
 using UlteriusServer.WebSocketAPI.Authentication;
@@ -68,29 +68,39 @@ namespace UlteriusServer.Api.Network.PacketHandlers
         public void Login()
         {
             var strMachineName = Environment.MachineName;
-            var bLocal = WindowsIdentity.GetCurrent().Name.ToUpper().Contains(strMachineName.ToUpper());
+
             var password = _packet.Args[0].ToString();
             var authenticated = false;
-            //first trying using local machine
-            if (bLocal)
+            //this will fix most domain logins, try first
+            var username = Environment.UserDomainName + "\\" + Environment.UserName;
+            using (var context = new PrincipalContext(ContextType.Machine))
             {
-                Console.WriteLine("Local user");
-                using (var context = new PrincipalContext(ContextType.Machine))
+                try
                 {
-                    authenticated = context.ValidateCredentials(GetUsername(), password);
-                }
-            }
-            else
-            {
-                using (var context = new PrincipalContext(ContextType.Domain, Environment.UserDomainName))
-                {
-                    var username = Environment.UserDomainName + "\\" + Environment.UserName;
-
                     authenticated = context.ValidateCredentials(username, password);
                 }
+                catch (Exception)
+                {
+                    //this can throw
+                }
             }
-
-
+            //lets try a controller 
+            if (!authenticated)
+            {
+                try
+                {
+                    var domainContext = new DirectoryContext(DirectoryContextType.Domain, Environment.UserDomainName,
+                               username, password);
+                    var domain = Domain.GetDomain(domainContext);
+                    var controller = domain.FindDomainController();
+                    //controller logged in if we didn't throw.
+                    authenticated = true;
+                }
+                catch (Exception)
+                {
+                     // invalid login
+                }
+            }
             var authKey = _authClient.Client.GetHashCode().ToString();
             AuthClient authClient;
             UlteriusApiServer.AllClients.TryGetValue(authKey, out authClient);
