@@ -4,9 +4,8 @@ using System;
 using System.Diagnostics;
 using System.DirectoryServices.AccountManagement;
 using System.Reflection;
-using System.Xml;
+using System.Security.Principal;
 using UlteriusServer.Api.Network.Messages;
-using UlteriusServer.Utilities;
 using UlteriusServer.Utilities.Security;
 using UlteriusServer.WebSocketAPI.Authentication;
 
@@ -68,13 +67,29 @@ namespace UlteriusServer.Api.Network.PacketHandlers
 
         public void Login()
         {
+            var strMachineName = Environment.MachineName;
+            var bLocal = WindowsIdentity.GetCurrent().Name.ToUpper().Contains(strMachineName.ToUpper());
             var password = _packet.Args[0].ToString();
-            bool authenticated;
+            var authenticated = false;
             //first trying using local machine
-            using (var context = new PrincipalContext(ContextType.Machine))
+            if (bLocal)
             {
-                authenticated = context.ValidateCredentials(GetUsername(), password);
+                Console.WriteLine("Local user");
+                using (var context = new PrincipalContext(ContextType.Machine))
+                {
+                    authenticated = context.ValidateCredentials(GetUsername(), password);
+                }
             }
+            else
+            {
+                using (var context = new PrincipalContext(ContextType.Domain, Environment.UserDomainName))
+                {
+                    var username = Environment.UserDomainName + "\\" + Environment.UserName;
+
+                    authenticated = context.ValidateCredentials(username, password);
+                }
+            }
+
 
             var authKey = _authClient.Client.GetHashCode().ToString();
             AuthClient authClient;
@@ -103,112 +118,6 @@ namespace UlteriusServer.Api.Network.PacketHandlers
 
         public void CheckForUpdate()
         {
-            var isError = false;
-            var errorData = "";
-            if (Tools.HasInternetConnection)
-            {
-                try
-                {
-                    var releasePageUrl = "";
-                    var changeNotes = "";
-                    Version newVersion = null;
-                    const string versionConfig = "https://raw.github.com/StrikeOrg/ulterius-server/master/version.xml";
-                    var reader = new XmlTextReader(versionConfig);
-                    reader.MoveToContent();
-                    var elementName = "";
-                    try
-                    {
-                        if ((reader.NodeType == XmlNodeType.Element) && (reader.Name == "ulteriusserver"))
-                        {
-                            while (reader.Read())
-                            {
-                                switch (reader.NodeType)
-                                {
-                                    case XmlNodeType.Element:
-                                        elementName = reader.Name;
-                                        break;
-                                    default:
-                                        if ((reader.NodeType == XmlNodeType.Text) && reader.HasValue)
-                                        {
-                                            switch (elementName)
-                                            {
-                                                case "version":
-                                                    newVersion = new Version(reader.Value);
-                                                    break;
-                                                case "changeNotes":
-                                                    changeNotes = reader.Value;
-                                                    break;
-                                                case "url":
-                                                    releasePageUrl = reader.Value;
-                                                    break;
-                                            }
-                                        }
-                                        break;
-                                }
-                            }
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        isError = true;
-                        errorData = e.Message;
-                    }
-                    finally
-                    {
-                        reader.Close();
-                    }
-
-                    var applicationVersion = Assembly.GetExecutingAssembly().GetName().Version;
-                    if (isError)
-                    {
-                        var data = new
-                        {
-                            update = false,
-                            error = errorData,
-                            message = "Error retrieving update information: " + errorData
-                        };
-                        _builder.WriteMessage(data);
-                    }
-                    else if (applicationVersion.CompareTo(newVersion) < 0)
-                    {
-                        var data = new
-                        {
-                            update = true,
-                            url = releasePageUrl,
-                            newVersion = newVersion.ToString(),
-                            changeNotes,
-                            message = "New version available: " + newVersion
-                        };
-                        _builder.WriteMessage(data);
-                    }
-                    else
-                    {
-                        var data = new
-                        {
-                            update = false,
-                            message = "You have the latest version."
-                        };
-                        _builder.WriteMessage(data);
-                    }
-                }
-                catch (Exception e)
-                {
-                    var data = new
-                    {
-                        update = false,
-                        error = e.Message,
-                        message = "General bad thing has happened: " + e.Message
-                    };
-                    _builder.WriteMessage(data);
-                }
-            }
-            var endData = new
-            {
-                update = false,
-                error = "No connection",
-                message = "Unable to connect to the internet to check for update."
-            };
-            _builder.WriteMessage(endData);
         }
 
         public void RestartServer()

@@ -52,6 +52,8 @@ namespace UlteriusServer.Api.Network.PacketHandlers
             var myComputer = new Computer();
 
             myComputer.Open();
+            //possible fix for gpu temps on laptops
+            myComputer.FanControllerEnabled = true;
             myComputer.GPUEnabled = true;
             foreach (var hardwareItem in myComputer.Hardware)
             {
@@ -68,6 +70,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                             return sensor.Value;
                         }
                         break;
+                       
                     case HardwareType.GpuAti:
                         foreach (
                             var sensor in
