@@ -31,6 +31,7 @@ namespace UlteriusServer.Api.Services.System
         private static ulong AvailablePhysicalMemory => new ComputerInfo().AvailablePhysicalMemory;
 
 
+       
         public void Start()
         {
             //static info
@@ -71,6 +72,7 @@ namespace UlteriusServer.Api.Services.System
             }
         }
 
+      
         public string GetMotherBoard()
         {
             if (!string.IsNullOrEmpty(_motherBoard)) return _motherBoard;

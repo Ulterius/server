@@ -41,6 +41,11 @@ namespace UlteriusServer.Api.Network.Messages
             }
         }
 
+        /// <summary>
+        /// Sends a JSON based packet 
+        /// </summary>
+        /// <param name="packet"></param>
+        /// <returns></returns>
         private async Task SendJsonPacket(Message packet)
         {
             var json = packet.Json;
@@ -63,6 +68,11 @@ namespace UlteriusServer.Api.Network.Messages
             }
         }
 
+        /// <summary>
+        /// Sends an encrypted packet
+        /// </summary>
+        /// <param name="packet"></param>
+        /// <returns></returns>
         private async Task SendBinaryPacket(Message packet)
         {
             var authClient = packet.AuthClient;

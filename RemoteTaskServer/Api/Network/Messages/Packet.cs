@@ -20,6 +20,15 @@ namespace UlteriusServer.Api.Network.Messages
         public PacketTypes PacketType;
         public string SyncKey;
 
+        /// <summary>
+        /// Create a packet
+        /// </summary>
+        /// <param name="authClient"></param>
+        /// <param name="endPoint"></param>
+        /// <param name="syncKey"></param>
+        /// <param name="args"></param>
+        /// <param name="packetType"></param>
+        /// <param name="packetHandler"></param>
         public Packet(AuthClient authClient, string endPoint, string syncKey, List<object> args, PacketTypes packetType,
             Type packetHandler)
         {
@@ -31,6 +40,9 @@ namespace UlteriusServer.Api.Network.Messages
             _packetHandler = packetHandler;
         }
 
+        /// <summary>
+        /// Executes a packet based on its handler
+        /// </summary>
         public void HandlePacket()
         {
             try

@@ -29,6 +29,9 @@ namespace UlteriusServer.Api
         public static ScreenShareService ScreenShareService { get; set; }
         public static FileSearchService FileSearchService { get; set; }
 
+        /// <summary>
+        /// Start the API Server
+        /// </summary>
         public static void Start()
         {
             AllClients = new ConcurrentDictionary<string, AuthClient>();
@@ -60,6 +63,12 @@ namespace UlteriusServer.Api
             Log("Api Server started at " + address);
         }
 
+
+        /// <summary>
+        /// Handles encrypted binary messages 
+        /// </summary>
+        /// <param name="websocket"></param>
+        /// <param name="message"></param>
         private static void HandleEncryptedMessage(WebSocket websocket, byte[] message)
         {
             var authKey = websocket.GetHashCode().ToString();
@@ -77,6 +86,11 @@ namespace UlteriusServer.Api
             Console.WriteLine(error.StackTrace + " " + error.Message);
         }
 
+        /// <summary>
+        /// Handles plaintext JSON packets.
+        /// </summary>
+        /// <param name="websocket"></param>
+        /// <param name="message"></param>
         private static void HandlePlainTextMessage(WebSocket websocket, string message)
         {
             var authKey = websocket.GetHashCode().ToString();
@@ -89,6 +103,11 @@ namespace UlteriusServer.Api
             }
         }
 
+
+        /// <summary>
+        /// Remove a client when it disconnects
+        /// </summary>
+        /// <param name="clientSocket"></param>
         private static void HandleDisconnect(WebSocket clientSocket)
         {
             AuthClient temp = null;
@@ -101,6 +120,10 @@ namespace UlteriusServer.Api
             }
         }
 
+        /// <summary>
+        /// When a client connects, assign them a unique RSA keypair for handshake.
+        /// </summary>
+        /// <param name="clientSocket"></param>
         private static void HandleConnect(WebSocket clientSocket)
         {
             Console.WriteLine("Connection from " + clientSocket.RemoteEndpoint);
@@ -113,6 +136,11 @@ namespace UlteriusServer.Api
             SendWelcomeMessage(client, clientSocket);
         }
 
+        /// <summary>
+        /// Sends a new user their unique RSA keypair
+        /// </summary>
+        /// <param name="client"></param>
+        /// <param name="clientSocket"></param>
         private static void SendWelcomeMessage(AuthClient client, WebSocket clientSocket)
         {
             var welcomeMessage = new JavaScriptSerializer().Serialize(new

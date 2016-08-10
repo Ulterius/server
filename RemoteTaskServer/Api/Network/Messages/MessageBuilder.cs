@@ -25,6 +25,12 @@ namespace UlteriusServer.Api.Network.Messages
         }
 
 
+        /// <summary>
+        /// Encrypt a file with AES
+        /// </summary>
+        /// <param name="password"></param>
+        /// <param name="data"></param>
+        /// <returns>encryptedFile</returns>
         public byte[] PackFile(string password, byte[] data)
         {
             try

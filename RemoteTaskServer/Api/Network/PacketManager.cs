@@ -84,6 +84,11 @@ namespace UlteriusServer.Api.Network
         private PacketTypes _packetType;
         private string _syncKey;
 
+        /// <summary>
+        /// Decrypt a packet
+        /// </summary>
+        /// <param name="authClient"></param>
+        /// <param name="data"></param>
         public PacketManager(AuthClient authClient, byte[] data)
         {
             _authClient = authClient;
@@ -100,6 +105,11 @@ namespace UlteriusServer.Api.Network
             }
         }
 
+        /// <summary>
+        /// Handle a plain text packet
+        /// </summary>
+        /// <param name="authClient"></param>
+        /// <param name="packetData"></param>
         public PacketManager(AuthClient authClient, string packetData)
         {
             _authClient = authClient;
@@ -129,6 +139,11 @@ namespace UlteriusServer.Api.Network
 
         #region packets
 
+        /// <summary>
+        /// Create a PacketInfo based on the packet type.
+        /// </summary>
+        /// <param name="endpoint"></param>
+        /// <returns>packetInfo</returns>
         public PacketInfo GetPacketInfo(string endpoint)
         {
             switch (endpoint)
@@ -296,6 +311,10 @@ namespace UlteriusServer.Api.Network
 
         #endregion
 
+        /// <summary>
+        /// Create and return a new packet 
+        /// </summary>
+        /// <returns>Packet</returns>
         public Packet GetPacket()
         {
             if (string.IsNullOrEmpty(_plainText))
