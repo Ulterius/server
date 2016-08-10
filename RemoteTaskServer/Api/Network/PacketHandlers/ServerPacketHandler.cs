@@ -70,37 +70,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
             var strMachineName = Environment.MachineName;
 
             var password = _packet.Args[0].ToString();
-            var authenticated = false;
-            //this will fix most domain logins, try first
-            var username = Environment.UserDomainName + "\\" + Environment.UserName;
-            using (var context = new PrincipalContext(ContextType.Machine))
-            {
-                try
-                {
-                    authenticated = context.ValidateCredentials(username, password);
-                }
-                catch (Exception)
-                {
-                    //this can throw
-                }
-            }
-            //lets try a controller 
-            if (!authenticated)
-            {
-                try
-                {
-                    var domainContext = new DirectoryContext(DirectoryContextType.Domain, Environment.UserDomainName,
-                               username, password);
-                    var domain = Domain.GetDomain(domainContext);
-                    var controller = domain.FindDomainController();
-                    //controller logged in if we didn't throw.
-                    authenticated = true;
-                }
-                catch (Exception)
-                {
-                     // invalid login
-                }
-            }
+            var authenticated = WindowsAuth.Auth(password);
             var authKey = _authClient.Client.GetHashCode().ToString();
             AuthClient authClient;
             UlteriusApiServer.AllClients.TryGetValue(authKey, out authClient);

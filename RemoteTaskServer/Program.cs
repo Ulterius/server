@@ -34,20 +34,11 @@ namespace UlteriusServer
 
         private static void Run()
         {
+           
+
             var handle = GetConsoleWindow();
             // Hide
             ShowWindow(handle, SW_HIDE);
-            Console.CancelKeyPress += delegate { _quitFlag = true; };
-
-
-            if (!Directory.Exists(AppEnvironment.DataPath))
-                Directory.CreateDirectory(AppEnvironment.DataPath);
-
-            if (!Debugger.IsAttached)
-                ExceptionHandler.AddGlobalHandlers();
-
-
-            Console.WriteLine("Exception Handlers attached");
 
 
             Settings.Initialize("Config.json");
@@ -100,11 +91,19 @@ namespace UlteriusServer
                 .Length > 1) Process.GetCurrentProcess().Kill();
 
 
+            if (!Directory.Exists(AppEnvironment.DataPath))
+                Directory.CreateDirectory(AppEnvironment.DataPath);
+
+            if (!Debugger.IsAttached)
+                ExceptionHandler.AddGlobalHandlers();
+
+
+            Console.WriteLine("Exception Handlers attached");
+
             //fixes wrong screensize for screen share
             if (Environment.OSVersion.Version.Major >= 6) SetProcessDPIAware();
             Task.Factory.StartNew(Run);
             UlteriusTray.ShowTray();
-
         }
 
         //Evan will have to support me and my cat once this gets released into the public.

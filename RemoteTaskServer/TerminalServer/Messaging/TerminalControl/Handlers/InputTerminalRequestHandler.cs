@@ -1,10 +1,10 @@
 ﻿#region
 
 using System;
-using System.DirectoryServices.AccountManagement;
 using UlteriusServer.TerminalServer.Infrastructure;
 using UlteriusServer.TerminalServer.Messaging.TerminalControl.Requests;
 using UlteriusServer.TerminalServer.Session;
+using UlteriusServer.Utilities.Security;
 
 #endregion
 
@@ -72,10 +72,9 @@ namespace UlteriusServer.TerminalServer.Messaging.TerminalControl.Handlers
             {
                 code = INVALID_PASSWORD;
             }
-            using (var context = new PrincipalContext(ContextType.Machine))
-            {
-                code = context.ValidateCredentials(GetUsername(), password) ? 2 : 3;
-            }
+
+            code = WindowsAuth.Auth(password) ? 2 : 3;
+
             var authenticated = code == AUTHENTICATED;
             return authenticated;
         }
