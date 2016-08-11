@@ -7,7 +7,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
-using System.Threading;
+using System.Threading.Tasks;
 using System.Web;
 using System.Web.Script.Serialization;
 using UlteriusServer.Api.Services.Network;
@@ -19,7 +19,7 @@ using File = System.IO.File;
 
 #endregion
 
-namespace RemoteTaskServer.WebServer
+namespace UlteriusServer.WebServer
 {
     internal class HttpServer
     {
@@ -112,7 +112,7 @@ namespace RemoteTaskServer.WebServer
 
         private HttpListener _listener;
         private string _rootDirectory;
-        private Thread _serverThread;
+        private Task _serverThread;
 
         /// <summary>
         ///     Construct server with given port.
@@ -159,7 +159,7 @@ namespace RemoteTaskServer.WebServer
         /// </summary>
         public void Stop()
         {
-            _serverThread.Abort();
+            _serverThread.Dispose();
             _listener.Stop();
         }
 
@@ -338,7 +338,7 @@ namespace RemoteTaskServer.WebServer
         {
             _rootDirectory = path;
             Port = port;
-            _serverThread = new Thread(Listen) {IsBackground = true};
+            _serverThread = new Task(Listen);
             _serverThread.Start();
         }
     }

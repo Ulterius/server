@@ -16,7 +16,7 @@ namespace UlteriusServer.Api.Services.Update
     {
         public ClientUpdateService()
         {
-            var updaterChecker = new Thread(Updater) {IsBackground = true};
+            var updaterChecker = new Task(Updater);
             updaterChecker.Start();
         }
 
@@ -29,7 +29,7 @@ namespace UlteriusServer.Api.Services.Update
                 {
                     Console.WriteLine("Client was updated");
                 }
-                Thread.Sleep(new TimeSpan(0, 30, 0));
+                await Task.Delay(new TimeSpan(0, 30, 0));
             }
         }
 

@@ -213,7 +213,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                             };
                             _builder.Endpoint = "cameraframe";
                             _builder.WriteMessage(cameraData);
-                            Thread.Sleep(1200);
+                            Thread.Sleep(200);
                         }
                     }
                 }
