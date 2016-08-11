@@ -2,7 +2,6 @@
 
 using System;
 using System.Collections.Concurrent;
-using System.ComponentModel;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
@@ -19,15 +18,13 @@ namespace UlteriusServer.Api.Network.Messages
 
         public MessageQueueManager()
         {
-            var backgroundWorker = new BackgroundWorker();
-            backgroundWorker.DoWork += BackgroundWorkerOnDoWork;
-            backgroundWorker.RunWorkerAsync();
+            var service = new Task(MessageWorker);
+            service.Start();
         }
 
-        private async void BackgroundWorkerOnDoWork(object sender, DoWorkEventArgs e)
+        private async void MessageWorker()
         {
-            var worker = (BackgroundWorker) sender;
-            while (!worker.CancellationPending)
+            while (true)
             {
                 var packet = SendQueue.Take();
                 if (packet.Type == Message.MessageType.Binary)
@@ -41,8 +38,9 @@ namespace UlteriusServer.Api.Network.Messages
             }
         }
 
+
         /// <summary>
-        /// Sends a JSON based packet 
+        ///     Sends a JSON based packet
         /// </summary>
         /// <param name="packet"></param>
         /// <returns></returns>
@@ -69,7 +67,7 @@ namespace UlteriusServer.Api.Network.Messages
         }
 
         /// <summary>
-        /// Sends an encrypted packet
+        ///     Sends an encrypted packet
         /// </summary>
         /// <param name="packet"></param>
         /// <returns></returns>

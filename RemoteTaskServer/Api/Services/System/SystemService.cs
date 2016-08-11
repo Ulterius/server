@@ -2,7 +2,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -11,6 +10,7 @@ using System.Net.NetworkInformation;
 using System.Runtime.InteropServices;
 using System.Security.Principal;
 using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.VisualBasic.Devices;
 using OpenHardwareMonitor.Hardware;
 using UlteriusServer.Api.Network.Models;
@@ -31,7 +31,6 @@ namespace UlteriusServer.Api.Services.System
         private static ulong AvailablePhysicalMemory => new ComputerInfo().AvailablePhysicalMemory;
 
 
-       
         public void Start()
         {
             //static info
@@ -39,19 +38,13 @@ namespace UlteriusServer.Api.Services.System
             SystemInformation.CdRom = GetCdRom();
             SystemInformation.Bios = GetBiosInfo();
             SystemInformation.RunningAsAdmin = IsRunningAsAdministrator();
-            var backgroundWorker = new BackgroundWorker
-            {
-                WorkerReportsProgress = false,
-                WorkerSupportsCancellation = true
-            };
-            backgroundWorker.DoWork += BackgroundWorkerOnDoWork;
-            backgroundWorker.RunWorkerAsync();
+            var service = new Task(Updater);
+            service.Start();
         }
 
-        private void BackgroundWorkerOnDoWork(object sender, DoWorkEventArgs e)
+        private async void Updater()
         {
-            var worker = (BackgroundWorker) sender;
-            while (!worker.CancellationPending)
+            while (true)
             {
                 try
                 {
@@ -70,10 +63,11 @@ namespace UlteriusServer.Api.Services.System
                     Console.WriteLine(ex.StackTrace);
                     Console.WriteLine(ex.Message);
                 }
+                await Task.Delay(new TimeSpan(0, 0, 10));
             }
         }
 
-      
+
         public string GetMotherBoard()
         {
             if (!string.IsNullOrEmpty(_motherBoard)) return _motherBoard;
@@ -248,7 +242,7 @@ namespace UlteriusServer.Api.Services.System
         //Call me maybe.
         public static Dictionary<string, List<EventLogEntry>> GetEventLogs()
         {
-             var dictionary = new Dictionary<string, List<EventLogEntry>>();
+            var dictionary = new Dictionary<string, List<EventLogEntry>>();
             var d = EventLog.GetEventLogs();
             foreach (var l in d)
             {
