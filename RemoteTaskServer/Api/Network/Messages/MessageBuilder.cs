@@ -26,7 +26,7 @@ namespace UlteriusServer.Api.Network.Messages
 
 
         /// <summary>
-        /// Encrypt a file with AES
+        /// Encrypt a file with AES using only a password
         /// </summary>
         /// <param name="password"></param>
         /// <param name="data"></param>
@@ -45,30 +45,10 @@ namespace UlteriusServer.Api.Network.Messages
             }
         }
 
-        private byte[] EncryptBytes(byte[] data, byte[] keyBytes, byte[] keyIv)
-        {
-            return UlteriusAes.EncryptFile(data, keyBytes, keyIv);
-        }
-
-        public void WriteBinary(byte[] data)
-        {
-            if (_authClient.Client == null) return;
-            try
-            {
-                if (_authClient == null) return;
-                if (!_authClient.AesShook) return;
-                var keyBytes = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(_authClient.AesKey));
-                var keyIv = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(_authClient.AesIv));
-                var encryptedData = EncryptBytes(data, keyBytes, keyIv);
-                var message = new Message(_authClient, encryptedData, Message.MessageType.Binary);
-                UlteriusApiServer.MessageQueueManager.SendQueue.Add(message);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine($"Could not send encrypted message: {e.Message}");
-            }
-        }
-
+        /// <summary>
+        /// Writes a message to the queue.
+        /// </summary>
+        /// <param name="data"></param>
         public void WriteMessage(object data)
         {
             if (_authClient.Client != null)

@@ -67,7 +67,7 @@ namespace UlteriusServer.Utilities
             return (T) Activator.CreateInstance(t);
         }
 
-        private static void OpenPort(ushort port, string name)
+        private static void ForwardPorts(ushort port, string name)
         {
             var firewallPolicy = GetComObject<INetFwPolicy2>(NetFwPolicy2ProgId);
             var firewallRule = GetComObject<INetFwRule2>(NetFwRuleProgId);
@@ -195,7 +195,7 @@ namespace UlteriusServer.Utilities
             Settings.Save();
         }
 
-        public static void OpenPort()
+        public static void ForwardPorts()
         {
             var webServerPort = (int)Settings.Get("WebServer").WebServerPort;
             var apiPort = (int)Settings.Get("TaskServer").TaskServerPort;
@@ -277,10 +277,10 @@ namespace UlteriusServer.Utilities
                 var userdomain = Environment.GetEnvironmentVariable("USERDOMAIN");
                 var command = $@"/C netsh http add urlacl url={prefix} user={userdomain}\{username} listen=yes";
                 Process.Start("CMD.exe", command);
-                OpenPort(webServerPort, "Ulterius Web Server");
-                OpenPort(apiPort, "Ulterius Task Server");
-                OpenPort(terminalPort, "Ulterius Terminal Server");
-                OpenPort(screenSharePort, "Ulterius ScreenShareService");
+                ForwardPorts(webServerPort, "Ulterius Web Server");
+                ForwardPorts(apiPort, "Ulterius Task Server");
+                ForwardPorts(terminalPort, "Ulterius Terminal Server");
+                ForwardPorts(screenSharePort, "Ulterius ScreenShareService");
                
             }
             SetStartup();
@@ -305,7 +305,7 @@ namespace UlteriusServer.Utilities
                 rk?.DeleteValue("Ulterius Server", false);
         }
 
-        public static void InstallClient()
+        public static bool InstallClient()
         {
             try
             {
@@ -318,11 +318,13 @@ namespace UlteriusServer.Utilities
                 }
                 File.Delete("client.zip");
                 Console.WriteLine("Client deleted");
+                return true;
             }
             catch (Exception e)
             {
                 Console.WriteLine(e.Message);
                 Console.WriteLine(e.StackTrace);
+                return false;
             }
         }
 

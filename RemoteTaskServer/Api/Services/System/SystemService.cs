@@ -67,6 +67,7 @@ namespace UlteriusServer.Api.Services.System
                 }
                 catch (Exception ex)
                 {
+                    Console.WriteLine(ex.StackTrace);
                     Console.WriteLine(ex.Message);
                 }
             }
@@ -240,13 +241,14 @@ namespace UlteriusServer.Api.Services.System
             return new WindowsPrincipal(WindowsIdentity.GetCurrent()).IsInRole(WindowsBuiltInRole.Administrator);
         }
 
+        //Everyday We Stray Further From God's Light
         //If you enjoy your computer eating GB's of ram 
         //If you enjoy timeouts
         //When you give up trying to optimize this
         //Call me maybe.
         public static Dictionary<string, List<EventLogEntry>> GetEventLogs()
         {
-            /* var dictionary = new Dictionary<string, List<EventLogEntry>>();
+             var dictionary = new Dictionary<string, List<EventLogEntry>>();
             var d = EventLog.GetEventLogs();
             foreach (var l in d)
             {
@@ -259,8 +261,7 @@ namespace UlteriusServer.Api.Services.System
                     dictionary[categoryName].Add(entry);
                 }
             }
-            return dictionary;*/
-            return null;
+            return dictionary;
         }
 
         public List<DriveInformation> GetDriveInformation()

@@ -8,6 +8,8 @@ namespace UlteriusServer.Api.Network.Messages
 {
     public class Message
     {
+
+       
         public enum MessageType
         {
             Text,
@@ -18,6 +20,8 @@ namespace UlteriusServer.Api.Network.Messages
         public readonly string Json;
         public readonly MessageType Type;
 
+
+     
         public Message(AuthClient authClient, byte[] data, MessageType type)
         {
             AuthClient = authClient;

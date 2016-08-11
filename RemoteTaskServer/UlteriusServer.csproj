@@ -206,6 +206,7 @@
     <Compile Include="Api\Network\Messages\Message.cs" />
     <Compile Include="Api\Network\Messages\MessageQueueManager.cs" />
     <Compile Include="Api\Services\System\FileSearchService.cs" />
+    <Compile Include="Ulterius.cs" />
     <Compile Include="Utilities\Security\WindowsAuth.cs" />
     <Compile Include="WebSocketAPI\Authentication\AuthClient.cs" />
     <Compile Include="Forms\Utilities\UlteriusTray.cs" />

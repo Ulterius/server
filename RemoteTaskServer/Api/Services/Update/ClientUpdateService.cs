@@ -1,70 +1,102 @@
 ﻿#region
 
 using System;
-using System.ComponentModel;
 using System.IO;
-using System.Linq;
-using System.Net;
+using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Threading.Tasks;
 using UlteriusServer.Utilities;
 
 #endregion
 
 namespace UlteriusServer.Api.Services.Update
 {
-    //temporary, just for launch 
     public class ClientUpdateService
     {
-        private readonly BackgroundWorker backgroundWorker;
-
         public ClientUpdateService()
         {
-            backgroundWorker = new BackgroundWorker
-            {
-                WorkerReportsProgress = true,
-                WorkerSupportsCancellation = true
-            };
-            backgroundWorker.DoWork += BackgroundWorkerOnDoWork;
-            backgroundWorker.RunWorkerAsync();
+            var updaterChecker = new Thread(Updater) {IsBackground = true};
+            updaterChecker.Start();
         }
 
-        private void BackgroundWorkerOnDoWork(object sender, DoWorkEventArgs e)
+        private async void Updater()
         {
-            var worker = (BackgroundWorker) sender;
-            while (!worker.CancellationPending)
+            while (true)
             {
-                using (var webpage = new WebClient())
+                var updatedNeeded = await CheckForUpdates();
+                if (updatedNeeded)
                 {
-                    webpage.Headers[HttpRequestHeader.UserAgent] =
-                        "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/535.2 (KHTML, like Gecko) Chrome/15.0.874.121 Safari/535.2";
-                    try
+                    Console.WriteLine("Client was updated");
+                }
+                Thread.Sleep(new TimeSpan(0, 30, 0));
+            }
+        }
+
+
+        private async Task<bool> DownloadUpdate()
+        {
+            try
+            {
+                using (var httpClient = new HttpClient())
+                {
+                    httpClient.Timeout = TimeSpan.FromSeconds(5);
+                    using (var response = await httpClient.GetAsync("https://ulterius.xyz/updates/client.zip"))
                     {
-                        var hash = webpage.DownloadString("https://ulterius.xyz/updates/client.txt").Trim();
-                        //incase cloudflare was downloaded
-                        if (IsValidSha1(hash))
+                        response.EnsureSuccessStatusCode();
+                        using (
+                            var fileStream = new FileStream("client.zip", FileMode.Create, FileAccess.Write,
+                                FileShare.None))
                         {
-                            Console.WriteLine("Client needs to be updated");
-                            var localHash = File.ReadAllText("client.bin");
-                            if (!localHash.Equals(hash))
-                            {
-                                webpage.DownloadFile(new Uri("https://ulterius.xyz/updates/client.zip"), "client.zip");
-                                if (File.Exists("client.zip"))
-                                {
-                                    Console.WriteLine("Updating Client");
-                                    Tools.InstallClient();
-                                    File.WriteAllText("client.bin", hash);
-                                    Console.WriteLine("Client Updated");
-                                }
-                            }
+                            //copy the content from response to filestream
+                            await response.Content.CopyToAsync(fileStream);
+                            return true;
                         }
                     }
-                    catch (Exception)
-                    {
-                        //update failed
-                    }
-                    Thread.Sleep(new TimeSpan(0, 30, 0));
                 }
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine(ex);
+                return false;
+            }
+        }
+
+
+        private async Task<bool> CheckForUpdates()
+        {
+            try
+            {
+                if (File.Exists("client.zip"))
+                {
+                    File.Delete("client.zip");
+                }
+                var clientFile = "client.bin";
+
+                if (!File.Exists(clientFile))
+                {
+                    File.WriteAllText(clientFile, string.Empty);
+                }
+                var localHash = File.ReadAllText(clientFile);
+
+                using (var httpClient = new HttpClient())
+                {
+                    httpClient.Timeout = TimeSpan.FromSeconds(5);
+                    var remoteHash = await httpClient.GetStringAsync("https://ulterius.xyz/updates/client.txt");
+                    if (!IsValidSha1(remoteHash)) return false;
+                    if (localHash.Equals(remoteHash)) return false;
+                    //update needed
+                    if (!await DownloadUpdate()) return false;
+                    if (!Tools.InstallClient()) return false;
+                    File.WriteAllText("client.bin", remoteHash);
+                    File.Delete("client.zip");
+                    return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine(ex);
+                return false;
             }
         }
 
