@@ -41,7 +41,7 @@ namespace UlteriusServer.Api.Services.Update
                 using (var httpClient = new HttpClient())
                 {
                     httpClient.Timeout = TimeSpan.FromSeconds(5);
-                    using (var response = await httpClient.GetAsync("https://ulterius.xyz/updates/client.zip"))
+                    using (var response = await httpClient.GetAsync("https://ulterius.io/updates/client.zip"))
                     {
                         response.EnsureSuccessStatusCode();
                         using (
@@ -82,7 +82,7 @@ namespace UlteriusServer.Api.Services.Update
                 using (var httpClient = new HttpClient())
                 {
                     httpClient.Timeout = TimeSpan.FromSeconds(5);
-                    var remoteHash = await httpClient.GetStringAsync("https://ulterius.xyz/updates/client.txt");
+                    var remoteHash = await httpClient.GetStringAsync("https://ulterius.io/updates/client.txt");
                     if (!IsValidSha1(remoteHash)) return false;
                     if (localHash.Equals(remoteHash)) return false;
                     //update needed

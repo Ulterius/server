@@ -55,7 +55,7 @@ namespace Bootstrapper
                 using (var httpClient = new HttpClient())
                 {
                     httpClient.Timeout = TimeSpan.FromSeconds(5);
-                    var remoteHash = await httpClient.GetStringAsync("https://ulterius.xyz/updates/server.txt");
+                    var remoteHash = await httpClient.GetStringAsync("https://ulterius.io/updates/server.txt");
                     if (!IsValidSha1(remoteHash)) return false;
                     if (localHash.Equals(remoteHash)) return false;
                     //update needed
@@ -107,7 +107,7 @@ namespace Bootstrapper
                 using (var httpClient = new HttpClient())
                 {
                     httpClient.Timeout = TimeSpan.FromSeconds(5);
-                    using (var response = await httpClient.GetAsync("https://ulterius.xyz/updates/server.zip"))
+                    using (var response = await httpClient.GetAsync("https://ulterius.io/updates/server.zip"))
                     {
                         response.EnsureSuccessStatusCode();
                         using (
