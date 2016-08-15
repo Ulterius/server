@@ -191,7 +191,6 @@ namespace UlteriusServer.Api.Network.PacketHandlers
 
             while (_client.Client.IsConnected && camera != null && camera.IsRunning)
             {
-                Console.WriteLine("test");
                 try
 
                 {

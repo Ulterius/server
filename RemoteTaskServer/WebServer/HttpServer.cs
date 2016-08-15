@@ -24,7 +24,7 @@ namespace UlteriusServer.WebServer
     internal class HttpServer
     {
         public static string DefaultPath = AppEnvironment.DataPath +
-                                           @"\client\";
+                                           @"/client/";
 
         private static readonly IDictionary<string, string> MimeTypeMappings =
             new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase)

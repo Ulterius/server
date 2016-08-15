@@ -28,7 +28,15 @@ namespace UlteriusServer.Api
             {
                 screenSharePass = ToSecureString(string.Empty);
             }
-            _server = new ScreenShareServer(_serverName, screenSharePass, NetworkService.GetAddress(), screenSharePort);
+            try
+            {
+                _server = new ScreenShareServer(_serverName, screenSharePass, NetworkService.GetAddress(), screenSharePort);
+            }
+            catch (Exception)
+            {
+
+            
+            }
         }
 
         public string GetServerName()

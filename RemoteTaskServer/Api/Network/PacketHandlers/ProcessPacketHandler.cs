@@ -6,7 +6,6 @@ using System.Diagnostics;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
-using UlteriusServer.Api.Network;
 using UlteriusServer.Api.Network.Messages;
 using UlteriusServer.Api.Network.Models;
 using UlteriusServer.Utilities;
@@ -14,7 +13,7 @@ using UlteriusServer.WebSocketAPI.Authentication;
 
 #endregion
 
-namespace UlteriusServer.Api.Api.Controllers.Impl
+namespace UlteriusServer.Api.Network.PacketHandlers
 {
     public class ProcessPacketHandler : PacketHandler
     {
@@ -84,10 +83,7 @@ namespace UlteriusServer.Api.Api.Controllers.Impl
             {
                 return "null";
             }
-            var icon = IconTools.GetIconForFile(
-                path,
-                ShellIconSize.LargeIcon
-                );
+            var icon = IconTools.GetIconForFile(path,ShellIconSize.LargeIcon);
             if (icon == null) return "null";
             var ms = new MemoryStream();
             icon.ToBitmap().Save(ms, ImageFormat.Png);

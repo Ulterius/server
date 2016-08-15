@@ -45,8 +45,8 @@ namespace UlteriusServer
             {
                 SetProcessDPIAware();
             }
-            Task.Factory.StartNew(Setup);
-            UlteriusTray.ShowTray();
+           Setup();
+          UlteriusTray.ShowTray();
         }
 
         /// <summary>
@@ -66,7 +66,7 @@ namespace UlteriusServer
             if (useWebServer)
             {
                 Console.WriteLine("Setting up HTTP Server");
-                HttpServer.Setup();;
+              HttpServer.Setup();
             }
             systemService = new SystemService();
             Console.WriteLine("Creating system service");
@@ -83,7 +83,7 @@ namespace UlteriusServer
                 if (useUpnp)
                 {
                     Console.WriteLine("Trying to forward ports");
-                    Tools.ForwardPorts();
+                   Tools.ForwardPorts();
                 }
             }
             catch (Exception)

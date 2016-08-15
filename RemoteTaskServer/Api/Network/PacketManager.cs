@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using Newtonsoft.Json.Linq;
-using UlteriusServer.Api.Api.Controllers.Impl;
 using UlteriusServer.Api.Network.Messages;
 using UlteriusServer.Api.Network.PacketHandlers;
 using UlteriusServer.Utilities;
@@ -112,6 +111,7 @@ namespace UlteriusServer.Api.Network
         /// <param name="packetData"></param>
         public PacketManager(AuthClient authClient, string packetData)
         {
+      
             _authClient = authClient;
             try
             {
@@ -323,6 +323,7 @@ namespace UlteriusServer.Api.Network
             }
             try
             {
+             
                 var deserializedPacket = JObject.Parse(_plainText);
                 if (deserializedPacket != null)
                 {

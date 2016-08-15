@@ -4,6 +4,7 @@ using System;
 using System.Diagnostics;
 using System.DirectoryServices.AccountManagement;
 using System.DirectoryServices.ActiveDirectory;
+using System.IO;
 using System.Reflection;
 using UlteriusServer.Api.Network.Messages;
 using UlteriusServer.Utilities.Security;
@@ -67,7 +68,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
 
         public void Login()
         {
-            var strMachineName = Environment.MachineName;
+            
 
             var password = _packet.Args[0].ToString();
             var authenticated = WindowsAuth.Auth(password);
@@ -108,9 +109,8 @@ namespace UlteriusServer.Api.Network.PacketHandlers
             };
             _builder.WriteMessage(data);
             // Starts a new instance of the program itself
-            var fileName = Assembly.GetExecutingAssembly().Location;
+            var fileName = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "Bootstrapper.exe");
             Process.Start(fileName);
-
             // Closes the current process
             Environment.Exit(0);
         }

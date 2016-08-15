@@ -47,16 +47,17 @@ namespace UlteriusServer.Api.Network.PacketHandlers
             });
         }
 
+   
+
         private float? GetGpuTemp(string gpuName)
         {
             var myComputer = new Computer();
-
             myComputer.Open();
             //possible fix for gpu temps on laptops
-            myComputer.FanControllerEnabled = true;
             myComputer.GPUEnabled = true;
             foreach (var hardwareItem in myComputer.Hardware)
             {
+                hardwareItem.Update();
                 switch (hardwareItem.HardwareType)
                 {
                     case HardwareType.GpuNvidia:

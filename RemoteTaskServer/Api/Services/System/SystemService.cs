@@ -34,12 +34,14 @@ namespace UlteriusServer.Api.Services.System
         public void Start()
         {
             //static info
-            SystemInformation.MotherBoard = GetMotherBoard();
-            SystemInformation.CdRom = GetCdRom();
-            SystemInformation.Bios = GetBiosInfo();
-            SystemInformation.RunningAsAdmin = IsRunningAsAdministrator();
-            var service = new Task(Updater);
-            service.Start();
+       
+               SystemInformation.MotherBoard = GetMotherBoard();
+                SystemInformation.CdRom = GetCdRom();
+                SystemInformation.Bios = GetBiosInfo();
+                SystemInformation.RunningAsAdmin = IsRunningAsAdministrator();
+                var service = new Task(Updater);
+                service.Start();
+            
         }
 
         private async void Updater()

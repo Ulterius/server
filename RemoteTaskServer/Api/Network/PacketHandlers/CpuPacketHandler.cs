@@ -3,6 +3,7 @@
 using System;
 using System.Linq;
 using System.Management;
+using OpenHardwareMonitor.Hardware;
 using UlteriusServer.Api.Network.Messages;
 using UlteriusServer.Api.Network.Models;
 using UlteriusServer.WebSocketAPI.Authentication;
@@ -41,7 +42,6 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                 CpuInformation.L3Cache = (uint) cpu["L3CacheSize"]*(ulong) 1024;
                 CpuInformation.Cores = (uint) cpu["NumberOfCores"];
                 CpuInformation.Threads = (uint) cpu["NumberOfLogicalProcessors"];
-
                 CpuInformation.Name =
                     CpuInformation.Name
                         .Replace("(TM)", "™")
@@ -56,6 +56,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
             _builder.WriteMessage(CpuInformation.ToObject());
         }
 
+  
         public override void HandlePacket(Packet packet)
         {
             _client = packet.AuthClient;
