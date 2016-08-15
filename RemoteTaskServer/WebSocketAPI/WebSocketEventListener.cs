@@ -37,7 +37,6 @@ namespace UlteriusServer.WebSocketAPI
         {
             _listener = new WebSocketListener(endpoint, options);
             var rfc6455 = new WebSocketFactoryRfc6455(_listener);
-            rfc6455.MessageExtensions.RegisterExtension(new WebSocketDeflateExtension());
             _listener.Standards.RegisterStandard(rfc6455);
         }
 
