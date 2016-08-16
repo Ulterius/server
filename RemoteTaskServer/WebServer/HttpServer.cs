@@ -163,7 +163,7 @@ namespace UlteriusServer.WebServer
             _listener.Stop();
         }
 
-        private void Listen()
+        private async void Listen()
         {
             var prefix = "http://*:22006/";
             var username = Environment.GetEnvironmentVariable("USERNAME");
@@ -192,7 +192,7 @@ namespace UlteriusServer.WebServer
             {
                 try
                 {
-                    var context = _listener.GetContext();
+                    var context = await _listener.GetContextAsync();
                     Process(context);
                 }
                 catch (Exception)

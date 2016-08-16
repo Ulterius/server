@@ -77,7 +77,7 @@ namespace UlteriusServer.Api.Network.Messages
                     }
                 }
                 catch (Exception e)
-                {
+                {   
                     Console.WriteLine($"Could not send encrypted message: {e.Message}");
                     return;
                 }
