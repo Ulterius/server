@@ -81,7 +81,7 @@ namespace UlteriusServer.Api.Network.Messages
                     Console.WriteLine($"Could not send encrypted message: {e.Message}");
                     return;
                 }
-                var jsonMessage = new Message(_authClient, json, Message.MessageType.Binary);
+                var jsonMessage = new Message(_authClient, json, Message.MessageType.Text);
                 UlteriusApiServer.MessageQueueManager.SendQueue.Add(jsonMessage);
             }
         }
