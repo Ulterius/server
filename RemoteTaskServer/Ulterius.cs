@@ -83,7 +83,7 @@ namespace UlteriusServer
                 if (useUpnp)
                 {
                     Console.WriteLine("Trying to forward ports");
-                   Tools.ForwardPorts();
+                  Tools.ForwardPorts();
                 }
             }
             catch (Exception)

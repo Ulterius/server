@@ -321,15 +321,15 @@ namespace UlteriusServer.Utilities
     private static void SetStartup()
         {
             Console.WriteLine("Set Startup");
-            var rk = Registry.CurrentUser.OpenSubKey
+            var rk = Registry.LocalMachine.OpenSubKey
                 ("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true);
 
             var runStartup = Convert.ToBoolean(Settings.Get("General").RunStartup);
             var fileName = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "Bootstrapper.exe");
             if (runStartup)
-                rk?.SetValue("Ulterius Bootstrap", $"\"{fileName}\"");
+                rk?.SetValue("Ulterius", $"\"{fileName}\"");
             else
-                rk?.DeleteValue("Ulterius Bootstrap", false);
+                rk?.DeleteValue("Ulterius", false);
         }
 
         public static bool InstallClient()
