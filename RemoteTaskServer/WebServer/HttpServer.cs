@@ -7,6 +7,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Script.Serialization;
@@ -112,7 +113,7 @@ namespace UlteriusServer.WebServer
 
         private HttpListener _listener;
         private string _rootDirectory;
-        private Task _serverThread;
+        private Thread _serverThread;
 
         /// <summary>
         ///     Construct server with given port.
@@ -159,7 +160,7 @@ namespace UlteriusServer.WebServer
         /// </summary>
         public void Stop()
         {
-            _serverThread.Dispose();
+            _serverThread.Abort( );
             _listener.Stop();
         }
 
@@ -338,7 +339,7 @@ namespace UlteriusServer.WebServer
         {
             _rootDirectory = path;
             Port = port;
-            _serverThread = new Task(Listen);
+            _serverThread = new Thread(Listen);
             _serverThread.Start();
         }
     }

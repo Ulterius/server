@@ -40,13 +40,14 @@ namespace UlteriusServer
                 ExceptionHandler.AddGlobalHandlers();
                 Console.WriteLine("Exception Handlers Attached");
             }
+
             //Fix screensize issues for Screen Share
             if (Environment.OSVersion.Version.Major >= 6)
             {
                 SetProcessDPIAware();
-            }
+              }
            Setup();
-          UlteriusTray.ShowTray();
+         
         }
 
         /// <summary>
@@ -90,7 +91,7 @@ namespace UlteriusServer
             {
                 Console.WriteLine("Failed to forward ports");
             }
-           
+            UlteriusTray.ShowTray();
             while (!stop)
             {
                 Thread.Sleep(1);

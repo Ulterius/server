@@ -20,6 +20,7 @@ namespace Bootstrapper
     internal class Program
     {
         private const int SW_HIDE = 0;
+        private static string serverFile;
 
         [DllImport("kernel32.dll")]
         private static extern IntPtr GetConsoleWindow();
@@ -44,12 +45,7 @@ namespace Bootstrapper
                 {
                     File.Delete("Bootstrapper-old.exe");
                 }
-                var serverFile = "server.bin";
 
-                if (!File.Exists(serverFile))
-                {
-                    File.WriteAllText(serverFile, string.Empty);
-                }
                 var localHash = File.ReadAllText(serverFile);
 
                 using (var httpClient = new HttpClient())
@@ -130,30 +126,59 @@ namespace Bootstrapper
 
         private static void Main(string[] args)
         {
-            var handle = GetConsoleWindow();
-            // Hide
-            ShowWindow(handle, SW_HIDE);
-
             if (Process.GetProcessesByName(
                 Path.GetFileNameWithoutExtension(Assembly.GetEntryAssembly().Location))
                 .Length > 1) Process.GetCurrentProcess().Kill();
 
             if (Process.GetProcessesByName("Ulterius Server").Length > 0)
             {
-                // server is running so kill
-                return;
+                Process.GetCurrentProcess().Kill();
             }
-            var filestream = new FileStream("bootstrap.log",
-                FileMode.Create);
-            var streamwriter = new StreamWriter(filestream) {AutoFlush = true};
-            Console.SetOut(streamwriter);
-            Console.SetError(streamwriter);
+            if (UacHelper.IsProcessElevated)
+            {
+                var handle = GetConsoleWindow();
+                // Hide
+                ShowWindow(handle, SW_HIDE);
 
-            AsyncContext.Run(() => MainAsync(args));
+                var filestream = new FileStream("bootstrap.log",
+                    FileMode.Create);
+                var streamwriter = new StreamWriter(filestream) {AutoFlush = true};
+                Console.SetOut(streamwriter);
+                Console.SetError(streamwriter);
+                AsyncContext.Run(() => MainAsync(args));
+            }
+            else
+            {
+                //restart as admin, needed to ensure windows lets as start at startup
+                var info = new ProcessStartInfo(Assembly.GetEntryAssembly().Location)
+                {
+                    Verb = "runas",
+                    WorkingDirectory = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)
+                };
+                var process = new Process
+                {
+                    EnableRaisingEvents = true, // enable WaitForExit()
+                    StartInfo = info
+                };
+                try
+                {
+                    process.Start();
+                    Process.GetCurrentProcess().Kill();
+                }
+                catch (Exception)
+                {
+                    Console.WriteLine("Failed to start Ulterius -- Admin required");
+                }
+            }
         }
 
         private static async void MainAsync(string[] args)
         {
+            serverFile = "server.bin";
+            if (!File.Exists(serverFile))
+            {
+                File.WriteAllText(serverFile, string.Empty);
+            }
             Console.WriteLine("Update:" + await CheckForUpdates());
             try
             {

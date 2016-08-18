@@ -23,10 +23,15 @@ namespace UlteriusServer
     {
 
         //Evan will have to support me and my cat once this gets released into the public.
+     
         private static void Main(string[] args)
+
         {
-           var ulterius = new Ulterius();
+          
+            var ulterius = new Ulterius();
             ulterius.Start();
+          
+
         }
     }
 }

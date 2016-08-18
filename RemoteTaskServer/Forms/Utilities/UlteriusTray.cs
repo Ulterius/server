@@ -79,8 +79,7 @@ namespace UlteriusServer.Forms.Utilities
 
         public static void ShowTray()
         {
-
-         RefreshTrayArea();
+            RefreshTrayArea();
             Menu = new ContextMenu();
             RestartProgram = new MenuItem("Restart Server");
             ExitProgram = new MenuItem("Exit");
@@ -92,26 +91,24 @@ namespace UlteriusServer.Forms.Utilities
             Menu.MenuItems.Add(2, OpenClient);
             Menu.MenuItems.Add(3, OpenSettings);
             Menu.MenuItems.Add(4, OpenLogs);
-
+            ExitProgram.Click += ExitEvent;
+            RestartProgram.Click += RestartEvent;
+            OpenClient.Click += OpenClientEvent;
+            OpenSettings.Click += OpenSettingsEvent;
+            OpenLogs.Click += OpenLogsEvent;
             NotificationIcon = new NotifyIcon
             {
                 Icon = Resources.ApplicationIcon,
                 BalloonTipIcon = ToolTipIcon.Info,
                 BalloonTipText = "Ulterius Server Started -- Open the Client in the Tray Icon",
                 ContextMenu = Menu,
-                Text = "Main"
+                Text = "Ulterius Server",
+                Visible = true
             };
-           
-
-
-            ExitProgram.Click += ExitEvent;
-            RestartProgram.Click += RestartEvent;
-            OpenClient.Click += OpenClientEvent;
-            OpenSettings.Click += OpenSettingsEvent;
-            OpenLogs.Click += OpenLogsEvent;
-            NotificationIcon.Visible = true;
+            Console.WriteLine("Starting notify icon");
             NotificationIcon.ShowBalloonTip(5000);
             Application.Run();
+            Console.WriteLine("Started");
 
 
         }

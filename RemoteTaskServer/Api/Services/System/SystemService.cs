@@ -34,14 +34,22 @@ namespace UlteriusServer.Api.Services.System
         public void Start()
         {
             //static info
-       
-               SystemInformation.MotherBoard = GetMotherBoard();
+
+            try
+            {
+                SystemInformation.MotherBoard = GetMotherBoard();
                 SystemInformation.CdRom = GetCdRom();
                 SystemInformation.Bios = GetBiosInfo();
                 SystemInformation.RunningAsAdmin = IsRunningAsAdministrator();
                 var service = new Task(Updater);
                 service.Start();
-            
+            }
+            catch (Exception ex)
+            {
+
+                Console.WriteLine(ex.Message);
+                Console.WriteLine(ex.StackTrace);
+            }
         }
 
         private async void Updater()
@@ -269,19 +277,27 @@ namespace UlteriusServer.Api.Services.System
             var drives = DriveInfo.GetDrives();
             for (var index = 0; index < drives.Length; index++)
             {
-                var drive = drives[index];
-                var driveInfo = new DriveInformation();
-                if (!drive.IsReady) continue;
-                driveInfo.Model = driveNames.ElementAtOrDefault(index) != null ? driveNames[index] : "Unknown Model";
-                driveInfo.Name = drive.Name;
-                driveInfo.FreeSpace = drive.TotalFreeSpace;
-                driveInfo.TotalSize = drive.TotalSize;
-                driveInfo.DriveType = drive.DriveType.ToString();
-                driveInfo.DriveFormat = drive.DriveFormat;
-                driveInfo.VolumeLabel = drive.VolumeLabel;
-                driveInfo.RootDirectory = drive.RootDirectory.ToString();
-                driveInfo.IsReady = drive.IsReady;
-                driveList.Add(driveInfo);
+                try
+                {
+                    var drive = drives[index];
+                    var driveInfo = new DriveInformation();
+                    if (!drive.IsReady) continue;
+                    driveInfo.Model = driveNames.ElementAtOrDefault(index) != null ? driveNames[index] : "Unknown Model";
+                    driveInfo.Name = drive.Name;
+                    driveInfo.FreeSpace = drive.TotalFreeSpace;
+                    driveInfo.TotalSize = drive.TotalSize;
+                    driveInfo.DriveType = drive.DriveType.ToString();
+                    driveInfo.DriveFormat = drive.DriveFormat;
+                    driveInfo.VolumeLabel = drive.VolumeLabel;
+                    driveInfo.RootDirectory = drive.RootDirectory.ToString();
+                    driveInfo.IsReady = drive.IsReady;
+                    driveList.Add(driveInfo);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                    Console.WriteLine(ex.StackTrace);
+                }
             }
             return driveList;
         }

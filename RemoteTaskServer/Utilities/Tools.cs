@@ -321,7 +321,7 @@ namespace UlteriusServer.Utilities
     private static void SetStartup()
         {
             Console.WriteLine("Set Startup");
-            var rk = Registry.LocalMachine.OpenSubKey
+            var rk = Registry.CurrentUser.OpenSubKey
                 ("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true);
 
             var runStartup = Convert.ToBoolean(Settings.Get("General").RunStartup);
