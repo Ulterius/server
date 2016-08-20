@@ -2,6 +2,7 @@
 
 using System;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Ionic.Zlib;
@@ -204,11 +205,11 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                                 var compressed = ZlibStream.CompressBuffer(imageBytes);
                                 binaryWriter.Write(compressed);
                             }
-
+                            //JSON.net turns my byte array into base64.
                             var cameraData = new
                             {
                                 cameraId,
-                                cameraData = memoryStream.ToArray()
+                                cameraData = memoryStream.ToArray().Select(b => (int)b).ToArray()
                             };
                             _builder.Endpoint = "cameraframe";
                             _builder.WriteMessage(cameraData);

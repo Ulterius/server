@@ -26,7 +26,7 @@ namespace UlteriusServer.Api.Network.Messages
 
 
         /// <summary>
-        /// Encrypt a file with AES using only a password
+        ///     Encrypt a file with AES using only a password
         /// </summary>
         /// <param name="password"></param>
         /// <param name="data"></param>
@@ -46,7 +46,7 @@ namespace UlteriusServer.Api.Network.Messages
         }
 
         /// <summary>
-        /// Writes a message to the queue.
+        ///     Writes a message to the queue.
         /// </summary>
         /// <param name="data"></param>
         public void WriteMessage(object data)
@@ -59,6 +59,8 @@ namespace UlteriusServer.Api.Network.Messages
                     synckey,
                     results = data
                 });
+
+
                 try
                 {
                     if (_authClient != null)
@@ -75,7 +77,7 @@ namespace UlteriusServer.Api.Network.Messages
                     }
                 }
                 catch (Exception e)
-                {   
+                {
                     Console.WriteLine($"Could not send encrypted message: {e.Message}");
                     return;
                 }

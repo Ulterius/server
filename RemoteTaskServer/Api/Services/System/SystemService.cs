@@ -354,10 +354,11 @@ namespace UlteriusServer.Api.Services.System
                         attr.Current = value;
                         attr.Worst = worst;
                         attr.Data = vendordata;
-                        attr.IsOK = failureImminent == false;
+                        attr.IsOk = failureImminent == false;
                     }
                     catch
                     {
+                        // ignored
                     }
                 }
                 iDriveIndex++;
@@ -381,6 +382,7 @@ namespace UlteriusServer.Api.Services.System
                     }
                     catch
                     {
+                        // ignored
                     }
                 }
 
