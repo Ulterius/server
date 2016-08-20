@@ -92,7 +92,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
             var authenticationData = new
             {
                 authenticated,
-                message = authenticated ? "Login was successfull" : "Login was unsuccessful"
+                message = authenticated ? "Login was successful" : "Login was unsuccessful"
             };
             _builder.WriteMessage(authenticationData);
         }
