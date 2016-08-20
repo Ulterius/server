@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 using Microsoft.VisualBasic.Devices;
 using OpenHardwareMonitor.Hardware;
 using UlteriusServer.Api.Network.Models;
+using UlteriusServer.Utilities.Drive;
 using Computer = OpenHardwareMonitor.Hardware.Computer;
 
 #endregion
@@ -46,7 +47,6 @@ namespace UlteriusServer.Api.Services.System
             }
             catch (Exception ex)
             {
-
                 Console.WriteLine(ex.Message);
                 Console.WriteLine(ex.StackTrace);
             }
@@ -270,34 +270,121 @@ namespace UlteriusServer.Api.Services.System
 
         public List<DriveInformation> GetDriveInformation()
         {
-            var q = new WqlObjectQuery("SELECT * FROM Win32_DiskDrive");
-            var res = new ManagementObjectSearcher(q);
-            var driveNames = (from ManagementBaseObject o in res.Get() select o["Model"]?.ToString()).ToList();
+            var wdSearcher = new ManagementObjectSearcher("SELECT * FROM Win32_DiskDrive");
+
+            // extract model and interface information
+            var iDriveIndex = 0;
             var driveList = new List<DriveInformation>();
-            var drives = DriveInfo.GetDrives();
-            for (var index = 0; index < drives.Length; index++)
+            var di = DriveInfo.GetDrives();
+
+            foreach (var o in wdSearcher.Get())
             {
-                try
+                var driveInfo = new DriveInformation();
+                var drive = (ManagementObject) o;
+                var type = drive["InterfaceType"].ToString().Trim();
+                var model = drive["Model"].ToString().Trim();
+                if (type.Equals("IDE"))
                 {
-                    var drive = drives[index];
-                    var driveInfo = new DriveInformation();
-                    if (!drive.IsReady) continue;
-                    driveInfo.Model = driveNames.ElementAtOrDefault(index) != null ? driveNames[index] : "Unknown Model";
-                    driveInfo.Name = drive.Name;
-                    driveInfo.FreeSpace = drive.TotalFreeSpace;
-                    driveInfo.TotalSize = drive.TotalSize;
-                    driveInfo.DriveType = drive.DriveType.ToString();
-                    driveInfo.DriveFormat = drive.DriveFormat;
-                    driveInfo.VolumeLabel = drive.VolumeLabel;
-                    driveInfo.RootDirectory = drive.RootDirectory.ToString();
-                    driveInfo.IsReady = drive.IsReady;
+                    Console.WriteLine(model);
+                    var driveData = di[iDriveIndex];
+                    driveInfo.Model = model;
+                    driveInfo.Name = driveData.Name;
+                    driveInfo.FreeSpace = driveData.TotalFreeSpace;
+                    driveInfo.TotalSize = driveData.TotalSize;
+                    driveInfo.DriveType = driveData.DriveType.ToString();
+                    driveInfo.DriveFormat = driveData.DriveFormat;
+                    driveInfo.VolumeLabel = driveData.VolumeLabel;
+                    driveInfo.RootDirectory = driveData.RootDirectory.ToString();
+                    driveInfo.IsReady = driveData.IsReady;
+                    driveInfo.SmartInfo = new Disk
+                    {
+                        Model = driveInfo.Model,
+                        Type = type
+                    };
                     driveList.Add(driveInfo);
+                    iDriveIndex++;
                 }
-                catch (Exception ex)
+            }
+            var pmsearcher = new ManagementObjectSearcher("SELECT * FROM Win32_PhysicalMedia");
+            // retrieve hdd serial number
+            iDriveIndex = 0;
+            foreach (var o in pmsearcher.Get())
+            {
+                var drive = (ManagementObject) o;
+                // because all physical media will be returned we need to exit
+                // after the hard drives serial info is extracted
+                if (iDriveIndex >= driveList.Count)
+                    break;
+                driveList[iDriveIndex].SmartInfo.Serial = drive["SerialNumber"]?.ToString().Trim() ?? "None";
+                iDriveIndex++;
+            }
+            var searcher = new ManagementObjectSearcher("Select * from Win32_DiskDrive")
+            {
+                Scope = new ManagementScope(@"\root\wmi"),
+                Query = new ObjectQuery("Select * from MSStorageDriver_FailurePredictStatus")
+            };
+            // check if SMART reports the drive is failing
+            iDriveIndex = 0;
+            foreach (var o in searcher.Get())
+            {
+                var drive = (ManagementObject) o;
+                driveList[iDriveIndex].SmartInfo.IsOk = (bool) drive.Properties["PredictFailure"].Value == false;
+                iDriveIndex++;
+            }
+            searcher.Query = new ObjectQuery("Select * from MSStorageDriver_FailurePredictData");
+            iDriveIndex = 0;
+            foreach (var o in searcher.Get())
+            {
+                var data = (ManagementObject) o;
+                var bytes = (byte[]) data.Properties["VendorSpecific"].Value;
+                for (var i = 0; i < 30; ++i)
                 {
-                    Console.WriteLine(ex.Message);
-                    Console.WriteLine(ex.StackTrace);
+                    try
+                    {
+                        int id = bytes[i*12 + 2];
+
+                        int flags = bytes[i*12 + 4];
+                        var failureImminent = (flags & 0x1) == 0x1;
+                        int value = bytes[i*12 + 5];
+                        int worst = bytes[i*12 + 6];
+                        var vendordata = BitConverter.ToInt32(bytes, i*12 + 7);
+                        if (id == 0) continue;
+
+                        var attr = driveList[iDriveIndex].SmartInfo.Attributes[id];
+                        attr.Current = value;
+                        attr.Worst = worst;
+                        attr.Data = vendordata;
+                        attr.IsOK = failureImminent == false;
+                    }
+                    catch
+                    {
+                    }
                 }
+                iDriveIndex++;
+            }
+            searcher.Query = new ObjectQuery("Select * from MSStorageDriver_FailurePredictThresholds");
+            iDriveIndex = 0;
+            foreach (var o in searcher.Get())
+            {
+                var data = (ManagementObject) o;
+                var bytes = (byte[]) data.Properties["VendorSpecific"].Value;
+                for (var i = 0; i < 30; ++i)
+                {
+                    try
+                    {
+                        int id = bytes[i*12 + 2];
+                        int thresh = bytes[i*12 + 3];
+                        if (id == 0) continue;
+
+                        var attr = driveList[iDriveIndex].SmartInfo.Attributes[id];
+                        attr.Threshold = thresh;
+                    }
+                    catch
+                    {
+                    }
+                }
+
+                iDriveIndex++;
             }
             return driveList;
         }

@@ -10,7 +10,8 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
-using System.Web.Script.Serialization;
+using MassTransit.Transports;
+using Newtonsoft.Json;
 using UlteriusServer.Api.Services.Network;
 using UlteriusServer.Properties;
 using UlteriusServer.Utilities;
@@ -233,7 +234,8 @@ namespace UlteriusServer.WebServer
                             success = saved,
                             message = "File Uploaded!"
                         };
-                        var json = new JavaScriptSerializer().Serialize(responseObject);
+                        var json = JsonConvert.SerializeObject(responseObject);
+    
                         writer.WriteLine(json);
                     }
                     else
@@ -244,7 +246,7 @@ namespace UlteriusServer.WebServer
                             success = false,
                             message = "The posted file was not recognised."
                         };
-                        var json = new JavaScriptSerializer().Serialize(responseObject);
+                        var json = JsonConvert.SerializeObject(responseObject);
                         writer.WriteLine(json);
                     }
                     context.Response.AddHeader("Access-Control-Allow-Origin", "*");

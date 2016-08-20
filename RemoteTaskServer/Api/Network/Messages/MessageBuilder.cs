@@ -2,7 +2,7 @@
 
 using System;
 using System.Text;
-using System.Web.Script.Serialization;
+using Newtonsoft.Json;
 using UlteriusServer.Utilities.Security;
 using UlteriusServer.WebSocketAPI.Authentication;
 
@@ -53,14 +53,12 @@ namespace UlteriusServer.Api.Network.Messages
         {
             if (_authClient.Client != null)
             {
-                var serializer = new JavaScriptSerializer {MaxJsonLength = int.MaxValue};
-                var json = serializer.Serialize(new
+                var json = JsonConvert.SerializeObject(new
                 {
                     endpoint = Endpoint,
                     synckey,
                     results = data
                 });
-
                 try
                 {
                     if (_authClient != null)

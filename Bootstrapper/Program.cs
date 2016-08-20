@@ -163,7 +163,7 @@ namespace Bootstrapper
                 try
                 {
                     process.Start();
-                    Process.GetCurrentProcess().Kill();
+                    Environment.Exit(0);
                 }
                 catch (Exception)
                 {

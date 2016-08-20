@@ -164,7 +164,6 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="System.Web" />
-    <Reference Include="System.Web.Extensions" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xaml" />
     <Reference Include="System.Xml.Linq" />
@@ -203,6 +202,8 @@
     <Compile Include="Api\Network\Messages\MessageQueueManager.cs" />
     <Compile Include="Api\Services\System\FileSearchService.cs" />
     <Compile Include="Ulterius.cs" />
+    <Compile Include="Utilities\Drive\Disk.cs" />
+    <Compile Include="Utilities\Drive\Smart.cs" />
     <Compile Include="Utilities\Security\WindowsAuth.cs" />
     <Compile Include="WebSocketAPI\Authentication\AuthClient.cs" />
     <Compile Include="Forms\Utilities\UlteriusTray.cs" />

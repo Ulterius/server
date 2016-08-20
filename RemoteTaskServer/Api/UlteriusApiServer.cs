@@ -5,7 +5,7 @@ using System.Collections.Concurrent;
 using System.IO;
 using System.Net;
 using System.Threading;
-using System.Web.Script.Serialization;
+using Newtonsoft.Json;
 using UlteriusServer.Api.Network;
 using UlteriusServer.Api.Network.Messages;
 using UlteriusServer.Api.Services.Network;
@@ -143,7 +143,7 @@ namespace UlteriusServer.Api
         /// <param name="clientSocket"></param>
         private static void SendWelcomeMessage(AuthClient client, WebSocket clientSocket)
         {
-            var welcomeMessage = new JavaScriptSerializer().Serialize(new
+            var welcomeMessage = JsonConvert.SerializeObject(new
             {
                 endpoint = "connectedToUlterius",
                 results = new

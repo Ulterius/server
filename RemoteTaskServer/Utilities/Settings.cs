@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Dynamic;
 using System.IO;
-using System.Web.Script.Serialization;
 using Newtonsoft.Json;
 
 #endregion
@@ -101,9 +100,10 @@ namespace UlteriusServer.Utilities
         /// <returns>object.</returns>
         public static object GetRaw()
         {
-            var jsonSerializer = new JavaScriptSerializer();
+          
             //Thanks microsoft
-            var settings = (IDictionary<string, object>) jsonSerializer.DeserializeObject(File.ReadAllText(FilePath));
+            var settings = JsonConvert.DeserializeObject<IDictionary<string, object>>(File.ReadAllText(FilePath));
+
             return settings;
         }
 

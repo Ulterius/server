@@ -1,6 +1,7 @@
 ﻿#region
 
-using System.Web.Script.Serialization;
+
+using Newtonsoft.Json;
 using UlteriusPluginBase;
 
 #endregion
@@ -16,7 +17,8 @@ namespace UlteriusServer.Plugins
         public string Guid;
         public string Icon;
 
-        [ScriptIgnore] public IUlteriusPlugin Instance;
+        [JsonIgnore]
+        public IUlteriusPlugin Instance;
 
         public string JavaScript;
         public string Product;

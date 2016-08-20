@@ -1,4 +1,10 @@
-﻿namespace UlteriusServer.Api.Network.Models
+﻿#region
+
+using UlteriusServer.Utilities.Drive;
+
+#endregion
+
+namespace UlteriusServer.Api.Network.Models
 
 {
     public class DriveInformation
@@ -13,5 +19,7 @@
         public string DriveType { get; set; }
         public string RootDirectory { get; set; }
         public string Model { get; set; }
+
+       public Disk SmartInfo { get; set; }
     }
 }
