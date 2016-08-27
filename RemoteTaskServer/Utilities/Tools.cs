@@ -6,7 +6,6 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
-using System.Net.Sockets;
 using System.Reflection;
 using System.Security.Principal;
 using System.Text;
@@ -237,12 +236,8 @@ namespace UlteriusServer.Utilities
                         return device.CreatePortMapAsync(
                             new Mapping(Protocol.Tcp, terminalPort, terminalPort, 0, "Ulterius Terminal"));
                     })
-
                     .Unwrap()
-                    .ContinueWith(task =>
-                    {
-                        Console.WriteLine("Ports forwarded!");
-                    });
+                    .ContinueWith(task => { Console.WriteLine("Ports forwarded!"); });
             }, TaskContinuationOptions.OnlyOnRanToCompletion);
 
             try
@@ -260,38 +255,31 @@ namespace UlteriusServer.Utilities
 
         public static void ConfigureServer()
         {
-            //var filestream = new FileStream(Path.Combine(AppEnvironment.DataPath, "server.log"),
-            //    FileMode.Create);
-            //var streamwriter = new StreamWriter(filestream) {AutoFlush = true};
-         //   Console.SetOut(streamwriter);
-         //   Console.SetError(streamwriter);
+            var filestream = new FileStream(Path.Combine(AppEnvironment.DataPath, "server.log"),
+                FileMode.Create);
+            var streamwriter = new StreamWriter(filestream) {AutoFlush = true};
+            Console.SetOut(streamwriter);
+            Console.SetError(streamwriter);
             if (Settings.Empty)
             {
                 //setup listen sh
                 GenerateSettings();
-               
-                    var webServerPort = (ushort)Settings.Get("WebServer").WebServerPort;
-                    var apiPort = (ushort)Settings.Get("TaskServer").TaskServerPort;
-                    var terminalPort = (ushort)22008;
-                    var screenSharePort = (ushort)Settings.Get("ScreenShareService").ScreenSharePort;
-                    var prefix = $"http://*:{webServerPort}/";
-                    var username = Environment.GetEnvironmentVariable("USERNAME");
-                    var userdomain = Environment.GetEnvironmentVariable("USERDOMAIN");
-                    var command = $@"/C netsh http add urlacl url={prefix} user={userdomain}\{username} listen=yes";
-                    Process.Start("CMD.exe", command);
-                    ForwardPorts(webServerPort, "Ulterius Web Server");
-                    ForwardPorts(apiPort, "Ulterius Task Server");
-                    ForwardPorts(terminalPort, "Ulterius Terminal Server");
-                    ForwardPorts(screenSharePort, "Ulterius ScreenShareService");
-                
-              
 
+                var webServerPort = (ushort) Settings.Get("WebServer").WebServerPort;
+                var apiPort = (ushort) Settings.Get("TaskServer").TaskServerPort;
+                var terminalPort = (ushort) 22008;
+                var screenSharePort = (ushort) Settings.Get("ScreenShareService").ScreenSharePort;
+                var prefix = $"http://*:{webServerPort}/";
+                var username = Environment.GetEnvironmentVariable("USERNAME");
+                var userdomain = Environment.GetEnvironmentVariable("USERDOMAIN");
+                var command = $@"/C netsh http add urlacl url={prefix} user={userdomain}\{username} listen=yes";
+                Process.Start("CMD.exe", command);
+                ForwardPorts(webServerPort, "Ulterius Web Server");
+                ForwardPorts(apiPort, "Ulterius Task Server");
+                ForwardPorts(terminalPort, "Ulterius Terminal Server");
+                ForwardPorts(screenSharePort, "Ulterius ScreenShareService");
             }
-           
-                SetStartup();
-            
-            
-
+            SetStartup();
             if (File.Exists("client.zip"))
             {
                 InstallClient();
@@ -300,8 +288,8 @@ namespace UlteriusServer.Utilities
 
         public static bool IsWindows()
         {
-            OperatingSystem os = Environment.OSVersion;
-            PlatformID pid = os.Platform;
+            var os = Environment.OSVersion;
+            var pid = os.Platform;
             switch (pid)
             {
                 case PlatformID.Win32NT:
@@ -309,23 +297,24 @@ namespace UlteriusServer.Utilities
                 case PlatformID.Win32Windows:
                 case PlatformID.WinCE:
                     return true;
-                
+
                 case PlatformID.Unix:
                     return false;
                 default:
                     return false;
             }
         }
-    
 
-    private static void SetStartup()
+
+        private static void SetStartup()
         {
             Console.WriteLine("Set Startup");
             var rk = Registry.CurrentUser.OpenSubKey
                 ("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true);
 
             var runStartup = Convert.ToBoolean(Settings.Get("General").RunStartup);
-            var fileName = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "Bootstrapper.exe");
+            var fileName = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
+                "Bootstrapper.exe");
             if (runStartup)
                 rk?.SetValue("Ulterius", $"\"{fileName}\"");
             else

@@ -55,7 +55,7 @@ namespace UlteriusServer
         /// </summary>
         private void Setup()
         {
-            //HideWindow();
+            HideWindow();
             Console.WriteLine("Creating settings");
             Settings.Initialize("Config.json");
             Console.WriteLine("Configuring up server");
