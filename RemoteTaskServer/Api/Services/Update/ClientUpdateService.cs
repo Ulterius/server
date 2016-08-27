@@ -14,12 +14,13 @@ namespace UlteriusServer.Api.Services.Update
 {
     public class ClientUpdateService
     {
-        public ClientUpdateService()
+    
+
+        public void Start()
         {
             var updaterChecker = new Task(Updater);
             updaterChecker.Start();
         }
-
         private async void Updater()
         {
             while (true)

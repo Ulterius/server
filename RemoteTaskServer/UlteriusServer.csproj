@@ -54,6 +54,7 @@
     <WarningLevel>4</WarningLevel>
     <LangVersion>6</LangVersion>
     <Prefer32Bit>false</Prefer32Bit>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup />
   <PropertyGroup />
@@ -171,9 +172,6 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="UlteriusFileSearch">
-      <HintPath>extensions\UlteriusFileSearch.dll</HintPath>
-    </Reference>
     <Reference Include="UlteriusPluginBase, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>extensions\UlteriusPluginBase.dll</HintPath>
@@ -181,22 +179,24 @@
     <Reference Include="UlteriusScreenShare">
       <HintPath>extensions\UlteriusScreenShare.dll</HintPath>
     </Reference>
-    <Reference Include="vtortola.WebSockets, Version=2.2.0.3, Culture=neutral, PublicKeyToken=7f78616efb4a208d, processorArchitecture=MSIL">
-      <HintPath>..\packages\vtortola.WebSocketListener.2.2.0.3\lib\net45\vtortola.WebSockets.dll</HintPath>
+    <Reference Include="vtortola.WebSockets, Version=2.2.1.0, Culture=neutral, PublicKeyToken=7f78616efb4a208d, processorArchitecture=MSIL">
+      <HintPath>..\packages\vtortola.WebSocketListener.2.2.1.0\lib\net45\vtortola.WebSockets.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="vtortola.WebSockets.Deflate, Version=2.2.0.3, Culture=neutral, PublicKeyToken=7f78616efb4a208d, processorArchitecture=MSIL">
-      <HintPath>..\packages\vtortola.WebSocketListener.2.2.0.3\lib\net45\vtortola.WebSockets.Deflate.dll</HintPath>
+    <Reference Include="vtortola.WebSockets.Deflate, Version=2.2.1.0, Culture=neutral, PublicKeyToken=7f78616efb4a208d, processorArchitecture=MSIL">
+      <HintPath>..\packages\vtortola.WebSocketListener.2.2.1.0\lib\net45\vtortola.WebSockets.Deflate.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="vtortola.WebSockets.Rfc6455, Version=2.2.0.3, Culture=neutral, PublicKeyToken=7f78616efb4a208d, processorArchitecture=MSIL">
-      <HintPath>..\packages\vtortola.WebSocketListener.2.2.0.3\lib\net45\vtortola.WebSockets.Rfc6455.dll</HintPath>
+    <Reference Include="vtortola.WebSockets.Rfc6455, Version=2.2.1.0, Culture=neutral, PublicKeyToken=7f78616efb4a208d, processorArchitecture=MSIL">
+      <HintPath>..\packages\vtortola.WebSocketListener.2.2.1.0\lib\net45\vtortola.WebSockets.Rfc6455.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Api\Services\Update\ClientUpdateService.cs" />
+    <Compile Include="Api\Win32\Win32Exception.cs" />
+    <Compile Include="Api\Win32\WinApi.cs" />
     <Compile Include="Plugins\PluginHost.cs" />
     <Compile Include="Api\Network\Messages\Message.cs" />
     <Compile Include="Api\Network\Messages\MessageQueueManager.cs" />
@@ -204,6 +204,11 @@
     <Compile Include="Ulterius.cs" />
     <Compile Include="Utilities\Drive\Disk.cs" />
     <Compile Include="Utilities\Drive\Smart.cs" />
+    <Compile Include="Utilities\Files\Database\DatabaseController.cs" />
+    <Compile Include="Utilities\Files\Database\DatabaseManager.cs" />
+    <Compile Include="Utilities\Files\Ntfs\FileEntry.cs" />
+    <Compile Include="Utilities\Files\Ntfs\MftEnumerator.cs" />
+    <Compile Include="Utilities\Files\Ntfs\Volume.cs" />
     <Compile Include="Utilities\Security\WindowsAuth.cs" />
     <Compile Include="WebSocketAPI\Authentication\AuthClient.cs" />
     <Compile Include="Forms\Utilities\UlteriusTray.cs" />
@@ -280,6 +285,7 @@
     <Compile Include="Utilities\Trace.cs" />
     <Compile Include="WebCams\WebCamManager.cs" />
     <Compile Include="WebServer\MultipartParser.cs" />
+    <Compile Include="WebSocketAPI\Authentication\CookieManager.cs" />
     <Compile Include="WebSocketAPI\WebSocketEventListener.cs" />
     <Compile Include="Api\Network\Models\DriveInformation.cs" />
     <Compile Include="Api\Network\Models\SystemInformation.cs" />
@@ -333,6 +339,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="bin\Debug\" />
+    <Folder Include="Utilities\Files\Models\" />
   </ItemGroup>
   <ItemGroup>
     <COMReference Include="NetFwTypeLib">

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using UlteriusServer.Api.Network.PacketHandlers;
 using UlteriusServer.WebSocketAPI.Authentication;
+using vtortola.WebSockets;
 using static UlteriusServer.Api.Network.PacketManager;
 
 #endregion
@@ -16,6 +17,7 @@ namespace UlteriusServer.Api.Network.Messages
         private readonly Type _packetHandler;
         public List<object> Args;
         public AuthClient AuthClient;
+        public  WebSocket Client;
         public string EndPoint;
         public PacketTypes PacketType;
         public string SyncKey;
@@ -29,10 +31,11 @@ namespace UlteriusServer.Api.Network.Messages
         /// <param name="args"></param>
         /// <param name="packetType"></param>
         /// <param name="packetHandler"></param>
-        public Packet(AuthClient authClient, string endPoint, string syncKey, List<object> args, PacketTypes packetType,
+        public Packet(AuthClient authClient, WebSocket client, string endPoint, string syncKey, List<object> args, PacketTypes packetType,
             Type packetHandler)
         {
             AuthClient = authClient;
+            Client = client;
             EndPoint = endPoint;
             SyncKey = syncKey;
             Args = args;

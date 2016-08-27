@@ -5,6 +5,7 @@ using System.Text;
 using Newtonsoft.Json;
 using UlteriusServer.Utilities.Security;
 using UlteriusServer.WebSocketAPI.Authentication;
+using vtortola.WebSockets;
 
 #endregion
 
@@ -13,13 +14,15 @@ namespace UlteriusServer.Api.Network.Messages
     public class MessageBuilder
     {
         private readonly AuthClient _authClient;
+        private readonly WebSocket _client;
         private readonly string synckey;
         public string Endpoint;
 
 
-        public MessageBuilder(AuthClient authClient, string endpoint, string syncKey)
+        public MessageBuilder(AuthClient authClient, WebSocket client, string endpoint, string syncKey)
         {
             _authClient = authClient;
+            _client = client;
             Endpoint = endpoint;
             synckey = syncKey;
         }
@@ -51,7 +54,7 @@ namespace UlteriusServer.Api.Network.Messages
         /// <param name="data"></param>
         public void WriteMessage(object data)
         {
-            if (_authClient.Client != null)
+            if (_client != null)
             {
                 var json = JsonConvert.SerializeObject(new
                 {
@@ -70,7 +73,7 @@ namespace UlteriusServer.Api.Network.Messages
                             var keyBytes = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(_authClient.AesKey));
                             var keyIv = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(_authClient.AesIv));
                             var encryptedData = UlteriusAes.Encrypt(json, keyBytes, keyIv);
-                            var message = new Message(_authClient, encryptedData, Message.MessageType.Binary);
+                            var message = new Message(_client, encryptedData, Message.MessageType.Binary);
                             UlteriusApiServer.MessageQueueManager.SendQueue.Add(message);
                             return;
                         }
@@ -81,7 +84,7 @@ namespace UlteriusServer.Api.Network.Messages
                     Console.WriteLine($"Could not send encrypted message: {e.Message}");
                     return;
                 }
-                var jsonMessage = new Message(_authClient, json, Message.MessageType.Text);
+                var jsonMessage = new Message(_client, json, Message.MessageType.Text);
                 UlteriusApiServer.MessageQueueManager.SendQueue.Add(jsonMessage);
             }
         }

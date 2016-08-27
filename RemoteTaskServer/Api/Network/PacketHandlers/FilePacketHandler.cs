@@ -10,6 +10,7 @@ using UlteriusServer.Api.Services.Network;
 using UlteriusServer.Utilities;
 using UlteriusServer.Utilities.Files;
 using UlteriusServer.WebSocketAPI.Authentication;
+using vtortola.WebSockets;
 using static UlteriusServer.Api.Network.PacketManager;
 using File = System.IO.File;
 
@@ -29,7 +30,8 @@ namespace UlteriusServer.Api.Network.PacketHandlers
         private const int EVERYTHING_ERROR_INVALIDCALL = 7;
 
         private MessageBuilder _builder;
-        private AuthClient _client;
+        private AuthClient _authClient;
+        private WebSocket _client;
         private Packet _packet;
 
         public void CreateFileTree()
@@ -354,9 +356,10 @@ namespace UlteriusServer.Api.Network.PacketHandlers
 
         public override void HandlePacket(Packet packet)
         {
-            _client = packet.AuthClient;
+            _client = packet.Client;
+            _authClient = packet.AuthClient;
             _packet = packet;
-            _builder = new MessageBuilder(_client, _packet.EndPoint, _packet.SyncKey);
+            _builder = new MessageBuilder(_authClient, _client, _packet.EndPoint, _packet.SyncKey);
             switch (_packet.PacketType)
             {
                 case PacketTypes.SearchFiles:

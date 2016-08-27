@@ -260,11 +260,11 @@ namespace UlteriusServer.Utilities
 
         public static void ConfigureServer()
         {
-            var filestream = new FileStream(Path.Combine(AppEnvironment.DataPath, "server.log"),
-                FileMode.Create);
-            var streamwriter = new StreamWriter(filestream) {AutoFlush = true};
-            Console.SetOut(streamwriter);
-            Console.SetError(streamwriter);
+            //var filestream = new FileStream(Path.Combine(AppEnvironment.DataPath, "server.log"),
+            //    FileMode.Create);
+            //var streamwriter = new StreamWriter(filestream) {AutoFlush = true};
+         //   Console.SetOut(streamwriter);
+         //   Console.SetError(streamwriter);
             if (Settings.Empty)
             {
                 //setup listen sh

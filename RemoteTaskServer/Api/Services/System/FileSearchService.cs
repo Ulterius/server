@@ -1,8 +1,9 @@
 ﻿#region
 
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using UlteriusFileSearch;
+using UlteriusServer.Utilities.Files.Database;
 
 #endregion
 
@@ -10,33 +11,36 @@ namespace UlteriusServer.Api.Services.System
 {
     public class FileSearchService
     {
-        private readonly string _path;
-        private SearchService fileSearch;
+        private readonly string _cachePath;
+        private DatabaseController _databaseController;
 
         public FileSearchService(string path)
         {
-            _path = path;
+            _cachePath = path;
         }
 
         public string CurrentScanDrive()
         {
-            return fileSearch.CurrentScanDrive();
+            return _databaseController.GetCurrentDrive();
         }
 
         public bool IsScanning()
         {
-            return fileSearch.IsScanning();
+            return _databaseController.IsScanning();
         }
 
         public List<string> Search(string keyword)
         {
-            return fileSearch.Search(keyword);
+            return _databaseController?.Search(keyword);
         }
 
         public void Start()
         {
-            fileSearch = new SearchService(_path);
-            Task.Run(() => { fileSearch.Configure(); });
+            Task.Run(() => {
+                _databaseController = new DatabaseController(_cachePath);
+                _databaseController.Start();
+                Console.WriteLine("File Database Ready");
+            });
         }
     }
 }

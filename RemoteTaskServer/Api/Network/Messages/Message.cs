@@ -1,6 +1,6 @@
 ﻿#region
 
-using UlteriusServer.WebSocketAPI.Authentication;
+using vtortola.WebSockets;
 
 #endregion
 
@@ -8,8 +8,6 @@ namespace UlteriusServer.Api.Network.Messages
 {
     public class Message
     {
-
-       
         public enum MessageType
         {
             Text,
@@ -21,21 +19,20 @@ namespace UlteriusServer.Api.Network.Messages
         public readonly MessageType Type;
 
 
-     
-        public Message(AuthClient authClient, byte[] data, MessageType type)
+        public Message(WebSocket remoteClient, byte[] data, MessageType type)
         {
-            AuthClient = authClient;
+            RemoteClient = remoteClient;
             Data = data;
             Type = type;
         }
 
-        public Message(AuthClient authClient, string json, MessageType type)
+        public Message(WebSocket remoteClient, string json, MessageType type)
         {
-            AuthClient = authClient;
+            RemoteClient = remoteClient;
             Json = json;
             Type = type;
         }
 
-        public AuthClient AuthClient { get; set; }
+        public WebSocket RemoteClient { get; set; }
     }
 }
