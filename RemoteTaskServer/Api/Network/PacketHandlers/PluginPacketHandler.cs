@@ -4,6 +4,7 @@ using System.Linq;
 using UlteriusServer.Api.Network.Messages;
 using UlteriusServer.Plugins;
 using UlteriusServer.WebSocketAPI.Authentication;
+using vtortola.WebSockets;
 
 #endregion
 
@@ -12,7 +13,8 @@ namespace UlteriusServer.Api.Network.PacketHandlers
     public class PluginPacketHandler : PacketHandler
     {
         private MessageBuilder _builder;
-        private AuthClient _client;
+        private AuthClient _authClient;
+        private WebSocket _client;
         private Packet _packet;
 
 
@@ -58,12 +60,12 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                 var cleanedArgs = _packet.Args;
                 //remove guid from the arguments.
                 cleanedArgs.RemoveAt(0);
-                returnData = PluginHandler.StartPlugin(_client.Client, guid, cleanedArgs);
+                returnData = PluginHandler.StartPlugin(_client, guid, cleanedArgs);
                 pluginStarted = true;
             }
             else
             {
-                returnData = PluginHandler.StartPlugin(_client.Client, guid);
+                returnData = PluginHandler.StartPlugin(_client, guid);
                 pluginStarted = true;
             }
             var pluginResponse = new
@@ -77,9 +79,10 @@ namespace UlteriusServer.Api.Network.PacketHandlers
 
         public override void HandlePacket(Packet packet)
         {
-            _client = packet.AuthClient;
+            _client = packet.Client;
+            _authClient = packet.AuthClient;
             _packet = packet;
-            _builder = new MessageBuilder(_client, _packet.EndPoint, _packet.SyncKey);
+            _builder = new MessageBuilder(_authClient, _client, _packet.EndPoint, _packet.SyncKey);
             switch (_packet.PacketType)
             {
                 case PacketManager.PacketTypes.Plugin:

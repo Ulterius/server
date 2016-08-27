@@ -9,6 +9,7 @@ using System.Reflection;
 using UlteriusServer.Api.Network.Messages;
 using UlteriusServer.Utilities.Security;
 using UlteriusServer.WebSocketAPI.Authentication;
+using vtortola.WebSockets;
 
 #endregion
 
@@ -17,6 +18,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
     public class ServerPacketHandler : PacketHandler
     {
         private AuthClient _authClient;
+        private WebSocket _client;
         private MessageBuilder _builder;
         private Packet _packet;
 
@@ -25,9 +27,10 @@ namespace UlteriusServer.Api.Network.PacketHandlers
         {
             try
             {
-                var authKey = _authClient.Client.GetHashCode().ToString();
+
+                var connectionId = CookieManager.GetConnectionId(_client);
                 AuthClient authClient;
-                UlteriusApiServer.AllClients.TryGetValue(authKey, out authClient);
+                UlteriusApiServer.AllClients.TryGetValue(connectionId, out authClient);
                 if (authClient != null)
                 {
                     var privateKey = authClient.PrivateKey;
@@ -37,7 +40,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                     authClient.AesIv = Rsa.Decryption(privateKey, encryptedIv);
                     authClient.AesShook = true;
                     //update the auth client
-                    UlteriusApiServer.AllClients[authKey] = authClient;
+                    UlteriusApiServer.AllClients[connectionId] = authClient;
                     var endData = new
                     {
                         shook = true
@@ -68,13 +71,13 @@ namespace UlteriusServer.Api.Network.PacketHandlers
 
         public void Login()
         {
-            
 
+
+            var connectionId = CookieManager.GetConnectionId(_client);
             var password = _packet.Args[0].ToString();
             var authenticated = WindowsAuth.Auth(password);
-            var authKey = _authClient.Client.GetHashCode().ToString();
             AuthClient authClient;
-            UlteriusApiServer.AllClients.TryGetValue(authKey, out authClient);
+            UlteriusApiServer.AllClients.TryGetValue(connectionId, out authClient);
             if (authClient != null)
             {
                 if (authClient.Authenticated)
@@ -87,7 +90,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                     return;
                 }
                 authClient.Authenticated = authenticated;
-                UlteriusApiServer.AllClients[authKey] = authClient;
+                UlteriusApiServer.AllClients[connectionId] = authClient;
             }
             var authenticationData = new
             {
@@ -117,9 +120,10 @@ namespace UlteriusServer.Api.Network.PacketHandlers
 
         public override void HandlePacket(Packet packet)
         {
+            _client = packet.Client;
             _authClient = packet.AuthClient;
             _packet = packet;
-            _builder = new MessageBuilder(_authClient, _packet.EndPoint, _packet.SyncKey);
+            _builder = new MessageBuilder(_authClient, _client, _packet.EndPoint, _packet.SyncKey);
             switch (_packet.PacketType)
             {
                 case PacketManager.PacketTypes.Authenticate:

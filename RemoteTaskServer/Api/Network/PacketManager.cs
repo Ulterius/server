@@ -9,6 +9,7 @@ using UlteriusServer.Api.Network.PacketHandlers;
 using UlteriusServer.Utilities;
 using UlteriusServer.Utilities.Security;
 using UlteriusServer.WebSocketAPI.Authentication;
+using vtortola.WebSockets;
 
 #endregion
 
@@ -77,6 +78,7 @@ namespace UlteriusServer.Api.Network
 
         private readonly List<object> _args = new List<object>();
         private readonly AuthClient _authClient;
+        private readonly WebSocket _client;
         private readonly string _plainText = string.Empty;
         private string _endPoint;
         private Type _packetHandler;
@@ -88,9 +90,10 @@ namespace UlteriusServer.Api.Network
         /// </summary>
         /// <param name="authClient"></param>
         /// <param name="data"></param>
-        public PacketManager(AuthClient authClient, byte[] data)
+        public PacketManager(AuthClient authClient, WebSocket client, byte[] data)
         {
             _authClient = authClient;
+            _client = client;
             try
             {
                 var keyBytes = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(authClient.AesKey));
@@ -109,10 +112,11 @@ namespace UlteriusServer.Api.Network
         /// </summary>
         /// <param name="authClient"></param>
         /// <param name="packetData"></param>
-        public PacketManager(AuthClient authClient, string packetData)
+        public PacketManager(AuthClient authClient, WebSocket client, string packetData)
         {
       
             _authClient = authClient;
+            _client = client;
             try
             {
                 if ((bool) Settings.Get("TaskServer").Encryption)
@@ -336,7 +340,7 @@ namespace UlteriusServer.Api.Network
                     var packetInfo = GetPacketInfo(_endPoint);
                     _packetHandler = packetInfo.Handler;
                     _packetType = packetInfo.Type;
-                    return new Packet(_authClient, _endPoint, _syncKey, _args, _packetType, _packetHandler);
+                    return new Packet(_authClient, _client, _endPoint, _syncKey, _args, _packetType, _packetHandler);
                 }
             }
             catch (Exception e)

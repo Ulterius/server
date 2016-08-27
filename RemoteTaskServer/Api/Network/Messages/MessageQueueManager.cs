@@ -47,8 +47,9 @@ namespace UlteriusServer.Api.Network.Messages
         private async Task SendJsonPacket(Message packet)
         {
             var json = packet.Json;
-            var client = packet.AuthClient.Client;
-            if (client.IsConnected)
+
+            var client = packet.RemoteClient;
+            if (client != null && client.IsConnected)
             {
                 try
                 {
@@ -73,17 +74,14 @@ namespace UlteriusServer.Api.Network.Messages
         /// <returns></returns>
         private async Task SendBinaryPacket(Message packet)
         {
-            var authClient = packet.AuthClient;
-            if (authClient != null && authClient.Client.IsConnected)
+            var client = packet.RemoteClient;
+            if (client != null && client.IsConnected)
             {
                 try
                 {
-                    if (authClient.AesShook)
-                    {
-                        using (var memoryStream = new MemoryStream(packet.Data))
-                        using (var messageWriter = authClient.Client.CreateMessageWriter(WebSocketMessageType.Binary))
-                            await memoryStream.CopyToAsync(messageWriter);
-                    }
+                    using (var memoryStream = new MemoryStream(packet.Data))
+                    using (var messageWriter = client.CreateMessageWriter(WebSocketMessageType.Binary))
+                        await memoryStream.CopyToAsync(messageWriter);
                 }
                 catch (Exception e)
                 {

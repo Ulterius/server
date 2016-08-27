@@ -1,13 +1,13 @@
 ﻿#region
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using vtortola.WebSockets;
-using vtortola.WebSockets.Deflate;
 using vtortola.WebSockets.Rfc6455;
 
 #endregion
@@ -26,23 +26,31 @@ namespace UlteriusServer.WebSocketAPI
 
     public class WebSocketEventListener : IDisposable
     {
-        private readonly WebSocketListener _listener;
+        
+        private readonly List<WebSocketListener> _listeners = new List<WebSocketListener>();
 
-        public WebSocketEventListener(IPEndPoint endpoint)
-            : this(endpoint, new WebSocketListenerOptions())
+        public WebSocketEventListener(List<IPEndPoint> endpoints)
+            : this(endpoints, new WebSocketListenerOptions())
         {
         }
 
-        public WebSocketEventListener(IPEndPoint endpoint, WebSocketListenerOptions options)
+        public WebSocketEventListener(List<IPEndPoint> endpoints, WebSocketListenerOptions options)
         {
-            _listener = new WebSocketListener(endpoint, options);
-            var rfc6455 = new WebSocketFactoryRfc6455(_listener);
-            _listener.Standards.RegisterStandard(rfc6455);
+            foreach (var endpoint in endpoints)
+            {
+                var listener = new WebSocketListener(endpoint, options);
+                var rfc6455 = new WebSocketFactoryRfc6455(listener);
+                listener.Standards.RegisterStandard(rfc6455);
+                _listeners.Add(listener);
+            }
         }
 
         public void Dispose()
         {
-            _listener.Dispose();
+            foreach (var listener in _listeners)
+            {
+                listener.Dispose();
+            }
         }
 
         public event WebSocketEventListenerOnConnect OnConnect;
@@ -53,22 +61,28 @@ namespace UlteriusServer.WebSocketAPI
 
         public void Start()
         {
-            _listener.Start();
-            Task.Run(ListenAsync);
+            foreach (var listener in _listeners)
+            {
+                listener.Start();
+            }
+            ListenAsync();
         }
 
         public void Stop()
         {
-            _listener.Stop();
+            foreach (var listener in _listeners)
+            {
+                listener.Stop();
+            }
         }
 
-        private async Task ListenAsync()
+        private async Task HandleListners(WebSocketListener listener)
         {
-            while (_listener.IsStarted)
+            while (listener.IsStarted)
             {
                 try
                 {
-                    var websocket = await _listener.AcceptWebSocketAsync(CancellationToken.None)
+                    var websocket = await listener.AcceptWebSocketAsync(CancellationToken.None)
                         .ConfigureAwait(false);
                     if (websocket != null)
                         Task.Run(() => HandleWebSocketAsync(websocket));
@@ -77,6 +91,14 @@ namespace UlteriusServer.WebSocketAPI
                 {
                     OnError?.Invoke(null, ex);
                 }
+            }
+        }
+
+        private void ListenAsync()
+        {
+            foreach (var listener in _listeners)
+            {
+                Task.Run(() => HandleListners(listener));
             }
         }
 

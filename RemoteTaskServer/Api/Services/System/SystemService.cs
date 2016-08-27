@@ -285,7 +285,6 @@ namespace UlteriusServer.Api.Services.System
                 var model = drive["Model"].ToString().Trim();
                 if (type.Equals("IDE"))
                 {
-                    Console.WriteLine(model);
                     var driveData = di[iDriveIndex];
                     driveInfo.Model = model;
                     driveInfo.Name = driveData.Name;

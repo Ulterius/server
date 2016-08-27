@@ -9,6 +9,7 @@ using Ionic.Zlib;
 using UlteriusServer.Api.Network.Messages;
 using UlteriusServer.WebCams;
 using UlteriusServer.WebSocketAPI.Authentication;
+using vtortola.WebSockets;
 
 #endregion
 
@@ -17,8 +18,9 @@ namespace UlteriusServer.Api.Network.PacketHandlers
     public class WebCamPacketHandler : PacketHandler
     {
         private MessageBuilder _builder;
-        private AuthClient _client;
+        private AuthClient _authClient;
         private Packet _packet;
+        private WebSocket _client;
 
 
         public void RefreshCameras()
@@ -159,7 +161,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                     WebCamManager.Frames.Clear();
 
 
-                    if (_client.Client.IsConnected)
+                    if (_client.IsConnected)
                     {
                         var data = new
                         {
@@ -172,7 +174,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
             }
             catch (Exception e)
             {
-                if (_client.Client.IsConnected)
+                if (_client.IsConnected)
                 {
                     var data = new
                     {
@@ -190,7 +192,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
         {
             var camera = WebCamManager.Cameras[cameraId];
 
-            while (_client.Client.IsConnected && camera != null && camera.IsRunning)
+            while (_client.IsConnected && camera != null && camera.IsRunning)
             {
                 try
 
@@ -235,9 +237,10 @@ namespace UlteriusServer.Api.Network.PacketHandlers
 
         public override void HandlePacket(Packet packet)
         {
-            _client = packet.AuthClient;
+            _client = packet.Client;
+            _authClient = packet.AuthClient;
             _packet = packet;
-            _builder = new MessageBuilder(_client, _packet.EndPoint, _packet.SyncKey);
+            _builder = new MessageBuilder(_authClient, _client, _packet.EndPoint, _packet.SyncKey);
             switch (_packet.PacketType)
             {
                 case PacketManager.PacketTypes.StartCamera:

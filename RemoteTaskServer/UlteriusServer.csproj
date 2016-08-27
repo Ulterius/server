@@ -280,6 +280,7 @@
     <Compile Include="Utilities\Trace.cs" />
     <Compile Include="WebCams\WebCamManager.cs" />
     <Compile Include="WebServer\MultipartParser.cs" />
+    <Compile Include="WebSocketAPI\Authentication\CookieManager.cs" />
     <Compile Include="WebSocketAPI\WebSocketEventListener.cs" />
     <Compile Include="Api\Network\Models\DriveInformation.cs" />
     <Compile Include="Api\Network\Models\SystemInformation.cs" />

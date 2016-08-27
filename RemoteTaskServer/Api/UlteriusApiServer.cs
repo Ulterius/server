@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Threading;
@@ -25,25 +26,31 @@ namespace UlteriusServer.Api
     internal class UlteriusApiServer
     {
         public static MessageQueueManager MessageQueueManager = new MessageQueueManager();
-        public static ConcurrentDictionary<string, AuthClient> AllClients { get; set; }
+        public static ConcurrentDictionary<Guid, AuthClient> AllClients { get; set; }
+
         public static ScreenShareService ScreenShareService { get; set; }
         public static FileSearchService FileSearchService { get; set; }
 
         /// <summary>
-        /// Start the API Server
+        ///     Start the API Server
         /// </summary>
         public static void Start()
         {
-            AllClients = new ConcurrentDictionary<string, AuthClient>();
+            var apiPort = (int) Settings.Get("TaskServer").TaskServerPort;
+
+
+            AllClients = new ConcurrentDictionary<Guid, AuthClient>();
             var clientUpdateService = new ClientUpdateService();
             ScreenShareService = new ScreenShareService();
             FileSearchService = new FileSearchService(Path.Combine(AppEnvironment.DataPath, "fileindex.bin"));
             FileSearchService.Start();
-            var port = (int) Settings.Get("TaskServer").TaskServerPort;
+
             var cancellation = new CancellationTokenSource();
             var address = NetworkService.GetAddress();
-            var endpoint = new IPEndPoint(address, port);
-            var server = new WebSocketEventListener(endpoint, new WebSocketListenerOptions
+            var endPoints = new List<IPEndPoint> {new IPEndPoint(address, apiPort), new IPEndPoint(address, 29999)};
+
+
+            var server = new WebSocketEventListener(endPoints, new WebSocketListenerOptions
             {
                 PingTimeout = TimeSpan.FromSeconds(15),
                 NegotiationTimeout = TimeSpan.FromSeconds(15),
@@ -51,7 +58,12 @@ namespace UlteriusServer.Api
                 WebSocketReceiveTimeout = TimeSpan.FromSeconds(15),
                 ParallelNegotiations = Environment.ProcessorCount*2,
                 NegotiationQueueCapacity = 256,
-                TcpBacklog = 1000
+                TcpBacklog = 1000,
+                OnHttpNegotiation = (request, response) =>
+                {
+                    if (request.Cookies["ConnectionId"] == null)
+                        response.Cookies.Add(new Cookie("ConnectionId", Guid.NewGuid().ToString()));
+                }
             });
 
             server.OnConnect += HandleConnect;
@@ -65,17 +77,17 @@ namespace UlteriusServer.Api
 
 
         /// <summary>
-        /// Handles encrypted binary messages 
+        ///     Handles encrypted binary messages
         /// </summary>
-        /// <param name="websocket"></param>
+        /// <param name="clientSocket"></param>
         /// <param name="message"></param>
-        private static void HandleEncryptedMessage(WebSocket websocket, byte[] message)
+        private static void HandleEncryptedMessage(WebSocket clientSocket, byte[] message)
         {
-            var authKey = websocket.GetHashCode().ToString();
+            var connectionId = CookieManager.GetConnectionId(clientSocket);
             AuthClient authClient;
-            if (AllClients.TryGetValue(authKey, out authClient))
+            if (AllClients.TryGetValue(connectionId, out authClient))
             {
-                var packetManager = new PacketManager(authClient, message);
+                var packetManager = new PacketManager(authClient, clientSocket, message);
                 var packet = packetManager.GetPacket();
                 packet?.HandlePacket();
             }
@@ -87,17 +99,17 @@ namespace UlteriusServer.Api
         }
 
         /// <summary>
-        /// Handles plaintext JSON packets.
+        ///     Handles plaintext JSON packets.
         /// </summary>
-        /// <param name="websocket"></param>
+        /// <param name="clientSocket"></param>
         /// <param name="message"></param>
-        private static void HandlePlainTextMessage(WebSocket websocket, string message)
+        private static void HandlePlainTextMessage(WebSocket clientSocket, string message)
         {
-            var authKey = websocket.GetHashCode().ToString();
+            var connectionId = CookieManager.GetConnectionId(clientSocket);
             AuthClient authClient;
-            if (AllClients.TryGetValue(authKey, out authClient))
+            if (AllClients.TryGetValue(connectionId, out authClient))
             {
-                var packetManager = new PacketManager(authClient, message);
+                var packetManager = new PacketManager(authClient, clientSocket, message);
                 var packet = packetManager.GetPacket();
                 packet?.HandlePacket();
             }
@@ -105,13 +117,14 @@ namespace UlteriusServer.Api
 
 
         /// <summary>
-        /// Remove a client when it disconnects
+        ///     Remove a client when it disconnects
         /// </summary>
         /// <param name="clientSocket"></param>
         private static void HandleDisconnect(WebSocket clientSocket)
         {
+            var connectionId = CookieManager.GetConnectionId(clientSocket);
             AuthClient temp = null;
-            if (AllClients.TryRemove(clientSocket.GetHashCode().ToString(), out temp))
+            if (AllClients.TryRemove(connectionId, out temp))
             {
                 Console.WriteLine("Disconnection from " + clientSocket.RemoteEndpoint);
                 var userCount = AllClients.Count;
@@ -121,27 +134,31 @@ namespace UlteriusServer.Api
         }
 
         /// <summary>
-        /// When a client connects, assign them a unique RSA keypair for handshake.
+        ///     When a client connects, assign them a unique RSA keypair for handshake.
         /// </summary>
         /// <param name="clientSocket"></param>
         private static void HandleConnect(WebSocket clientSocket)
         {
+            var connectionId = CookieManager.GetConnectionId(clientSocket);
+            AuthClient authClient;
+            AllClients.TryGetValue(connectionId, out authClient);
+            if (authClient != null) return; 
             Console.WriteLine("Connection from " + clientSocket.RemoteEndpoint);
-            var client = new AuthClient(clientSocket);
+            var client = new AuthClient();
             var rsa = new Rsa();
             rsa.GenerateKeyPairs();
             client.PublicKey = rsa.PublicKey;
             client.PrivateKey = rsa.PrivateKey;
-            AllClients.AddOrUpdate(clientSocket.GetHashCode().ToString(), client, (key, value) => value);
+            AllClients.AddOrUpdate(connectionId, client, (key, value) => value);
             SendWelcomeMessage(client, clientSocket);
         }
 
         /// <summary>
-        /// Sends a new user their unique RSA keypair
+        ///     Sends a new user their unique RSA keypair
         /// </summary>
         /// <param name="client"></param>
         /// <param name="clientSocket"></param>
-        private static void SendWelcomeMessage(AuthClient client, WebSocket clientSocket)
+        private static async void SendWelcomeMessage(AuthClient client, WebSocket clientSocket)
         {
             var welcomeMessage = JsonConvert.SerializeObject(new
             {
@@ -152,7 +169,7 @@ namespace UlteriusServer.Api
                     publicKey = Rsa.SecureStringToString(client.PublicKey)
                 }
             });
-            clientSocket.WriteStringAsync(welcomeMessage, CancellationToken.None);
+            await clientSocket.WriteStringAsync(welcomeMessage, CancellationToken.None);
             var userCount = AllClients.Count;
             var extra = userCount > 1 ? "s" : string.Empty;
             UlteriusTray.ShowMessage($"There are now {userCount} user{extra} connected.", "A new user connected!");

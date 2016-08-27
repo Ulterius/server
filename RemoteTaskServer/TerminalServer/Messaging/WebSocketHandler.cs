@@ -109,13 +109,6 @@ namespace UlteriusServer.TerminalServer.Messaging
             return (Guid) ws.HttpRequest.Items[WebSocketQueueServer.ConnectionIdKey];
         }
 
-        private static AuthClient AddTerminalClient(WebSocket ws)
-        {
-            var client = new AuthClient(ws);
-
-            return client;
-        }
-
         private static Guid GetSessionId(WebSocket ws)
         {
             var sessionId = Guid.Empty;
