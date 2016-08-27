@@ -36,15 +36,16 @@ namespace UlteriusServer.Api
         /// </summary>
         public static void Start()
         {
+            var clientUpdateService = new ClientUpdateService();
+            clientUpdateService.Start();
+            FileSearchService = new FileSearchService(Path.Combine(AppEnvironment.DataPath, "fileindex.bin"));
+            FileSearchService.Start();
+
             var apiPort = (int) Settings.Get("TaskServer").TaskServerPort;
             AllClients = new ConcurrentDictionary<Guid, AuthClient>();
             ScreenShareService = new ScreenShareService();
-            FileSearchService = new FileSearchService(Path.Combine(AppEnvironment.DataPath, "fileindex.bin"));
-            FileSearchService.Start();
             var address = NetworkService.GetAddress();
-            var endPoints = new List<IPEndPoint> {new IPEndPoint(address, apiPort), new IPEndPoint(address, 29999)};
-
-
+            var endPoints = new List<IPEndPoint> {new IPEndPoint(address, apiPort)};
             var server = new WebSocketEventListener(endPoints, new WebSocketListenerOptions
             {
                 PingTimeout = TimeSpan.FromSeconds(15),
