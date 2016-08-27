@@ -17,7 +17,6 @@ namespace UlteriusServer.WebSocketAPI.Authentication
             Authenticated = false;
             AesShook = false;
         }
-        public List<int> ConnectedPorts { get; set; }
         public DateTime LastUpdate { get; set; }
         public bool Authenticated { get; set; }
         public SecureString PrivateKey { get; set; }

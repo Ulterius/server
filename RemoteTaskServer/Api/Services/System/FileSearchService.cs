@@ -12,7 +12,7 @@ namespace UlteriusServer.Api.Services.System
     public class FileSearchService
     {
         private readonly string _cachePath;
-        private DatabaseController databaseController;
+        private DatabaseController _databaseController;
 
         public FileSearchService(string path)
         {
@@ -21,24 +21,24 @@ namespace UlteriusServer.Api.Services.System
 
         public string CurrentScanDrive()
         {
-            return databaseController.GetCurrentDrive();
+            return _databaseController.GetCurrentDrive();
         }
 
         public bool IsScanning()
         {
-            return databaseController.IsScanning();
+            return _databaseController.IsScanning();
         }
 
         public List<string> Search(string keyword)
         {
-            return databaseController?.Search(keyword);
+            return _databaseController?.Search(keyword);
         }
 
         public void Start()
         {
             Task.Run(() => {
-                databaseController = new DatabaseController(_cachePath);
-                databaseController.Start();
+                _databaseController = new DatabaseController(_cachePath);
+                _databaseController.Start();
                 Console.WriteLine("File Database Ready");
             });
         }

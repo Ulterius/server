@@ -37,15 +37,10 @@ namespace UlteriusServer.Api
         public static void Start()
         {
             var apiPort = (int) Settings.Get("TaskServer").TaskServerPort;
-
-
             AllClients = new ConcurrentDictionary<Guid, AuthClient>();
-            var clientUpdateService = new ClientUpdateService();
             ScreenShareService = new ScreenShareService();
             FileSearchService = new FileSearchService(Path.Combine(AppEnvironment.DataPath, "fileindex.bin"));
             FileSearchService.Start();
-
-            var cancellation = new CancellationTokenSource();
             var address = NetworkService.GetAddress();
             var endPoints = new List<IPEndPoint> {new IPEndPoint(address, apiPort), new IPEndPoint(address, 29999)};
 
