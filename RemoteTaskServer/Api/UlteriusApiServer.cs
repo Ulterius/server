@@ -45,7 +45,7 @@ namespace UlteriusServer.Api
             AllClients = new ConcurrentDictionary<Guid, AuthClient>();
             ScreenShareService = new ScreenShareService();
             var address = NetworkService.GetAddress();
-            var endPoints = new List<IPEndPoint> {new IPEndPoint(address, apiPort)};
+            var endPoints = new List<IPEndPoint> {new IPEndPoint(address, apiPort), new IPEndPoint(address, 22010) };
             var server = new WebSocketEventListener(endPoints, new WebSocketListenerOptions
             {
                 PingTimeout = TimeSpan.FromSeconds(15),
