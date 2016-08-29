@@ -139,4 +139,15 @@
   <data name="ApplicationIcon" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\ApplicationIcon.ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="HardwareSurvey_Setup_" xml:space="preserve">
+    <value>If authorized, Ulterius can collect data on its performance, feature usage, and configuration, as well as data on your system's hardware, network and operating system.
+
+ No private data is ever collected. This data helps us understand how people and companies use Ulterius and prioritize our efforts. It also helps us identify rare configurations that are causing bugs, performance and stability issues.
+This authorization can be revoked at any time through Ulterius's settings.
+
+Do you authorize Ulterius to report this information to Ulterius's developers?</value>
+  </data>
+  <data name="HardwareSurvey_Setup_Usage_statistics_reporting" xml:space="preserve">
+    <value>Usage statistics reporting</value>
+  </data>
 </root>

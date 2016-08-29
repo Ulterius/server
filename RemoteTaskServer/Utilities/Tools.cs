@@ -213,8 +213,6 @@ namespace UlteriusServer.Utilities
             cts.CancelAfter(5000);
 
             NatDevice device = null;
-            var sb = new StringBuilder();
-            IPAddress ip = null;
             var t = nat.DiscoverDeviceAsync(PortMapper.Upnp, cts);
             t.ContinueWith(tt =>
             {

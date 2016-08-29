@@ -48,6 +48,8 @@ namespace UlteriusServer.Api.Services.Network
 
         public static List<NetworkDevices> ConnectedDevices()
         {
+           //Not being used right now, just return null
+            /*
             var all = GetAllDevicesOnLan();
             foreach (var device in all)
             {
@@ -74,7 +76,8 @@ namespace UlteriusServer.Api.Services.Network
                 });
             }
 
-            return Devices;
+            return Devices;*/
+            return null;
         }
 
 
@@ -210,7 +213,7 @@ namespace UlteriusServer.Api.Services.Network
             return result;
         }
 
-        public static string GetPublicIp(string serviceUrl = "https://ipinfo.io/ip")
+        public static string GetPublicIp(string serviceUrl = "https://api.ulterius.io/network/ip/")
         {
             var ip = new WebClient().DownloadString(serviceUrl);
             return ip;

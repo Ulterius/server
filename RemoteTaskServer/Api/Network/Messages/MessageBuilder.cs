@@ -62,7 +62,7 @@ namespace UlteriusServer.Api.Network.Messages
                     synckey,
                     results = data
                 });
-
+      
 
                 try
                 {

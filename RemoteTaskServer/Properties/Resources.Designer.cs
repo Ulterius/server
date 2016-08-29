@@ -8,6 +8,9 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
+using System.Drawing;
+using System.Windows.Forms;
+
 namespace UlteriusServer.Properties {
     using System;
     
@@ -63,10 +66,33 @@ namespace UlteriusServer.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
         /// </summary>
-        internal static System.Drawing.Icon ApplicationIcon {
+        internal static Icon ApplicationIcon {
             get {
                 object obj = ResourceManager.GetObject("ApplicationIcon", resourceCulture);
                 return ((System.Drawing.Icon)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to If authorized, Ulterius can collect data on its performance, feature usage, and configuration, as well as data on your system&apos;s hardware, network and operating system.
+        ///
+        /// No private data is ever collected. This data helps us understand how people and companies use Ulterius and prioritize our efforts. It also helps us identify rare configurations that are causing bugs, performance and stability issues.
+        ///This authorization can be revoked at any time through Ulterius&apos;s settings.
+        ///
+        ///Do you authorize Ulterius t [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string HardwareSurvey_Setup_ {
+            get {
+                return ResourceManager.GetString("HardwareSurvey_Setup_", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Usage statistics reporting.
+        /// </summary>
+        internal static string HardwareSurvey_Setup_Usage_statistics_reporting {
+            get {
+                return ResourceManager.GetString("HardwareSurvey_Setup_Usage_statistics_reporting", resourceCulture);
             }
         }
         

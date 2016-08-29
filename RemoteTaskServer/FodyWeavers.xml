@@ -2,10 +2,9 @@
 <Weavers>
   <Costura>
     <ExcludeAssemblies>
-      UlteriusFileSearch
       UlteriusPluginBase
       UlteriusScreenShare
     </ExcludeAssemblies>
   </Costura>
-  
+
 </Weavers>

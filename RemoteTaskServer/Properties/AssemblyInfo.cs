@@ -15,7 +15,7 @@ using log4net.Config;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Ulterius")]
 [assembly: AssemblyProduct("Ulterius Server")]
-[assembly: AssemblyCopyright("Copyright © Andrew Sampson 2016")]
+[assembly: AssemblyCopyright("Copyright © Octopodal Solutions 2016")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -40,6 +40,6 @@ using log4net.Config;
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
 
-[assembly: AssemblyVersion("1.0.0.0")]
-[assembly: AssemblyFileVersion("1.0.0.0")]
+[assembly: AssemblyVersion("1.0.0.4")]
+[assembly: AssemblyFileVersion("1.0.0.4")]
 [assembly: XmlConfigurator]

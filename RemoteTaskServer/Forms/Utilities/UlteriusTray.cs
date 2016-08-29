@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Threading;
 using System.Windows.Forms;
 using UlteriusServer.Api.Services.Network;
 using UlteriusServer.Properties;
@@ -21,6 +22,7 @@ namespace UlteriusServer.Forms.Utilities
         public static MenuItem ExitProgram;
         public static MenuItem OpenClient;
         public static MenuItem OpenSettings;
+        public static MenuItem OpenDonate;
         public static MenuItem OpenLogs;
         public static MenuItem RestartProgram;
         public static NotifyIcon NotificationIcon;
@@ -82,20 +84,25 @@ namespace UlteriusServer.Forms.Utilities
             RefreshTrayArea();
             Menu = new ContextMenu();
             RestartProgram = new MenuItem("Restart Server");
-            ExitProgram = new MenuItem("Exit");
             OpenClient = new MenuItem("Open Client");
             OpenLogs = new MenuItem("Open Logs");
             OpenSettings = new MenuItem("Open Settings");
-            Menu.MenuItems.Add(0, ExitProgram);
-            Menu.MenuItems.Add(1, RestartProgram);
-            Menu.MenuItems.Add(2, OpenClient);
+            ExitProgram = new MenuItem("Exit");
+            OpenDonate = new MenuItem("Donate");
+            Menu.MenuItems.Add(0, OpenDonate);
+            Menu.MenuItems.Add(1, OpenClient);
+            Menu.MenuItems.Add(2, RestartProgram);
+            
             Menu.MenuItems.Add(3, OpenSettings);
             Menu.MenuItems.Add(4, OpenLogs);
+            Menu.MenuItems.Add(5, ExitProgram);
+           
             ExitProgram.Click += ExitEvent;
             RestartProgram.Click += RestartEvent;
             OpenClient.Click += OpenClientEvent;
             OpenSettings.Click += OpenSettingsEvent;
             OpenLogs.Click += OpenLogsEvent;
+            OpenDonate.Click += OpenDonateEvent;
             NotificationIcon = new NotifyIcon
             {
                 Icon = Resources.ApplicationIcon,
@@ -109,6 +116,15 @@ namespace UlteriusServer.Forms.Utilities
             NotificationIcon.ShowBalloonTip(5000);
             Application.Run();
             Console.WriteLine("Started");
+
+
+        }
+
+       
+        private static void OpenDonateEvent(object sender, EventArgs e)
+        {
+
+            Process.Start("https://cash.me/$ulterius");
 
 
         }

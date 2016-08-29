@@ -29,22 +29,6 @@ namespace UlteriusServer.Api.Network.PacketHandlers
 
         public void GetOperatingSystemInformation()
         {
-            if (string.IsNullOrEmpty(ServerOperatingSystem.Name))
-            {
-                var wmi =
-                    new ManagementObjectSearcher("select * from Win32_OperatingSystem")
-                        .Get()
-                        .Cast<ManagementObject>()
-                        .First();
-
-                ServerOperatingSystem.Name = ((string) wmi["Caption"]).Trim();
-                ServerOperatingSystem.Version = (string) wmi["Version"];
-                ServerOperatingSystem.MaxProcessCount = (uint) wmi["MaxNumberOfProcesses"];
-                ServerOperatingSystem.MaxProcessRam = (ulong) wmi["MaxProcessMemorySize"];
-                ServerOperatingSystem.Architecture = (string) wmi["OSArchitecture"];
-                ServerOperatingSystem.SerialNumber = (string) wmi["SerialNumber"];
-                ServerOperatingSystem.Build = (string) wmi["BuildNumber"];
-            }
             _builder.WriteMessage(ServerOperatingSystem.ToObject());
         }
 

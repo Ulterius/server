@@ -5,11 +5,8 @@ using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using System.Threading;
-using System.Threading.Tasks;
 using UlteriusServer.Api;
 using UlteriusServer.Api.Services.System;
-using UlteriusServer.Forms.Utilities;
 using UlteriusServer.TerminalServer;
 using UlteriusServer.Utilities;
 using UlteriusServer.WebCams;
@@ -22,7 +19,7 @@ namespace UlteriusServer
     public class Ulterius
     {
         private SystemService systemService;
-        private bool stop = false;
+
         public void Start()
         {
             if (Process.GetProcessesByName(
@@ -45,13 +42,12 @@ namespace UlteriusServer
             if (Environment.OSVersion.Version.Major >= 6)
             {
                 SetProcessDPIAware();
-              }
-           Setup();
-         
+            }
+            Setup();
         }
 
         /// <summary>
-        /// Starts various parts of the server than loop to keep everything alive.
+        ///     Starts various parts of the server than loop to keep everything alive.
         /// </summary>
         private void Setup()
         {
@@ -67,7 +63,7 @@ namespace UlteriusServer
             if (useWebServer)
             {
                 Console.WriteLine("Setting up HTTP Server");
-              HttpServer.Setup();
+                HttpServer.Setup();
             }
             systemService = new SystemService();
             Console.WriteLine("Creating system service");
@@ -84,17 +80,12 @@ namespace UlteriusServer
                 if (useUpnp)
                 {
                     Console.WriteLine("Trying to forward ports");
-                  Tools.OpenFirewall();
+                    Tools.OpenFirewall();
                 }
             }
             catch (Exception)
             {
                 Console.WriteLine("Failed to forward ports");
-            }
-            UlteriusTray.ShowTray();
-            while (!stop)
-            {
-                Thread.Sleep(1);
             }
         }
 

@@ -21,13 +21,6 @@ namespace UlteriusServer.Api.Network.PacketHandlers
 
         public void GetNetworkInformation()
         {
-            if (string.IsNullOrEmpty(NetworkInformation.PublicIp))
-            {
-                NetworkInformation.PublicIp = NetworkService.GetPublicIp();
-                NetworkInformation.NetworkComputers = NetworkService.ConnectedDevices();
-                NetworkInformation.MacAddress = NetworkService.GetMacAddress().ToString();
-                NetworkInformation.InternalIp = NetworkService.GetIpAddress().ToString();
-            }
             _builder.WriteMessage(NetworkInformation.ToObject());
         }
 
