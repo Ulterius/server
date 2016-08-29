@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Security;
+using UlteriusServer.Api.Network.Messages;
 using vtortola.WebSockets;
 
 #endregion
@@ -17,6 +18,8 @@ namespace UlteriusServer.WebSocketAPI.Authentication
             Authenticated = false;
             AesShook = false;
         }
+
+        public MessageQueueManager MessageQueueManager { get; set; }
         public DateTime LastUpdate { get; set; }
         public bool Authenticated { get; set; }
         public SecureString PrivateKey { get; set; }

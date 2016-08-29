@@ -66,21 +66,29 @@ namespace UlteriusServer.Utilities
             return (T) Activator.CreateInstance(t);
         }
 
-        private static void ForwardPorts(ushort port, string name)
+        private static void OpenFirewall(ushort port, string name)
         {
-            var firewallPolicy = GetComObject<INetFwPolicy2>(NetFwPolicy2ProgId);
-            var firewallRule = GetComObject<INetFwRule2>(NetFwRuleProgId);
-            var existingRule = firewallPolicy.Rules.OfType<INetFwRule>().FirstOrDefault(x => x.Name == name);
-            if (existingRule == null)
+            try
             {
-                firewallRule.Description = name;
-                firewallRule.Name = name;
-                firewallRule.Action = NET_FW_ACTION_.NET_FW_ACTION_ALLOW;
-                firewallRule.Enabled = true;
-                firewallRule.InterfaceTypes = "All";
-                firewallRule.Protocol = (int) NET_FW_IP_PROTOCOL_.NET_FW_IP_PROTOCOL_TCP;
-                firewallRule.LocalPorts = port.ToString();
-                firewallPolicy.Rules.Add(firewallRule);
+                var firewallPolicy = GetComObject<INetFwPolicy2>(NetFwPolicy2ProgId);
+                var firewallRule = GetComObject<INetFwRule2>(NetFwRuleProgId);
+                var existingRule = firewallPolicy.Rules.OfType<INetFwRule>().FirstOrDefault(x => x.Name == name);
+                if (existingRule == null)
+                {
+                    firewallRule.Description = name;
+                    firewallRule.Name = name;
+                    firewallRule.Action = NET_FW_ACTION_.NET_FW_ACTION_ALLOW;
+                    firewallRule.Enabled = true;
+                    firewallRule.InterfaceTypes = "All";
+                    firewallRule.Protocol = (int)NET_FW_IP_PROTOCOL_.NET_FW_IP_PROTOCOL_TCP;
+                    firewallRule.LocalPorts = port.ToString();
+                    firewallPolicy.Rules.Add(firewallRule);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                Console.WriteLine(ex.StackTrace);
             }
         }
 
@@ -194,7 +202,7 @@ namespace UlteriusServer.Utilities
             Settings.Save();
         }
 
-        public static void ForwardPorts()
+        public static void OpenFirewall()
         {
             var webServerPort = (int) Settings.Get("WebServer").WebServerPort;
             var apiPort = (int) Settings.Get("TaskServer").TaskServerPort;
@@ -253,13 +261,29 @@ namespace UlteriusServer.Utilities
             }
         }
 
+        private static bool SetLogging()
+        {
+            try
+            {
+                var filestream = new FileStream(Path.Combine(AppEnvironment.DataPath, "server.log"),
+                     FileMode.Create);
+                var streamwriter = new StreamWriter(filestream) { AutoFlush = true };
+                Console.SetOut(streamwriter);
+                Console.SetError(streamwriter);
+                return true;
+            }
+            catch (Exception)
+            {
+
+                return false;
+            }
+        }
         public static void ConfigureServer()
         {
-            var filestream = new FileStream(Path.Combine(AppEnvironment.DataPath, "server.log"),
-                FileMode.Create);
-            var streamwriter = new StreamWriter(filestream) {AutoFlush = true};
-            Console.SetOut(streamwriter);
-            Console.SetError(streamwriter);
+            if (SetLogging())
+            {
+                Console.WriteLine("Logs Ready");
+            }
             if (Settings.Empty)
             {
                 //setup listen sh
@@ -274,10 +298,10 @@ namespace UlteriusServer.Utilities
                 var userdomain = Environment.GetEnvironmentVariable("USERDOMAIN");
                 var command = $@"/C netsh http add urlacl url={prefix} user={userdomain}\{username} listen=yes";
                 Process.Start("CMD.exe", command);
-                ForwardPorts(webServerPort, "Ulterius Web Server");
-                ForwardPorts(apiPort, "Ulterius Task Server");
-                ForwardPorts(terminalPort, "Ulterius Terminal Server");
-                ForwardPorts(screenSharePort, "Ulterius ScreenShareService");
+                OpenFirewall(webServerPort, "Ulterius Web Server");
+                OpenFirewall(apiPort, "Ulterius Task Server");
+                OpenFirewall(terminalPort, "Ulterius Terminal Server");
+                OpenFirewall(screenSharePort, "Ulterius ScreenShareService");
             }
             SetStartup();
             if (File.Exists("client.zip"))
@@ -309,16 +333,25 @@ namespace UlteriusServer.Utilities
         private static void SetStartup()
         {
             Console.WriteLine("Set Startup");
-            var rk = Registry.CurrentUser.OpenSubKey
-                ("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true);
+            try
+            {
+                var rk = Registry.CurrentUser.OpenSubKey
+                       ("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true);
 
-            var runStartup = Convert.ToBoolean(Settings.Get("General").RunStartup);
-            var fileName = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
-                "Bootstrapper.exe");
-            if (runStartup)
-                rk?.SetValue("Ulterius", $"\"{fileName}\"");
-            else
-                rk?.DeleteValue("Ulterius", false);
+                var runStartup = Convert.ToBoolean(Settings.Get("General").RunStartup);
+                var fileName = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
+                    "Bootstrapper.exe");
+                if (runStartup)
+                    rk?.SetValue("Ulterius", $"\"{fileName}\"");
+                else
+                    rk?.DeleteValue("Ulterius", false);
+            }
+            catch (Exception ex)
+            {
+
+                Console.WriteLine(ex.Message);
+                Console.WriteLine(ex.StackTrace);
+            }
         }
 
         public static bool InstallClient()

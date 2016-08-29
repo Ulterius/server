@@ -74,7 +74,7 @@ namespace UlteriusServer.Api.Network.Messages
                             var keyIv = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(_authClient.AesIv));
                             var encryptedData = UlteriusAes.Encrypt(json, keyBytes, keyIv);
                             var message = new Message(_client, encryptedData, Message.MessageType.Binary);
-                            UlteriusApiServer.MessageQueueManager.SendQueue.Add(message);
+                            _authClient?.MessageQueueManager.SendQueue.Add(message); 
                             return;
                         }
                     }
@@ -85,7 +85,7 @@ namespace UlteriusServer.Api.Network.Messages
                     return;
                 }
                 var jsonMessage = new Message(_client, json, Message.MessageType.Text);
-                UlteriusApiServer.MessageQueueManager.SendQueue.Add(jsonMessage);
+                _authClient?.MessageQueueManager.SendQueue.Add(jsonMessage);
             }
         }
     }

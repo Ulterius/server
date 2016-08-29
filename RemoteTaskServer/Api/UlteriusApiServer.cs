@@ -25,7 +25,7 @@ namespace UlteriusServer.Api
 {
     internal class UlteriusApiServer
     {
-        public static MessageQueueManager MessageQueueManager = new MessageQueueManager();
+       
         public static ConcurrentDictionary<Guid, AuthClient> AllClients { get; set; }
 
         public static ScreenShareService ScreenShareService { get; set; }
@@ -140,11 +140,14 @@ namespace UlteriusServer.Api
             AllClients.TryGetValue(connectionId, out authClient);
             if (authClient != null) return; 
             Console.WriteLine("Connection from " + clientSocket.RemoteEndpoint);
-            var client = new AuthClient();
             var rsa = new Rsa();
             rsa.GenerateKeyPairs();
-            client.PublicKey = rsa.PublicKey;
-            client.PrivateKey = rsa.PrivateKey;
+            var client = new AuthClient
+            {
+                MessageQueueManager = new MessageQueueManager(),
+                PublicKey = rsa.PublicKey,
+                PrivateKey = rsa.PrivateKey
+            };
             AllClients.AddOrUpdate(connectionId, client, (key, value) => value);
             SendWelcomeMessage(client, clientSocket);
         }
