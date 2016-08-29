@@ -6,6 +6,7 @@ using System.IO;
 using System.Net.Http;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Security.Principal;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Ionic.Zip;
@@ -123,6 +124,15 @@ namespace Bootstrapper
                 return false;
             }
         }
+        static bool IsElevated
+        {
+            get
+            {
+                var securityIdentifier = WindowsIdentity.GetCurrent().Owner;
+                return securityIdentifier != null && securityIdentifier
+                    .IsWellKnown(WellKnownSidType.BuiltinAdministratorsSid);
+            }
+        }
 
         private static void Main(string[] args)
         {
@@ -134,7 +144,7 @@ namespace Bootstrapper
             {
                 Process.GetCurrentProcess().Kill();
             }
-            if (UacHelper.IsProcessElevated)
+            if (IsElevated)
             {
                 var handle = GetConsoleWindow();
                 // Hide
@@ -149,6 +159,7 @@ namespace Bootstrapper
             }
             else
             {
+                
                 //restart as admin, needed to ensure windows lets as start at startup
                 var info = new ProcessStartInfo(Assembly.GetEntryAssembly().Location)
                 {
