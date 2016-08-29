@@ -1,4 +1,6 @@
 # Ulterius: Easy Remote Management
+
+[![Join the chat at https://gitter.im/Ulterius/server](https://badges.gitter.im/Ulterius/server.svg)](https://gitter.im/Ulterius/server?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [Ulterius][Ulterius site] is a tool that allows unfettered access to a Windows system via a remote web interface. This program allows you to start and kill processes, monitor system performance, manage your files, and much more, all from your web browser.
 
 This repo is the server-side component. For the frontend, see [Ulterius/client], or [Ulterius] for everything related to this project.
