@@ -1,6 +1,7 @@
 ﻿#region
 
 using System;
+using System.IO;
 using System.Text;
 using Newtonsoft.Json;
 using UlteriusServer.Utilities.Security;
@@ -62,7 +63,7 @@ namespace UlteriusServer.Api.Network.Messages
                     synckey,
                     results = data
                 });
-      
+
 
                 try
                 {
@@ -73,8 +74,21 @@ namespace UlteriusServer.Api.Network.Messages
                             var keyBytes = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(_authClient.AesKey));
                             var keyIv = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(_authClient.AesIv));
                             var encryptedData = UlteriusAes.Encrypt(json, keyBytes, keyIv);
+                            if (Program.Headers)
+                            {
+                                using (var memoryStream = new MemoryStream())
+                                {
+                                    using (var binaryWriter = new BinaryWriter(memoryStream))
+                                    {
+                                        binaryWriter.Write(Endpoint);
+                                        binaryWriter.Write("CBC");
+                                        binaryWriter.Write(encryptedData);
+                                    }
+                                    encryptedData = memoryStream.ToArray();
+                                }
+                            }
                             var message = new Message(_client, encryptedData, Message.MessageType.Binary);
-                            _authClient?.MessageQueueManager.SendQueue.Add(message); 
+                            _authClient?.MessageQueueManager.SendQueue.Add(message);
                             return;
                         }
                     }

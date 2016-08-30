@@ -121,9 +121,9 @@ namespace UlteriusServer.Utilities.Usage
                 var json = JsonConvert.SerializeObject(data);
                 var content = new FormUrlEncodedContent(new[]
                 {
-                 new KeyValuePair<string, string>("guid", GetMachineGuid()),
-                new KeyValuePair<string, string>("results", json)
-            });
+                    new KeyValuePair<string, string>("guid", GetMachineGuid()),
+                    new KeyValuePair<string, string>("results", json)
+                });
                 using (var client = new HttpClient())
                 {
                     var result = await client.PostAsync("https://api.ulterius.io/hardware/", content);
@@ -136,7 +136,6 @@ namespace UlteriusServer.Utilities.Usage
             }
             catch (Exception)
             {
-
                 //just fail
             }
         }
