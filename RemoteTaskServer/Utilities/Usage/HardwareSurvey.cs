@@ -126,6 +126,7 @@ namespace UlteriusServer.Utilities.Usage
                 });
                 using (var client = new HttpClient())
                 {
+                    client.Timeout = new TimeSpan(0, 0, 0, 5);
                     var result = await client.PostAsync("https://api.ulterius.io/hardware/", content);
                     if (result.IsSuccessStatusCode)
                     {

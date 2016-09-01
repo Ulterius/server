@@ -4,9 +4,12 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using UlteriusServer.Utilities;
+using UlteriusServer.Utilities.Security;
 using vtortola.WebSockets;
 using vtortola.WebSockets.Rfc6455;
 
@@ -26,7 +29,6 @@ namespace UlteriusServer.WebSocketAPI
 
     public class WebSocketEventListener : IDisposable
     {
-        
         private readonly List<WebSocketListener> _listeners = new List<WebSocketListener>();
 
         public WebSocketEventListener(List<IPEndPoint> endpoints)

@@ -167,7 +167,7 @@ namespace UlteriusServer.WebServer
 
         private async void Listen()
         {
-            var prefix = "http://*:22006/";
+            var prefix = $"http://*:{Port}/";
             var username = Environment.GetEnvironmentVariable("USERNAME");
             var userdomain = Environment.GetEnvironmentVariable("USERDOMAIN");
             _listener = new HttpListener();

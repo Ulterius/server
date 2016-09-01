@@ -168,10 +168,13 @@ namespace UlteriusServer.Api
                     publicKey = Rsa.SecureStringToString(client.PublicKey)
                 }
             });
-            await clientSocket.WriteStringAsync(welcomeMessage, CancellationToken.None);
-            var userCount = AllClients.Count;
-            var extra = userCount > 1 ? "s" : string.Empty;
-            UlteriusTray.ShowMessage($"There are now {userCount} user{extra} connected.", "A new user connected!");
+            if (clientSocket != null)
+            {
+                await clientSocket.WriteStringAsync(welcomeMessage, CancellationToken.None);
+                var userCount = AllClients.Count;
+                var extra = userCount > 1 ? "s" : string.Empty;
+                UlteriusTray.ShowMessage($"There are now {userCount} user{extra} connected.", "A new user connected!");
+            }
         }
 
         private static void Log(string message)

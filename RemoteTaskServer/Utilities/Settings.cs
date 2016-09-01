@@ -51,6 +51,7 @@ namespace UlteriusServer.Utilities
             }
             catch (Exception)
             {
+    
                 if (_generating)
                 {
                     _generating = false;
