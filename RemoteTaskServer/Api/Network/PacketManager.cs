@@ -71,7 +71,17 @@ namespace UlteriusServer.Api.Network
             SearchFiles,
             StopScreenShare,
             CheckScreenShare,
-            NoAuth
+            NoAuth,
+            MouseMove,
+            MouseDown,
+            MouseScroll,
+            MouseUp,
+            LeftClick,
+            LeftDblClick,
+            RightClick,
+            KeyDown,
+            KeyUp,
+            FullFrame
         }
 
         #endregion
@@ -305,6 +315,24 @@ namespace UlteriusServer.Api.Network
                     return new PacketInfo {Type = PacketTypes.GetPlugins, Handler = typeof(PluginPacketHandler)};
                 case "plugin":
                     return new PacketInfo {Type = PacketTypes.Plugin, Handler = typeof(PluginPacketHandler)};
+                case "mousemove":
+                    return new PacketInfo { Type = PacketTypes.MouseMove, Handler = typeof(ScreenSharePacketHandler) };
+                case "mousedown":
+                    return new PacketInfo { Type = PacketTypes.MouseDown, Handler = typeof(ScreenSharePacketHandler) };
+                case "mousescroll":
+                    return new PacketInfo { Type = PacketTypes.MouseScroll, Handler = typeof(ScreenSharePacketHandler) };
+                case "mouseup":
+                    return new PacketInfo { Type = PacketTypes.MouseUp, Handler = typeof(ScreenSharePacketHandler) };
+                case "leftclick":
+                    return new PacketInfo { Type = PacketTypes.LeftClick, Handler = typeof(ScreenSharePacketHandler) };
+                case "rightclick":
+                    return new PacketInfo { Type = PacketTypes.RightClick, Handler = typeof(ScreenSharePacketHandler) };
+                case "keydown":
+                    return new PacketInfo { Type = PacketTypes.KeyDown, Handler = typeof(ScreenSharePacketHandler) };
+                case "keyup":
+                    return new PacketInfo { Type = PacketTypes.KeyUp, Handler = typeof(ScreenSharePacketHandler) };
+                case "fullframe":
+                    return new PacketInfo { Type = PacketTypes.FullFrame, Handler = typeof(ScreenSharePacketHandler) };
                 default:
                     return new PacketInfo
                     {

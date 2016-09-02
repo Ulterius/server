@@ -58,8 +58,12 @@ namespace UlteriusServer
             Tools.ConfigureServer();
             var useTerminal = Convert.ToBoolean(Settings.Get("Terminal").AllowTerminal);
             var useWebServer = Convert.ToBoolean(Settings.Get("WebServer").ToggleWebServer);
-            Console.WriteLine("Loading Webcams");
-            WebCamManager.LoadWebcams();
+            var useWebCams = Convert.ToBoolean(Settings.Get("Webcams").UseWebcams);
+            if (useWebCams)
+            {
+                Console.WriteLine("Loading Webcams");
+                WebCamManager.LoadWebcams();
+            }
             if (useWebServer)
             {
                 Console.WriteLine("Setting up HTTP Server");

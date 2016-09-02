@@ -181,9 +181,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>extensions\UlteriusPluginBase.dll</HintPath>
     </Reference>
-    <Reference Include="UlteriusScreenShare">
-      <HintPath>extensions\UlteriusScreenShare.dll</HintPath>
-    </Reference>
     <Reference Include="vtortola.WebSockets, Version=2.2.1.0, Culture=neutral, PublicKeyToken=7f78616efb4a208d, processorArchitecture=MSIL">
       <HintPath>..\packages\vtortola.WebSocketListener.2.2.1.0\lib\net45\vtortola.WebSockets.dll</HintPath>
       <Private>True</Private>
@@ -199,13 +196,38 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Api\Services\ScreenShare\ScreenData.cs" />
     <Compile Include="Api\Services\Update\ClientUpdateService.cs" />
+    <Compile Include="Api\Win32\Gdi.cs" />
     <Compile Include="Api\Win32\Win32Exception.cs" />
     <Compile Include="Api\Win32\WinApi.cs" />
+    <Compile Include="Api\Win32\WindowsInput\IInputDeviceStateAdaptor.cs" />
+    <Compile Include="Api\Win32\WindowsInput\IInputMessageDispatcher.cs" />
+    <Compile Include="Api\Win32\WindowsInput\IInputSimulator.cs" />
+    <Compile Include="Api\Win32\WindowsInput\IKeyboardSimulator.cs" />
+    <Compile Include="Api\Win32\WindowsInput\IMouseSimulator.cs" />
+    <Compile Include="Api\Win32\WindowsInput\InputBuilder.cs" />
+    <Compile Include="Api\Win32\WindowsInput\InputSimulator.cs" />
+    <Compile Include="Api\Win32\WindowsInput\KeyboardSimulator.cs" />
+    <Compile Include="Api\Win32\WindowsInput\MouseButton.cs" />
+    <Compile Include="Api\Win32\WindowsInput\MouseSimulator.cs" />
+    <Compile Include="Api\Win32\WindowsInput\Native\HARDWAREINPUT.cs" />
+    <Compile Include="Api\Win32\WindowsInput\Native\INPUT.cs" />
+    <Compile Include="Api\Win32\WindowsInput\Native\InputType.cs" />
+    <Compile Include="Api\Win32\WindowsInput\Native\KEYBDINPUT.cs" />
+    <Compile Include="Api\Win32\WindowsInput\Native\KeyboardFlag.cs" />
+    <Compile Include="Api\Win32\WindowsInput\Native\MouseFlag.cs" />
+    <Compile Include="Api\Win32\WindowsInput\Native\MOUSEINPUT.cs" />
+    <Compile Include="Api\Win32\WindowsInput\Native\MOUSEKEYBDHARDWAREINPUT.cs" />
+    <Compile Include="Api\Win32\WindowsInput\Native\NativeMethods.cs" />
+    <Compile Include="Api\Win32\WindowsInput\Native\VirtualKeyCode.cs" />
+    <Compile Include="Api\Win32\WindowsInput\Native\XButton.cs" />
+    <Compile Include="Api\Win32\WindowsInput\WindowsInputDeviceStateAdaptor.cs" />
+    <Compile Include="Api\Win32\WindowsInput\WindowsInputMessageDispatcher.cs" />
     <Compile Include="Plugins\PluginHost.cs" />
     <Compile Include="Api\Network\Messages\Message.cs" />
     <Compile Include="Api\Network\Messages\MessageQueueManager.cs" />
-    <Compile Include="Api\Services\System\FileSearchService.cs" />
+    <Compile Include="Api\Services\LocalSystem\FileSearchService.cs" />
     <Compile Include="Ulterius.cs" />
     <Compile Include="Utilities\Drive\Disk.cs" />
     <Compile Include="Utilities\Drive\Smart.cs" />
@@ -214,6 +236,8 @@
     <Compile Include="Utilities\Files\Ntfs\FileEntry.cs" />
     <Compile Include="Utilities\Files\Ntfs\MftEnumerator.cs" />
     <Compile Include="Utilities\Files\Ntfs\Volume.cs" />
+    <Compile Include="Utilities\Security\Streams\OfbStream.cs" />
+    <Compile Include="Utilities\Security\Streams\ZeroStream.cs" />
     <Compile Include="Utilities\Security\WindowsAuth.cs" />
     <Compile Include="Utilities\Usage\HardwareSurvey.cs" />
     <Compile Include="WebSocketAPI\Authentication\AuthClient.cs" />
@@ -240,7 +264,7 @@
     <Compile Include="Api\Network\PacketHandlers\SystemPacketHandler.cs" />
     <Compile Include="Api\Network\Models\CameraModel.cs" />
     <Compile Include="Api\Network\Models\GpuInformation.cs" />
-    <Compile Include="Api\Services\System\ScreenShareService.cs" />
+    <Compile Include="Api\Services\LocalSystem\ScreenShareService.cs" />
     <Compile Include="TerminalServer\Cli\CommandSession.cs" />
     <Compile Include="TerminalServer\Cli\PowerShellSession.cs" />
     <Compile Include="TerminalServer\Cli\_ICliSession.cs" />
@@ -308,7 +332,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utilities\ExceptionHandler.cs" />
     <Compile Include="Api\Services\Network\NetworkService.cs" />
-    <Compile Include="Api\Services\System\SystemService.cs" />
+    <Compile Include="Api\Services\LocalSystem\SystemService.cs" />
     <Compile Include="Utilities\Tools.cs" />
     <Compile Include="WebServer\HttpServer.cs" />
   </ItemGroup>

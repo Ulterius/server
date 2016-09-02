@@ -3,6 +3,7 @@
 using System;
 using System.IO;
 using System.Security.Cryptography;
+using UlteriusServer.Utilities.Security.Streams;
 
 #endregion
 
@@ -10,6 +11,12 @@ namespace UlteriusServer.Utilities.Security
 {
     public class UlteriusAes
     {
+
+        public enum EncryptionType
+        {
+            OFB,
+            CBC
+        }
         public static byte[] EncryptFile(byte[] bytesToBeEncrypted, byte[] passwordBytes)
         {
             byte[] encrypted;
@@ -93,6 +100,31 @@ namespace UlteriusServer.Utilities.Security
             return decryptedBytes;
         }
 
+        public static byte[] EncryptFrame(byte[] bytesToBeEncrypted, byte[] keyBytes, byte[] ivBytes)
+        {
+            byte[] encrypted;
+            // Create a RijndaelManaged object  
+            // with the specified key and IV.  
+            using (var aes = new RijndaelManaged())
+            {
+                aes.Key = keyBytes;
+                aes.IV = ivBytes;
+                using (var vectorStream = new MemoryStream(bytesToBeEncrypted))
+                {
+                    using (var ofbStream = new OfbStream(vectorStream, aes, CryptoStreamMode.Read))
+                    {
+                        using (var cipherStream = new MemoryStream())
+                        {
+                            ofbStream.CopyTo(cipherStream);
+                            encrypted = cipherStream.ToArray();
+                        }
+                    }
+                }
+
+            }
+            // Return the encrypted bytes from the memory stream.  
+            return encrypted;
+        }
 
         public static byte[] Encrypt(string plainText, byte[] key, byte[] iv)
         {

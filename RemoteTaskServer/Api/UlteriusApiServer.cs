@@ -9,6 +9,7 @@ using System.Threading;
 using Newtonsoft.Json;
 using UlteriusServer.Api.Network;
 using UlteriusServer.Api.Network.Messages;
+using UlteriusServer.Api.Services.LocalSystem;
 using UlteriusServer.Api.Services.Network;
 using UlteriusServer.Api.Services.System;
 using UlteriusServer.Api.Services.Update;
@@ -44,7 +45,9 @@ namespace UlteriusServer.Api
             AllClients = new ConcurrentDictionary<Guid, AuthClient>();
             ScreenShareService = new ScreenShareService();
             var address = NetworkService.GetAddress();
-            var endPoints = new List<IPEndPoint> {new IPEndPoint(address, apiPort), new IPEndPoint(address, 22010)};
+            var webCamPort = (int)Settings.Get("Webcams").WebcamPort;
+            var screenSharePort = (int)Settings.Get("ScreenShareService").ScreenSharePort;
+            var endPoints = new List<IPEndPoint> {new IPEndPoint(address, apiPort), new IPEndPoint(address, webCamPort), new IPEndPoint(address, screenSharePort) };
             var server = new WebSocketEventListener(endPoints, new WebSocketListenerOptions
             {
                 PingTimeout = TimeSpan.FromSeconds(15),
@@ -160,7 +163,6 @@ namespace UlteriusServer.Api
                     {clientSocket.LocalEndpoint.Port, new MessageQueueManager()}
                 }
             };
-
             AllClients.AddOrUpdate(connectionId, client, (key, value) => value);
             SendWelcomeMessage(client, clientSocket);
         }

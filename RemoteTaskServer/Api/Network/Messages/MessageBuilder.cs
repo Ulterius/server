@@ -7,6 +7,7 @@ using Newtonsoft.Json;
 using UlteriusServer.Utilities.Security;
 using UlteriusServer.WebSocketAPI.Authentication;
 using vtortola.WebSockets;
+using static UlteriusServer.Utilities.Security.UlteriusAes;
 
 #endregion
 
@@ -40,7 +41,7 @@ namespace UlteriusServer.Api.Network.Messages
             try
             {
                 var passwordBytes = Encoding.UTF8.GetBytes(password);
-                return UlteriusAes.EncryptFile(data, passwordBytes);
+                return EncryptFile(data, passwordBytes);
             }
             catch (Exception e)
             {
@@ -73,15 +74,18 @@ namespace UlteriusServer.Api.Network.Messages
                         {
                             var keyBytes = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(_authClient.AesKey));
                             var keyIv = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(_authClient.AesIv));
-                            var encryptedData = UlteriusAes.Encrypt(json, keyBytes, keyIv);
+
+                            var encryptedData = Encrypt(json, keyBytes, keyIv);
                             if (Program.Headers)
                             {
                                 using (var memoryStream = new MemoryStream())
                                 {
                                     using (var binaryWriter = new BinaryWriter(memoryStream))
                                     {
+                                        binaryWriter.Write(Endpoint.Length);
                                         binaryWriter.Write(Endpoint);
-                                        binaryWriter.Write("CBC");
+                                        binaryWriter.Write(EncryptionType.CBC.ToString());
+                                        binaryWriter.Write(encryptedData.Length);
                                         binaryWriter.Write(encryptedData);
                                     }
                                     encryptedData = memoryStream.ToArray();
@@ -90,8 +94,8 @@ namespace UlteriusServer.Api.Network.Messages
                             var message = new Message(_client, encryptedData, Message.MessageType.Binary);
                             if (_authClient != null)
                             {
-                               var targetPort = _client.LocalEndpoint.Port;
-                              _authClient.MessageQueueManagers[targetPort].SendQueue.Add(message);
+                                var targetPort = _client.LocalEndpoint.Port;
+                                _authClient.MessageQueueManagers[targetPort].SendQueue.Add(message);
                             }
                             return;
                         }
@@ -110,5 +114,41 @@ namespace UlteriusServer.Api.Network.Messages
                 }
             }
         }
+
+        public void WriteScreenFrame(byte[] data)
+        {
+            if (_authClient != null)
+            {
+                if (_authClient.AesShook)
+                {
+                    var keyBytes = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(_authClient.AesKey));
+                    var keyIv = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(_authClient.AesIv));
+
+                    var encryptedData = EncryptFrame(data, keyBytes, keyIv);
+
+                    using (var memoryStream = new MemoryStream())
+                    {
+                        using (var binaryWriter = new BinaryWriter(memoryStream))
+                        {
+                            binaryWriter.Write(Endpoint.Length);
+                            binaryWriter.Write(Endpoint);
+                            binaryWriter.Write(EncryptionType.OFB.ToString());
+                            binaryWriter.Write(encryptedData.Length);
+                            binaryWriter.Write(encryptedData);
+                        }
+                        encryptedData = memoryStream.ToArray();
+                    }
+                    var message = new Message(_client, encryptedData, Message.MessageType.Binary);
+                    if (_authClient != null)
+                    {
+                        var targetPort = _client.LocalEndpoint.Port;
+                        _authClient.MessageQueueManagers[targetPort].SendQueue.Add(message);
+                    }
+                }
+            }
+        }
     }
 }
+
+
+

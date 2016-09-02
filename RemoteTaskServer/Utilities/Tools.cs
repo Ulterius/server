@@ -4,11 +4,9 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Net.NetworkInformation;
 using System.Reflection;
 using System.Security.Principal;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
@@ -80,7 +78,7 @@ namespace UlteriusServer.Utilities
                     firewallRule.Action = NET_FW_ACTION_.NET_FW_ACTION_ALLOW;
                     firewallRule.Enabled = true;
                     firewallRule.InterfaceTypes = "All";
-                    firewallRule.Protocol = (int)NET_FW_IP_PROTOCOL_.NET_FW_IP_PROTOCOL_TCP;
+                    firewallRule.Protocol = (int) NET_FW_IP_PROTOCOL_.NET_FW_IP_PROTOCOL_TCP;
                     firewallRule.LocalPorts = port.ToString();
                     firewallPolicy.Rules.Add(firewallRule);
                 }
@@ -179,9 +177,6 @@ namespace UlteriusServer.Utilities
             Settings.Get()["ScreenShareService"] = new Settings.Header
             {
                 {
-                    "ScreenSharePass", string.Empty
-                },
-                {
                     "ScreenSharePort", 22009
                 }
             };
@@ -189,6 +184,18 @@ namespace UlteriusServer.Utilities
             {
                 {
                     "AllowTerminal", true
+                },
+                {
+                    "TerminalPort", 22008
+                }
+            };
+            Settings.Get()["Webcams"] = new Settings.Header
+            {
+                {
+                    "UseWebcams", true
+                },
+                {
+                    "WebcamPort", 22010
                 }
             };
 
@@ -206,6 +213,7 @@ namespace UlteriusServer.Utilities
         {
             var webServerPort = (int) Settings.Get("WebServer").WebServerPort;
             var apiPort = (int) Settings.Get("TaskServer").TaskServerPort;
+            var webCamPort = Convert.ToBoolean(Settings.Get("Webcams").WebcamPort);
             var terminalPort = 22008;
             var screenSharePort = (int) Settings.Get("ScreenShareService").ScreenSharePort;
             var nat = new NatDiscoverer();
@@ -240,6 +248,12 @@ namespace UlteriusServer.Utilities
                     .ContinueWith(task =>
                     {
                         return device.CreatePortMapAsync(
+                            new Mapping(Protocol.Tcp, webCamPort, webCamPort, 0, "Ulterius Webcams"));
+                    })
+                    .Unwrap()
+                    .ContinueWith(task =>
+                    {
+                        return device.CreatePortMapAsync(
                             new Mapping(Protocol.Tcp, terminalPort, terminalPort, 0, "Ulterius Terminal"));
                     })
                     .Unwrap()
@@ -264,18 +278,18 @@ namespace UlteriusServer.Utilities
             try
             {
                 var filestream = new FileStream(Path.Combine(AppEnvironment.DataPath, "server.log"),
-                     FileMode.Create);
-                var streamwriter = new StreamWriter(filestream) { AutoFlush = true };
+                    FileMode.Create);
+                var streamwriter = new StreamWriter(filestream) {AutoFlush = true};
                 Console.SetOut(streamwriter);
                 Console.SetError(streamwriter);
                 return true;
             }
             catch (Exception)
             {
-
                 return false;
             }
         }
+
         public static void ConfigureServer()
         {
             if (SetLogging())
@@ -334,7 +348,7 @@ namespace UlteriusServer.Utilities
             try
             {
                 var rk = Registry.CurrentUser.OpenSubKey
-                       ("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true);
+                    ("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true);
 
                 var runStartup = Convert.ToBoolean(Settings.Get("General").RunStartup);
                 var fileName = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
@@ -346,7 +360,6 @@ namespace UlteriusServer.Utilities
             }
             catch (Exception ex)
             {
-
                 Console.WriteLine(ex.Message);
                 Console.WriteLine(ex.StackTrace);
             }

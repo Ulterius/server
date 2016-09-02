@@ -7,7 +7,7 @@ using UlteriusServer.Utilities.Files.Database;
 
 #endregion
 
-namespace UlteriusServer.Api.Services.System
+namespace UlteriusServer.Api.Services.LocalSystem
 {
     public class FileSearchService
     {
