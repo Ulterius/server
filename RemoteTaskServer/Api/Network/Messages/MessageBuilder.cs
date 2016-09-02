@@ -88,7 +88,11 @@ namespace UlteriusServer.Api.Network.Messages
                                 }
                             }
                             var message = new Message(_client, encryptedData, Message.MessageType.Binary);
-                            _authClient?.MessageQueueManager.SendQueue.Add(message);
+                            if (_authClient != null)
+                            {
+                               var targetPort = _client.LocalEndpoint.Port;
+                              _authClient.MessageQueueManagers[targetPort].SendQueue.Add(message);
+                            }
                             return;
                         }
                     }
@@ -99,7 +103,11 @@ namespace UlteriusServer.Api.Network.Messages
                     return;
                 }
                 var jsonMessage = new Message(_client, json, Message.MessageType.Text);
-                _authClient?.MessageQueueManager.SendQueue.Add(jsonMessage);
+                if (_authClient != null)
+                {
+                    var targetPort = _client.LocalEndpoint.Port;
+                    _authClient.MessageQueueManagers[targetPort].SendQueue.Add(jsonMessage);
+                }
             }
         }
     }

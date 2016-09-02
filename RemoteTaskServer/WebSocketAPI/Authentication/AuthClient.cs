@@ -19,7 +19,8 @@ namespace UlteriusServer.WebSocketAPI.Authentication
             AesShook = false;
         }
 
-        public MessageQueueManager MessageQueueManager { get; set; }
+        public Dictionary<int, MessageQueueManager> MessageQueueManagers { get; set; }
+ 
         public DateTime LastUpdate { get; set; }
         public bool Authenticated { get; set; }
         public SecureString PrivateKey { get; set; }

@@ -25,7 +25,6 @@ namespace UlteriusServer.Api
 {
     internal class UlteriusApiServer
     {
-       
         public static ConcurrentDictionary<Guid, AuthClient> AllClients { get; set; }
 
         public static ScreenShareService ScreenShareService { get; set; }
@@ -45,7 +44,7 @@ namespace UlteriusServer.Api
             AllClients = new ConcurrentDictionary<Guid, AuthClient>();
             ScreenShareService = new ScreenShareService();
             var address = NetworkService.GetAddress();
-            var endPoints = new List<IPEndPoint> {new IPEndPoint(address, apiPort), new IPEndPoint(address, 22010) };
+            var endPoints = new List<IPEndPoint> {new IPEndPoint(address, apiPort), new IPEndPoint(address, 22010)};
             var server = new WebSocketEventListener(endPoints, new WebSocketListenerOptions
             {
                 PingTimeout = TimeSpan.FromSeconds(15),
@@ -138,16 +137,30 @@ namespace UlteriusServer.Api
             var connectionId = CookieManager.GetConnectionId(clientSocket);
             AuthClient authClient;
             AllClients.TryGetValue(connectionId, out authClient);
-            if (authClient != null) return; 
+            if (authClient != null)
+            {
+
+                MessageQueueManager manager;
+                //check if a manager for that port exist, if not, create one
+                if (!authClient.MessageQueueManagers.TryGetValue(clientSocket.LocalEndpoint.Port, out manager))
+                {
+                    authClient.MessageQueueManagers.Add(clientSocket.LocalEndpoint.Port, new MessageQueueManager());
+                }
+                return;
+            }
             Console.WriteLine("Connection from " + clientSocket.RemoteEndpoint);
             var rsa = new Rsa();
             rsa.GenerateKeyPairs();
             var client = new AuthClient
             {
-                MessageQueueManager = new MessageQueueManager(),
                 PublicKey = rsa.PublicKey,
-                PrivateKey = rsa.PrivateKey
+                PrivateKey = rsa.PrivateKey,
+                MessageQueueManagers = new Dictionary<int, MessageQueueManager>
+                {
+                    {clientSocket.LocalEndpoint.Port, new MessageQueueManager()}
+                }
             };
+
             AllClients.AddOrUpdate(connectionId, client, (key, value) => value);
             SendWelcomeMessage(client, clientSocket);
         }
