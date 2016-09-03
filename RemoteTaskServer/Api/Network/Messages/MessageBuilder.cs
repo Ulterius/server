@@ -85,7 +85,6 @@ namespace UlteriusServer.Api.Network.Messages
                                         binaryWriter.Write(Endpoint.Length);
                                         binaryWriter.Write(Endpoint);
                                         binaryWriter.Write(EncryptionType.CBC.ToString());
-                                        binaryWriter.Write(encryptedData.Length);
                                         binaryWriter.Write(encryptedData);
                                     }
                                     encryptedData = memoryStream.ToArray();
@@ -133,7 +132,6 @@ namespace UlteriusServer.Api.Network.Messages
                             binaryWriter.Write(Endpoint.Length);
                             binaryWriter.Write(Endpoint);
                             binaryWriter.Write(EncryptionType.OFB.ToString());
-                            binaryWriter.Write(encryptedData.Length);
                             binaryWriter.Write(encryptedData);
                         }
                         encryptedData = memoryStream.ToArray();
