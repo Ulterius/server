@@ -1,6 +1,7 @@
 ﻿#region
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Security;
 using UlteriusServer.Api.Network.Messages;
@@ -19,7 +20,7 @@ namespace UlteriusServer.WebSocketAPI.Authentication
             AesShook = false;
         }
 
-        public Dictionary<int, MessageQueueManager> MessageQueueManagers { get; set; }
+        public ConcurrentDictionary<int, MessageQueueManager> MessageQueueManagers { get; set; }
  
         public DateTime LastUpdate { get; set; }
         public bool Authenticated { get; set; }

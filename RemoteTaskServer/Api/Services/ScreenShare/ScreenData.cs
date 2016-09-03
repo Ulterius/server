@@ -19,12 +19,13 @@ namespace UlteriusServer.Api.Services.ScreenShare
         public  Bitmap _newBitmap = new Bitmap(1, 1);
         public  Bitmap _prevBitmap;
 
-
-        public  void Setup()
+        public ScreenData()
         {
             var junk = new Bitmap(10, 10);
             _graphics = Graphics.FromImage(junk);
         }
+
+      
 
         public  byte[] PackScreenCaptureData(Image image, Rectangle bounds)
         {

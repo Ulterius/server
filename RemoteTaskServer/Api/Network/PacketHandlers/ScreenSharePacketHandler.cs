@@ -109,8 +109,6 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                  
                     if (_screenData.NumByteFullScreen == 1)
                     {
-                        // Initialize the screen size (used for performance metrics)
-                        //
                         _screenData.NumByteFullScreen = bounds.Width*bounds.Height*4;
                     }
                     if (bounds != Rectangle.Empty && image != null)
@@ -119,11 +117,6 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                         if (data != null && data.Length > 0)
                         {
                             _builder.WriteScreenFrame(data);
-                            Console.WriteLine("Screen Data Written");
-                        }
-                        else
-                        {
-                            Console.WriteLine("Screen data null");
                         }
                     }
                 }

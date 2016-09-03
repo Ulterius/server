@@ -147,8 +147,11 @@ namespace UlteriusServer.Api
                 //check if a manager for that port exist, if not, create one
                 if (!authClient.MessageQueueManagers.TryGetValue(clientSocket.LocalEndpoint.Port, out manager))
                 {
-                    authClient.MessageQueueManagers.Add(clientSocket.LocalEndpoint.Port, new MessageQueueManager());
-                    Console.WriteLine("Manager started for "  + clientSocket.LocalEndpoint.Port);
+                    if (authClient.MessageQueueManagers.TryAdd(clientSocket.LocalEndpoint.Port,
+                        new MessageQueueManager()))
+                    {
+                        Console.WriteLine("Manager started for " + clientSocket.LocalEndpoint.Port);
+                    }
                 }
                 return;
             }
@@ -159,11 +162,9 @@ namespace UlteriusServer.Api
             {
                 PublicKey = rsa.PublicKey,
                 PrivateKey = rsa.PrivateKey,
-                MessageQueueManagers = new Dictionary<int, MessageQueueManager>
-                {
-                    {clientSocket.LocalEndpoint.Port, new MessageQueueManager()}
-                }
+                MessageQueueManagers = new ConcurrentDictionary<int, MessageQueueManager>()
             };
+            client.MessageQueueManagers.TryAdd(clientSocket.LocalEndpoint.Port, new MessageQueueManager());
             AllClients.AddOrUpdate(connectionId, client, (key, value) => value);
             SendWelcomeMessage(client, clientSocket);
         }
