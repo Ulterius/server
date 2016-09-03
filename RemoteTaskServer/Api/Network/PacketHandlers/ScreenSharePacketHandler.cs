@@ -106,6 +106,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                 try
                 {
                     var image = _screenData.LocalScreen(ref bounds);
+                 
                     if (_screenData.NumByteFullScreen == 1)
                     {
                         // Initialize the screen size (used for performance metrics)
@@ -118,6 +119,11 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                         if (data != null && data.Length > 0)
                         {
                             _builder.WriteScreenFrame(data);
+                            Console.WriteLine("Screen Data Written");
+                        }
+                        else
+                        {
+                            Console.WriteLine("Screen data null");
                         }
                     }
                 }
@@ -126,6 +132,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                     Console.WriteLine(e.Message + " " + e.StackTrace);
                 }
             }
+            Console.WriteLine("Screen Share Died");
         }
 
         public override void HandlePacket(Packet packet)

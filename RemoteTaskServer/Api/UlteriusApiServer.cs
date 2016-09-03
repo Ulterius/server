@@ -148,6 +148,7 @@ namespace UlteriusServer.Api
                 if (!authClient.MessageQueueManagers.TryGetValue(clientSocket.LocalEndpoint.Port, out manager))
                 {
                     authClient.MessageQueueManagers.Add(clientSocket.LocalEndpoint.Port, new MessageQueueManager());
+                    Console.WriteLine("Manager started for "  + clientSocket.LocalEndpoint.Port);
                 }
                 return;
             }

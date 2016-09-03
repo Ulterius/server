@@ -56,9 +56,8 @@ namespace UlteriusServer.Api.Network.Messages
         /// <param name="data"></param>
         public void WriteMessage(object data)
         {
-          
             if (_client != null)
-            {   
+            {
                 var json = JsonConvert.SerializeObject(new
                 {
                     endpoint = Endpoint,
@@ -77,25 +76,18 @@ namespace UlteriusServer.Api.Network.Messages
                             var keyIv = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(_authClient.AesIv));
 
                             var encryptedData = Encrypt(json, keyBytes, keyIv);
-                            if (Program.Headers)
+                            using (var memoryStream = new MemoryStream())
                             {
-                                using (var memoryStream = new MemoryStream())
+                                using (var binaryWriter = new BinaryWriter(memoryStream))
                                 {
-                                    using (var binaryWriter = new BinaryWriter(memoryStream))
-                                    {
-                                        binaryWriter.Write(Endpoint.Length);
-                                        binaryWriter.Write(System.Text.Encoding.UTF8.GetBytes(Endpoint));
-                                        binaryWriter.Write(System.Text.Encoding.UTF8.GetBytes(EncryptionType.CBC.ToString()));
-                                        binaryWriter.Write(encryptedData);
-                                    }
-                                    encryptedData = memoryStream.ToArray();
+                                    binaryWriter.Write(Endpoint.Length);
+                                    binaryWriter.Write(Encoding.UTF8.GetBytes(Endpoint));
+                                    binaryWriter.Write(Encoding.UTF8.GetBytes(EncryptionType.CBC.ToString()));
+                                    binaryWriter.Write(encryptedData);
                                 }
-                            }
-                            var message = new Message(_client, encryptedData, Message.MessageType.Binary);
-                            if (_authClient != null)
-                            {
+                                var message = new Message(_client, memoryStream.ToArray(), Message.MessageType.Binary);
                                 var targetPort = _client.LocalEndpoint.Port;
-                                _authClient.MessageQueueManagers[targetPort].SendQueue.Add(message);
+                                _authClient?.MessageQueueManagers[targetPort].SendQueue.Add(message);
                             }
                             return;
                         }
@@ -131,15 +123,11 @@ namespace UlteriusServer.Api.Network.Messages
                         using (var binaryWriter = new BinaryWriter(memoryStream))
                         {
                             binaryWriter.Write(Endpoint.Length);
-                            binaryWriter.Write(System.Text.Encoding.UTF8.GetBytes(Endpoint));
-                            binaryWriter.Write(System.Text.Encoding.UTF8.GetBytes(EncryptionType.OFB.ToString()));
+                            binaryWriter.Write(Encoding.UTF8.GetBytes(Endpoint));
+                            binaryWriter.Write(Encoding.UTF8.GetBytes(EncryptionType.OFB.ToString()));
                             binaryWriter.Write(encryptedData);
                         }
-                        encryptedData = memoryStream.ToArray();
-                    }
-                    var message = new Message(_client, encryptedData, Message.MessageType.Binary);
-                    if (_authClient != null)
-                    {
+                        var message = new Message(_client, memoryStream.ToArray(), Message.MessageType.Binary);
                         var targetPort = _client.LocalEndpoint.Port;
                         _authClient.MessageQueueManagers[targetPort].SendQueue.Add(message);
                     }
@@ -148,6 +136,3 @@ namespace UlteriusServer.Api.Network.Messages
         }
     }
 }
-
-
-
