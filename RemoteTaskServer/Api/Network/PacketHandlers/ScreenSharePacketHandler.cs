@@ -75,7 +75,6 @@ namespace UlteriusServer.Api.Network.PacketHandlers
         {
             try
             {
-                
                 var screenStream = new Task(GetScreenFrame);
                 ScreenShareService.Streams[_authClient] = screenStream;
                 var data = new
@@ -99,14 +98,13 @@ namespace UlteriusServer.Api.Network.PacketHandlers
 
         private void GetScreenFrame()
         {
-           
             var bounds = Rectangle.Empty;
             while (_client != null && _client.IsConnected)
             {
                 try
                 {
                     var image = _screenData.LocalScreen(ref bounds);
-                 
+
                     if (_screenData.NumByteFullScreen == 1)
                     {
                         _screenData.NumByteFullScreen = bounds.Width*bounds.Height*4;
@@ -182,9 +180,25 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                 _screenData.CaptureDesktop().Save(ms, ImageFormat.Jpeg);
                 var imgData = ms.ToArray();
                 var compressed = ZlibStream.CompressBuffer(imgData);
+
+                var bounds = Screen.PrimaryScreen.Bounds;
+                var screenBounds = new
+                {
+                    top = bounds.Top,
+                    bottom = bounds.Bottom,
+                    left = bounds.Left,
+                    right = bounds.Right,
+                    height = bounds.Height,
+                    width = bounds.Width,
+                    x = bounds.X,
+                    y = bounds.Y,
+                    empty = bounds.IsEmpty,
+                    location = bounds.Location,
+                    size = bounds.Size
+                };
                 var frameData = new
                 {
-                    Screen.PrimaryScreen.Bounds,
+                    screenBounds,
                     frameData = compressed
                 };
                 _builder.WriteMessage(frameData);
