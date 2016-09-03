@@ -199,7 +199,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                 var frameData = new
                 {
                     screenBounds,
-                    frameData = compressed
+                    frameData = compressed.Select(b => (int)b).ToArray()
                 };
                 _builder.WriteMessage(frameData);
             }
