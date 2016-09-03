@@ -11,7 +11,6 @@ using UlteriusServer.Api.Network;
 using UlteriusServer.Api.Network.Messages;
 using UlteriusServer.Api.Services.LocalSystem;
 using UlteriusServer.Api.Services.Network;
-using UlteriusServer.Api.Services.System;
 using UlteriusServer.Api.Services.Update;
 using UlteriusServer.Forms.Utilities;
 using UlteriusServer.Utilities;
@@ -45,9 +44,14 @@ namespace UlteriusServer.Api
             AllClients = new ConcurrentDictionary<Guid, AuthClient>();
             ScreenShareService = new ScreenShareService();
             var address = NetworkService.GetAddress();
-            var webCamPort = (int)Settings.Get("Webcams").WebcamPort;
-            var screenSharePort = (int)Settings.Get("ScreenShareService").ScreenSharePort;
-            var endPoints = new List<IPEndPoint> {new IPEndPoint(address, apiPort), new IPEndPoint(address, webCamPort), new IPEndPoint(address, screenSharePort) };
+            var webCamPort = (int) Settings.Get("Webcams").WebcamPort;
+            var screenSharePort = (int) Settings.Get("ScreenShareService").ScreenSharePort;
+            var endPoints = new List<IPEndPoint>
+            {
+                new IPEndPoint(address, apiPort),
+                new IPEndPoint(address, webCamPort),
+                new IPEndPoint(address, screenSharePort)
+            };
             var server = new WebSocketEventListener(endPoints, new WebSocketListenerOptions
             {
                 PingTimeout = TimeSpan.FromSeconds(15),
@@ -120,14 +124,16 @@ namespace UlteriusServer.Api
         /// <param name="clientSocket"></param>
         private static void HandleDisconnect(WebSocket clientSocket)
         {
-            var connectionId = CookieManager.GetConnectionId(clientSocket);
-            AuthClient temp = null;
-            if (AllClients.TryRemove(connectionId, out temp))
+            var apiPort = (int) Settings.Get("TaskServer").TaskServerPort;
+            // only remove clients if the main api dies
+            if (clientSocket.LocalEndpoint.Port == apiPort)
             {
-                var apiPort = (int)Settings.Get("TaskServer").TaskServerPort;
-                // only remove clients if the main api dies
-                if (clientSocket.LocalEndpoint.Port == apiPort)
+                var connectionId = CookieManager.GetConnectionId(clientSocket);
+                AuthClient temp = null;
+                if (AllClients.TryRemove(connectionId, out temp))
                 {
+                    
+
                     Console.WriteLine("Disconnection from " + clientSocket.RemoteEndpoint);
                     var userCount = AllClients.Count;
                     var extra = userCount < 1 ? "s" : string.Empty;
@@ -147,7 +153,6 @@ namespace UlteriusServer.Api
             AllClients.TryGetValue(connectionId, out authClient);
             if (authClient != null)
             {
-
                 MessageQueueManager manager;
                 //check if a manager for that port exist, if not, create one
                 if (!authClient.MessageQueueManagers.TryGetValue(clientSocket.LocalEndpoint.Port, out manager))
