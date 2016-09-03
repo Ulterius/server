@@ -124,10 +124,15 @@ namespace UlteriusServer.Api
             AuthClient temp = null;
             if (AllClients.TryRemove(connectionId, out temp))
             {
-                Console.WriteLine("Disconnection from " + clientSocket.RemoteEndpoint);
-                var userCount = AllClients.Count;
-                var extra = userCount < 1 ? "s" : string.Empty;
-                UlteriusTray.ShowMessage($"There are now {userCount} user{extra} connected.", "A user disconnected!");
+                var apiPort = (int)Settings.Get("TaskServer").TaskServerPort;
+                // only remove clients if the main api dies
+                if (clientSocket.LocalEndpoint.Port == apiPort)
+                {
+                    Console.WriteLine("Disconnection from " + clientSocket.RemoteEndpoint);
+                    var userCount = AllClients.Count;
+                    var extra = userCount < 1 ? "s" : string.Empty;
+                    UlteriusTray.ShowMessage($"There are now {userCount} user{extra} connected.", "A user disconnected!");
+                }
             }
         }
 

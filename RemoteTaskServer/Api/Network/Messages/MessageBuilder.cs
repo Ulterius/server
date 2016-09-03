@@ -109,28 +109,40 @@ namespace UlteriusServer.Api.Network.Messages
 
         public void WriteScreenFrame(byte[] data)
         {
-            if (_authClient != null)
+            if (_client != null)
             {
-                if (_authClient.AesShook)
+                try
                 {
-                    var keyBytes = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(_authClient.AesKey));
-                    var keyIv = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(_authClient.AesIv));
-
-                    var encryptedData = EncryptFrame(data, keyBytes, keyIv);
-
-                    using (var memoryStream = new MemoryStream())
+                    if (_authClient != null)
                     {
-                        using (var binaryWriter = new BinaryWriter(memoryStream))
+                        if (_authClient.AesShook)
                         {
-                            binaryWriter.Write(Endpoint.Length);
-                            binaryWriter.Write(Encoding.UTF8.GetBytes(Endpoint));
-                            binaryWriter.Write(Encoding.UTF8.GetBytes(EncryptionType.OFB.ToString()));
-                            binaryWriter.Write(encryptedData);
+                            var keyBytes = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(_authClient.AesKey));
+                            var keyIv = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(_authClient.AesIv));
+
+                            var encryptedData = EncryptFrame(data, keyBytes, keyIv);
+
+                            using (var memoryStream = new MemoryStream())
+                            {
+                                using (var binaryWriter = new BinaryWriter(memoryStream))
+                                {
+                                    binaryWriter.Write(Endpoint.Length);
+                                    binaryWriter.Write(Encoding.UTF8.GetBytes(Endpoint));
+                                    binaryWriter.Write(Encoding.UTF8.GetBytes(EncryptionType.OFB.ToString()));
+                                    binaryWriter.Write(encryptedData);
+                                }
+                                var message = new Message(_client, memoryStream.ToArray(), Message.MessageType.Binary);
+                                var targetPort = _client.LocalEndpoint.Port;
+                                _authClient.MessageQueueManagers[targetPort].SendQueue.Add(message);
+                                Console.WriteLine("Frame data added to " + targetPort);
+                            }
                         }
-                        var message = new Message(_client, memoryStream.ToArray(), Message.MessageType.Binary);
-                        var targetPort = _client.LocalEndpoint.Port;
-                        _authClient.MessageQueueManagers[targetPort].SendQueue.Add(message);
                     }
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine($"Could not send encrypted message: {e.Message}");
+
                 }
             }
         }

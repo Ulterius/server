@@ -75,6 +75,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
         {
             try
             {
+                
                 var screenStream = new Task(GetScreenFrame);
                 ScreenShareService.Streams[_authClient] = screenStream;
                 ScreenShareService.Streams[_authClient].Start();
@@ -101,7 +102,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
         {
             _builder.Endpoint = "screensharedata";
             var bounds = Rectangle.Empty;
-            while (_client.IsConnected)
+            while (_client != null && _client.IsConnected)
             {
                 try
                 {

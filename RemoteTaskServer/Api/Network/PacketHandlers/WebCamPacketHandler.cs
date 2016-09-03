@@ -192,7 +192,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
         {
             var camera = WebCamManager.Cameras[cameraId];
 
-            while (_client.IsConnected && camera != null && camera.IsRunning)
+            while (_client != null && _client.IsConnected && camera != null && camera.IsRunning)
             {
                 try
 
