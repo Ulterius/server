@@ -193,10 +193,18 @@ namespace UlteriusServer.Api
             });
             if (clientSocket != null)
             {
-                await clientSocket.WriteStringAsync(welcomeMessage, CancellationToken.None);
-                var userCount = AllClients.Count;
-                var extra = userCount > 1 ? "s" : string.Empty;
-                UlteriusTray.ShowMessage($"There are now {userCount} user{extra} connected.", "A new user connected!");
+                try
+                {
+                    await clientSocket.WriteStringAsync(welcomeMessage, CancellationToken.None);
+                    var userCount = AllClients.Count;
+                    var extra = userCount > 1 ? "s" : string.Empty;
+                    UlteriusTray.ShowMessage($"There are now {userCount} user{extra} connected.", "A new user connected!");
+                }
+                catch (Exception ex)
+                {
+
+                    Console.WriteLine("Failed to write welcome message " + ex.Message );
+                }
             }
         }
 
