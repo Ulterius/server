@@ -202,7 +202,6 @@ namespace UlteriusServer.Api
                 }
                 catch (Exception ex)
                 {
-
                     Console.WriteLine("Failed to write welcome message " + ex.Message );
                 }
             }

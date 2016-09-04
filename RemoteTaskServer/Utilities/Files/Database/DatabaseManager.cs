@@ -150,6 +150,9 @@ namespace UlteriusServer.Utilities.Files.Database
                                 }
                             }
                         }
+                        data = null;
+                        GC.Collect();
+                        GC.WaitForPendingFinalizers();
                     }
                     catch (Exception)
                     {
