@@ -6,6 +6,7 @@ using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
+using UlteriusServer.Api.Network.Messages;
 using UlteriusServer.TerminalServer.Messaging.Connection;
 using UlteriusServer.TerminalServer.Messaging.TerminalControl.Requests;
 using UlteriusServer.TerminalServer.Session;
@@ -35,9 +36,21 @@ namespace UlteriusServer.TerminalServer.Messaging.Serialization
                     var keybytes = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(user.AesKey));
                     var iv = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(user.AesIv));
                     var encrpytedJson = UlteriusAes.Encrypt(jsonString, keybytes, iv);
-                    using (var writer = new BinaryWriter(output, Encoding.UTF8, true))
+
+                    using (var memoryStream = new MemoryStream())
                     {
-                        writer.Write(encrpytedJson);
+                        using (var binaryWriter = new BinaryWriter(memoryStream))
+                        {
+                            var Endpoint = "terminal";
+                            binaryWriter.Write(Endpoint.Length);
+                            binaryWriter.Write(Encoding.UTF8.GetBytes(Endpoint));
+                            binaryWriter.Write(Encoding.UTF8.GetBytes(UlteriusAes.EncryptionType.CBC.ToString()));
+                            binaryWriter.Write(encrpytedJson);
+                        }
+                        using (var writer = new BinaryWriter(output, Encoding.UTF8, true))
+                        {
+                            writer.Write(memoryStream.ToArray());
+                        }
                     }
                 }
                 else
@@ -66,7 +79,6 @@ namespace UlteriusServer.TerminalServer.Messaging.Serialization
                         {
                             var keybytes = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(user.AesKey));
                             var iv = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(user.AesIv));
-
                             var packetJson = JObject.Parse(UlteriusAes.Decrypt(data, keybytes, iv));
                             typeName = packetJson.Property("type").Value.ToString();
                             return Build(typeName, packetJson, out type, user);
