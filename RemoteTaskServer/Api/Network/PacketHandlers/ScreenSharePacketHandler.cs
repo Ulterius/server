@@ -7,6 +7,7 @@ using System.Drawing.Imaging;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Ionic.Zlib;
@@ -14,6 +15,7 @@ using UlteriusServer.Api.Network.Messages;
 using UlteriusServer.Api.Services.LocalSystem;
 using UlteriusServer.Api.Services.ScreenShare;
 using UlteriusServer.Api.Win32.WindowsInput.Native;
+using UlteriusServer.Utilities.Extensions;
 using UlteriusServer.WebSocketAPI.Authentication;
 using vtortola.WebSockets;
 
@@ -30,17 +32,19 @@ namespace UlteriusServer.Api.Network.PacketHandlers
         private MessageBuilder _builder;
         private WebSocket _client;
         private Packet _packet;
-
+        
 
         public void StopScreenShare()
         {
             try
             {
-                var streamThread = ScreenShareService.Streams[_authClient];
+                var screen = ScreenShareService.Streams[_authClient];
+                var streamThread = screen.ScreenTask;
                 if (streamThread != null && !streamThread.IsCanceled && !streamThread.IsCompleted &&
                     streamThread.Status == TaskStatus.Running)
                 {
-                    streamThread.Dispose();
+                    screen.TokenSource.Cancel();
+                    screen.ScreenTask.TryDispose();
 
 
                     if (_client.IsConnected)
@@ -75,14 +79,17 @@ namespace UlteriusServer.Api.Network.PacketHandlers
         {
             try
             {
-                var screenStream = new Task(GetScreenFrame);
-                ScreenShareService.Streams[_authClient] = screenStream;
+                var screenModel = new ScreenModel {TokenSource = new CancellationTokenSource()};
+                var ct = screenModel.TokenSource.Token;
+                var stream = new Task(GetScreenFrame, ct);
+                screenModel.ScreenTask = stream;
+                ScreenShareService.Streams[_authClient] = screenModel;
                 var data = new
                 {
                     screenStreamStarted = true
                 };
                 _builder.WriteMessage(data);
-                ScreenShareService.Streams[_authClient].Start();
+                ScreenShareService.Streams[_authClient].ScreenTask.Start();
             }
             catch (Exception exception)
             {
@@ -199,7 +206,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                 var frameData = new
                 {
                     screenBounds,
-                    frameData = compressed.Select(b => (int)b).ToArray()
+                    frameData = compressed.Select(b => (int) b).ToArray()
                 };
                 _builder.WriteMessage(frameData);
             }

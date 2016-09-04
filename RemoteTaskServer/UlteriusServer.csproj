@@ -197,6 +197,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Api\Services\ScreenShare\ScreenData.cs" />
+    <Compile Include="Api\Services\ScreenShare\ScreenModel.cs" />
     <Compile Include="Api\Services\Update\ClientUpdateService.cs" />
     <Compile Include="Api\Win32\Gdi.cs" />
     <Compile Include="Api\Win32\Win32Exception.cs" />
@@ -231,6 +232,7 @@
     <Compile Include="Ulterius.cs" />
     <Compile Include="Utilities\Drive\Disk.cs" />
     <Compile Include="Utilities\Drive\Smart.cs" />
+    <Compile Include="Utilities\Extensions\TaskExtensions.cs" />
     <Compile Include="Utilities\Files\Database\DatabaseController.cs" />
     <Compile Include="Utilities\Files\Database\DatabaseManager.cs" />
     <Compile Include="Utilities\Files\Ntfs\FileEntry.cs" />

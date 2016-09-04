@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Ionic.Zlib;
 using UlteriusServer.Api.Network.Messages;
+using UlteriusServer.Utilities.Extensions;
 using UlteriusServer.WebCams;
 using UlteriusServer.WebSocketAPI.Authentication;
 using vtortola.WebSockets;
@@ -157,10 +158,8 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                 if (streamThread != null && !streamThread.IsCanceled && !streamThread.IsCompleted &&
                     streamThread.Status == TaskStatus.Running)
                 {
-                    streamThread.Dispose();
+                    streamThread.TryDispose();
                     WebCamManager.Frames.Clear();
-
-
                     if (_client.IsConnected)
                     {
                         var data = new
