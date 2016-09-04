@@ -27,6 +27,7 @@ namespace UlteriusServer.Api.Network
             RequestNetworkInformation,
             RequestSystemInformation,
             StartProcess,
+            SaveSettings,
             KillProcess,
             GenerateNewKey,
             EmptyApiKey,
@@ -201,6 +202,8 @@ namespace UlteriusServer.Api.Network
                     return new PacketInfo {Type = PacketTypes.KillProcess, Handler = typeof(ProcessPacketHandler)};
                 case "togglewebserver":
                     return new PacketInfo {Type = PacketTypes.ToggleWebServer, Handler = typeof(SettingsPacketHandler)};
+                case "savesettings":
+                    return new PacketInfo { Type = PacketTypes.SaveSettings, Handler = typeof(SettingsPacketHandler) };
                 case "changewebserverport":
                     return new PacketInfo
                     {
