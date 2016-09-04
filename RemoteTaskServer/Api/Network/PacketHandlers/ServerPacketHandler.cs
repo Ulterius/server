@@ -7,6 +7,7 @@ using System.DirectoryServices.ActiveDirectory;
 using System.IO;
 using System.Reflection;
 using UlteriusServer.Api.Network.Messages;
+using UlteriusServer.Utilities;
 using UlteriusServer.Utilities.Security;
 using UlteriusServer.WebSocketAPI.Authentication;
 using vtortola.WebSockets;
@@ -68,6 +69,23 @@ namespace UlteriusServer.Api.Network.PacketHandlers
             return Environment.UserName;
         }
 
+        public void ListPorts()
+        {
+            var webServerPort = (ushort)Settings.Get("WebServer").WebServerPort;
+            var apiPort = (ushort)Settings.Get("TaskServer").TaskServerPort;
+            var webcamPort = (ushort)Settings.Get("Webcams").WebcamPort;
+            var terminalPort = (ushort)Settings.Get("Terminal").TerminalPort;
+            var screenSharePort = (ushort)Settings.Get("ScreenShareService").ScreenSharePort;
+            var portData = new
+            {
+              webServerPort,
+              apiPort,
+              webcamPort,
+              terminalPort,
+              screenSharePort
+            };
+            _builder.WriteMessage(portData);
+        }
 
         public void Login()
         {
@@ -134,6 +152,9 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                     break;
                 case PacketManager.PacketTypes.RestartServer:
                     RestartServer();
+                    break;
+                case PacketManager.PacketTypes.ListPorts:
+                   ListPorts();
                     break;
                 case PacketManager.PacketTypes.CheckUpdate:
                     CheckForUpdate();

@@ -214,7 +214,7 @@ namespace UlteriusServer.Utilities
             var webServerPort = (int) Settings.Get("WebServer").WebServerPort;
             var apiPort = (int) Settings.Get("TaskServer").TaskServerPort;
             var webCamPort = Convert.ToBoolean(Settings.Get("Webcams").WebcamPort);
-            var terminalPort = 22008;
+            var terminalPort = (int)Settings.Get("Terminal").TerminalPort;
             var screenSharePort = (int) Settings.Get("ScreenShareService").ScreenSharePort;
             var nat = new NatDiscoverer();
             var cts = new CancellationTokenSource();
@@ -303,13 +303,15 @@ namespace UlteriusServer.Utilities
 
                 var webServerPort = (ushort) Settings.Get("WebServer").WebServerPort;
                 var apiPort = (ushort) Settings.Get("TaskServer").TaskServerPort;
-                var terminalPort = (ushort) 22008;
+                var webcamPort = (ushort)Settings.Get("Webcams").WebcamPort;
+                var terminalPort = (ushort)Settings.Get("Terminal").TerminalPort;
                 var screenSharePort = (ushort) Settings.Get("ScreenShareService").ScreenSharePort;
                 var prefix = $"http://*:{webServerPort}/";
                 var username = Environment.GetEnvironmentVariable("USERNAME");
                 var userdomain = Environment.GetEnvironmentVariable("USERDOMAIN");
                 var command = $@"/C netsh http add urlacl url={prefix} user={userdomain}\{username} listen=yes";
                 Process.Start("CMD.exe", command);
+                OpenFirewall(webcamPort, "Ulterius Web Cams");
                 OpenFirewall(webServerPort, "Ulterius Web Server");
                 OpenFirewall(apiPort, "Ulterius Task Server");
                 OpenFirewall(terminalPort, "Ulterius Terminal Server");

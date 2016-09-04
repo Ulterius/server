@@ -82,7 +82,8 @@ namespace UlteriusServer.Api.Network
             RightClick,
             KeyDown,
             KeyUp,
-            FullFrame
+            FullFrame,
+            ListPorts
         }
 
         #endregion
@@ -164,6 +165,8 @@ namespace UlteriusServer.Api.Network
         {
             switch (endpoint)
             {
+                case "listports":
+                    return new PacketInfo { Type = PacketTypes.ListPorts, Handler = typeof(ServerPacketHandler) };
                 case "authenticate":
                     return new PacketInfo {Type = PacketTypes.Authenticate, Handler = typeof(ServerPacketHandler)};
                 case "requestgpuinformation":
