@@ -200,22 +200,8 @@ namespace UlteriusServer.Api.Network
                     return new PacketInfo {Type = PacketTypes.StartProcess, Handler = typeof(ProcessPacketHandler)};
                 case "killprocess":
                     return new PacketInfo {Type = PacketTypes.KillProcess, Handler = typeof(ProcessPacketHandler)};
-                case "togglewebserver":
-                    return new PacketInfo {Type = PacketTypes.ToggleWebServer, Handler = typeof(SettingsPacketHandler)};
                 case "savesettings":
                     return new PacketInfo { Type = PacketTypes.SaveSettings, Handler = typeof(SettingsPacketHandler) };
-                case "changewebserverport":
-                    return new PacketInfo
-                    {
-                        Type = PacketTypes.ChangeWebServerPort,
-                        Handler = typeof(SettingsPacketHandler)
-                    };
-                case "changewebfilepath":
-                    return new PacketInfo
-                    {
-                        Type = PacketTypes.ChangeWebFilePath,
-                        Handler = typeof(SettingsPacketHandler)
-                    };
                 case "startscreenshare":
                     return new PacketInfo
                     {
@@ -228,42 +214,7 @@ namespace UlteriusServer.Api.Network
                         Type = PacketTypes.StopScreenShare,
                         Handler = typeof(ScreenSharePacketHandler)
                     };
-                case "changescreensharepass":
-                    return new PacketInfo
-                    {
-                        Type = PacketTypes.ChangeScreenSharePass,
-                        Handler = typeof(SettingsPacketHandler)
-                    };
-                case "changeloadplugins":
-                    return new PacketInfo
-                    {
-                        Type = PacketTypes.ChangeLoadPlugins,
-                        Handler = typeof(SettingsPacketHandler)
-                    };
-                case "changetaskserverport":
-                    return new PacketInfo
-                    {
-                        Type = PacketTypes.ChangeTaskServerPort,
-                        Handler = typeof(SettingsPacketHandler)
-                    };
-                case "changenetworkresolve":
-                    return new PacketInfo
-                    {
-                        Type = PacketTypes.ChangeNetworkResolve,
-                        Handler = typeof(SettingsPacketHandler)
-                    };
-                case "changescreenshareport":
-                    return new PacketInfo
-                    {
-                        Type = PacketTypes.ChangeScreenSharePort,
-                        Handler = typeof(SettingsPacketHandler)
-                    };
-                case "changeuseterminal":
-                    return new PacketInfo
-                    {
-                        Type = PacketTypes.ChangeUseTerminal,
-                        Handler = typeof(SettingsPacketHandler)
-                    };
+                
                 case "getcurrentsettings":
                     return new PacketInfo
                     {
