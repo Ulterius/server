@@ -44,6 +44,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                     streamThread.Abort();
                     Thread outtemp;
                     ScreenShareService.Streams.TryRemove(_authClient, out outtemp);
+                    CleanUp();
                     if (_client.IsConnected)
                     {
                         var data = new
@@ -68,6 +69,19 @@ namespace UlteriusServer.Api.Network.PacketHandlers
             }
         }
 
+        private void CleanUp()
+        {
+            _shareService.Simulator.Mouse.LeftButtonUp();
+            _shareService.Simulator.Mouse.RightButtonUp();
+            var keyCodes = Enum.GetValues(typeof(VirtualKeyCode));
+            //release all keys
+            foreach (var keyCode in keyCodes)
+            {
+                _shareService.Simulator.Keyboard.KeyUp((VirtualKeyCode) keyCode);
+            }
+            
+        }
+
         public void CheckServer()
         {
         }
@@ -76,7 +90,16 @@ namespace UlteriusServer.Api.Network.PacketHandlers
         {
             try
             {
-
+                if (ScreenShareService.Streams.ContainsKey(_authClient))
+                {
+                    var failData = new
+                    {
+                        cameraStreamStarted = false,
+                        message = "Stream already created"
+                    };
+                    _builder.WriteMessage(failData);
+                    return;
+                }
                 var stream = new Thread(GetScreenFrame) {IsBackground = true};
                 ScreenShareService.Streams[_authClient] = stream;
                 var data = new
