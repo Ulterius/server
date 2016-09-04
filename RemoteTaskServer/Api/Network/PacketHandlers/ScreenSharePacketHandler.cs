@@ -8,14 +8,12 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using Ionic.Zlib;
 using UlteriusServer.Api.Network.Messages;
 using UlteriusServer.Api.Services.LocalSystem;
 using UlteriusServer.Api.Services.ScreenShare;
 using UlteriusServer.Api.Win32.WindowsInput.Native;
-using UlteriusServer.Utilities.Extensions;
 using UlteriusServer.WebSocketAPI.Authentication;
 using vtortola.WebSockets;
 
@@ -32,7 +30,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
         private MessageBuilder _builder;
         private WebSocket _client;
         private Packet _packet;
-        
+
 
         public void StopScreenShare()
         {
@@ -71,15 +69,15 @@ namespace UlteriusServer.Api.Network.PacketHandlers
 
         private void CleanUp()
         {
-            _shareService.Simulator.Mouse.LeftButtonUp();
-            _shareService.Simulator.Mouse.RightButtonUp();
             var keyCodes = Enum.GetValues(typeof(VirtualKeyCode));
             //release all keys
             foreach (var keyCode in keyCodes)
             {
-                _shareService.Simulator.Keyboard.KeyUp((VirtualKeyCode) keyCode);
+                if (_shareService.Simulator.InputDeviceState.IsKeyDown((VirtualKeyCode) keyCode))
+                {
+                    _shareService.Simulator.Keyboard.KeyUp((VirtualKeyCode) keyCode);
+                }
             }
-            
         }
 
         public void CheckServer()
