@@ -38,15 +38,12 @@ namespace UlteriusServer.Api.Network.PacketHandlers
         {
             try
             {
-                var screen = ScreenShareService.Streams[_authClient];
-                var streamThread = screen.ScreenTask;
-                if (streamThread != null && !streamThread.IsCanceled && !streamThread.IsCompleted &&
-                    streamThread.Status == TaskStatus.Running)
+                var streamThread = ScreenShareService.Streams[_authClient];
+                if (streamThread != null && streamThread.IsAlive)
                 {
-                    screen.TokenSource.Cancel();
-                    screen.ScreenTask.TryDispose();
-
-
+                    streamThread.Abort();
+                    Thread outtemp;
+                    ScreenShareService.Streams.TryRemove(_authClient, out outtemp);
                     if (_client.IsConnected)
                     {
                         var data = new
@@ -79,17 +76,15 @@ namespace UlteriusServer.Api.Network.PacketHandlers
         {
             try
             {
-                var screenModel = new ScreenModel {TokenSource = new CancellationTokenSource()};
-                var ct = screenModel.TokenSource.Token;
-                var stream = new Task(GetScreenFrame, ct);
-                screenModel.ScreenTask = stream;
-                ScreenShareService.Streams[_authClient] = screenModel;
+
+                var stream = new Thread(GetScreenFrame) {IsBackground = true};
+                ScreenShareService.Streams[_authClient] = stream;
                 var data = new
                 {
                     screenStreamStarted = true
                 };
                 _builder.WriteMessage(data);
-                ScreenShareService.Streams[_authClient].ScreenTask.Start();
+                ScreenShareService.Streams[_authClient].Start();
             }
             catch (Exception exception)
             {
