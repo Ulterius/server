@@ -230,20 +230,24 @@ namespace UlteriusServer.Api.Network.PacketHandlers
 
         private void HandleKeyUp()
         {
-            var keyCodes = ((IEnumerable) _packet.Args[0]).Cast<object>()
-                .Select(x => x.ToString())
-                .ToList();
-            var codes =
-                keyCodes.Select(code => ToHex(int.Parse(code.ToString())))
-                    .Select(hexString => Convert.ToInt32(hexString, 16))
-                    .ToList();
-
-
-            foreach (var code in codes)
+            if (ScreenShareService.Streams.ContainsKey(_authClient))
             {
-                var virtualKey = (VirtualKeyCode) code;
-                _shareService.Simulator.Keyboard.KeyUp(virtualKey);
+                var keyCodes = ((IEnumerable)_packet.Args[0]).Cast<object>()
+             .Select(x => x.ToString())
+             .ToList();
+                var codes =
+                    keyCodes.Select(code => ToHex(int.Parse(code.ToString())))
+                        .Select(hexString => Convert.ToInt32(hexString, 16))
+                        .ToList();
+
+
+                foreach (var code in codes)
+                {
+                    var virtualKey = (VirtualKeyCode)code;
+                    _shareService.Simulator.Keyboard.KeyUp(virtualKey);
+                }
             }
+         
         }
 
 
@@ -254,60 +258,84 @@ namespace UlteriusServer.Api.Network.PacketHandlers
 
         private void HandleKeyDown()
         {
-            var keyCodes = ((IEnumerable) _packet.Args[0]).Cast<object>()
-                .Select(x => x.ToString())
-                .ToList();
-            var codes =
-                keyCodes.Select(code => ToHex(int.Parse(code.ToString())))
-                    .Select(hexString => Convert.ToInt32(hexString, 16))
-                    .ToList();
-            foreach (var code in codes)
+            if (ScreenShareService.Streams.ContainsKey(_authClient))
             {
-                var virtualKey = (VirtualKeyCode) code;
-                _shareService.Simulator.Keyboard.KeyDown(virtualKey);
+                var keyCodes = ((IEnumerable)_packet.Args[0]).Cast<object>()
+               .Select(x => x.ToString())
+               .ToList();
+                var codes =
+                    keyCodes.Select(code => ToHex(int.Parse(code.ToString())))
+                        .Select(hexString => Convert.ToInt32(hexString, 16))
+                        .ToList();
+                foreach (var code in codes)
+                {
+                    var virtualKey = (VirtualKeyCode)code;
+                    _shareService.Simulator.Keyboard.KeyDown(virtualKey);
+                }
             }
+           
         }
 
         private void HandleScroll()
         {
-            var delta = (int) _packet.Args[0];
-            delta = ~delta;
+            if (ScreenShareService.Streams.ContainsKey(_authClient))
+            {
+                var delta = (int)_packet.Args[0];
+                delta = ~delta;
 
-            _shareService.Simulator.Mouse.VerticalScroll(delta);
+                _shareService.Simulator.Mouse.VerticalScroll(delta);
+            }
+           
         }
 
         private void HandleMoveMouse()
         {
-            try
+            if (ScreenShareService.Streams.ContainsKey(_authClient))
             {
-                int y = Convert.ToInt16(_packet.Args[0], CultureInfo.InvariantCulture);
-                int x = Convert.ToInt16(_packet.Args[1], CultureInfo.InvariantCulture);
-                var device = _screens[0];
-                if (x < 0 || x >= device.Bounds.Width || y < 0 || y >= device.Bounds.Height)
+                try
                 {
-                    return;
+                    int y = Convert.ToInt16(_packet.Args[0], CultureInfo.InvariantCulture);
+                    int x = Convert.ToInt16(_packet.Args[1], CultureInfo.InvariantCulture);
+                    var device = _screens[0];
+                    if (x < 0 || x >= device.Bounds.Width || y < 0 || y >= device.Bounds.Height)
+                    {
+                        return;
+                    }
+                    Cursor.Position = new Point(x, y);
                 }
-                Cursor.Position = new Point(x, y);
+                catch
+                {
+                    Console.WriteLine("Error moving mouse");
+                }
             }
-            catch
-            {
-                Console.WriteLine("Error moving mouse");
-            }
+           
         }
 
         private void HandleRightClick()
         {
-            _shareService.Simulator.Mouse.RightButtonClick();
+            if (ScreenShareService.Streams.ContainsKey(_authClient))
+            {
+                _shareService.Simulator.Mouse.RightButtonClick();
+            }
+            
         }
 
         private void HandleMouseUp()
         {
-            _shareService.Simulator.Mouse.LeftButtonUp();
+            if (ScreenShareService.Streams.ContainsKey(_authClient))
+            {
+                _shareService.Simulator.Mouse.LeftButtonUp();
+            }
+           
         }
 
         private void HandleMouseDown()
         {
-            _shareService.Simulator.Mouse.LeftButtonDown();
+            if (ScreenShareService.Streams.ContainsKey(_authClient))
+            {
+                _shareService.Simulator.Mouse.LeftButtonDown();
+            }
+            
         }
     }
 }
