@@ -28,7 +28,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
         {
             try
             {
-                var base64Settings = (string) _packet.Args[0];
+                var base64Settings = _packet.Args[0].ToString();
                 var data = Convert.FromBase64String(base64Settings);
                 var decodedString = Encoding.UTF8.GetString(data);
                 File.WriteAllText(Settings.FilePath, decodedString);
