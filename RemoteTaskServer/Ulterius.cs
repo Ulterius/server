@@ -80,7 +80,7 @@ namespace UlteriusServer
             }
             try
             {
-                var useUpnp = Convert.ToBoolean(Settings.Get("Network").UPnpEnabled);
+                var useUpnp = Convert.ToBoolean(Settings.Get("Network").UpnpEnabled);
                 if (useUpnp)
                 {
                     Console.WriteLine("Trying to forward ports");

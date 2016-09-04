@@ -103,7 +103,7 @@ namespace UlteriusServer.Utilities
                     "RunStartup", true
                 },
                 {
-                    "UploadLogs", false
+                    "UploadLogs", true
                 },
                 {
                     "Github", "https://github.com/Ulterius"
@@ -162,7 +162,7 @@ namespace UlteriusServer.Utilities
                     "SkipHostNameResolve", false
                 },
                 {
-                    "UPnpEnabled", true
+                    "UpnpEnabled", true
                 },
                 {
                     "BindLocal", false
