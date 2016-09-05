@@ -138,7 +138,6 @@ namespace UlteriusServer.Api.Network
                     if (!endpoint.Equals("aeshandshake") || authClient.AesShook)
                     {
                         Console.WriteLine("Invalid handshake protocol");
-                        Console.WriteLine(packetData);
                         _packetType = PacketTypes.InvalidOrEmptyPacket;
                         return;
                     }

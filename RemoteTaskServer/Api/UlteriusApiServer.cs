@@ -37,7 +37,7 @@ namespace UlteriusServer.Api
         {
             var clientUpdateService = new ClientUpdateService();
             clientUpdateService.Start();
-            FileSearchService = new FileSearchService(Path.Combine(AppEnvironment.DataPath, "fileindex.bin"));
+            FileSearchService = new FileSearchService(Path.Combine(AppEnvironment.DataPath, "fileIndex.db"));
             FileSearchService.Start();
 
             var apiPort = (int) Settings.Get("TaskServer").TaskServerPort;

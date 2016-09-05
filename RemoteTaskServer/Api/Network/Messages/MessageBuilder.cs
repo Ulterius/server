@@ -134,7 +134,6 @@ namespace UlteriusServer.Api.Network.Messages
                                 var message = new Message(_client, memoryStream.ToArray(), Message.MessageType.Binary);
                                 var targetPort = _client.LocalEndpoint.Port;
                                 _authClient.MessageQueueManagers[targetPort].SendQueue.Add(message);
-                                Console.WriteLine("Frame data added to " + targetPort);
                             }
                         }
                     }
