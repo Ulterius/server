@@ -399,7 +399,10 @@ namespace UlteriusServer.Api.Services.System
             foreach (var o in searcher.Get())
             {
                 var drive = (ManagementObject) o;
-                driveList[iDriveIndex].SmartInfo.IsOk = (bool) drive.Properties["PredictFailure"].Value == false;
+
+				if (iDriveIndex >= driveList.Count)
+					break;
+				driveList[iDriveIndex].SmartInfo.IsOk = (bool) drive.Properties["PredictFailure"].Value == false;
                 iDriveIndex++;
             }
             searcher.Query = new ObjectQuery("Select * from MSStorageDriver_FailurePredictData");
