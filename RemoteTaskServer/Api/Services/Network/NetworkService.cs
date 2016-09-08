@@ -4,9 +4,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using UlteriusServer.Utilities;
 
 #endregion
@@ -48,7 +50,7 @@ namespace UlteriusServer.Api.Services.Network
 
         public static List<NetworkDevices> ConnectedDevices()
         {
-           //Not being used right now, just return null
+            //Not being used right now, just return null
             /*
             var all = GetAllDevicesOnLan();
             foreach (var device in all)
@@ -213,10 +215,23 @@ namespace UlteriusServer.Api.Services.Network
             return result;
         }
 
-        public static string GetPublicIp(string serviceUrl = "https://api.ulterius.io/network/ip/")
+        public static async Task<string> GetPublicIp(string serviceUrl = "https://api.ulterius.io/network/ip/")
         {
-            var ip = new WebClient().DownloadString(serviceUrl);
-            return ip;
+            try
+            {
+                using (var httpClient = new HttpClient())
+                {
+                    var response = await httpClient.GetAsync(serviceUrl);
+                    var content = await response.Content.ReadAsStringAsync();
+                    return content;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error getting IP");
+                Console.WriteLine(ex.Message);
+                return "null";
+            }
         }
 
         public static string GetIPv4Address()

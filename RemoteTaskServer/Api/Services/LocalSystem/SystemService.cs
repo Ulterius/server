@@ -56,11 +56,11 @@ namespace UlteriusServer.Api.Services.System
             }
         }
 
-        private void SetNetworkInformation()
+        private async void SetNetworkInformation()
         {
             if (string.IsNullOrEmpty(NetworkInformation.PublicIp))
             {
-                NetworkInformation.PublicIp = NetworkService.GetPublicIp();
+                NetworkInformation.PublicIp = await NetworkService.GetPublicIp();
                 NetworkInformation.NetworkComputers = NetworkService.ConnectedDevices();
                 NetworkInformation.MacAddress = NetworkService.GetMacAddress().ToString();
                 NetworkInformation.InternalIp = NetworkService.GetIpAddress().ToString();
@@ -340,7 +340,7 @@ namespace UlteriusServer.Api.Services.System
             return dictionary;
         }
 
-        public List<DriveInformation> GetDriveInformation()
+      public List<DriveInformation> GetDriveInformation()
         {
             var q = new WqlObjectQuery("SELECT * FROM Win32_DiskDrive");
             var res = new ManagementObjectSearcher(q);
