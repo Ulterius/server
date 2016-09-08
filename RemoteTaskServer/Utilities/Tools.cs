@@ -213,7 +213,7 @@ namespace UlteriusServer.Utilities
         {
             var webServerPort = (int) Settings.Get("WebServer").WebServerPort;
             var apiPort = (int) Settings.Get("TaskServer").TaskServerPort;
-            var webCamPort = Convert.ToBoolean(Settings.Get("Webcams").WebcamPort);
+            var webCamPort = (int)Settings.Get("Webcams").WebcamPort; 
             var terminalPort = (int)Settings.Get("Terminal").TerminalPort;
             var screenSharePort = (int) Settings.Get("ScreenShareService").ScreenSharePort;
             var nat = new NatDiscoverer();
