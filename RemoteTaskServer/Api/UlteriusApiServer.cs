@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Threading;
+using System.Threading.Tasks;
 using Newtonsoft.Json;
 using UlteriusServer.Api.Network;
 using UlteriusServer.Api.Network.Messages;
@@ -180,7 +181,7 @@ namespace UlteriusServer.Api
         /// </summary>
         /// <param name="client"></param>
         /// <param name="clientSocket"></param>
-        private static async void SendWelcomeMessage(AuthClient client, WebSocket clientSocket)
+        private static async Task SendWelcomeMessage(AuthClient client, WebSocket clientSocket)
         {
             var welcomeMessage = JsonConvert.SerializeObject(new
             {

@@ -6,7 +6,7 @@ using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using UlteriusServer.Api;
-using UlteriusServer.Api.Services.System;
+using UlteriusServer.Api.Services.LocalSystem;
 using UlteriusServer.TerminalServer;
 using UlteriusServer.Utilities;
 using UlteriusServer.WebCams;

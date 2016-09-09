@@ -15,12 +15,11 @@ using Microsoft.VisualBasic.Devices;
 using OpenHardwareMonitor.Hardware;
 using UlteriusServer.Api.Network.Models;
 using UlteriusServer.Api.Services.Network;
-using UlteriusServer.Utilities.Drive;
 using Computer = OpenHardwareMonitor.Hardware.Computer;
 
 #endregion
 
-namespace UlteriusServer.Api.Services.System
+namespace UlteriusServer.Api.Services.LocalSystem
 {
     internal class SystemService
     {
@@ -56,23 +55,14 @@ namespace UlteriusServer.Api.Services.System
             }
         }
 
-        public async Task<string> GetIp()
-        {
-            try
-            {
-                var ip = await NetworkService.GetPublicIp();
-                return ip;
-            }
-            catch (Exception)
-            {
-                return "null";
-            }
-        }
-        private async void SetNetworkInformation()
+      
+
+        // ReSharper disable once UnusedMethodReturnValue.Local
+        private void SetNetworkInformation()
         {
             if (string.IsNullOrEmpty(NetworkInformation.PublicIp))
             {
-                NetworkInformation.PublicIp = await GetIp();
+                NetworkInformation.PublicIp =  NetworkService.GetPublicIp();
                 NetworkInformation.NetworkComputers = NetworkService.ConnectedDevices();
                 NetworkInformation.MacAddress = NetworkService.GetMacAddress().ToString();
                 NetworkInformation.InternalIp = NetworkService.GetIpAddress().ToString();

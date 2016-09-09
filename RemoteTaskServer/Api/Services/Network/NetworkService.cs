@@ -215,16 +215,14 @@ namespace UlteriusServer.Api.Services.Network
             return result;
         }
 
-        public static async Task<string> GetPublicIp(string serviceUrl = "https://api.ulterius.io/network/ip/")
+        public static string GetPublicIp(string serviceUrl = "https://api.ulterius.io/network/ip/")
         {
             try
             {
-                using (var httpClient = new HttpClient())
+                using (var webClient = new WebClient())
                 {
-                    var response = await httpClient.GetAsync(serviceUrl);
-                    if (response == null) return "null";
-                    var content = await response.Content.ReadAsStringAsync();
-                    return content;
+                    var response = webClient.DownloadString(serviceUrl);
+                    return response;
                 }
             }
             catch (Exception ex)
