@@ -56,11 +56,23 @@ namespace UlteriusServer.Api.Services.System
             }
         }
 
+        public async Task<string> GetIp()
+        {
+            try
+            {
+                var ip = await NetworkService.GetPublicIp();
+                return ip;
+            }
+            catch (Exception)
+            {
+                return "null";
+            }
+        }
         private async void SetNetworkInformation()
         {
             if (string.IsNullOrEmpty(NetworkInformation.PublicIp))
             {
-                NetworkInformation.PublicIp = await NetworkService.GetPublicIp();
+                NetworkInformation.PublicIp = await GetIp();
                 NetworkInformation.NetworkComputers = NetworkService.ConnectedDevices();
                 NetworkInformation.MacAddress = NetworkService.GetMacAddress().ToString();
                 NetworkInformation.InternalIp = NetworkService.GetIpAddress().ToString();

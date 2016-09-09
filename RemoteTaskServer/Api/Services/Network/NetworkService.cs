@@ -222,6 +222,7 @@ namespace UlteriusServer.Api.Services.Network
                 using (var httpClient = new HttpClient())
                 {
                     var response = await httpClient.GetAsync(serviceUrl);
+                    if (response == null) return "null";
                     var content = await response.Content.ReadAsStringAsync();
                     return content;
                 }

@@ -24,9 +24,10 @@ namespace UlteriusServer
             }
             var ulterius = new Ulterius();
             ulterius.Start();
-            UlteriusTray.ShowTray();
             var hardware = new HardwareSurvey();
             hardware.Setup();
+            UlteriusTray.ShowTray();
+           
         }
     }
 }
