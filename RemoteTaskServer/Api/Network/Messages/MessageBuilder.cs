@@ -56,7 +56,7 @@ namespace UlteriusServer.Api.Network.Messages
         /// <param name="data"></param>
         public void WriteMessage(object data)
         {
-            if (_client != null)
+            if (_client != null && data != null)
             {
                 var json = JsonConvert.SerializeObject(new
                 {
@@ -87,7 +87,7 @@ namespace UlteriusServer.Api.Network.Messages
                                 }
                                 var message = new Message(_client, memoryStream.ToArray(), Message.MessageType.Binary);
                                 var targetPort = _client.LocalEndpoint.Port;
-                                _authClient?.MessageQueueManagers[targetPort].SendQueue.Add(message);
+                                _authClient?.MessageQueueManagers[targetPort]?.SendQueue.Add(message);
                             }
                             return;
                         }
@@ -95,21 +95,23 @@ namespace UlteriusServer.Api.Network.Messages
                 }
                 catch (Exception e)
                 {
+
                     Console.WriteLine($"Could not send encrypted message: {e.Message}");
+                    Console.WriteLine(e.StackTrace);
                     return;
                 }
                 var jsonMessage = new Message(_client, json, Message.MessageType.Text);
                 if (_authClient != null)
                 {
                     var targetPort = _client.LocalEndpoint.Port;
-                    _authClient.MessageQueueManagers[targetPort].SendQueue.Add(jsonMessage);
+                    _authClient?.MessageQueueManagers[targetPort]?.SendQueue.Add(jsonMessage);
                 }
             }
         }
 
         public void WriteScreenFrame(byte[] data)
         {
-            if (_client != null)
+            if (_client != null && data != null)
             {
                 try
                 {
@@ -133,7 +135,7 @@ namespace UlteriusServer.Api.Network.Messages
                                 }
                                 var message = new Message(_client, memoryStream.ToArray(), Message.MessageType.Binary);
                                 var targetPort = _client.LocalEndpoint.Port;
-                                _authClient.MessageQueueManagers[targetPort].SendQueue.Add(message);
+                                _authClient?.MessageQueueManagers[targetPort]?.SendQueue.Add(message);
                             }
                         }
                     }
@@ -141,6 +143,7 @@ namespace UlteriusServer.Api.Network.Messages
                 catch (Exception e)
                 {
                     Console.WriteLine($"Could not send encrypted message: {e.Message}");
+                    Console.WriteLine(e.StackTrace);
 
                 }
             }

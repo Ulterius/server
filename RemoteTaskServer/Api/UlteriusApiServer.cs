@@ -129,9 +129,6 @@ namespace UlteriusServer.Api
             AuthClient temp = null;
             if (AllClients.TryRemove(connectionId, out temp))
             {
-              
-                
-
                 Console.WriteLine("Disconnection from " + clientSocket.RemoteEndpoint);
                 var userCount = AllClients.Count;
                 var extra = userCount < 1 ? "s" : string.Empty;

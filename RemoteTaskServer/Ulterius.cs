@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using Newtonsoft.Json;
 using UlteriusServer.Api;
 using UlteriusServer.Api.Services.LocalSystem;
 using UlteriusServer.TerminalServer;
@@ -53,7 +54,18 @@ namespace UlteriusServer
         {
             HideWindow();
             Console.WriteLine("Creating settings");
-            Settings.Initialize("Config.json");
+            try
+            {
+                Settings.Initialize("Config.json");
+            }
+            catch (JsonReaderException)
+            {
+                Console.WriteLine("Settings broken, fixing.");
+                var settingsPath = Path.Combine(AppEnvironment.DataPath, "Config.json");
+                //Handle settings failing to create, rarely happens but it does.
+                File.Delete(settingsPath);
+                Settings.Initialize("Config.json");
+            }
             Console.WriteLine("Configuring up server");
             Tools.ConfigureServer();
             var useTerminal = Convert.ToBoolean(Settings.Get("Terminal").AllowTerminal);
