@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using System.Web;
 using Ionic.Zip;
 using Microsoft.Win32;
+using Microsoft.Win32.TaskScheduler;
 using NetFwTypeLib;
 using Open.Nat;
 using UlteriusServer.WebServer;
@@ -213,8 +214,8 @@ namespace UlteriusServer.Utilities
         {
             var webServerPort = (int) Settings.Get("WebServer").WebServerPort;
             var apiPort = (int) Settings.Get("TaskServer").TaskServerPort;
-            var webCamPort = (int)Settings.Get("Webcams").WebcamPort; 
-            var terminalPort = (int)Settings.Get("Terminal").TerminalPort;
+            var webCamPort = (int) Settings.Get("Webcams").WebcamPort;
+            var terminalPort = (int) Settings.Get("Terminal").TerminalPort;
             var screenSharePort = (int) Settings.Get("ScreenShareService").ScreenSharePort;
             var nat = new NatDiscoverer();
             var cts = new CancellationTokenSource();
@@ -303,8 +304,8 @@ namespace UlteriusServer.Utilities
 
                 var webServerPort = (ushort) Settings.Get("WebServer").WebServerPort;
                 var apiPort = (ushort) Settings.Get("TaskServer").TaskServerPort;
-                var webcamPort = (ushort)Settings.Get("Webcams").WebcamPort;
-                var terminalPort = (ushort)Settings.Get("Terminal").TerminalPort;
+                var webcamPort = (ushort) Settings.Get("Webcams").WebcamPort;
+                var terminalPort = (ushort) Settings.Get("Terminal").TerminalPort;
                 var screenSharePort = (ushort) Settings.Get("ScreenShareService").ScreenSharePort;
                 var prefix = $"http://*:{webServerPort}/";
                 var username = Environment.GetEnvironmentVariable("USERNAME");
@@ -344,24 +345,61 @@ namespace UlteriusServer.Utilities
         }
 
 
-        private static void SetStartup()
+        private static void LegacyStartupRemove()
         {
-            Console.WriteLine("Set Startup");
             try
             {
                 var rk = Registry.CurrentUser.OpenSubKey
                     ("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true);
+                rk?.DeleteValue("Ulterius", false);
+            }
+            catch (Exception)
+            {
+                //fail
+            }
+        }
 
+        private static void SetStartup()
+        {
+            Console.WriteLine("Set Startup");
+            LegacyStartupRemove();
+            try
+            {
                 var runStartup = Convert.ToBoolean(Settings.Get("General").RunStartup);
                 var fileName = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
                     "Bootstrapper.exe");
-                if (runStartup)
-                    rk?.SetValue("Ulterius", $"\"{fileName}\"");
-                else
-                    rk?.DeleteValue("Ulterius", false);
+                using (var sched = new TaskService())
+                {
+                    var t = sched.GetTask("Ulterius");
+                    var taskExists = t != null;
+                    if (runStartup)
+                    {
+                        if (taskExists) return;
+                        var td = TaskService.Instance.NewTask();
+                        td.Principal.RunLevel = TaskRunLevel.Highest;
+           
+                        td.RegistrationInfo.Author = "Octopodal Solutions";
+                        td.RegistrationInfo.Date = new DateTime();
+                        td.RegistrationInfo.Description = "Starts and Updates the Ulterius Server";
+                        var logT = new LogonTrigger {Delay = new TimeSpan(0, 0, 0, 10)};
+                        //wait 10 seconds until after login is complete to boot
+                        td.Triggers.Add(logT);
+                        td.Actions.Add(fileName);
+                        TaskService.Instance.RootFolder.RegisterTaskDefinition("Ulterius", td);
+                        Console.WriteLine("Task Registered");
+                    }
+                    else
+                    {
+                        if (taskExists)
+                        {
+                            sched.RootFolder.DeleteTask("Ulterius");
+                        }
+                    }
+                }
             }
             catch (Exception ex)
             {
+                Console.WriteLine("Could not set startup task");
                 Console.WriteLine(ex.Message);
                 Console.WriteLine(ex.StackTrace);
             }

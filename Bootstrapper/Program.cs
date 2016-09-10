@@ -23,6 +23,16 @@ namespace Bootstrapper
         private const int SW_HIDE = 0;
         private static string serverFile;
 
+        private static bool IsElevated
+        {
+            get
+            {
+                var securityIdentifier = WindowsIdentity.GetCurrent().Owner;
+                return securityIdentifier != null && securityIdentifier
+                    .IsWellKnown(WellKnownSidType.BuiltinAdministratorsSid);
+            }
+        }
+
         [DllImport("kernel32.dll")]
         private static extern IntPtr GetConsoleWindow();
 
@@ -124,21 +134,18 @@ namespace Bootstrapper
                 return false;
             }
         }
-        static bool IsElevated
-        {
-            get
-            {
-                var securityIdentifier = WindowsIdentity.GetCurrent().Owner;
-                return securityIdentifier != null && securityIdentifier
-                    .IsWellKnown(WellKnownSidType.BuiltinAdministratorsSid);
-            }
-        }
 
         private static void Main(string[] args)
         {
+            var workingDir = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+            Directory.SetCurrentDirectory(workingDir);
             if (Process.GetProcessesByName(
                 Path.GetFileNameWithoutExtension(Assembly.GetEntryAssembly().Location))
-                .Length > 1) Process.GetCurrentProcess().Kill();
+                .Length > 1)
+            {
+                Console.WriteLine("Killing");
+                Process.GetCurrentProcess().Kill();
+            }
 
             if (Process.GetProcessesByName("Ulterius Server").Length > 0)
             {
@@ -146,10 +153,9 @@ namespace Bootstrapper
             }
             if (IsElevated)
             {
-                var handle = GetConsoleWindow();
+                 var handle = GetConsoleWindow();
                 // Hide
                 ShowWindow(handle, SW_HIDE);
-
                 var filestream = new FileStream("bootstrap.log",
                     FileMode.Create);
                 var streamwriter = new StreamWriter(filestream) {AutoFlush = true};
@@ -159,12 +165,11 @@ namespace Bootstrapper
             }
             else
             {
-                
                 //restart as admin, needed to ensure windows lets as start at startup
                 var info = new ProcessStartInfo(Assembly.GetEntryAssembly().Location)
                 {
                     Verb = "runas",
-                    WorkingDirectory = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)
+                    WorkingDirectory = workingDir
                 };
                 var process = new Process
                 {
