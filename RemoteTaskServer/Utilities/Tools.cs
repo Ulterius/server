@@ -370,7 +370,8 @@ namespace UlteriusServer.Utilities
                     "Bootstrapper.exe");
                 using (var sched = new TaskService())
                 {
-                    var t = sched.GetTask("Ulterius");
+                    var username = Environment.UserDomainName + "\\" + Environment.UserName;
+                    var t = sched.GetTask($"Ulterius {Environment.UserName}");
                     var taskExists = t != null;
                     if (runStartup)
                     {
@@ -380,12 +381,18 @@ namespace UlteriusServer.Utilities
            
                         td.RegistrationInfo.Author = "Octopodal Solutions";
                         td.RegistrationInfo.Date = new DateTime();
-                        td.RegistrationInfo.Description = "Starts and Updates the Ulterius Server";
-                        var logT = new LogonTrigger {Delay = new TimeSpan(0, 0, 0, 10)};
+                        td.RegistrationInfo.Description = "Keeps your Ulterius server up to date. If this task is disabled or stopped, your Ulterius server will not be kept up to date, meaning security vulnerabilities that may arise cannot be fixed and features may not work.";
+                       
+                        var logT = new LogonTrigger
+                        {
+                            Delay = new TimeSpan(0, 0, 0, 10),
+                            UserId = username
+                        };
                         //wait 10 seconds until after login is complete to boot
                         td.Triggers.Add(logT);
+                        
                         td.Actions.Add(fileName);
-                        TaskService.Instance.RootFolder.RegisterTaskDefinition("Ulterius", td);
+                        TaskService.Instance.RootFolder.RegisterTaskDefinition($"Ulterius {Environment.UserName}", td);
                         Console.WriteLine("Task Registered");
                     }
                     else
