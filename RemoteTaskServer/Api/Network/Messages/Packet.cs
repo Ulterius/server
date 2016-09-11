@@ -74,14 +74,15 @@ namespace UlteriusServer.Api.Network.Messages
                             handler.HandlePacket(this);
                             return;
                     }
+                    EndPoint = "noauth";
                     PacketType = PacketTypes.NoAuth;
                     handler = Activator.CreateInstance(typeof(ErrorPacketHandler));
                     handler.HandlePacket(this);
                 }
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                Console.WriteLine(e.Message);
+                EndPoint = "invalidpacket";
                 PacketType = PacketTypes.InvalidOrEmptyPacket;
                 dynamic handler = Activator.CreateInstance(typeof(ErrorPacketHandler));
                 handler.HandlePacket(this);

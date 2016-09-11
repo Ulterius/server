@@ -232,9 +232,9 @@ namespace UlteriusServer.Api.Network.PacketHandlers
         {
             if (ScreenShareService.Streams.ContainsKey(_authClient))
             {
-                var keyCodes = ((IEnumerable)_packet.Args[0]).Cast<object>()
-             .Select(x => x.ToString())
-             .ToList();
+                var keyCodes = ((IEnumerable) _packet.Args[0]).Cast<object>()
+                    .Select(x => x.ToString())
+                    .ToList();
                 var codes =
                     keyCodes.Select(code => ToHex(int.Parse(code.ToString())))
                         .Select(hexString => Convert.ToInt32(hexString, 16))
@@ -243,11 +243,10 @@ namespace UlteriusServer.Api.Network.PacketHandlers
 
                 foreach (var code in codes)
                 {
-                    var virtualKey = (VirtualKeyCode)code;
+                    var virtualKey = (VirtualKeyCode) code;
                     _shareService.Simulator.Keyboard.KeyUp(virtualKey);
                 }
             }
-         
         }
 
 
@@ -260,32 +259,29 @@ namespace UlteriusServer.Api.Network.PacketHandlers
         {
             if (ScreenShareService.Streams.ContainsKey(_authClient))
             {
-                var keyCodes = ((IEnumerable)_packet.Args[0]).Cast<object>()
-               .Select(x => x.ToString())
-               .ToList();
+                var keyCodes = ((IEnumerable) _packet.Args[0]).Cast<object>()
+                    .Select(x => x.ToString())
+                    .ToList();
                 var codes =
                     keyCodes.Select(code => ToHex(int.Parse(code.ToString())))
                         .Select(hexString => Convert.ToInt32(hexString, 16))
                         .ToList();
                 foreach (var code in codes)
                 {
-                    var virtualKey = (VirtualKeyCode)code;
+                    var virtualKey = (VirtualKeyCode) code;
                     _shareService.Simulator.Keyboard.KeyDown(virtualKey);
                 }
             }
-           
         }
 
         private void HandleScroll()
         {
             if (ScreenShareService.Streams.ContainsKey(_authClient))
             {
-                var delta = (int)_packet.Args[0];
+                var delta = Convert.ToInt32(_packet.Args[0], CultureInfo.InvariantCulture);
                 delta = ~delta;
-
                 _shareService.Simulator.Mouse.VerticalScroll(delta);
             }
-           
         }
 
         private void HandleMoveMouse()
@@ -308,7 +304,6 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                     Console.WriteLine("Error moving mouse");
                 }
             }
-           
         }
 
         private void HandleRightClick()
@@ -317,7 +312,6 @@ namespace UlteriusServer.Api.Network.PacketHandlers
             {
                 _shareService.Simulator.Mouse.RightButtonClick();
             }
-            
         }
 
         private void HandleMouseUp()
@@ -326,7 +320,6 @@ namespace UlteriusServer.Api.Network.PacketHandlers
             {
                 _shareService.Simulator.Mouse.LeftButtonUp();
             }
-           
         }
 
         private void HandleMouseDown()
@@ -335,7 +328,6 @@ namespace UlteriusServer.Api.Network.PacketHandlers
             {
                 _shareService.Simulator.Mouse.LeftButtonDown();
             }
-            
         }
     }
 }

@@ -37,7 +37,8 @@ namespace UlteriusServer.Api.Network.PacketHandlers
             var invalidPacketData = new
             {
                 invalidPacket = true,
-                message = "This packet is invalid or empty"
+                message = "This packet is invalid or empty",
+                invalidEndpoint = _packet.EndPoint
             };
             _builder.WriteMessage(invalidPacketData);
         }

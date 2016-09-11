@@ -56,6 +56,7 @@ namespace UlteriusServer.Api.Network.Messages
         /// <param name="data"></param>
         public void WriteMessage(object data)
         {
+ 
             if (_client != null && data != null)
             {
                 var json = JsonConvert.SerializeObject(new
@@ -64,7 +65,7 @@ namespace UlteriusServer.Api.Network.Messages
                     synckey,
                     results = data
                 });
-
+               
 
                 try
                 {
