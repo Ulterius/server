@@ -60,69 +60,96 @@ namespace UlteriusServer.Api.Services.LocalSystem
         // ReSharper disable once UnusedMethodReturnValue.Local
         private void SetNetworkInformation()
         {
-            if (string.IsNullOrEmpty(NetworkInformation.PublicIp))
+            try
             {
-                NetworkInformation.PublicIp =  NetworkService.GetPublicIp();
-                NetworkInformation.NetworkComputers = NetworkService.ConnectedDevices();
-                NetworkInformation.MacAddress = NetworkService.GetMacAddress().ToString();
-                NetworkInformation.InternalIp = NetworkService.GetIpAddress().ToString();
+                if (string.IsNullOrEmpty(NetworkInformation.PublicIp))
+                {
+                    NetworkInformation.PublicIp = NetworkService.GetPublicIp();
+                    NetworkInformation.NetworkComputers = NetworkService.ConnectedDevices();
+                    NetworkInformation.MacAddress = NetworkService.GetMacAddress().ToString();
+                    NetworkInformation.InternalIp = NetworkService.GetIpAddress().ToString();
+                }
+            }
+            catch (Exception ex)
+            {
+
+                Console.WriteLine(ex.Message);
+                Console.WriteLine(ex.StackTrace);
             }
         }
 
 
         public void SetOperatingSystemInformation()
         {
-            if (string.IsNullOrEmpty(ServerOperatingSystem.Name))
+            try
             {
-                var wmi =
-                    new ManagementObjectSearcher("select * from Win32_OperatingSystem")
-                        .Get()
-                        .Cast<ManagementObject>()
-                        .First();
+                if (string.IsNullOrEmpty(ServerOperatingSystem.Name))
+                {
+                    var wmi =
+                        new ManagementObjectSearcher("select * from Win32_OperatingSystem")
+                            .Get()
+                            .Cast<ManagementObject>()
+                            .First();
 
-                ServerOperatingSystem.Name = ((string) wmi["Caption"]).Trim();
-                ServerOperatingSystem.Version = (string) wmi["Version"];
-                ServerOperatingSystem.MaxProcessCount = (uint) wmi["MaxNumberOfProcesses"];
-                ServerOperatingSystem.MaxProcessRam = (ulong) wmi["MaxProcessMemorySize"];
-                ServerOperatingSystem.Architecture = (string) wmi["OSArchitecture"];
-                ServerOperatingSystem.SerialNumber = (string) wmi["SerialNumber"];
-                ServerOperatingSystem.Build = (string) wmi["BuildNumber"];
+                    ServerOperatingSystem.Name = ((string)wmi["Caption"]).Trim();
+                    ServerOperatingSystem.Version = (string)wmi["Version"];
+                    ServerOperatingSystem.MaxProcessCount = (uint)wmi["MaxNumberOfProcesses"];
+                    ServerOperatingSystem.MaxProcessRam = (ulong)wmi["MaxProcessMemorySize"];
+                    ServerOperatingSystem.Architecture = (string)wmi["OSArchitecture"];
+                    ServerOperatingSystem.SerialNumber = (string)wmi["SerialNumber"];
+                    ServerOperatingSystem.Build = (string)wmi["BuildNumber"];
+                }
+            }
+            catch (Exception ex)
+            {
+
+                Console.WriteLine(ex.Message);
+                Console.WriteLine(ex.StackTrace);
             }
         }
 
         public void SetCpuInformation()
         {
-            if (string.IsNullOrEmpty(CpuInformation.Name))
+            try
             {
-                var cpu =
-                    new ManagementObjectSearcher("select * from Win32_Processor")
-                        .Get()
-                        .Cast<ManagementObject>()
-                        .First();
+                if (string.IsNullOrEmpty(CpuInformation.Name))
+                {
+                    var cpu =
+                        new ManagementObjectSearcher("select * from Win32_Processor")
+                            .Get()
+                            .Cast<ManagementObject>()
+                            .First();
 
-                CpuInformation.Id = (string) cpu["ProcessorId"];
-                CpuInformation.Socket = (string) cpu["SocketDesignation"];
-                CpuInformation.Name = (string) cpu["Name"];
-                CpuInformation.Description = (string) cpu["Caption"];
-                CpuInformation.AddressWidth = (ushort) cpu["AddressWidth"];
-                CpuInformation.DataWidth = (ushort) cpu["DataWidth"];
-                CpuInformation.Architecture = Environment.Is64BitOperatingSystem ? "x64" : "x86";
-                CpuInformation.SpeedMHz = (uint) cpu["MaxClockSpeed"];
-                CpuInformation.BusSpeedMHz = (uint) cpu["ExtClock"];
-                CpuInformation.L2Cache = (uint) cpu["L2CacheSize"]*(ulong) 1024;
-                CpuInformation.L3Cache = (uint) cpu["L3CacheSize"]*(ulong) 1024;
-                CpuInformation.Cores = (uint) cpu["NumberOfCores"];
-                CpuInformation.Threads = (uint) cpu["NumberOfLogicalProcessors"];
-                CpuInformation.Name =
-                    CpuInformation.Name
-                        .Replace("(TM)", "™")
-                        .Replace("(tm)", "™")
-                        .Replace("(R)", "®")
-                        .Replace("(r)", "®")
-                        .Replace("(C)", "©")
-                        .Replace("(c)", "©")
-                        .Replace("    ", " ")
-                        .Replace("  ", " ");
+                    CpuInformation.Id = (string)cpu["ProcessorId"];
+                    CpuInformation.Socket = (string)cpu["SocketDesignation"];
+                    CpuInformation.Name = (string)cpu["Name"];
+                    CpuInformation.Description = (string)cpu["Caption"];
+                    CpuInformation.AddressWidth = (ushort)cpu["AddressWidth"];
+                    CpuInformation.DataWidth = (ushort)cpu["DataWidth"];
+                    CpuInformation.Architecture = Environment.Is64BitOperatingSystem ? "x64" : "x86";
+                    CpuInformation.SpeedMHz = (uint)cpu["MaxClockSpeed"];
+                    CpuInformation.BusSpeedMHz = (uint)cpu["ExtClock"];
+                    CpuInformation.L2Cache = (uint)cpu["L2CacheSize"] * (ulong)1024;
+                    CpuInformation.L3Cache = (uint)cpu["L3CacheSize"] * (ulong)1024;
+                    CpuInformation.Cores = (uint)cpu["NumberOfCores"];
+                    CpuInformation.Threads = (uint)cpu["NumberOfLogicalProcessors"];
+                    CpuInformation.Name =
+                        CpuInformation.Name
+                            .Replace("(TM)", "™")
+                            .Replace("(tm)", "™")
+                            .Replace("(R)", "®")
+                            .Replace("(r)", "®")
+                            .Replace("(C)", "©")
+                            .Replace("(c)", "©")
+                            .Replace("    ", " ")
+                            .Replace("  ", " ");
+                }
+            }
+            catch (Exception ex)
+            {
+
+                Console.WriteLine(ex.Message);
+                Console.WriteLine(ex.StackTrace);
             }
         }
 
