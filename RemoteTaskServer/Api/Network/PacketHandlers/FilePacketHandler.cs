@@ -11,6 +11,7 @@ using UlteriusServer.Utilities;
 using UlteriusServer.Utilities.Files;
 using UlteriusServer.WebSocketAPI.Authentication;
 using vtortola.WebSockets;
+using ZetaLongPaths;
 using static UlteriusServer.Api.Network.PacketManager;
 using File = System.IO.File;
 
@@ -42,7 +43,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
 
  
 
-        public long DirSize(DirectoryInfo d)
+        public long DirSize(ZlpDirectoryInfo d)
         {
             // Add file sizes.
             var fis = d.GetFiles();

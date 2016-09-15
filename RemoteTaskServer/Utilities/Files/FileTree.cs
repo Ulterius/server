@@ -1,9 +1,8 @@
 ﻿#region
 
 using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
+using ZetaLongPaths;
 
 #endregion
 
@@ -68,40 +67,51 @@ namespace UlteriusServer.Utilities.Files
 
         public void ConstructTreeDfs(Folder dir)
         {
-            var directory = new DirectoryInfo(dir.Name);
-
-            List<DirectoryInfo> childDirs;
-            try
+            var directory = new ZlpDirectoryInfo(dir.Name);
+            if (directory.Exists)
             {
-                childDirs = directory.GetDirectories().ToList();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message);
-                return;
-            }
-
-            var childFolders = new Folder[childDirs.Count];
-            for (var i = 0; i < childDirs.Count; i++)
-            {
-                childFolders[i] = new Folder(childDirs[i].FullName);
-            }
-            dir.AddChildFolders(childFolders);
-
-            var files = directory.GetFiles();
-            var f = new File[files.Length];
-            for (var i = 0; i < files.Length; i++)
-            {
-                f[i] = new File(files[i].FullName, files[i].Length);
-            }
-            dir.AddFiles(f);
-            if (DeepWalk)
-            {
-                foreach (var item in childFolders)
+                ZlpDirectoryInfo[] childDirs;
+                try
                 {
-                    ConstructTreeDfs(item);
+                    childDirs = directory.GetDirectories();
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.Message);
+                    return;
+                }
+
+                var childFolders = new Folder[childDirs.Length];
+                for (var i = 0; i < childDirs.Length; i++)
+                {
+                    childFolders[i] = new Folder(childDirs[i].FullName);
+                }
+                dir.AddChildFolders(childFolders);
+
+                var files = directory.GetFiles();
+                var f = new File[files.Length];
+                for (var i = 0; i < files.Length; i++)
+                {
+                    try
+                    {
+                        f[i] = new File(files[i].FullName, files[i].Length);
+                    }
+                    catch (Exception)
+                    {
+
+                        continue;
+                    }
+                }
+                dir.AddFiles(f);
+                if (DeepWalk)
+                {
+                    foreach (var item in childFolders)
+                    {
+                        ConstructTreeDfs(item);
+                    }
                 }
             }
+
         }
 
         public long CalculateFilesSizesDfs(Folder startFolder, string searchForFolder, bool isFound)
