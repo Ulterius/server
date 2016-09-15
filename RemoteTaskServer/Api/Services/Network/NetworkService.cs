@@ -50,8 +50,7 @@ namespace UlteriusServer.Api.Services.Network
 
         public static List<NetworkDevices> ConnectedDevices()
         {
-            //Not being used right now, just return null
-            /*
+        
             var all = GetAllDevicesOnLan();
             foreach (var device in all)
             {
@@ -62,13 +61,17 @@ namespace UlteriusServer.Api.Services.Network
                 {
                     try
                     {
-                        var hostEntry = GetReverseDns(name, 250);
+                        var hostEntry = GetReverseDns(name, 150);
                         name = hostEntry;
                     }
                     catch (SocketException)
                     {
-                        //name = "null";
+                        name = "Unknown";
                     }
+                }
+                else
+                {
+                    name = "Unknown";
                 }
                 Devices.Add(new NetworkDevices
                 {
@@ -77,9 +80,7 @@ namespace UlteriusServer.Api.Services.Network
                     MacAddress = device.Value.ToString()
                 });
             }
-
-            return Devices;*/
-            return null;
+            return Devices;
         }
 
 
