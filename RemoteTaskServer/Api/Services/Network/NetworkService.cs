@@ -54,15 +54,15 @@ namespace UlteriusServer.Api.Services.Network
             var all = GetAllDevicesOnLan();
             foreach (var device in all)
             {
-                var name = device.Key.ToString();
-
+                var ip = device.Key.ToString();
+                string name;
                 var currentStatus = Convert.ToBoolean(Settings.Get("Network").SkipHostNameResolve);
                 if (!currentStatus)
                 {
                     try
                     {
-                        var hostEntry = GetReverseDns(name, 150);
-                        name = hostEntry;
+                        var hostEntry = GetReverseDns(ip, 150);
+                        name = hostEntry.Equals(ip) ? "Unknown" : hostEntry;
                     }
                     catch (SocketException)
                     {
