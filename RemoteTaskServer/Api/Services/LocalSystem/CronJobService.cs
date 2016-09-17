@@ -2,16 +2,11 @@
 
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.IO;
-using System.Threading.Tasks;
-using System.Windows.Documents;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using UlteriusServer.Api.Network.Models;
 using UlteriusServer.Api.Services.LocalSystem.Daemons;
-using UlteriusServer.Utilities;
 
 #endregion
 
@@ -19,9 +14,9 @@ namespace UlteriusServer.Api.Services.LocalSystem
 {
     public class CronJobService
     {
+        public static readonly CronDaemon CronDaemon = new CronDaemon();
         public readonly string JobDatabasePath;
         public readonly string JobScriptsPath;
-        public static readonly CronDaemon CronDaemon = new CronDaemon();
         public ConcurrentDictionary<Guid, JobModel> JobList;
 
         public CronJobService(string jobDatabasePath, string jobScriptsPath)
@@ -32,8 +27,10 @@ namespace UlteriusServer.Api.Services.LocalSystem
 
         public void Save()
         {
-            File.WriteAllText(JobDatabasePath, JsonConvert.SerializeObject(JobList, Formatting.Indented, new StringEnumConverter()));
+            File.WriteAllText(JobDatabasePath,
+                JsonConvert.SerializeObject(JobList, Formatting.Indented, new StringEnumConverter()));
         }
+
         public void ShutDown()
         {
             if (!Status())
@@ -59,9 +56,7 @@ namespace UlteriusServer.Api.Services.LocalSystem
 
         public void AddOrUpdateJob(Guid id, JobModel job)
         {
-            
-                CronDaemon.AddJob(job.Schedule, id, job);
-            
+            CronDaemon.AddJob(job.Schedule, id, job);
         }
 
         public bool RemoveJob(Guid id)
@@ -71,9 +66,8 @@ namespace UlteriusServer.Api.Services.LocalSystem
         }
 
 
-
-        public void ConfigureJobs() {
-
+        public void ConfigureJobs()
+        {
             if (!File.Exists(JobDatabasePath))
             {
                 File.WriteAllText(JobDatabasePath, "{}");
@@ -84,15 +78,14 @@ namespace UlteriusServer.Api.Services.LocalSystem
             }
             //load all our jobs 
             var jsonData = File.ReadAllText(JobDatabasePath);
-            JobList =  JsonConvert.DeserializeObject<ConcurrentDictionary<Guid, JobModel>>(jsonData)
-                      ?? new ConcurrentDictionary<Guid,JobModel>();
+            JobList = JsonConvert.DeserializeObject<ConcurrentDictionary<Guid, JobModel>>(jsonData)
+                      ?? new ConcurrentDictionary<Guid, JobModel>();
             foreach (var job in JobList)
             {
                 CronDaemon.AddJob(job.Value.Schedule, job.Key, job.Value);
             }
             // Grab the Scheduler instance from the Factory
-          Start();
+            Start();
         }
-
     }
 }
