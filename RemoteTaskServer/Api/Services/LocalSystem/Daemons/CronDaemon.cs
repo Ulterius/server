@@ -45,6 +45,7 @@ namespace UlteriusServer.Api.Services.LocalSystem.Daemons
         {
             Online = true;
             _timer.Start();
+            Console.WriteLine("Cron Daemon Started");
         }
 
         public void Stop()

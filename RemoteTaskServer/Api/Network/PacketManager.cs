@@ -89,7 +89,8 @@ namespace UlteriusServer.Api.Network
             StartJobDaemon,
             GetJobDaemonStatus,
             RemoveJob,
-            GetJobContents
+            GetJobContents,
+            GetAllJobs
         }
 
         #endregion
@@ -307,6 +308,8 @@ namespace UlteriusServer.Api.Network
                     return new PacketInfo { Type = PacketTypes.RemoveJob, Handler = typeof(CronJobPacketHandler) };
                 case "getjobcontents":
                     return new PacketInfo { Type = PacketTypes.GetJobContents, Handler = typeof(CronJobPacketHandler) };
+                case "getalljobs":
+                    return new PacketInfo { Type = PacketTypes.GetAllJobs, Handler = typeof(CronJobPacketHandler) };
                 default:
                     return new PacketInfo
                     {

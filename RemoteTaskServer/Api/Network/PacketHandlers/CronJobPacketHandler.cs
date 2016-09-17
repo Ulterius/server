@@ -48,6 +48,9 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                 case PacketManager.PacketTypes.GetJobContents:
                     GetJobContents();
                     break;
+                case PacketManager.PacketTypes.GetAllJobs:
+                    GetAllJobs();
+                    break;
             }
         }
 
@@ -87,6 +90,10 @@ namespace UlteriusServer.Api.Network.PacketHandlers
             }
         }
 
+        public void GetAllJobs()
+        {
+            _builder.WriteMessage(_cronJobService.JobList);
+        }
         private void GetJobDaemonStatus()
         {
             var response = new
