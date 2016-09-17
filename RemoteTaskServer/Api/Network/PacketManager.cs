@@ -83,7 +83,13 @@ namespace UlteriusServer.Api.Network
             KeyDown,
             KeyUp,
             FullFrame,
-            ListPorts
+            ListPorts,
+            AddOrUpdateJob,
+            StopJobDaemon,
+            StartJobDaemon,
+            GetJobDaemonStatus,
+            RemoveJob,
+            GetJobContents
         }
 
         #endregion
@@ -289,6 +295,18 @@ namespace UlteriusServer.Api.Network
                     return new PacketInfo { Type = PacketTypes.KeyUp, Handler = typeof(ScreenSharePacketHandler) };
                 case "fullframe":
                     return new PacketInfo { Type = PacketTypes.FullFrame, Handler = typeof(ScreenSharePacketHandler) };
+                case "addorupdatejob":
+                    return new PacketInfo { Type = PacketTypes.AddOrUpdateJob, Handler = typeof(CronJobPacketHandler) };
+                case "stopjobdaemon":
+                    return new PacketInfo { Type = PacketTypes.StopJobDaemon, Handler = typeof(CronJobPacketHandler) };
+                case "startjobdaemon":
+                    return new PacketInfo { Type = PacketTypes.StartJobDaemon, Handler = typeof(CronJobPacketHandler) };
+                case "getjobdaemonstatus":
+                    return new PacketInfo { Type = PacketTypes.GetJobDaemonStatus, Handler = typeof(CronJobPacketHandler) };
+                case "removejob":
+                    return new PacketInfo { Type = PacketTypes.RemoveJob, Handler = typeof(CronJobPacketHandler) };
+                case "getjobcontents":
+                    return new PacketInfo { Type = PacketTypes.GetJobContents, Handler = typeof(CronJobPacketHandler) };
                 default:
                     return new PacketInfo
                     {

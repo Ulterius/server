@@ -399,7 +399,7 @@ namespace UlteriusServer.Utilities
                     {
                         if (taskExists)
                         {
-                            sched.RootFolder.DeleteTask("Ulterius");
+                            sched.RootFolder.DeleteTask($"Ulterius {Environment.UserName}");
                         }
                     }
                 }

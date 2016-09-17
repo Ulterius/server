@@ -30,6 +30,7 @@ namespace UlteriusServer.Api
 
         public static ScreenShareService ScreenShareService { get; set; }
         public static FileSearchService FileSearchService { get; set; }
+        public static CronJobService CronJobService { get; set; }
 
         /// <summary>
         ///     Start the API Server
@@ -40,7 +41,8 @@ namespace UlteriusServer.Api
             clientUpdateService.Start();
             FileSearchService = new FileSearchService(Path.Combine(AppEnvironment.DataPath, "fileIndex.db"));
             FileSearchService.Start();
-
+            CronJobService = new CronJobService(Path.Combine(AppEnvironment.DataPath, "jobs.json"), Path.Combine(AppEnvironment.DataPath, "scripts"));
+            CronJobService.ConfigureJobs();
             var apiPort = (int) Settings.Get("TaskServer").TaskServerPort;
             AllClients = new ConcurrentDictionary<Guid, AuthClient>();
             ScreenShareService = new ScreenShareService();
