@@ -3,6 +3,7 @@
 using System;
 using System.IO;
 using System.Text;
+using Newtonsoft.Json.Linq;
 using UlteriusServer.Api.Network.Messages;
 using UlteriusServer.Api.Network.Models;
 using UlteriusServer.Api.Services.LocalSystem;
@@ -165,13 +166,16 @@ namespace UlteriusServer.Api.Network.PacketHandlers
         {
             try
             {
-                var jobId = Guid.Parse(_packet.Args[0].ToString());
-                var scriptContents = _packet.Args[1].ToString();
+                var argumentObject = (JObject) _packet.Args[0];
+
+
+                var jobId = Guid.Parse(argumentObject["guid"].ToString());
+                var scriptContents = argumentObject["base64ScriptContents"].ToString();
                 var data = Convert.FromBase64String(scriptContents);
                 var decodedString = Encoding.UTF8.GetString(data);
-                var scriptSchedule = _packet.Args[2].ToString();
-                var scriptName = _packet.Args[3].ToString();
-                var scriptType = _packet.Args[4].ToString();
+                var scriptSchedule = argumentObject["scriptSchedule"].ToString();
+                var scriptName = argumentObject["scriptName"].ToString();
+                var scriptType = argumentObject["scriptType"].ToString();
                 var newPath = Path.Combine(_cronJobService.JobScriptsPath, scriptName);
                 if (_cronJobService.JobList.ContainsKey(jobId))
                 {
