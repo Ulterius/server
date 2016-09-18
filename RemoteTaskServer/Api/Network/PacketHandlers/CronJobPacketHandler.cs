@@ -169,13 +169,13 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                 var argumentObject = (JObject) _packet.Args[0];
 
 
-                var jobId = Guid.Parse(argumentObject["guid"].ToString());
-                var scriptContents = argumentObject["base64ScriptContents"].ToString();
+                var jobId = Guid.Parse(argumentObject["Guid"].ToString());
+                var scriptContents = argumentObject["Base64ScriptContents"].ToString();
                 var data = Convert.FromBase64String(scriptContents);
                 var decodedString = Encoding.UTF8.GetString(data);
-                var scriptSchedule = argumentObject["scriptSchedule"].ToString();
-                var scriptName = argumentObject["scriptName"].ToString();
-                var scriptType = argumentObject["scriptType"].ToString();
+                var scriptSchedule = argumentObject["Schedule"].ToString();
+                var scriptName = argumentObject["Name"].ToString();
+                var scriptType = argumentObject["Type"].ToString();
                 var newPath = Path.Combine(_cronJobService.JobScriptsPath, scriptName);
                 if (_cronJobService.JobList.ContainsKey(jobId))
                 {
