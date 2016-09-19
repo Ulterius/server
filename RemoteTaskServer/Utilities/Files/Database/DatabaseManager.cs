@@ -5,9 +5,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Text;
+using System.Threading;
 using Microsoft.VisualBasic;
 using Microsoft.VisualBasic.CompilerServices;
-using UlteriusServer.Utilities.Files.Ntfs;
+
 
 #endregion
 
@@ -29,9 +30,12 @@ namespace UlteriusServer.Utilities.Files.Database
 
 
 
-
-        public List<string> Search(string value)
+        public IEnumerable<string>  Search(string value)
         {
+            if (value.Contains("*"))
+            {
+                value = value.Replace("*", "");
+            }
             var results = new List<string>();
             using (var file = System.IO.File.OpenRead(_path))
             using (var deflate = new DeflateStream(file, CompressionMode.Decompress))
@@ -42,29 +46,34 @@ namespace UlteriusServer.Utilities.Files.Database
                 //read until exception
                 while (true)
                 {
+
+                    int fileNameLength;
+                    string fileName;
+                    int directoryLength;
+                    string directory;
+                    long size;
                     try
                     {
-                        var fileNameLength = reader.ReadInt32();
-                        var fileName = Encoding.UTF8.GetString(reader.ReadBytes(fileNameLength));
-                        var directoryLength = reader.ReadInt32();
-                        var directory = Encoding.UTF8.GetString(reader.ReadBytes(directoryLength));
-                        var size = reader.ReadInt64();
-                        if (Operators.LikeString(fileName, $"*{value}*", CompareMethod.Text))
-                        {
-                            results.Add(Path.Combine(directory, fileName));
-                        }
+                        fileNameLength = reader.ReadInt32();
+                        fileName = Encoding.UTF8.GetString(reader.ReadBytes(fileNameLength));
+                        directoryLength = reader.ReadInt32();
+                        directory = Encoding.UTF8.GetString(reader.ReadBytes(directoryLength));
+                        size = reader.ReadInt64();
                     }
-                    catch (EndOfStreamException e)
+                    catch (EndOfStreamException ex)
                     {
 
                         break;
                     }
+                    if (Operators.LikeString(fileName, $"*{value}*", CompareMethod.Text))
+                    {
+                        yield return Path.Combine(directory, fileName);
+                    }
                 }
-
             }
-            return results;
         }
 
+      
         public bool OutOfSync()
         {
             return NeedsUpdate();
@@ -106,6 +115,41 @@ namespace UlteriusServer.Utilities.Files.Database
             }
         }
 
+        public static IEnumerable<string> GetFileList(string fileSearchPattern, string rootFolderPath)
+        {
+            var pending = new Queue<string>();
+            pending.Enqueue(rootFolderPath);
+            string[] tmp;
+            while (pending.Count > 0)
+            {
+                rootFolderPath = pending.Dequeue();
+                try
+                {
+                    tmp = Directory.GetFiles(rootFolderPath, fileSearchPattern);
+                }
+                catch (Exception)
+                {
+                    continue;
+                }
+                foreach (var t in tmp)
+                {
+                    yield return t;
+                }
+                try
+                {
+                    tmp = Directory.GetDirectories(rootFolderPath);
+                }
+                catch (Exception)
+                {
+                    continue;
+                }
+                foreach (var t in tmp)
+                {
+                    pending.Enqueue(t);
+                }
+            }
+        }
+
 
         public bool CreateDatabase()
         {
@@ -122,37 +166,26 @@ namespace UlteriusServer.Utilities.Files.Database
                     {
                         CurrentDrive = drive;
                         Scanning = true;
-                        var driveName = drive.Replace("\\", "").Replace("/", "");
+                        var driveName = drive.Replace("\\", "/");
                         Console.WriteLine("scanning " + driveName);
-                        var data = new MftEnumerator(driveName);
-                        foreach (var currentFile in data)
+                        foreach (var i in GetFileList("*.*", driveName))
                         {
-                            if (currentFile != null)
+                            try
                             {
-                                try
-                                {
-                                    var fileName = Encoding.UTF8.GetBytes(Path.GetFileName(currentFile));
-                                    var directory = Encoding.UTF8.GetBytes(Path.GetDirectoryName(currentFile) ?? "null");
-                                    //slows down the scan
-
-                                    //  long size = WinApi.GetFileSizeA(currentFile);
-                                    long size = -1;
-
-                                    writer.Write(fileName.Length);
-                                    writer.Write(fileName);
-                                    writer.Write(directory.Length);
-                                    writer.Write(directory);
-                                    writer.Write(size);
-                                }
-                                catch (Exception)
-                                {
-                                    //path too long
-                                }
+                                var fileName = Encoding.UTF8.GetBytes(Path.GetFileName(i));
+                                var directory = Encoding.UTF8.GetBytes(Path.GetDirectoryName(i) ?? "null");
+                                long size = -1;
+                                writer.Write(fileName.Length);
+                                writer.Write(fileName);
+                                writer.Write(directory.Length);
+                                writer.Write(directory);
+                                writer.Write(size);
+                            }
+                            catch (Exception)
+                            {
+                                //path too long
                             }
                         }
-                        data = null;
-                        GC.Collect();
-                        GC.WaitForPendingFinalizers();
                     }
                     catch (Exception)
                     {

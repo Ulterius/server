@@ -248,9 +248,6 @@
     <Compile Include="Utilities\Extensions\TaskExtensions.cs" />
     <Compile Include="Utilities\Files\Database\DatabaseController.cs" />
     <Compile Include="Utilities\Files\Database\DatabaseManager.cs" />
-    <Compile Include="Utilities\Files\Ntfs\FileEntry.cs" />
-    <Compile Include="Utilities\Files\Ntfs\MftEnumerator.cs" />
-    <Compile Include="Utilities\Files\Ntfs\Volume.cs" />
     <Compile Include="Utilities\Security\Streams\OfbStream.cs" />
     <Compile Include="Utilities\Security\Streams\ZeroStream.cs" />
     <Compile Include="Utilities\Security\WindowsAuth.cs" />

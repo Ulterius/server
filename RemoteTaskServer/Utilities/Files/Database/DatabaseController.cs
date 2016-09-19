@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 #endregion
 
@@ -40,8 +41,8 @@ namespace UlteriusServer.Utilities.Files.Database
 
         public List<string> Search(string keyword)
         {
-
-            return _databaseManager.Search(keyword);
+          
+            return _databaseManager.Search(keyword).ToList();
         }
 
         public bool Refresh()
