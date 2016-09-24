@@ -29,9 +29,16 @@ namespace UlteriusServer.Api.Services.Network
 
         public static IPAddress GetAddress()
         {
+            //if VMware or VMPlayer installed, we get the wrong address, so try getting the physical first.
+            var address = GetPhysicalIpAdress();
+            //Default since we couldn't.
+            if (string.IsNullOrEmpty(address))
+            {
+                address = GetIPv4Address();
+            }
             var bindLocal = (bool) Settings.Get("Network").BindLocal;
 
-            return bindLocal ? IPAddress.Parse(GetIPv4Address()) : IPAddress.Any;
+            return bindLocal ? IPAddress.Parse(address) : IPAddress.Any;
         }
 
         private static string GetReverseDns(string ip, int timeout)
@@ -47,7 +54,24 @@ namespace UlteriusServer.Api.Services.Network
                 return ip;
             }
         }
-
+        public static string GetPhysicalIpAdress()
+        {
+            foreach (var ni in NetworkInterface.GetAllNetworkInterfaces())
+            {
+                var addr = ni.GetIPProperties().GatewayAddresses.FirstOrDefault();
+                if (addr == null || addr.Address.ToString().Equals("0.0.0.0")) continue;
+                if (ni.NetworkInterfaceType != NetworkInterfaceType.Wireless80211 &&
+                    ni.NetworkInterfaceType != NetworkInterfaceType.Ethernet) continue;
+                foreach (var ip in ni.GetIPProperties().UnicastAddresses)
+                {
+                    if (ip.Address.AddressFamily == AddressFamily.InterNetwork)
+                    {
+                        return ip.Address.ToString();
+                    }
+                }
+            }
+            return string.Empty;
+        }
         public static List<NetworkDevices> ConnectedDevices()
         {
         
