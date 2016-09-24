@@ -6,6 +6,7 @@ using System.IO;
 using System.Net.Http;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Security.Cryptography;
 using System.Security.Principal;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -67,7 +68,7 @@ namespace Bootstrapper
                     if (localHash.Equals(remoteHash)) return false;
                     //update needed
                     if (!await DownloadUpdate()) return false;
-                    if (!ExtractUpdate()) return false;
+                    if (!ExtractUpdate(remoteHash)) return false;
                     File.WriteAllText("server.bin", remoteHash);
                     File.Delete("server.zip");
                     return true;
@@ -80,8 +81,31 @@ namespace Bootstrapper
             }
         }
 
-        private static bool ExtractUpdate()
+        public static string GetSha1Hash(string filePath)
         {
+            using (var stream = File.OpenRead(filePath))
+            {
+                using (var sha = new SHA1Managed())
+                {
+                    var checksum = sha.ComputeHash(stream);
+                    return BitConverter.ToString(checksum)
+                        .Replace("-", string.Empty);
+                }
+            }
+        }
+
+        private static bool ExtractUpdate(string remoteHash)
+        {
+            var sha = GetSha1Hash("server.zip");
+            if (!sha.ToUpper().Equals(remoteHash))
+            {
+                if (File.Exists("server.zip"))
+                {
+                    File.Delete("server.zip");
+                }
+                Console.WriteLine("Invalid SHA1");
+                return false;
+            }
             try
             {
                 //get the full location of the assembly with DaoTests in it
@@ -153,7 +177,7 @@ namespace Bootstrapper
             }
             if (IsElevated)
             {
-                 var handle = GetConsoleWindow();
+                var handle = GetConsoleWindow();
                 // Hide
                 ShowWindow(handle, SW_HIDE);
                 var filestream = new FileStream("bootstrap.log",
