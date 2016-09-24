@@ -130,9 +130,15 @@ namespace UlteriusServer.Api.Network.PacketHandlers
             };
             _builder.WriteMessage(data);
             // Starts a new instance of the program itself
-            var fileName = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "Bootstrapper.exe");
-            Process.Start(fileName);
-            // Closes the current process
+            // Starts a new instance of the program itself
+            var fileName = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
+                "Bootstrapper.exe");
+            var startInfo = new ProcessStartInfo(fileName)
+            {
+                WindowStyle = ProcessWindowStyle.Minimized,
+                Arguments = "restart"
+            };
+            Process.Start(startInfo);
             Environment.Exit(0);
         }
 

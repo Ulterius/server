@@ -161,6 +161,19 @@ namespace Bootstrapper
 
         private static void Main(string[] args)
         {
+            if (args != null && args.Length > 0)
+            {
+                var argument = args[0];
+                if (argument.Equals("restart"))
+                {
+                    //if its still up
+                    var list = Process.GetProcessesByName("Ulterius Server");
+                    if (list.Length > 0)
+                    {
+                        list[0].Kill();
+                    }
+                }
+            }
             var workingDir = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
             Directory.SetCurrentDirectory(workingDir);
             if (Process.GetProcessesByName(
