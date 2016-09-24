@@ -73,9 +73,10 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                 }
                 var response = new
                 {
-                    id = jobId.ToString(),
-                    scriptContents = contents,
-                    scriptExist = exist
+                    
+                    Id = jobId.ToString(),
+                    Base64ScriptContents = contents,
+                    ScriptExist = exist
                 };
                 _builder.WriteMessage(response);
             }
@@ -83,9 +84,9 @@ namespace UlteriusServer.Api.Network.PacketHandlers
             {
                 var exceptionResponse = new
                 {
-                    removed = false,
-                    message = ex.Message,
-                    exception = ex.StackTrace
+                    Removed = false,
+                    Message = ex.Message,
+                    Exception = ex.StackTrace
                 };
                 _builder.WriteMessage(exceptionResponse);
             }
@@ -99,7 +100,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
         {
             var response = new
             {
-                online = _cronJobService.Status()
+                Online = _cronJobService.Status()
             };
             _builder.WriteMessage(response);
         }
@@ -108,7 +109,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
         {
             var response = new
             {
-                shutDown = true
+                ShutDown = true
             };
             _cronJobService.ShutDown();
             _builder.WriteMessage(response);
@@ -118,7 +119,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
         {
             var response = new
             {
-                started = true
+                Started = true
             };
             _cronJobService.Start();
             _builder.WriteMessage(response);
@@ -145,8 +146,8 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                 }
                 var response = new
                 {
-                    id = jobId.ToString(),
-                    jobRemoved = removed
+                    Id = jobId.ToString(),
+                    JobRemoved = removed
                 };
                 _builder.WriteMessage(response);
             }
@@ -154,9 +155,9 @@ namespace UlteriusServer.Api.Network.PacketHandlers
             {
                 var exceptionResponse = new
                 {
-                    removed = false,
-                    message = ex.Message,
-                    exception = ex.StackTrace
+                    Removed = false,
+                    Message = ex.Message,
+                    Exception = ex.StackTrace
                 };
                 _builder.WriteMessage(exceptionResponse);
             }
@@ -170,8 +171,8 @@ namespace UlteriusServer.Api.Network.PacketHandlers
 
 
                 var jobId = Guid.Parse(argumentObject["Guid"].ToString());
-                var scriptContents = argumentObject["Base64ScriptContents"].ToString();
-                var data = Convert.FromBase64String(scriptContents);
+                var base64ScriptContents = argumentObject["Base64ScriptContents"].ToString();
+                var data = Convert.FromBase64String(base64ScriptContents);
                 var decodedString = Encoding.UTF8.GetString(data);
                 var scriptSchedule = argumentObject["Schedule"].ToString();
                 var scriptName = argumentObject["Name"].ToString();
@@ -208,9 +209,9 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                 }
                 var response = new
                 {
-                    addedOrUpdated = true,
-                    message = $"{jobId} was added to the server.",
-                    savedTo = newPath
+                    AddedOrUpdated = true,
+                    Message = $"{jobId} was added to the server.",
+                    SavedTo = newPath
                 };
                 _builder.WriteMessage(response);
             }
@@ -218,9 +219,9 @@ namespace UlteriusServer.Api.Network.PacketHandlers
             {
                 var exceptionResponse = new
                 {
-                    addedOrUpdated = false,
-                    message = ex.Message,
-                    exception = ex.StackTrace
+                    AddedOrUpdated = false,
+                    Message = ex.Message,
+                    Exception = ex.StackTrace
                 };
                 _builder.WriteMessage(exceptionResponse);
             }
