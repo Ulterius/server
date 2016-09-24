@@ -180,10 +180,6 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="UlteriusPluginBase, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>extensions\UlteriusPluginBase.dll</HintPath>
-    </Reference>
     <Reference Include="vtortola.WebSockets, Version=2.2.1.0, Culture=neutral, PublicKeyToken=7f78616efb4a208d, processorArchitecture=MSIL">
       <HintPath>..\packages\vtortola.WebSocketListener.2.2.1.0\lib\net45\vtortola.WebSockets.dll</HintPath>
       <Private>True</Private>
@@ -238,7 +234,6 @@
     <Compile Include="Api\Win32\WindowsInput\Native\XButton.cs" />
     <Compile Include="Api\Win32\WindowsInput\WindowsInputDeviceStateAdaptor.cs" />
     <Compile Include="Api\Win32\WindowsInput\WindowsInputMessageDispatcher.cs" />
-    <Compile Include="Plugins\PluginHost.cs" />
     <Compile Include="Api\Network\Messages\Message.cs" />
     <Compile Include="Api\Network\Messages\MessageQueueManager.cs" />
     <Compile Include="Api\Services\LocalSystem\FileSearchService.cs" />
@@ -259,10 +254,7 @@
     <Compile Include="Api\Network\PacketHandler.cs" />
     <Compile Include="Api\Network\PacketHandlers\ErrorPacketHandler.cs" />
     <Compile Include="Api\Network\PacketManager.cs" />
-    <Compile Include="Plugins\PluginHandler.cs" />
-    <Compile Include="Plugins\PluginLoader.cs" />
     <Compile Include="Api\Network\PacketHandlers\WebCamPacketHandler.cs" />
-    <Compile Include="Api\Network\PacketHandlers\PluginPacketHandler.cs" />
     <Compile Include="Api\Network\PacketHandlers\FilePacketHandler.cs" />
     <Compile Include="Api\Network\PacketHandlers\GpuPacketHandler.cs" />
     <Compile Include="Api\Network\PacketHandlers\ScreenSharePacketHandler.cs" />

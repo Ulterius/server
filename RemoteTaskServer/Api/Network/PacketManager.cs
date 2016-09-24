@@ -246,10 +246,6 @@ namespace UlteriusServer.Api.Network
                     return new PacketInfo {Type = PacketTypes.RemoveFile, Handler = typeof(FilePacketHandler)};
                 case "searchfiles":
                     return new PacketInfo {Type = PacketTypes.SearchFiles, Handler = typeof(FilePacketHandler)};
-                case "getpendingplugins":
-                    return new PacketInfo {Type = PacketTypes.GetPendingPlugins, Handler = typeof(PluginPacketHandler)};
-                case "approveplugin":
-                    return new PacketInfo {Type = PacketTypes.ApprovePlugin, Handler = typeof(PluginPacketHandler)};
                 case "aeshandshake":
                     return new PacketInfo {Type = PacketTypes.AesHandshake, Handler = typeof(ServerPacketHandler)};
                 case "requestfile":
@@ -272,12 +268,6 @@ namespace UlteriusServer.Api.Network
                     return new PacketInfo {Type = PacketTypes.StopCamera, Handler = typeof(WebCamPacketHandler)};
                 case "startcamera":
                     return new PacketInfo {Type = PacketTypes.StartCamera, Handler = typeof(WebCamPacketHandler)};
-                case "getbadplugins":
-                    return new PacketInfo {Type = PacketTypes.GetBadPlugins, Handler = typeof(PluginPacketHandler)};
-                case "getplugins":
-                    return new PacketInfo {Type = PacketTypes.GetPlugins, Handler = typeof(PluginPacketHandler)};
-                case "plugin":
-                    return new PacketInfo {Type = PacketTypes.Plugin, Handler = typeof(PluginPacketHandler)};
                 case "mousemove":
                     return new PacketInfo { Type = PacketTypes.MouseMove, Handler = typeof(ScreenSharePacketHandler) };
                 case "mousedown":
