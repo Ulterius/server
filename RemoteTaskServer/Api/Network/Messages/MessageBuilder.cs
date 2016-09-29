@@ -30,25 +30,7 @@ namespace UlteriusServer.Api.Network.Messages
         }
 
 
-        /// <summary>
-        ///     Encrypt a file with AES using only a password
-        /// </summary>
-        /// <param name="password"></param>
-        /// <param name="data"></param>
-        /// <returns>encryptedFile</returns>
-        public byte[] PackFile(string password, byte[] data)
-        {
-            try
-            {
-                var passwordBytes = Encoding.UTF8.GetBytes(password);
-                return EncryptFile(data, passwordBytes);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine($"Console unable to pack file: {e.Message}");
-                return null;
-            }
-        }
+       
 
         /// <summary>
         ///     Writes a message to the queue.

@@ -5,10 +5,12 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text;
 using UlteriusServer.Api.Network.Messages;
 using UlteriusServer.Api.Services.Network;
 using UlteriusServer.Utilities;
 using UlteriusServer.Utilities.Files;
+using UlteriusServer.Utilities.Security;
 using UlteriusServer.WebSocketAPI.Authentication;
 using vtortola.WebSockets;
 using ZetaLongPaths;
@@ -221,16 +223,15 @@ namespace UlteriusServer.Api.Network.PacketHandlers
 
             var ip = NetworkService.GetIPv4Address();
             var port = (int) Settings.Get("WebServer").WebServerPort;
-            var data = File.ReadAllBytes(path);
 
-            var encryptedFile = _builder.PackFile(password, data);
-            try
+            var passwordBytes = Encoding.UTF8.GetBytes(password);
+
+            if (File.Exists(path))
             {
-                if (encryptedFile != null)
+                try
                 {
                     var tempPath = Path.Combine(tempFolderPath, fileName);
-
-                    File.WriteAllBytes(tempPath, encryptedFile);
+                    UlteriusAes.EncryptFile(passwordBytes, path, tempPath);
                     var tempWebPath = $"http://{ip}:{port}/temp/{fileName}";
                     var downloadData = new
                     {
@@ -239,26 +240,26 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                     };
                     _builder.WriteMessage(downloadData);
                 }
-                else
+                catch (Exception e)
                 {
-                    var errorData = new
+
+                    var exceptionData = new
                     {
                         error = true,
-                        message = "Unable to encrypt file"
+                        message = e.Message
                     };
-                    _builder.WriteMessage(errorData);
+
+                    _builder.WriteMessage(exceptionData);
                 }
             }
-            catch (
-                Exception e)
+            else
             {
-                var exceptionData = new
+                var errorData = new
                 {
                     error = true,
-                    message = e.Message
+                    message = "Unable to encrypt file"
                 };
-
-                _builder.WriteMessage(exceptionData);
+                _builder.WriteMessage(errorData);
             }
         }
 
