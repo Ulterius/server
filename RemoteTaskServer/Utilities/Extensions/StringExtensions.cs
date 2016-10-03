@@ -2,6 +2,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
+using System.Security;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -39,6 +41,39 @@ namespace UlteriusServer.Utilities.Extensions
     /// </summary>
     public static class StringExtensions
     {
+
+
+        /// <summary>
+        /// Returns a Secure string from the source string
+        /// </summary>
+        /// <param name="Source"></param>
+        /// <returns></returns>
+        public static SecureString ToSecureString(this string Source)
+        {
+            if (string.IsNullOrWhiteSpace(Source))
+                return null;
+            var Result = new SecureString();
+            foreach (var c in Source.ToCharArray())
+                Result.AppendChar(c);
+            return Result;
+        }
+        public static string ToUnsecureString(this SecureString secureString)
+        {
+            if (secureString == null) throw new ArgumentNullException("secureString");
+
+            var unmanagedString = IntPtr.Zero;
+            try
+            {
+                unmanagedString = Marshal.SecureStringToGlobalAllocUnicode(secureString);
+                return Marshal.PtrToStringUni(unmanagedString);
+            }
+            finally
+            {
+                Marshal.ZeroFreeGlobalAllocUnicode(unmanagedString);
+            }
+        }
+
+
         /// <summary>
         ///     The Reformatting function called to format the string with a list of arguments.
         /// </summary>

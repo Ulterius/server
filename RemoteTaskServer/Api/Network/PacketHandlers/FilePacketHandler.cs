@@ -9,6 +9,7 @@ using System.Text;
 using UlteriusServer.Api.Network.Messages;
 using UlteriusServer.Api.Services.Network;
 using UlteriusServer.Utilities;
+using UlteriusServer.Utilities.Extensions;
 using UlteriusServer.Utilities.Files;
 using UlteriusServer.Utilities.Security;
 using UlteriusServer.WebSocketAPI.Authentication;
@@ -196,7 +197,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
         {
             var fileKey = _packet.Args[0].ToString();
             var destPath = _packet.Args[1].ToString();
-            var password = _packet.Args[2].ToString();
+            var password = _packet.Args[2].ToString().ToSecureString();
             FileManager.AddFile(password, destPath, fileKey);
             var approved = new
             {
