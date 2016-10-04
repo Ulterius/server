@@ -65,7 +65,7 @@ namespace UlteriusServer.Utilities
             return (T) Activator.CreateInstance(t);
         }
 
-        private static void OpenFirewall(ushort port, string name)
+        private static void ForwardPorts(ushort port, string name)
         {
             try
             {
@@ -210,7 +210,7 @@ namespace UlteriusServer.Utilities
             Settings.Save();
         }
 
-        public static void OpenFirewall()
+        public static void ForwardPorts(PortMapper type = PortMapper.Upnp, bool retry = false)
         {
             var webServerPort = (int) Settings.Get("WebServer").WebServerPort;
             var apiPort = (int) Settings.Get("TaskServer").TaskServerPort;
@@ -220,9 +220,10 @@ namespace UlteriusServer.Utilities
             var nat = new NatDiscoverer();
             var cts = new CancellationTokenSource();
             cts.CancelAfter(5000);
+            NatDevice device;
+            var t = nat.DiscoverDeviceAsync(type, cts);
 
-            NatDevice device = null;
-            var t = nat.DiscoverDeviceAsync(PortMapper.Upnp, cts);
+
             t.ContinueWith(tt =>
             {
                 device = tt.Result;
@@ -269,6 +270,11 @@ namespace UlteriusServer.Utilities
             {
                 if (e.InnerException is NatDeviceNotFoundException)
                 {
+                    if (retry)
+                    {
+                        return;
+                    }
+                    ForwardPorts(PortMapper.Pmp, true);
                     Console.WriteLine("No NAT Device Found");
                 }
             }
@@ -312,11 +318,11 @@ namespace UlteriusServer.Utilities
                 var userdomain = Environment.GetEnvironmentVariable("USERDOMAIN");
                 var command = $@"/C netsh http add urlacl url={prefix} user={userdomain}\{username} listen=yes";
                 Process.Start("CMD.exe", command);
-                OpenFirewall(webcamPort, "Ulterius Web Cams");
-                OpenFirewall(webServerPort, "Ulterius Web Server");
-                OpenFirewall(apiPort, "Ulterius Task Server");
-                OpenFirewall(terminalPort, "Ulterius Terminal Server");
-                OpenFirewall(screenSharePort, "Ulterius ScreenShareService");
+                ForwardPorts(webcamPort, "Ulterius Web Cams");
+                ForwardPorts(webServerPort, "Ulterius Web Server");
+                ForwardPorts(apiPort, "Ulterius Task Server");
+                ForwardPorts(terminalPort, "Ulterius Terminal Server");
+                ForwardPorts(screenSharePort, "Ulterius ScreenShareService");
             }
             SetStartup();
             if (File.Exists("client.zip"))
@@ -378,11 +384,12 @@ namespace UlteriusServer.Utilities
                         if (taskExists) return;
                         var td = TaskService.Instance.NewTask();
                         td.Principal.RunLevel = TaskRunLevel.Highest;
-           
+
                         td.RegistrationInfo.Author = "Octopodal Solutions";
                         td.RegistrationInfo.Date = new DateTime();
-                        td.RegistrationInfo.Description = "Keeps your Ulterius server up to date. If this task is disabled or stopped, your Ulterius server will not be kept up to date, meaning security vulnerabilities that may arise cannot be fixed and features may not work.";
-                       
+                        td.RegistrationInfo.Description =
+                            "Keeps your Ulterius server up to date. If this task is disabled or stopped, your Ulterius server will not be kept up to date, meaning security vulnerabilities that may arise cannot be fixed and features may not work.";
+
                         var logT = new LogonTrigger
                         {
                             Delay = new TimeSpan(0, 0, 0, 10),
@@ -390,7 +397,7 @@ namespace UlteriusServer.Utilities
                         };
                         //wait 10 seconds until after login is complete to boot
                         td.Triggers.Add(logT);
-                        
+
                         td.Actions.Add(fileName);
                         TaskService.Instance.RootFolder.RegisterTaskDefinition($"Ulterius {Environment.UserName}", td);
                         Console.WriteLine("Task Registered");

@@ -96,7 +96,7 @@ namespace UlteriusServer
                 if (useUpnp)
                 {
                     Console.WriteLine("Trying to forward ports");
-                    Tools.OpenFirewall();
+                    Tools.ForwardPorts();
                 }
             }
             catch (Exception)
