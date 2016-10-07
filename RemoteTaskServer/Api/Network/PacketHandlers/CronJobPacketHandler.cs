@@ -102,15 +102,9 @@ namespace UlteriusServer.Api.Network.PacketHandlers
 
         public void GetAllJobs()
         {
-            var jobList = _cronJobService.JobList.ToDictionary(entry => entry.Key,
-                                               entry => entry.Value);
-            List<Guid> keys = new List<Guid>(jobList.Keys);
-            foreach (var key in keys)
-            {
-                jobList[key].Name = Path.GetFileNameWithoutExtension(jobList[key].Name);
-            }
-            _builder.WriteMessage(jobList);
+            _builder.WriteMessage(_cronJobService.JobList);
         }
+
         private void GetJobDaemonStatus()
         {
             var response = new

@@ -15,6 +15,7 @@ namespace UlteriusServer.Api.Network.Models
     public class JobModel
     {
         public string Name { get; set; }
+
         public string Type { get; set; }
        
 
