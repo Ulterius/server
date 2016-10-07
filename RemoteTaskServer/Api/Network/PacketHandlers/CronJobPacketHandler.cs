@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using Newtonsoft.Json.Linq;
 using UlteriusServer.Api.Network.Messages;
@@ -101,7 +102,8 @@ namespace UlteriusServer.Api.Network.PacketHandlers
 
         public void GetAllJobs()
         {
-            var jobList = _cronJobService.JobList;
+            var jobList = _cronJobService.JobList.ToDictionary(entry => entry.Key,
+                                               entry => entry.Value);
             List<Guid> keys = new List<Guid>(jobList.Keys);
             foreach (var key in keys)
             {
