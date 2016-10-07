@@ -14,7 +14,7 @@ namespace UlteriusServer.Api.Network.Models
 {
     public class JobModel
     {
-        public string Path { get; set; }
+        public string Name { get; set; }
         public string Type { get; set; }
        
 
@@ -34,7 +34,7 @@ namespace UlteriusServer.Api.Network.Models
 
         private async Task RunScript()
         {
-            if (!File.Exists(Path))
+            if (!File.Exists(Name))
             {
                 return;
             }
@@ -42,7 +42,7 @@ namespace UlteriusServer.Api.Network.Models
             {
                 using (var powerShellInstance = PowerShell.Create())
                 {
-                    var scriptContents = File.ReadAllText(Path);
+                    var scriptContents = File.ReadAllText(Name);
                     powerShellInstance.AddScript(scriptContents);
                     // prepare a new collection to store output stream objects
                     var outputCollection = new PSDataCollection<PSObject>();
@@ -62,7 +62,7 @@ namespace UlteriusServer.Api.Network.Models
             }
             else if (Type.Equals("cmd"))
             {
-                await RunProcessAsync(Path);
+                await RunProcessAsync(Name);
             }
         }
 
@@ -84,7 +84,7 @@ namespace UlteriusServer.Api.Network.Models
                 StartInfo =
                 {
                     FileName = fileName,
-                    WorkingDirectory = System.IO.Path.GetDirectoryName(Path),
+                    WorkingDirectory = System.IO.Path.GetDirectoryName(Name),
                     CreateNoWindow = true
                 },
                 EnableRaisingEvents = true

@@ -20,7 +20,7 @@ namespace UlteriusServer.WebCams
         public static Dictionary<string, VideoCaptureDevice> Cameras;
         public static ConcurrentDictionary<string, byte[]> Frames { get; set; }
         public static ConcurrentDictionary<string, Task> Streams { get; set; }
-
+        private static int _fpsLimit = 25;
 
         public static bool StartCamera(string cameraId)
         {
@@ -124,6 +124,7 @@ namespace UlteriusServer.WebCams
 
         private static void HandleFrame(object sender, NewFrameEventArgs camera, string webcamIdHash)
         {
+ 
             if (sender == null) throw new ArgumentNullException(nameof(sender));
             if (camera?.Frame == null) return;
             using (var ms = new MemoryStream())

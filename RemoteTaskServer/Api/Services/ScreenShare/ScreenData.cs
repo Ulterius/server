@@ -4,20 +4,19 @@ using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Threading;
 using System.Windows.Forms;
 using Ionic.Zlib;
+
 #endregion
 
 namespace UlteriusServer.Api.Services.ScreenShare
 {
-    public  class ScreenData
+    public class ScreenData
     {
-        public  int NumByteFullScreen { get; set; } = 1;
-
-
-        public  Graphics _graphics;
-        public  Bitmap _newBitmap = new Bitmap(1, 1);
-        public  Bitmap _prevBitmap;
+        public Graphics _graphics;
+        public Bitmap _newBitmap = new Bitmap(1, 1);
+        public Bitmap _prevBitmap;
 
         public ScreenData()
         {
@@ -25,9 +24,10 @@ namespace UlteriusServer.Api.Services.ScreenShare
             _graphics = Graphics.FromImage(junk);
         }
 
-      
+        public int NumByteFullScreen { get; set; } = 1;
 
-        public  byte[] PackScreenCaptureData(Image image, Rectangle bounds)
+
+        public byte[] PackScreenCaptureData(Image image, Rectangle bounds)
         {
             byte[] results;
             using (var screenStream = new MemoryStream())
@@ -59,7 +59,7 @@ namespace UlteriusServer.Api.Services.ScreenShare
             return results;
         }
 
-        private static Rectangle GetBoundingBoxForChanges(ref Bitmap _prevBitmap, ref Bitmap _newBitmap)
+        private static Rectangle GetBoundingBoxForChanges(ref Bitmap prevBitmap, ref Bitmap newBitmap)
         {
             // The search algorithm starts by looking
             //	for the top and left bounds. The search
@@ -81,9 +81,9 @@ namespace UlteriusServer.Api.Services.ScreenShare
 
             // Validate the images are the same shape and type.
             //
-            if (_prevBitmap.Width != _newBitmap.Width ||
-                _prevBitmap.Height != _newBitmap.Height ||
-                _prevBitmap.PixelFormat != _newBitmap.PixelFormat)
+            if (prevBitmap.Width != newBitmap.Width ||
+                prevBitmap.Height != newBitmap.Height ||
+                prevBitmap.PixelFormat != newBitmap.PixelFormat)
             {
                 // Not the same shape...can't do the search.
                 //
@@ -92,8 +92,8 @@ namespace UlteriusServer.Api.Services.ScreenShare
 
             // Init the search parameters.
             //
-            var width = _newBitmap.Width;
-            var height = _newBitmap.Height;
+            var width = newBitmap.Width;
+            var height = newBitmap.Height;
             var left = width;
             var right = 0;
             var top = height;
@@ -105,12 +105,12 @@ namespace UlteriusServer.Api.Services.ScreenShare
             {
                 // Lock the bits into memory.
                 //
-                bmNewData = _newBitmap.LockBits(
-                    new Rectangle(0, 0, _newBitmap.Width, _newBitmap.Height),
-                    ImageLockMode.ReadOnly, _newBitmap.PixelFormat);
-                bmPrevData = _prevBitmap.LockBits(
-                    new Rectangle(0, 0, _prevBitmap.Width, _prevBitmap.Height),
-                    ImageLockMode.ReadOnly, _prevBitmap.PixelFormat);
+                bmNewData = newBitmap.LockBits(
+                    new Rectangle(0, 0, newBitmap.Width, newBitmap.Height),
+                    ImageLockMode.ReadOnly, newBitmap.PixelFormat);
+                bmPrevData = prevBitmap.LockBits(
+                    new Rectangle(0, 0, prevBitmap.Width, prevBitmap.Height),
+                    ImageLockMode.ReadOnly, prevBitmap.PixelFormat);
 
                 // The images are ARGB (4 bytes)
                 //
@@ -141,7 +141,7 @@ namespace UlteriusServer.Api.Services.ScreenShare
 
                     var pNew = (int*) scanNew0.ToPointer();
                     var pPrev = (int*) scanPrev0.ToPointer();
-                    for (var y = 0; y < _newBitmap.Height; ++y)
+                    for (var y = 0; y < newBitmap.Height; ++y)
                     {
                         // For pixels up to the current bound (left to right)
                         //
@@ -178,12 +178,12 @@ namespace UlteriusServer.Api.Services.ScreenShare
 
                     pNew = (int*) scanNew0.ToPointer();
                     pPrev = (int*) scanPrev0.ToPointer();
-                    pNew += (_newBitmap.Height - 1)*strideNew;
-                    pPrev += (_prevBitmap.Height - 1)*stridePrev;
+                    pNew += (newBitmap.Height - 1)*strideNew;
+                    pPrev += (prevBitmap.Height - 1)*stridePrev;
 
-                    for (var y = _newBitmap.Height - 1; y > top; y--)
+                    for (var y = newBitmap.Height - 1; y > top; y--)
                     {
-                        for (var x = _newBitmap.Width - 1; x > left; x--)
+                        for (var x = newBitmap.Width - 1; x > left; x--)
                         {
                             var test1 = (pNew + x)[0];
                             var test2 = (pPrev + x)[0];
@@ -196,16 +196,14 @@ namespace UlteriusServer.Api.Services.ScreenShare
                             var g2 = (test2 & 0xff00) >> 8;
                             var r2 = (test2 & 0xff0000) >> 16;
                             var a2 = (test2 & 0xff000000) >> 24;
-                            if (b1 != b2 || g1 != g2 || r1 != r2 || a1 != a2)
+                            if (b1 == b2 && g1 == g2 && r1 == r2 && a1 == a2) continue;
+                            if (x > right)
                             {
-                                if (x > right)
-                                {
-                                    right = x;
-                                }
-                                if (y > bottom)
-                                {
-                                    bottom = y;
-                                }
+                                right = x;
+                            }
+                            if (y > bottom)
+                            {
+                                bottom = y;
                             }
                         }
 
@@ -224,11 +222,11 @@ namespace UlteriusServer.Api.Services.ScreenShare
                 //
                 if (bmNewData != null)
                 {
-                    _newBitmap.UnlockBits(bmNewData);
+                    newBitmap.UnlockBits(bmNewData);
                 }
                 if (bmPrevData != null)
                 {
-                    _prevBitmap.UnlockBits(bmPrevData);
+                    prevBitmap.UnlockBits(bmPrevData);
                 }
             }
 
@@ -245,10 +243,11 @@ namespace UlteriusServer.Api.Services.ScreenShare
 
             // Return the bounding box.
             //
+  
             return new Rectangle(left, top, diffImgWidth, diffImgHeight);
         }
 
-        public  Bitmap LocalScreen(ref Rectangle bounds)
+        public Bitmap LocalScreen(ref Rectangle bounds)
         {
             Bitmap diff = null;
 
@@ -304,26 +303,25 @@ namespace UlteriusServer.Api.Services.ScreenShare
             return diff;
         }
 
-        public  Bitmap CaptureDesktop()
+        public Bitmap CaptureDesktop()
         {
             try
             {
                 var desktopBmp = new Bitmap(
-                      Screen.PrimaryScreen.Bounds.Width,
-                      Screen.PrimaryScreen.Bounds.Height);
+                    Screen.PrimaryScreen.Bounds.Width,
+                    Screen.PrimaryScreen.Bounds.Height);
 
-                var g = Graphics.FromImage(desktopBmp);
-
-                g.CopyFromScreen(0, 0, 0, 0,
-                    new Size(
-                        Screen.PrimaryScreen.Bounds.Width,
-                        Screen.PrimaryScreen.Bounds.Height));
-                g.Dispose();
-                return desktopBmp;
+                using (var gfxScreenshot = Graphics.FromImage(desktopBmp))
+                {
+                    gfxScreenshot.CopyFromScreen(0, 0, 0, 0,
+                        new Size(
+                            Screen.PrimaryScreen.Bounds.Width,
+                            Screen.PrimaryScreen.Bounds.Height));
+                    return desktopBmp;
+                }
             }
             catch (Exception ex)
             {
-
                 Console.WriteLine(ex.Message);
             }
             return null;

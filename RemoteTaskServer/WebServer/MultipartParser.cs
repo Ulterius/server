@@ -50,45 +50,41 @@ namespace UlteriusServer.WebServer
                 var delimiterEndIndex = content.IndexOf("\r\n", StringComparison.Ordinal);
 
 
-                if (delimiterEndIndex > -1)
-                {
-                    var delimiter = content.Substring(0, content.IndexOf("\r\n", StringComparison.Ordinal));
+                if (delimiterEndIndex <= -1) return;
+                var delimiter = content.Substring(0, content.IndexOf("\r\n", StringComparison.Ordinal));
 
 
-                    // Look for Content-Type
-                    var re = new Regex(@"(?<=Content\-Type:)(.*?)(?=\r\n\r\n)");
-                    var contentTypeMatch = re.Match(content);
+                // Look for Content-Type
+                var re = new Regex(@"(?<=Content\-Type:)(.*?)(?=\r\n\r\n)");
+                var contentTypeMatch = re.Match(content);
 
-                    // Look for filename
-                    re = new Regex(@"(?<=filename\=\"")(.*?)(?=\"")");
-                    var filenameMatch = re.Match(content);
-
-
-                    // Did we find the required values?
-                    if (contentTypeMatch.Success && filenameMatch.Success)
-                    {
-                        // Set properties
-                        ContentType = contentTypeMatch.Value.Trim();
-                        Filename = filenameMatch.Value.Trim();
+                // Look for filename
+                re = new Regex(@"(?<=filename\=\"")(.*?)(?=\"")");
+                var filenameMatch = re.Match(content);
 
 
-                        // Get the start & end indexes of the file contents
-                        var startIndex = contentTypeMatch.Index + contentTypeMatch.Length + "\r\n\r\n".Length;
+                // Did we find the required values?
+                if (!contentTypeMatch.Success || !filenameMatch.Success) return;
+                // Set properties
+                ContentType = contentTypeMatch.Value.Trim();
+                Filename = filenameMatch.Value.Trim();
 
-                        var delimiterBytes = encoding.GetBytes("\r\n" + delimiter);
-                        var endIndex = IndexOf(data, delimiterBytes, startIndex);
 
-                        var contentLength = endIndex - startIndex;
+                // Get the start & end indexes of the file contents
+                var startIndex = contentTypeMatch.Index + contentTypeMatch.Length + "\r\n\r\n".Length;
 
-                        // Extract the file contents from the byte array
-                        var fileData = new byte[contentLength];
+                var delimiterBytes = encoding.GetBytes("\r\n" + delimiter);
+                var endIndex = IndexOf(data, delimiterBytes, startIndex);
 
-                        Buffer.BlockCopy(data, startIndex, fileData, 0, contentLength);
+                var contentLength = endIndex - startIndex;
 
-                        FileContents = fileData;
-                        Success = true;
-                    }
-                }
+                // Extract the file contents from the byte array
+                var fileData = new byte[contentLength];
+
+                Buffer.BlockCopy(data, startIndex, fileData, 0, contentLength);
+
+                FileContents = fileData;
+                Success = true;
             }
 
             private int IndexOf(byte[] searchWithin, byte[] serachFor, int startIndex)

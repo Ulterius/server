@@ -63,15 +63,11 @@ namespace UlteriusServer.Api.Services.LocalSystem.Daemons
 
         public bool IsValid(string expression)
         {
+           
             var matches = ValidationRegex.Matches(expression);
-            return matches.Count > 0;
+            return matches.Count == 5;
         }
 
-        public static bool ValidTime(string expression)
-        {
-            var matches = ValidationRegex.Matches(expression);
-            return matches.Count > 0;
-        }
 
         public bool IsTime(DateTime dateTime)
         {

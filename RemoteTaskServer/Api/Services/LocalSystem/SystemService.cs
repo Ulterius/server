@@ -65,9 +65,9 @@ namespace UlteriusServer.Api.Services.LocalSystem
                 if (string.IsNullOrEmpty(NetworkInformation.PublicIp))
                 {
                     NetworkInformation.PublicIp = NetworkService.GetPublicIp();
-                    NetworkInformation.NetworkComputers = NetworkService.ConnectedDevices();
                     NetworkInformation.MacAddress = NetworkService.GetMacAddress().ToString();
                     NetworkInformation.InternalIp = NetworkService.GetIpAddress().ToString();
+                    NetworkInformation.NetworkComputers = NetworkService.ConnectedDevices();
                 }
             }
             catch (Exception ex)

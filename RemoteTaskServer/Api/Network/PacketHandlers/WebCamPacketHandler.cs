@@ -190,12 +190,14 @@ namespace UlteriusServer.Api.Network.PacketHandlers
         public void GetWebCamFrame(string cameraId)
         {
             var camera = WebCamManager.Cameras[cameraId];
-
+  
             while (_client != null && _client.IsConnected && camera != null && camera.IsRunning)
             {
                 try
 
                 {
+                
+
                     var imageBytes = WebCamManager.Frames[cameraId];
                     if (imageBytes.Length > 0)
                     {

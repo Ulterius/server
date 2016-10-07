@@ -65,7 +65,7 @@ namespace UlteriusServer.Utilities
             return (T) Activator.CreateInstance(t);
         }
 
-        private static void ForwardPorts(ushort port, string name)
+        private static void OpenFirewallPort(ushort port, string name)
         {
             try
             {
@@ -318,11 +318,11 @@ namespace UlteriusServer.Utilities
                 var userdomain = Environment.GetEnvironmentVariable("USERDOMAIN");
                 var command = $@"/C netsh http add urlacl url={prefix} user={userdomain}\{username} listen=yes";
                 Process.Start("CMD.exe", command);
-                ForwardPorts(webcamPort, "Ulterius Web Cams");
-                ForwardPorts(webServerPort, "Ulterius Web Server");
-                ForwardPorts(apiPort, "Ulterius Task Server");
-                ForwardPorts(terminalPort, "Ulterius Terminal Server");
-                ForwardPorts(screenSharePort, "Ulterius ScreenShareService");
+                OpenFirewallPort(webcamPort, "Ulterius Web Cams");
+                OpenFirewallPort(webServerPort, "Ulterius Web Server");
+                OpenFirewallPort(apiPort, "Ulterius Task Server");
+                OpenFirewallPort(terminalPort, "Ulterius Terminal Server");
+                OpenFirewallPort(screenSharePort, "Ulterius ScreenShareService");
             }
             SetStartup();
             if (File.Exists("client.zip"))

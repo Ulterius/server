@@ -1,6 +1,7 @@
 ﻿#region
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using Newtonsoft.Json.Linq;
@@ -64,7 +65,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                 var jobId = Guid.Parse(_packet.Args[0].ToString());
                 if (_cronJobService.JobList.ContainsKey(jobId))
                 {
-                    var path = _cronJobService.JobList[jobId].Path;
+                    var path = _cronJobService.JobList[jobId].Name;
                     if (File.Exists(path))
                     {
                         exist = true;
@@ -94,7 +95,13 @@ namespace UlteriusServer.Api.Network.PacketHandlers
 
         public void GetAllJobs()
         {
-            _builder.WriteMessage(_cronJobService.JobList);
+            var jobList = _cronJobService.JobList;
+            List<Guid> keys = new List<Guid>(jobList.Keys);
+            foreach (var key in keys)
+            {
+                jobList[key].Name = Path.GetFileName(jobList[key].Name);
+            }
+            _builder.WriteMessage(jobList);
         }
         private void GetJobDaemonStatus()
         {
@@ -133,7 +140,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                 var jobId = Guid.Parse(_packet.Args[0].ToString());
                 if (_cronJobService.JobList.ContainsKey(jobId))
                 {
-                    var oldPath = _cronJobService.JobList[jobId].Path;
+                    var oldPath = _cronJobService.JobList[jobId].Name;
                     removed = _cronJobService.RemoveJob(jobId);
                     if (removed)
                     {
@@ -168,8 +175,6 @@ namespace UlteriusServer.Api.Network.PacketHandlers
             try
             {
                 var argumentObject = (JObject) _packet.Args[0];
-
-
                 var jobId = Guid.Parse(argumentObject["Guid"].ToString());
                 var base64ScriptContents = argumentObject["Base64ScriptContents"].ToString();
                 var data = Convert.FromBase64String(base64ScriptContents);
@@ -180,15 +185,15 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                 var newPath = Path.Combine(_cronJobService.JobScriptsPath, scriptName);
                 if (_cronJobService.JobList.ContainsKey(jobId))
                 {
-                    var oldPath = _cronJobService.JobList[jobId].Path;
-                    _cronJobService.JobList[jobId].Path = newPath;
+                    var oldPath = _cronJobService.JobList[jobId].Name;
+                    _cronJobService.JobList[jobId].Name = newPath;
                     if (!oldPath.Equals(newPath) && File.Exists(oldPath))
                     {
                         File.Delete(oldPath);
                     }
                     _cronJobService.JobList[jobId].Schedule = scriptSchedule;
                     _cronJobService.JobList[jobId].Type = scriptType;
-                    var path = _cronJobService.JobList[jobId].Path;
+                    var path = _cronJobService.JobList[jobId].Name;
                     //job exist, lets update its contents
                     File.WriteAllText(path, decodedString);
                     _cronJobService.AddOrUpdateJob(jobId, _cronJobService.JobList[jobId]);
@@ -201,7 +206,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                     {
                         Schedule = scriptSchedule,
                         Type = scriptType,
-                        Path = newPath
+                        Name = newPath
                     };
                     _cronJobService.AddOrUpdateJob(jobId, job);
                     _cronJobService.JobList.TryAdd(jobId, job);
