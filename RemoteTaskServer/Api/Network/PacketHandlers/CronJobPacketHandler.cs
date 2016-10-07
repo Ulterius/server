@@ -99,7 +99,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
             List<Guid> keys = new List<Guid>(jobList.Keys);
             foreach (var key in keys)
             {
-                jobList[key].Name = Path.GetFileName(jobList[key].Name);
+                jobList[key].Name = Path.GetFileNameWithoutExtension(jobList[key].Name);
             }
             _builder.WriteMessage(jobList);
         }
