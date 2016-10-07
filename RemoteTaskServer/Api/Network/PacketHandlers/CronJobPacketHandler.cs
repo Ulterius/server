@@ -62,22 +62,28 @@ namespace UlteriusServer.Api.Network.PacketHandlers
             {
                 string contents = null;
                 var exist = false;
+                var existIndex = false;
+                var localPath = string.Empty;
                 var jobId = Guid.Parse(_packet.Args[0].ToString());
                 if (_cronJobService.JobList.ContainsKey(jobId))
                 {
+                    existIndex = true;
                     var path = _cronJobService.JobList[jobId].Name;
+                    localPath = path;
                     if (File.Exists(path))
                     {
                         exist = true;
                         contents = Convert.ToBase64String(File.ReadAllBytes(path));
-                    }
+                    } 
                 }
                 var response = new
                 {
                     
                     Id = jobId.ToString(),
                     Base64ScriptContents = contents,
-                    ScriptExist = exist
+                    ScriptExist = exist,
+                    IndexExist = existIndex,
+                    LocalPath  = localPath
                 };
                 _builder.WriteMessage(response);
             }
@@ -85,7 +91,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
             {
                 var exceptionResponse = new
                 {
-                    Removed = false,
+
                     Message = ex.Message,
                     Exception = ex.StackTrace
                 };
