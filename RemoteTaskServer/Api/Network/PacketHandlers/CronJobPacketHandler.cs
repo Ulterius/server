@@ -133,6 +133,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
             {
                 Started = true
             };
+            _cronJobService.AddJobs();
             _cronJobService.Start();
             _builder.WriteMessage(response);
         }

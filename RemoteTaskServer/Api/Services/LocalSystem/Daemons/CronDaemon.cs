@@ -51,6 +51,7 @@ namespace UlteriusServer.Api.Services.LocalSystem.Daemons
         public void Stop()
         {
             Online = false;
+        
             _timer.Stop();
 
             foreach (var cronJob in _cronJobs.Values)
