@@ -134,13 +134,18 @@ namespace UlteriusServer.Api.Network.PacketHandlers
             _builder.WriteMessage(response);
         }
 
+
+        //Evan crys a lot
         public void RemoveJob()
         {
             try
             {
+                
                 var removed = false;
+                var scriptRemoved = false;
                 var jobId = Guid.Parse(_packet.Args[0].ToString());
-                if (_cronJobService.JobList.ContainsKey(jobId))
+                var jobExist = _cronJobService.JobList.ContainsKey(jobId);
+                if (jobExist)
                 {
                     var oldPath = _cronJobService.JobList[jobId].Name;
                     removed = _cronJobService.RemoveJob(jobId);
@@ -149,6 +154,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                         if (File.Exists(oldPath))
                         {
                             File.Delete(oldPath);
+                            scriptRemoved = true;
                         }
                         _cronJobService.Save();
                     }
@@ -156,7 +162,9 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                 var response = new
                 {
                     Id = jobId.ToString(),
-                    JobRemoved = removed
+                    JobRemoved = removed,
+                    ScriptRemoved = scriptRemoved,
+                     JobExisted = jobExist
                 };
                 _builder.WriteMessage(response);
             }
