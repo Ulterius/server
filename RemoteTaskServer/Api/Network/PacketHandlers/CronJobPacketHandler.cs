@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using CronExpressionDescriptor;
 using Newtonsoft.Json.Linq;
 using UlteriusServer.Api.Network.Messages;
 using UlteriusServer.Api.Network.Models;
@@ -55,22 +54,11 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                 case PacketManager.PacketTypes.GetAllJobs:
                     GetAllJobs();
                     break;
-                case PacketManager.PacketTypes.GetDescription:
-                    GetDescription();
-                    break;
+               
             }
         }
 
-        private void GetDescription()
-        {
-            var cronString = _packet.Args[0].ToString();
-            var description = ExpressionDescriptor.GetDescription(cronString);
-            var response = new
-            {
-               Description = description
-            };
-            _builder.WriteMessage(response);
-        }
+     
 
         private void GetJobContents()
         {
