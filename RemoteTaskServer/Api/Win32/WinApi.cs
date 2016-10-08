@@ -10,6 +10,57 @@ namespace UlteriusServer.Api.Win32
 {
     internal class WinApi
     {
+        [DllImport("user32.dll")]
+        static extern IntPtr GetClipboardData(uint uFormat);
+        [DllImport("user32.dll")]
+        static extern bool IsClipboardFormatAvailable(uint format);
+        [DllImport("user32.dll", SetLastError = true)]
+        static extern bool OpenClipboard(IntPtr hWndNewOwner);
+        [DllImport("user32.dll", SetLastError = true)]
+        static extern bool CloseClipboard();
+        [DllImport("kernel32.dll")]
+        static extern IntPtr GlobalLock(IntPtr hMem);
+        [DllImport("kernel32.dll")]
+        static extern bool GlobalUnlock(IntPtr hMem);
+
+        const uint CF_UNICODETEXT = 13;
+
+        public static string GetText()
+        {
+            if (!IsClipboardFormatAvailable(CF_UNICODETEXT))
+                return null;
+            if (!OpenClipboard(IntPtr.Zero))
+                return null;
+
+            string data = null;
+            var hGlobal = GetClipboardData(CF_UNICODETEXT);
+            if (hGlobal != IntPtr.Zero)
+            {
+                var lpwcstr = GlobalLock(hGlobal);
+                if (lpwcstr != IntPtr.Zero)
+                {
+                    data = Marshal.PtrToStringUni(lpwcstr);
+                    GlobalUnlock(lpwcstr);
+                }
+            }
+            CloseClipboard();
+
+            return data;
+        }
+        // See http://msdn.microsoft.com/en-us/library/ms649021%28v=vs.85%29.aspx
+        public const int WM_CLIPBOARDUPDATE = 0x031D;
+        public static readonly IntPtr HWND_MESSAGE = new IntPtr(-3);
+
+        // See http://msdn.microsoft.com/en-us/library/ms632599%28VS.85%29.aspx#message_only
+        [DllImport("user32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool AddClipboardFormatListener(IntPtr hwnd);
+
+        // See http://msdn.microsoft.com/en-us/library/ms633541%28v=vs.85%29.aspx
+        // See http://msdn.microsoft.com/en-us/library/ms649033%28VS.85%29.aspx
+        [DllImport("user32.dll", SetLastError = true)]
+        public static extern IntPtr SetParent(IntPtr hWndChild, IntPtr hWndNewParent);
+
         public enum FileIdType
         {
             FileIdType = 0,

@@ -122,10 +122,12 @@ namespace UlteriusServer.Api.Network.PacketHandlers
         private void GetScreenFrame()
         {
             var bounds = Rectangle.Empty;
+            string lastClipBoard = string.Empty;
             while (_client != null && _client.IsConnected)
             {
                 try
                 {
+                   
                     var image = _screenData.LocalScreen(ref bounds);
 
                     if (_screenData.NumByteFullScreen == 1)
@@ -141,6 +143,15 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                             _builder.WriteScreenFrame(data);
                         }
                     }
+                    var clipboard = _screenData.ClipboardText;
+                    if (clipboard.Equals(lastClipBoard) || string.IsNullOrEmpty(clipboard)) continue;
+                    var clipBoardData = new
+                    {
+                        Text = clipboard
+                    };
+                    _builder.Endpoint = "clipboarddata";
+                    _builder.WriteMessage(clipBoardData);
+                    lastClipBoard = clipboard;
                 }
                 catch (Exception e)
                 {

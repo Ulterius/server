@@ -86,6 +86,7 @@
     <Compile Include="Api\Services\LocalSystem\Daemons\CronJob.cs" />
     <Compile Include="Api\Services\LocalSystem\Daemons\CronSchedule.cs" />
     <Compile Include="Api\Services\LocalSystem\CronJobService.cs" />
+    <Compile Include="Api\Services\ScreenShare\ClipboardNotifications.cs" />
     <Compile Include="Api\Services\ScreenShare\ScreenData.cs" />
     <Compile Include="Api\Services\ScreenShare\ScreenModel.cs" />
     <Compile Include="Api\Services\Update\ClientUpdateService.cs" />
@@ -328,6 +329,10 @@
       <HintPath>C:\Program Files (x86)\Reference Assemblies\Microsoft\WindowsPowerShell\3.0\System.Management.Automation.dll</HintPath>
     </Reference>
     <Reference Include="System.Net.Http" />
+    <Reference Include="System.Threading.Tasks.Dataflow, Version=4.6.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Threading.Tasks.Dataflow.4.6.0\lib\netstandard1.1\System.Threading.Tasks.Dataflow.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System.Web" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xaml" />
@@ -335,6 +340,10 @@
     <Reference Include="System.Xml" />
     <Reference Include="vtortola.WebSockets, Version=2.2.1.0, Culture=neutral, PublicKeyToken=7f78616efb4a208d, processorArchitecture=MSIL">
       <HintPath>..\packages\vtortola.WebSocketListener.2.2.1.0\lib\net45\vtortola.WebSockets.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="vtortola.WebSockets.Deflate, Version=2.2.1.0, Culture=neutral, PublicKeyToken=7f78616efb4a208d, processorArchitecture=MSIL">
+      <HintPath>..\packages\vtortola.WebSocketListener.2.2.1.0\lib\net45\vtortola.WebSockets.Deflate.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="vtortola.WebSockets.Rfc6455, Version=2.2.1.0, Culture=neutral, PublicKeyToken=7f78616efb4a208d, processorArchitecture=MSIL">

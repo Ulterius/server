@@ -4,9 +4,9 @@ using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
-using System.Threading;
 using System.Windows.Forms;
 using Ionic.Zlib;
+using UlteriusServer.Api.Win32;
 
 #endregion
 
@@ -18,13 +18,43 @@ namespace UlteriusServer.Api.Services.ScreenShare
         public Bitmap _newBitmap = new Bitmap(1, 1);
         public Bitmap _prevBitmap;
 
+        public string ClipboardText = string.Empty;
+
         public ScreenData()
         {
+            ClipboardNotifications.ClipboardUpdate += HandleClipboard;
             var junk = new Bitmap(10, 10);
             _graphics = Graphics.FromImage(junk);
         }
 
         public int NumByteFullScreen { get; set; } = 1;
+
+        private void HandleClipboard(object sender, EventArgs e)
+        {
+            try
+            {
+                var clipboard = WinApi.GetText();
+                if (clipboard == null)
+                {
+                    clipboard = string.Empty;
+                    return;
+                }
+                if (clipboard.Length > 5242880)
+                {
+                    clipboard = string.Empty;
+                    return;
+                }
+                if (ClipboardText.Equals(clipboard))
+                {
+                    return;
+                }
+                ClipboardText = clipboard;
+            }
+            catch (Exception)
+            {
+                //Nothing to be done
+            }
+        }
 
 
         public byte[] PackScreenCaptureData(Image image, Rectangle bounds)
@@ -243,7 +273,7 @@ namespace UlteriusServer.Api.Services.ScreenShare
 
             // Return the bounding box.
             //
-  
+
             return new Rectangle(left, top, diffImgWidth, diffImgHeight);
         }
 
