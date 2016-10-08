@@ -25,7 +25,7 @@ namespace UlteriusServer.Api.Services.LocalSystem.Daemons
         public CronDaemon()
         {
             _timer.AutoReset = true;
-            _timer.Elapsed += timer_elapsed;
+            _timer.Elapsed += timerElapsed;
         }
 
         public void AddJob(string schedule, Guid id, JobModel job)
@@ -62,7 +62,7 @@ namespace UlteriusServer.Api.Services.LocalSystem.Daemons
             _cronJobs.Clear();
         }
 
-        private void timer_elapsed(object sender, ElapsedEventArgs e)
+        private void timerElapsed(object sender, ElapsedEventArgs e)
         {
             if (DateTime.Now.Minute == _last.Minute) return;
             _last = DateTime.Now;
