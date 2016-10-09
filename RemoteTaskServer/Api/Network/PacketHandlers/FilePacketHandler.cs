@@ -222,7 +222,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
 
             var fileName = Path.GetFileName(path);
 
-            var ip = NetworkService.GetIPv4Address();
+            var ip = NetworkService.GetAddress();
             var port = (int) Settings.Get("WebServer").WebServerPort;
 
             var passwordBytes = Encoding.UTF8.GetBytes(password);

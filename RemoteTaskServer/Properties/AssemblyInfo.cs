@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 // associated with an assembly.
 
 [assembly: AssemblyTitle("Ulterius™ Server")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("Ulterius is currently in beta, follow updates at blog.ulterius.io")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Ulterius")]
 [assembly: AssemblyProduct("Ulterius Server")]

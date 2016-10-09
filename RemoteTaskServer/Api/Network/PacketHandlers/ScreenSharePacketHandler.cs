@@ -121,26 +121,34 @@ namespace UlteriusServer.Api.Network.PacketHandlers
 
         private void GetScreenFrame()
         {
-            var bounds = Rectangle.Empty;
+           
             var lastClipBoard = string.Empty;
             while (_client != null && _client.IsConnected)
             {
                 try
                 {
-                    using (var image = _screenData.LocalScreen(ref bounds))
+
+                    using (var image = _screenData.LocalScreen())
                     {
+                        if (image == null)
+                        {
+                            continue;
+                        }
+
                         if (_screenData.NumByteFullScreen == 1)
                         {
-                            _screenData.NumByteFullScreen = bounds.Width*bounds.Height*4;
+                            _screenData.NumByteFullScreen = image.Rectangle.Width * image.Rectangle.Height * 4;
                         }
-                        if (bounds != Rectangle.Empty && image != null)
+                        if (image.Rectangle != Rectangle.Empty)
                         {
-                            var data = _screenData.PackScreenCaptureData(image, bounds);
+                            var data = _screenData.PackScreenCaptureData(image.ScreenBitmap, image.Rectangle);
                             if (data != null && data.Length > 0)
                             {
                                 _builder.Endpoint = "screensharedata";
                                 _builder.WriteScreenFrame(data);
                                 data = null;
+                                System.GC.Collect();
+                                System.GC.WaitForPendingFinalizers();
                             }
                         }
                     }

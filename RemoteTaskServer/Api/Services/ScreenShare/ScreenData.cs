@@ -4,6 +4,7 @@ using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using Ionic.Zlib;
 using UlteriusServer.Api.Win32;
@@ -14,17 +15,14 @@ namespace UlteriusServer.Api.Services.ScreenShare
 {
     public class ScreenData
     {
-        public Graphics Graphics;
-        public Bitmap NewBitmap = new Bitmap(1, 1);
-        public Bitmap PrevBitmap;
-
         public string ClipboardText = string.Empty;
+        public Bitmap NewBitmap = new Bitmap(1, 1);
+
+        public Bitmap PrevBitmap;
 
         public ScreenData()
         {
             ClipboardNotifications.ClipboardUpdate += HandleClipboard;
-            var junk = new Bitmap(10, 10);
-            Graphics = Graphics.FromImage(junk);
         }
 
         public int NumByteFullScreen { get; set; } = 1;
@@ -89,6 +87,7 @@ namespace UlteriusServer.Api.Services.ScreenShare
             return results;
         }
 
+
         private static Rectangle GetBoundingBoxForChanges(ref Bitmap prevBitmap, ref Bitmap newBitmap)
         {
             // The search algorithm starts by looking
@@ -131,7 +130,7 @@ namespace UlteriusServer.Api.Services.ScreenShare
 
             BitmapData bmNewData = null;
             BitmapData bmPrevData = null;
-          
+
             try
             {
                 // Lock the bits into memory.
@@ -277,64 +276,55 @@ namespace UlteriusServer.Api.Services.ScreenShare
             return new Rectangle(left, top, diffImgWidth, diffImgHeight);
         }
 
-        public Bitmap LocalScreen(ref Rectangle bounds)
+        public  ScreenModel LocalScreen()
         {
-       
-            Bitmap diff = null;
-
+            var screenModel = new ScreenModel
+            {
+                Rectangle = Rectangle.Empty,
+                ScreenBitmap = null
+            };
             // Capture a new screenshot.
             //
+            NewBitmap = CaptureDesktop();
             lock (NewBitmap)
             {
-               
-                var image = CaptureDesktop();
-                if (image == null)
+                
+                if (NewBitmap == null)
                 {
                     return null;
                 }
-              
-                NewBitmap = image;
-
-                // If we have a previous screenshot, only send back
-                //	a subset that is the minimum rectangular area
-                //	that encompasses all the changed pixels.
-                //
                 if (PrevBitmap != null)
                 {
-                    // Get the bounding box.
-                    //
-                    bounds = GetBoundingBoxForChanges(ref PrevBitmap, ref NewBitmap);
-                    if (bounds != Rectangle.Empty)
+                    screenModel.Rectangle = GetBoundingBoxForChanges(ref PrevBitmap, ref NewBitmap);
+                    if (screenModel.Rectangle != Rectangle.Empty)
                     {
                         // Get the minimum rectangular area
                         //
                         //diff = new Bitmap(bounds.Width, bounds.Height);
-                        diff = NewBitmap.Clone(bounds, NewBitmap.PixelFormat);
-
-                        // Set the current bitmap as the previous to prepare
-                        //	for the next screen capture.
-                        //
+                        screenModel.ScreenBitmap = NewBitmap.Clone(screenModel.Rectangle, NewBitmap.PixelFormat);
                         PrevBitmap = NewBitmap;
                     }
                 }
-                // We don't have a previous screen capture. Therefore
-                //	we need to send back the whole screen this time.
-                //
                 else
                 {
                     // Create a bounding rectangle.
                     //
-                    bounds = new Rectangle(0, 0, NewBitmap.Width, NewBitmap.Height);
+                    screenModel.Rectangle = new Rectangle(0, 0, NewBitmap.Width, NewBitmap.Height);
 
                     // Set the previous bitmap to the current to prepare
                     //	for the next screen capture.
                     //
+                 
+                    screenModel.ScreenBitmap = NewBitmap.Clone(screenModel.Rectangle, NewBitmap.PixelFormat);
                     PrevBitmap = NewBitmap;
-                    diff = NewBitmap.Clone(bounds, NewBitmap.PixelFormat);
+                    
                 }
             }
-            return diff;
+            System.GC.Collect();
+            System.GC.WaitForPendingFinalizers();
+            return screenModel;
         }
+
 
         public Bitmap CaptureDesktop()
         {
@@ -343,23 +333,33 @@ namespace UlteriusServer.Api.Services.ScreenShare
                 var width = Screen.PrimaryScreen.Bounds.Width;
                 var height = Screen.PrimaryScreen.Bounds.Height;
                 var bmp = new Bitmap(width, height);
-          
-                    using (var gfxScreenshot = Graphics.FromImage(bmp))
-                    {
-                        // image processing
-                        gfxScreenshot.CopyFromScreen(0, 0, 0, 0,
-                            new Size(
-                                width,
-                                height));
-                    }
-                    return bmp;
-                
+
+                using (var gfxScreenshot = Graphics.FromImage(bmp))
+                {
+                    // image processing
+                    gfxScreenshot.CopyFromScreen(0, 0, 0, 0,
+                        new Size(
+                            width,
+                            height));
+                }
+                return bmp;
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
             }
             return null;
+        }
+
+        public class ScreenModel : IDisposable
+        {
+            public Rectangle Rectangle { get; set; }
+            public Bitmap ScreenBitmap { get; set; }
+            public void Dispose()
+            {
+                ScreenBitmap?.Dispose();
+                Rectangle = Rectangle.Empty;
+            }
         }
     }
 }

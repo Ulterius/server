@@ -258,7 +258,7 @@ namespace UlteriusServer.Api.Services.Network
             }
         }
 
-        public static string GetIPv4Address()
+        private static string GetIPv4Address()
         {
             var ips = Dns.GetHostAddresses(Dns.GetHostName());
             foreach (var i in ips.Where(i => i.AddressFamily == AddressFamily.InterNetwork))

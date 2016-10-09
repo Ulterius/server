@@ -133,8 +133,8 @@ namespace UlteriusServer.WebServer
         public HttpServer(string path)
         {
             //get an empty port
-            var bindLocal = (bool) Settings.Get("Network").BindLocal;
-            var l = new TcpListener(bindLocal ? IPAddress.Parse(NetworkService.GetIPv4Address()) : IPAddress.Any, 0);
+   
+            var l = new TcpListener(NetworkService.GetAddress(), 0);
             l.Start();
             var port = ((IPEndPoint) l.LocalEndpoint).Port;
             l.Stop();

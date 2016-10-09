@@ -106,5 +106,45 @@ namespace UlteriusServer.Forms.Utilities
         {
 
         }
+
+        private void okButton_Click(object sender, EventArgs e)
+        {
+            Application.Exit();
+        }
+
+        private void tableLayoutPanel_Paint(object sender, PaintEventArgs e)
+        {
+
+        }
+
+        private void labelProductName_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void labelVersion_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void labelCopyright_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void labelCompanyName_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void textBoxDescription_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void logoPictureBox_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }
