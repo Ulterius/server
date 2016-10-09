@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Threading;
 using System.Windows.Forms;
 using UlteriusServer.Api.Services.Network;
 using UlteriusServer.Properties;
@@ -21,11 +22,12 @@ namespace UlteriusServer.Forms.Utilities
         public static MenuItem ExitProgram;
         public static MenuItem OpenClient;
         public static MenuItem OpenDonate;
+        public static MenuItem About;
         public static MenuItem RestartProgram;
         public static NotifyIcon NotificationIcon;
 
         public static MenuItem OpenSettings { get; set; }
-
+        public static bool AboutOpen;
 
         private static void RestartEvent(object sender, EventArgs e)
         {
@@ -80,6 +82,7 @@ namespace UlteriusServer.Forms.Utilities
             Menu = new ContextMenu();
             RestartProgram = new MenuItem("Restart Server");
             OpenClient = new MenuItem("Open Client");
+            About = new MenuItem("About");
             OpenSettings = new MenuItem("Open App Data");
             ExitProgram = new MenuItem("Exit");
             OpenDonate = new MenuItem("Donate");
@@ -87,8 +90,9 @@ namespace UlteriusServer.Forms.Utilities
             Menu.MenuItems.Add(1, OpenSettings);
             Menu.MenuItems.Add(2, RestartProgram);
             Menu.MenuItems.Add(3, OpenDonate);
-            Menu.MenuItems.Add(4, ExitProgram);
-
+            Menu.MenuItems.Add(4, About);
+            Menu.MenuItems.Add(5, ExitProgram);
+            About.Click += AboutEvent;
             ExitProgram.Click += ExitEvent;
             RestartProgram.Click += RestartEvent;
             OpenClient.Click += OpenClientEvent;
@@ -108,6 +112,23 @@ namespace UlteriusServer.Forms.Utilities
             NotificationIcon.ShowBalloonTip(5000);
             Application.Run();
             Console.WriteLine("Started");
+        }
+
+        private static void AboutEvent(object sender, EventArgs e)
+        {
+            if (AboutOpen)
+            {
+                return;
+            }
+            Thread thread = new Thread(OpenAbout) {Name = "About"};
+            thread.Start();
+         
+        }
+
+        private static void OpenAbout()
+        {
+            Application.Run(new AboutBox()); // or whatever
+            AboutOpen = true;
         }
 
 
