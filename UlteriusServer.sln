@@ -5,7 +5,7 @@ VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UlteriusServer", "RemoteTaskServer\UlteriusServer.csproj", "{E9A365D5-AEBE-4AF3-86C5-D17BC65ADE46}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bootstrapper", "Bootstrapper\Bootstrapper.csproj", "{6DFE748A-46A0-4715-AB4C-8B84AC34EBB0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bootstrapper", "Bootstrapper\Bootstrapper.csproj", "{869B87EC-2D84-4C18-A369-1E895B32412F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,10 +17,10 @@ Global
 		{E9A365D5-AEBE-4AF3-86C5-D17BC65ADE46}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E9A365D5-AEBE-4AF3-86C5-D17BC65ADE46}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E9A365D5-AEBE-4AF3-86C5-D17BC65ADE46}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6DFE748A-46A0-4715-AB4C-8B84AC34EBB0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6DFE748A-46A0-4715-AB4C-8B84AC34EBB0}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6DFE748A-46A0-4715-AB4C-8B84AC34EBB0}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6DFE748A-46A0-4715-AB4C-8B84AC34EBB0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{869B87EC-2D84-4C18-A369-1E895B32412F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{869B87EC-2D84-4C18-A369-1E895B32412F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{869B87EC-2D84-4C18-A369-1E895B32412F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{869B87EC-2D84-4C18-A369-1E895B32412F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

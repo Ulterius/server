@@ -1,0 +1,26 @@
+﻿<Window x:Class="Bootstrapper.MainWindow"
+     xmlns = "http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
+   xmlns:x = "http://schemas.microsoft.com/winfx/2006/xaml" 
+   xmlns:d = "http://schemas.microsoft.com/expression/blend/2008" 
+   xmlns:mc = "http://schemas.openxmlformats.org/markup-compatibility/2006"
+  Icon="256.ico"
+      
+  ResizeMode="NoResize"
+        mc:Ignorable = "d" Title = "Ulterius Updater" Height = "101" Width = "437">
+    <Window.Resources>
+        <SolidColorBrush x:Key="BrushFFXXXXXX">#434B63</SolidColorBrush>
+        <SolidColorBrush x:Key="UlteriusGrey" Color="#33394d" />
+        <SolidColorBrush x:Key="UlteriusLightGrey" Color="#485069" />
+    </Window.Resources>
+
+    <StackPanel Background="{StaticResource UlteriusGrey}"  Height="72" VerticalAlignment="Top" RenderTransformOrigin="0.499,0.486">
+
+        <ProgressBar  Background="{StaticResource UlteriusGrey}" BorderBrush="{StaticResource UlteriusLightGrey}" Foreground="{StaticResource UlteriusLightGrey}" x:Name="calculationProgressBar"   Height = "15" Margin = "10" Maximum="100" Value="0"/>
+        <TextBlock  Margin="0 0 0 5" x:Name="messageBlock" Text="{Binding Message}" TextAlignment="Center" Foreground="White" HorizontalAlignment="Center" Height="25">
+            <TextBlock.RenderTransform>
+                <ScaleTransform ScaleX="1.2" ScaleY="1.2" />
+            </TextBlock.RenderTransform>
+Fuck my life
+        </TextBlock>
+    </StackPanel>
+</Window>

@@ -103,7 +103,7 @@ namespace UlteriusServer.Forms.Utilities
                 Text = "Ulterius Server",
                 Visible = true
             };
-            NotificationIcon.Click += OpenClientEvent;
+            NotificationIcon.DoubleClick += OpenClientEvent;
             Console.WriteLine("Starting notify icon");
             NotificationIcon.ShowBalloonTip(5000);
             Application.Run();
