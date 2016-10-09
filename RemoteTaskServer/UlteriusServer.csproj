@@ -125,6 +125,8 @@
     <Compile Include="Forms\Utilities\AboutBox.Designer.cs">
       <DependentUpon>AboutBox.cs</DependentUpon>
     </Compile>
+    <Compile Include="TerminalServer\Infrastructure\ILogger.cs" />
+    <Compile Include="TerminalServer\Infrastructure\Log4NetLogger.cs" />
     <Compile Include="Ulterius.cs" />
     <Compile Include="Utilities\Drive\Disk.cs" />
     <Compile Include="Utilities\Drive\Smart.cs" />
@@ -160,8 +162,6 @@
     <Compile Include="TerminalServer\Cli\PowerShellSession.cs" />
     <Compile Include="TerminalServer\Cli\_ICliSession.cs" />
     <Compile Include="TerminalServer\Cli\_ICliSessionFactory.cs" />
-    <Compile Include="TerminalServer\Infrastructure\ILogger.cs" />
-    <Compile Include="TerminalServer\Infrastructure\Log4NetLogger.cs" />
     <Compile Include="TerminalServer\Infrastructure\SystemInfo.cs" />
     <Compile Include="TerminalServer\Infrastructure\_ISystemInfo.cs" />
     <Compile Include="TerminalServer\Messaging\Connection\ConnectionConnectRequest.cs" />

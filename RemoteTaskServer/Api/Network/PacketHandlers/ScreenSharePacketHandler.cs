@@ -122,25 +122,26 @@ namespace UlteriusServer.Api.Network.PacketHandlers
         private void GetScreenFrame()
         {
             var bounds = Rectangle.Empty;
-            string lastClipBoard = string.Empty;
+            var lastClipBoard = string.Empty;
             while (_client != null && _client.IsConnected)
             {
                 try
                 {
-                   
-                    var image = _screenData.LocalScreen(ref bounds);
-
-                    if (_screenData.NumByteFullScreen == 1)
+                    using (var image = _screenData.LocalScreen(ref bounds))
                     {
-                        _screenData.NumByteFullScreen = bounds.Width*bounds.Height*4;
-                    }
-                    if (bounds != Rectangle.Empty && image != null)
-                    {
-                        var data = _screenData.PackScreenCaptureData(image, bounds);
-                        if (data != null && data.Length > 0)
+                        if (_screenData.NumByteFullScreen == 1)
                         {
-                            _builder.Endpoint = "screensharedata";
-                            _builder.WriteScreenFrame(data);
+                            _screenData.NumByteFullScreen = bounds.Width*bounds.Height*4;
+                        }
+                        if (bounds != Rectangle.Empty && image != null)
+                        {
+                            var data = _screenData.PackScreenCaptureData(image, bounds);
+                            if (data != null && data.Length > 0)
+                            {
+                                _builder.Endpoint = "screensharedata";
+                                _builder.WriteScreenFrame(data);
+                                data = null;
+                            }
                         }
                     }
                     var clipboard = _screenData.ClipboardText;
@@ -211,52 +212,53 @@ namespace UlteriusServer.Api.Network.PacketHandlers
         {
             using (var ms = new MemoryStream())
             {
-                _screenData.CaptureDesktop().Save(ms, ImageFormat.Jpeg);
-                var imgData = ms.ToArray();
-                var compressed = ZlibStream.CompressBuffer(imgData);
+                using (var grab = _screenData.CaptureDesktop())
+                {
+                    grab.Save(ms, ImageFormat.Jpeg);
+                    var imgData = ms.ToArray();
+                    var compressed = ZlibStream.CompressBuffer(imgData);
 
-                var bounds = Screen.PrimaryScreen.Bounds;
-                var screenBounds = new
-                {
-                    top = bounds.Top,
-                    bottom = bounds.Bottom,
-                    left = bounds.Left,
-                    right = bounds.Right,
-                    height = bounds.Height,
-                    width = bounds.Width,
-                    x = bounds.X,
-                    y = bounds.Y,
-                    empty = bounds.IsEmpty,
-                    location = bounds.Location,
-                    size = bounds.Size
-                };
-                var frameData = new
-                {
-                    screenBounds,
-                    frameData = compressed.Select(b => (int) b).ToArray()
-                };
-                _builder.WriteMessage(frameData);
+                    var bounds = Screen.PrimaryScreen.Bounds;
+                    var screenBounds = new
+                    {
+                        top = bounds.Top,
+                        bottom = bounds.Bottom,
+                        left = bounds.Left,
+                        right = bounds.Right,
+                        height = bounds.Height,
+                        width = bounds.Width,
+                        x = bounds.X,
+                        y = bounds.Y,
+                        empty = bounds.IsEmpty,
+                        location = bounds.Location,
+                        size = bounds.Size
+                    };
+                    var frameData = new
+                    {
+                        screenBounds,
+                        frameData = compressed.Select(b => (int)b).ToArray()
+                    };
+                    _builder.WriteMessage(frameData);
+                }
             }
         }
 
         private void HandleKeyUp()
         {
-            if (ScreenShareService.Streams.ContainsKey(_authClient))
-            {
-                var keyCodes = ((IEnumerable) _packet.Args[0]).Cast<object>()
-                    .Select(x => x.ToString())
+            if (!ScreenShareService.Streams.ContainsKey(_authClient)) return;
+            var keyCodes = ((IEnumerable) _packet.Args[0]).Cast<object>()
+                .Select(x => x.ToString())
+                .ToList();
+            var codes =
+                keyCodes.Select(code => ToHex(int.Parse(code.ToString())))
+                    .Select(hexString => Convert.ToInt32(hexString, 16))
                     .ToList();
-                var codes =
-                    keyCodes.Select(code => ToHex(int.Parse(code.ToString())))
-                        .Select(hexString => Convert.ToInt32(hexString, 16))
-                        .ToList();
 
 
-                foreach (var code in codes)
-                {
-                    var virtualKey = (VirtualKeyCode) code;
-                    _shareService.Simulator.Keyboard.KeyUp(virtualKey);
-                }
+            foreach (var code in codes)
+            {
+                var virtualKey = (VirtualKeyCode) code;
+                _shareService.Simulator.Keyboard.KeyUp(virtualKey);
             }
         }
 
@@ -268,52 +270,46 @@ namespace UlteriusServer.Api.Network.PacketHandlers
 
         private void HandleKeyDown()
         {
-            if (ScreenShareService.Streams.ContainsKey(_authClient))
-            {
-                var keyCodes = ((IEnumerable) _packet.Args[0]).Cast<object>()
-                    .Select(x => x.ToString())
+            if (!ScreenShareService.Streams.ContainsKey(_authClient)) return;
+            var keyCodes = ((IEnumerable) _packet.Args[0]).Cast<object>()
+                .Select(x => x.ToString())
+                .ToList();
+            var codes =
+                keyCodes.Select(code => ToHex(int.Parse(code.ToString())))
+                    .Select(hexString => Convert.ToInt32(hexString, 16))
                     .ToList();
-                var codes =
-                    keyCodes.Select(code => ToHex(int.Parse(code.ToString())))
-                        .Select(hexString => Convert.ToInt32(hexString, 16))
-                        .ToList();
-                foreach (var code in codes)
-                {
-                    var virtualKey = (VirtualKeyCode) code;
-                    _shareService.Simulator.Keyboard.KeyDown(virtualKey);
-                }
+            foreach (var code in codes)
+            {
+                var virtualKey = (VirtualKeyCode) code;
+                _shareService.Simulator.Keyboard.KeyDown(virtualKey);
             }
         }
 
         private void HandleScroll()
         {
-            if (ScreenShareService.Streams.ContainsKey(_authClient))
-            {
-                var delta = Convert.ToInt32(_packet.Args[0], CultureInfo.InvariantCulture);
-                delta = ~delta;
-                _shareService.Simulator.Mouse.VerticalScroll(delta);
-            }
+            if (!ScreenShareService.Streams.ContainsKey(_authClient)) return;
+            var delta = Convert.ToInt32(_packet.Args[0], CultureInfo.InvariantCulture);
+            delta = ~delta;
+            _shareService.Simulator.Mouse.VerticalScroll(delta);
         }
 
         private void HandleMoveMouse()
         {
-            if (ScreenShareService.Streams.ContainsKey(_authClient))
+            if (!ScreenShareService.Streams.ContainsKey(_authClient)) return;
+            try
             {
-                try
+                int y = Convert.ToInt16(_packet.Args[0], CultureInfo.InvariantCulture);
+                int x = Convert.ToInt16(_packet.Args[1], CultureInfo.InvariantCulture);
+                var device = _screens[0];
+                if (x < 0 || x >= device.Bounds.Width || y < 0 || y >= device.Bounds.Height)
                 {
-                    int y = Convert.ToInt16(_packet.Args[0], CultureInfo.InvariantCulture);
-                    int x = Convert.ToInt16(_packet.Args[1], CultureInfo.InvariantCulture);
-                    var device = _screens[0];
-                    if (x < 0 || x >= device.Bounds.Width || y < 0 || y >= device.Bounds.Height)
-                    {
-                        return;
-                    }
-                    Cursor.Position = new Point(x, y);
+                    return;
                 }
-                catch
-                {
-                    Console.WriteLine("Error moving mouse");
-                }
+                Cursor.Position = new Point(x, y);
+            }
+            catch
+            {
+                Console.WriteLine("Error moving mouse");
             }
         }
 

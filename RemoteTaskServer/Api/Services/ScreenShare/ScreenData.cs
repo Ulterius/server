@@ -14,9 +14,9 @@ namespace UlteriusServer.Api.Services.ScreenShare
 {
     public class ScreenData
     {
-        public Graphics _graphics;
-        public Bitmap _newBitmap = new Bitmap(1, 1);
-        public Bitmap _prevBitmap;
+        public Graphics Graphics;
+        public Bitmap NewBitmap = new Bitmap(1, 1);
+        public Bitmap PrevBitmap;
 
         public string ClipboardText = string.Empty;
 
@@ -24,7 +24,7 @@ namespace UlteriusServer.Api.Services.ScreenShare
         {
             ClipboardNotifications.ClipboardUpdate += HandleClipboard;
             var junk = new Bitmap(10, 10);
-            _graphics = Graphics.FromImage(junk);
+            Graphics = Graphics.FromImage(junk);
         }
 
         public int NumByteFullScreen { get; set; } = 1;
@@ -57,7 +57,7 @@ namespace UlteriusServer.Api.Services.ScreenShare
         }
 
 
-        public byte[] PackScreenCaptureData(Image image, Rectangle bounds)
+        public byte[] PackScreenCaptureData(Bitmap image, Rectangle bounds)
         {
             byte[] results;
             using (var screenStream = new MemoryStream())
@@ -131,6 +131,7 @@ namespace UlteriusServer.Api.Services.ScreenShare
 
             BitmapData bmNewData = null;
             BitmapData bmPrevData = null;
+          
             try
             {
                 // Lock the bits into memory.
@@ -236,7 +237,6 @@ namespace UlteriusServer.Api.Services.ScreenShare
                                 bottom = y;
                             }
                         }
-
                         pNew -= strideNew;
                         pPrev -= stridePrev;
                     }
@@ -279,39 +279,42 @@ namespace UlteriusServer.Api.Services.ScreenShare
 
         public Bitmap LocalScreen(ref Rectangle bounds)
         {
+       
             Bitmap diff = null;
 
             // Capture a new screenshot.
             //
-            lock (_newBitmap)
+            lock (NewBitmap)
             {
+               
                 var image = CaptureDesktop();
                 if (image == null)
                 {
                     return null;
                 }
-                _newBitmap = image;
+              
+                NewBitmap = image;
 
                 // If we have a previous screenshot, only send back
                 //	a subset that is the minimum rectangular area
                 //	that encompasses all the changed pixels.
                 //
-                if (_prevBitmap != null)
+                if (PrevBitmap != null)
                 {
                     // Get the bounding box.
                     //
-                    bounds = GetBoundingBoxForChanges(ref _prevBitmap, ref _newBitmap);
+                    bounds = GetBoundingBoxForChanges(ref PrevBitmap, ref NewBitmap);
                     if (bounds != Rectangle.Empty)
                     {
                         // Get the minimum rectangular area
                         //
                         //diff = new Bitmap(bounds.Width, bounds.Height);
-                        diff = _newBitmap.Clone(bounds, _newBitmap.PixelFormat);
+                        diff = NewBitmap.Clone(bounds, NewBitmap.PixelFormat);
 
                         // Set the current bitmap as the previous to prepare
                         //	for the next screen capture.
                         //
-                        _prevBitmap = _newBitmap;
+                        PrevBitmap = NewBitmap;
                     }
                 }
                 // We don't have a previous screen capture. Therefore
@@ -321,13 +324,13 @@ namespace UlteriusServer.Api.Services.ScreenShare
                 {
                     // Create a bounding rectangle.
                     //
-                    bounds = new Rectangle(0, 0, _newBitmap.Width, _newBitmap.Height);
+                    bounds = new Rectangle(0, 0, NewBitmap.Width, NewBitmap.Height);
 
                     // Set the previous bitmap to the current to prepare
                     //	for the next screen capture.
                     //
-                    _prevBitmap = _newBitmap;
-                    diff = _newBitmap.Clone(bounds, _newBitmap.PixelFormat);
+                    PrevBitmap = NewBitmap;
+                    diff = NewBitmap.Clone(bounds, NewBitmap.PixelFormat);
                 }
             }
             return diff;
@@ -337,18 +340,20 @@ namespace UlteriusServer.Api.Services.ScreenShare
         {
             try
             {
-                var desktopBmp = new Bitmap(
-                    Screen.PrimaryScreen.Bounds.Width,
-                    Screen.PrimaryScreen.Bounds.Height);
-
-                using (var gfxScreenshot = Graphics.FromImage(desktopBmp))
-                {
-                    gfxScreenshot.CopyFromScreen(0, 0, 0, 0,
-                        new Size(
-                            Screen.PrimaryScreen.Bounds.Width,
-                            Screen.PrimaryScreen.Bounds.Height));
-                    return desktopBmp;
-                }
+                var width = Screen.PrimaryScreen.Bounds.Width;
+                var height = Screen.PrimaryScreen.Bounds.Height;
+                var bmp = new Bitmap(width, height);
+          
+                    using (var gfxScreenshot = Graphics.FromImage(bmp))
+                    {
+                        // image processing
+                        gfxScreenshot.CopyFromScreen(0, 0, 0, 0,
+                            new Size(
+                                width,
+                                height));
+                    }
+                    return bmp;
+                
             }
             catch (Exception ex)
             {
