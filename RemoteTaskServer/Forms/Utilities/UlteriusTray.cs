@@ -116,10 +116,7 @@ namespace UlteriusServer.Forms.Utilities
 
         private static void AboutEvent(object sender, EventArgs e)
         {
-            if (AboutOpen)
-            {
-                return;
-            }
+          
             Thread thread = new Thread(OpenAbout) {Name = "About"};
             thread.Start();
          

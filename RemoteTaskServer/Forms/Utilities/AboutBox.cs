@@ -109,7 +109,7 @@ namespace UlteriusServer.Forms.Utilities
 
         private void okButton_Click(object sender, EventArgs e)
         {
-            Application.Exit();
+           this.Close();
         }
 
         private void tableLayoutPanel_Paint(object sender, PaintEventArgs e)
