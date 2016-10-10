@@ -57,7 +57,7 @@ namespace UlteriusServer.Forms.Utilities
 
         private static void OpenClientEvent(object sender, EventArgs e)
         {
-            var ip = NetworkService.GetAddress();
+            var ip = NetworkService.GetDisplayAddress();
             var httpPort = HttpServer.GlobalPort;
             Process.Start($"http://{ip}:{httpPort}");
         }

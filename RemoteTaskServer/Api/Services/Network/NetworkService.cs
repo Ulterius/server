@@ -37,8 +37,19 @@ namespace UlteriusServer.Api.Services.Network
                 address = GetIPv4Address();
             }
             var bindLocal = (bool) Settings.Get("Network").BindLocal;
-
             return bindLocal ? IPAddress.Parse(address) : IPAddress.Any;
+        }
+
+        public static string GetDisplayAddress()
+        {
+            //if VMware or VMPlayer installed, we get the wrong address, so try getting the physical first.
+            var address = GetPhysicalIpAdress();
+            //Default since we couldn't.
+            if (string.IsNullOrEmpty(address))
+            {
+                address = GetIPv4Address();
+            }
+            return address;
         }
 
         private static string GetReverseDns(string ip, int timeout)
