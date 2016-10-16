@@ -40,7 +40,7 @@ namespace UlteriusServer
             }
 
             //Fix screensize issues for Screen Share
-            if (Environment.OSVersion.Version.Major >= 6)
+            if (Tools.RunningPlatform() == Tools.Platform.Windows && Environment.OSVersion.Version.Major >= 6)
             {
                 SetProcessDPIAware();
             }
@@ -52,7 +52,10 @@ namespace UlteriusServer
         /// </summary>
         private void Setup()
         {
-            HideWindow();
+            if (Tools.RunningPlatform() == Tools.Platform.Windows)
+            {
+                HideWindow();
+            }
             Console.WriteLine("Creating settings");
             try
             {

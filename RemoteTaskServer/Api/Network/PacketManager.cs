@@ -242,7 +242,7 @@ namespace UlteriusServer.Api.Network
                 case "restartserver":
                     return new PacketInfo {Type = PacketTypes.RestartServer, Handler = typeof(ServerPacketHandler)};
                 case "getwindowsdata":
-                    return new PacketInfo {Type = PacketTypes.GetWindowsData, Handler = typeof(WindowsPacketHandler)};
+                    return new PacketInfo {Type = PacketTypes.GetWindowsData, Handler = typeof(AccountPacketHandler)};
                 case "removefile":
                     return new PacketInfo {Type = PacketTypes.RemoveFile, Handler = typeof(FilePacketHandler)};
                 case "searchfiles":

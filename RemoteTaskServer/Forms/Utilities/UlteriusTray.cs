@@ -149,31 +149,36 @@ namespace UlteriusServer.Forms.Utilities
 
         public static void RefreshTrayArea()
         {
-            var systemTrayContainerHandle = FindWindow("Shell_TrayWnd", null);
-            var systemTrayHandle = FindWindowEx(systemTrayContainerHandle, IntPtr.Zero, "TrayNotifyWnd", null);
-            var sysPagerHandle = FindWindowEx(systemTrayHandle, IntPtr.Zero, "SysPager", null);
-            var notificationAreaHandle = FindWindowEx(sysPagerHandle, IntPtr.Zero, "ToolbarWindow32",
-                "Notification Area");
-            if (notificationAreaHandle == IntPtr.Zero)
-            {
-                notificationAreaHandle = FindWindowEx(sysPagerHandle, IntPtr.Zero, "ToolbarWindow32",
-                    "User Promoted Notification Area");
-                var notifyIconOverflowWindowHandle = FindWindow("NotifyIconOverflowWindow", null);
-                var overflowNotificationAreaHandle = FindWindowEx(notifyIconOverflowWindowHandle, IntPtr.Zero,
-                    "ToolbarWindow32", "Overflow Notification Area");
-                RefreshTrayArea(overflowNotificationAreaHandle);
-            }
-            RefreshTrayArea(notificationAreaHandle);
+           
+                var systemTrayContainerHandle = FindWindow("Shell_TrayWnd", null);
+                var systemTrayHandle = FindWindowEx(systemTrayContainerHandle, IntPtr.Zero, "TrayNotifyWnd", null);
+                var sysPagerHandle = FindWindowEx(systemTrayHandle, IntPtr.Zero, "SysPager", null);
+                var notificationAreaHandle = FindWindowEx(sysPagerHandle, IntPtr.Zero, "ToolbarWindow32",
+                    "Notification Area");
+                if (notificationAreaHandle == IntPtr.Zero)
+                {
+                    notificationAreaHandle = FindWindowEx(sysPagerHandle, IntPtr.Zero, "ToolbarWindow32",
+                        "User Promoted Notification Area");
+                    var notifyIconOverflowWindowHandle = FindWindow("NotifyIconOverflowWindow", null);
+                    var overflowNotificationAreaHandle = FindWindowEx(notifyIconOverflowWindowHandle, IntPtr.Zero,
+                        "ToolbarWindow32", "Overflow Notification Area");
+                    RefreshTrayArea(overflowNotificationAreaHandle);
+                }
+                RefreshTrayArea(notificationAreaHandle);
+            
+            
         }
 
         private static void RefreshTrayArea(IntPtr windowHandle)
         {
-            const uint wmMousemove = 0x0200;
-            Rect rect;
-            GetClientRect(windowHandle, out rect);
-            for (var x = 0; x < rect.right; x += 5)
-                for (var y = 0; y < rect.bottom; y += 5)
-                    SendMessage(windowHandle, wmMousemove, 0, (y << 16) + x);
+           
+                const uint wmMousemove = 0x0200;
+                Rect rect;
+                GetClientRect(windowHandle, out rect);
+                for (var x = 0; x < rect.right; x += 5)
+                    for (var y = 0; y < rect.bottom; y += 5)
+                        SendMessage(windowHandle, wmMousemove, 0, (y << 16) + x);
+            
         }
 
 

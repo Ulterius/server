@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Ionic.Zlib;
 using UlteriusServer.Api.Win32;
+using UlteriusServer.Utilities;
 
 #endregion
 
@@ -22,7 +23,10 @@ namespace UlteriusServer.Api.Services.ScreenShare
 
         public ScreenData()
         {
-            ClipboardNotifications.ClipboardUpdate += HandleClipboard;
+            if (Tools.RunningPlatform() == Tools.Platform.Windows)
+            {
+                ClipboardNotifications.ClipboardUpdate += HandleClipboard;
+            }
         }
 
         public int NumByteFullScreen { get; set; } = 1;

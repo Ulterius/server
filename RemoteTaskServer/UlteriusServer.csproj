@@ -135,7 +135,7 @@
     <Compile Include="Utilities\Files\Database\DatabaseManager.cs" />
     <Compile Include="Utilities\Security\Streams\OfbStream.cs" />
     <Compile Include="Utilities\Security\Streams\ZeroStream.cs" />
-    <Compile Include="Utilities\Security\WindowsAuth.cs" />
+    <Compile Include="Utilities\Security\AuthUtils.cs" />
     <Compile Include="Utilities\Usage\HardwareSurvey.cs" />
     <Compile Include="WebSocketAPI\Authentication\AuthClient.cs" />
     <Compile Include="Forms\Utilities\UlteriusTray.cs" />
@@ -148,7 +148,7 @@
     <Compile Include="Api\Network\PacketHandlers\FilePacketHandler.cs" />
     <Compile Include="Api\Network\PacketHandlers\GpuPacketHandler.cs" />
     <Compile Include="Api\Network\PacketHandlers\ScreenSharePacketHandler.cs" />
-    <Compile Include="Api\Network\PacketHandlers\WindowsPacketHandler.cs" />
+    <Compile Include="Api\Network\PacketHandlers\AccountPacketHandler.cs" />
     <Compile Include="Api\Network\PacketHandlers\SettingsPacketHandler.cs" />
     <Compile Include="Api\Network\PacketHandlers\NetworkPacketHandler.cs" />
     <Compile Include="Api\Network\PacketHandlers\CpuPacketHandler.cs" />
@@ -382,8 +382,6 @@
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\packages\Costura.Fody.2.0.0-beta0018\build\Costura.Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Costura.Fody.2.0.0-beta0018\build\Costura.Fody.targets'))" />
-    <Error Condition="!Exists('..\packages\Fody.1.30.0-beta01\build\dotnet\Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Fody.1.30.0-beta01\build\dotnet\Fody.targets'))" />
     <Error Condition="!Exists('..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.1.0.2\build\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.1.0.2\build\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props'))" />
     <Error Condition="!Exists('..\packages\Microsoft.Net.Compilers.1.3.2\build\Microsoft.Net.Compilers.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Net.Compilers.1.3.2\build\Microsoft.Net.Compilers.props'))" />
   </Target>
@@ -440,8 +438,6 @@ foreach (var item in filesToCleanup)
   <Target Name="CleanReferenceCopyLocalPaths" AfterTargets="AfterBuild;NonWinFodyTarget">
     <CosturaCleanup Config="FodyWeavers.xml" Files="@(ReferenceCopyLocalPaths->'$(OutDir)%(DestinationSubDirectory)%(Filename)%(Extension)')" />
   </Target>
-  <Import Project="..\packages\Costura.Fody.2.0.0-beta0018\build\Costura.Fody.targets" Condition="Exists('..\packages\Costura.Fody.2.0.0-beta0018\build\Costura.Fody.targets')" />
-  <Import Project="..\packages\Fody.1.30.0-beta01\build\dotnet\Fody.targets" Condition="Exists('..\packages\Fody.1.30.0-beta01\build\dotnet\Fody.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

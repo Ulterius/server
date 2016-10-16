@@ -73,7 +73,7 @@ namespace UlteriusServer.TerminalServer.Messaging.TerminalControl.Handlers
                 code = INVALID_PASSWORD;
             }
 
-            code = WindowsAuth.Auth(password) ? 2 : 3;
+            code = AuthUtils.Authenticate(password) ? 2 : 3;
 
             var authenticated = code == AUTHENTICATED;
             return authenticated;
