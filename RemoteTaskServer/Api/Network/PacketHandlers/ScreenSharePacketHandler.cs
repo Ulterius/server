@@ -37,21 +37,17 @@ namespace UlteriusServer.Api.Network.PacketHandlers
             try
             {
                 var streamThread = ScreenShareService.Streams[_authClient];
-                if (streamThread != null && streamThread.IsAlive)
+                if (streamThread == null || !streamThread.IsAlive) return;
+                streamThread.Abort();
+                Thread outtemp;
+                ScreenShareService.Streams.TryRemove(_authClient, out outtemp);
+                CleanUp();
+                if (!_client.IsConnected) return;
+                var data = new
                 {
-                    streamThread.Abort();
-                    Thread outtemp;
-                    ScreenShareService.Streams.TryRemove(_authClient, out outtemp);
-                    CleanUp();
-                    if (_client.IsConnected)
-                    {
-                        var data = new
-                        {
-                            streamStopped = true
-                        };
-                        _builder.WriteMessage(data);
-                    }
-                }
+                    streamStopped = true
+                };
+                _builder.WriteMessage(data);
             }
             catch (Exception e)
             {
@@ -147,8 +143,8 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                                 _builder.Endpoint = "screensharedata";
                                 _builder.WriteScreenFrame(data);
                                 data = null;
-                                System.GC.Collect();
-                                System.GC.WaitForPendingFinalizers();
+                                GC.Collect();
+                                GC.WaitForPendingFinalizers();
                             }
                         }
                     }

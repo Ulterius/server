@@ -80,6 +80,7 @@
     <SignManifests>false</SignManifests>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Api\Network\Models\FanInformation.cs" />
     <Compile Include="Api\Network\Models\JobModel.cs" />
     <Compile Include="Api\Network\PacketHandlers\CronJobPacketHandler.cs" />
     <Compile Include="Api\Services\LocalSystem\Daemons\CronDaemon.cs" />
@@ -339,8 +340,8 @@
       <HintPath>C:\Program Files (x86)\Reference Assemblies\Microsoft\WindowsPowerShell\3.0\System.Management.Automation.dll</HintPath>
     </Reference>
     <Reference Include="System.Net.Http" />
-    <Reference Include="System.Threading.Tasks.Dataflow, Version=4.6.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Threading.Tasks.Dataflow.4.6.0\lib\netstandard1.1\System.Threading.Tasks.Dataflow.dll</HintPath>
+    <Reference Include="System.Threading.Tasks.Dataflow, Version=4.5.24.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Tpl.Dataflow.4.5.24\lib\portable-net45+win8+wpa81\System.Threading.Tasks.Dataflow.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System.Web" />

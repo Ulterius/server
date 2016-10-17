@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Net.NetworkInformation;
 using System.Reflection;
+using System.Runtime;
 using System.Security.Principal;
 using System.Threading;
 using System.Threading.Tasks;
@@ -17,6 +18,7 @@ using NetFwTypeLib;
 using Open.Nat;
 using UlteriusServer.WebServer;
 using static System.Security.Principal.WindowsIdentity;
+using Task = System.Threading.Tasks.Task;
 
 #endregion
 
@@ -324,6 +326,7 @@ namespace UlteriusServer.Utilities
 
         public static void ConfigureServer()
         {
+          
             if (SetLogging())
             {
                 Console.WriteLine("Logs Ready");
@@ -357,7 +360,8 @@ namespace UlteriusServer.Utilities
             }
             if (File.Exists("client.zip"))
             {
-                InstallClient();
+               Task.Run(() => InstallClient());
+             
             }
         }
 

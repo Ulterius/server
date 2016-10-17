@@ -5,6 +5,7 @@
 #endregion
 
 using System;
+using System.Runtime;
 using UlteriusServer.Forms.Utilities;
 using UlteriusServer.Utilities;
 using UlteriusServer.Utilities.Usage;
@@ -19,6 +20,10 @@ namespace UlteriusServer
         private static void Main(string[] args)
 
         {
+
+            ProfileOptimization.SetProfileRoot(AppEnvironment.DataPath);
+            ProfileOptimization.StartProfile("Startup.Profile");
+
             var ulterius = new Ulterius();
             ulterius.Start();
             var hardware = new HardwareSurvey();
@@ -33,8 +38,6 @@ namespace UlteriusServer
                 Console.ReadKey(true);
 
             }
-
-
         }
     }
 }

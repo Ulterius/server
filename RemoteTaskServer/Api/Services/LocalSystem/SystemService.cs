@@ -55,7 +55,6 @@ namespace UlteriusServer.Api.Services.LocalSystem
             }
         }
 
-      
 
         // ReSharper disable once UnusedMethodReturnValue.Local
         private void SetNetworkInformation()
@@ -72,7 +71,6 @@ namespace UlteriusServer.Api.Services.LocalSystem
             }
             catch (Exception ex)
             {
-
                 Console.WriteLine(ex.Message);
                 Console.WriteLine(ex.StackTrace);
             }
@@ -91,18 +89,17 @@ namespace UlteriusServer.Api.Services.LocalSystem
                             .Cast<ManagementObject>()
                             .First();
 
-                    ServerOperatingSystem.Name = ((string)wmi["Caption"]).Trim();
-                    ServerOperatingSystem.Version = (string)wmi["Version"];
-                    ServerOperatingSystem.MaxProcessCount = (uint)wmi["MaxNumberOfProcesses"];
-                    ServerOperatingSystem.MaxProcessRam = (ulong)wmi["MaxProcessMemorySize"];
-                    ServerOperatingSystem.Architecture = (string)wmi["OSArchitecture"];
-                    ServerOperatingSystem.SerialNumber = (string)wmi["SerialNumber"];
-                    ServerOperatingSystem.Build = (string)wmi["BuildNumber"];
+                    ServerOperatingSystem.Name = ((string) wmi["Caption"]).Trim();
+                    ServerOperatingSystem.Version = (string) wmi["Version"];
+                    ServerOperatingSystem.MaxProcessCount = (uint) wmi["MaxNumberOfProcesses"];
+                    ServerOperatingSystem.MaxProcessRam = (ulong) wmi["MaxProcessMemorySize"];
+                    ServerOperatingSystem.Architecture = (string) wmi["OSArchitecture"];
+                    ServerOperatingSystem.SerialNumber = (string) wmi["SerialNumber"];
+                    ServerOperatingSystem.Build = (string) wmi["BuildNumber"];
                 }
             }
             catch (Exception ex)
             {
-
                 Console.WriteLine(ex.Message);
                 Console.WriteLine(ex.StackTrace);
             }
@@ -120,19 +117,19 @@ namespace UlteriusServer.Api.Services.LocalSystem
                             .Cast<ManagementObject>()
                             .First();
 
-                    CpuInformation.Id = (string)cpu["ProcessorId"];
-                    CpuInformation.Socket = (string)cpu["SocketDesignation"];
-                    CpuInformation.Name = (string)cpu["Name"];
-                    CpuInformation.Description = (string)cpu["Caption"];
-                    CpuInformation.AddressWidth = (ushort)cpu["AddressWidth"];
-                    CpuInformation.DataWidth = (ushort)cpu["DataWidth"];
+                    CpuInformation.Id = (string) cpu["ProcessorId"];
+                    CpuInformation.Socket = (string) cpu["SocketDesignation"];
+                    CpuInformation.Name = (string) cpu["Name"];
+                    CpuInformation.Description = (string) cpu["Caption"];
+                    CpuInformation.AddressWidth = (ushort) cpu["AddressWidth"];
+                    CpuInformation.DataWidth = (ushort) cpu["DataWidth"];
                     CpuInformation.Architecture = Environment.Is64BitOperatingSystem ? "x64" : "x86";
-                    CpuInformation.SpeedMHz = (uint)cpu["MaxClockSpeed"];
-                    CpuInformation.BusSpeedMHz = (uint)cpu["ExtClock"];
-                    CpuInformation.L2Cache = (uint)cpu["L2CacheSize"] * (ulong)1024;
-                    CpuInformation.L3Cache = (uint)cpu["L3CacheSize"] * (ulong)1024;
-                    CpuInformation.Cores = (uint)cpu["NumberOfCores"];
-                    CpuInformation.Threads = (uint)cpu["NumberOfLogicalProcessors"];
+                    CpuInformation.SpeedMHz = (uint) cpu["MaxClockSpeed"];
+                    CpuInformation.BusSpeedMHz = (uint) cpu["ExtClock"];
+                    CpuInformation.L2Cache = (uint) cpu["L2CacheSize"]*(ulong) 1024;
+                    CpuInformation.L3Cache = (uint) cpu["L3CacheSize"]*(ulong) 1024;
+                    CpuInformation.Cores = (uint) cpu["NumberOfCores"];
+                    CpuInformation.Threads = (uint) cpu["NumberOfLogicalProcessors"];
                     CpuInformation.Name =
                         CpuInformation.Name
                             .Replace("(TM)", "™")
@@ -147,7 +144,6 @@ namespace UlteriusServer.Api.Services.LocalSystem
             }
             catch (Exception ex)
             {
-
                 Console.WriteLine(ex.Message);
                 Console.WriteLine(ex.StackTrace);
             }
@@ -178,7 +174,7 @@ namespace UlteriusServer.Api.Services.LocalSystem
             }
         }
 
-
+       
         public string GetMotherBoard()
         {
             if (!string.IsNullOrEmpty(_motherBoard)) return _motherBoard;
@@ -369,7 +365,7 @@ namespace UlteriusServer.Api.Services.LocalSystem
             return dictionary;
         }
 
-      public List<DriveInformation> GetDriveInformation()
+        public List<DriveInformation> GetDriveInformation()
         {
             var q = new WqlObjectQuery("SELECT * FROM Win32_DiskDrive");
             var res = new ManagementObjectSearcher(q);

@@ -26,6 +26,7 @@ namespace UlteriusServer.Api.Network.Messages
         ///     Create a packet
         /// </summary>
         /// <param name="authClient"></param>
+        /// <param name="client"></param>
         /// <param name="endPoint"></param>
         /// <param name="syncKey"></param>
         /// <param name="args"></param>
