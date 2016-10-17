@@ -81,7 +81,7 @@ namespace UlteriusServer.Api.Network.Messages
                     handler.HandlePacket(this);
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 EndPoint = "invalidpacket";
                 PacketType = PacketTypes.InvalidOrEmptyPacket;

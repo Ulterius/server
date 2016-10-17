@@ -60,7 +60,7 @@ namespace UlteriusServer.Utilities.Files.Database
                         directory = Encoding.UTF8.GetString(reader.ReadBytes(directoryLength));
                         size = reader.ReadInt64();
                     }
-                    catch (EndOfStreamException ex)
+                    catch (EndOfStreamException)
                     {
 
                         break;
