@@ -23,7 +23,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
 {
     internal class ScreenSharePacketHandler : PacketHandler
     {
-        private readonly ScreenData _screenData = new ScreenData();
+
         private readonly Screen[] _screens = Screen.AllScreens;
         private readonly ScreenShareService _shareService = UlteriusApiServer.ScreenShareService;
         private AuthClient _authClient;
@@ -124,20 +124,15 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                 try
                 {
 
-                    using (var image = _screenData.LocalScreen())
+                    using (var image = ScreenData.LocalScreen())
                     {
                         if (image == null)
                         {
                             continue;
                         }
-
-                        if (_screenData.NumByteFullScreen == 1)
-                        {
-                            _screenData.NumByteFullScreen = image.Rectangle.Width * image.Rectangle.Height * 4;
-                        }
                         if (image.Rectangle != Rectangle.Empty)
                         {
-                            var data = _screenData.PackScreenCaptureData(image.ScreenBitmap, image.Rectangle);
+                            var data = ScreenData.PackScreenCaptureData(image.ScreenBitmap, image.Rectangle);
                             if (data != null && data.Length > 0)
                             {
                                 _builder.Endpoint = "screensharedata";
@@ -148,7 +143,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                             }
                         }
                     }
-                    var clipboard = _screenData.ClipboardText;
+                    var clipboard = ScreenShareService.ClipboardText;
                     if (clipboard.Equals(lastClipBoard) || string.IsNullOrEmpty(clipboard)) continue;
                     var clipBoardData = new
                     {
@@ -216,7 +211,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
         {
             using (var ms = new MemoryStream())
             {
-                using (var grab = _screenData.CaptureDesktop())
+                using (var grab = ScreenData.CaptureDesktop())
                 {
                     grab.Save(ms, ImageFormat.Jpeg);
                     var imgData = ms.ToArray();

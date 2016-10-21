@@ -4,11 +4,9 @@ using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using Ionic.Zlib;
-using UlteriusServer.Api.Win32;
-using UlteriusServer.Utilities;
+using UlteriusServer.Api.Services.LocalSystem;
 
 #endregion
 
@@ -16,50 +14,14 @@ namespace UlteriusServer.Api.Services.ScreenShare
 {
     public class ScreenData
     {
-        public string ClipboardText = string.Empty;
-        public Bitmap NewBitmap = new Bitmap(1, 1);
+        public static Bitmap NewBitmap = new Bitmap(1, 1);
+        public static Bitmap PrevBitmap;
 
-        public Bitmap PrevBitmap;
-
-        public ScreenData()
-        {
-            if (Tools.RunningPlatform() == Tools.Platform.Windows)
-            {
-                ClipboardNotifications.ClipboardUpdate += HandleClipboard;
-            }
-        }
 
         public int NumByteFullScreen { get; set; } = 1;
 
-        private void HandleClipboard(object sender, EventArgs e)
-        {
-            try
-            {
-                var clipboard = WinApi.GetText();
-                if (clipboard == null)
-                {
-                    clipboard = string.Empty;
-                    return;
-                }
-                if (clipboard.Length > 5242880)
-                {
-                    clipboard = string.Empty;
-                    return;
-                }
-                if (ClipboardText.Equals(clipboard))
-                {
-                    return;
-                }
-                ClipboardText = clipboard;
-            }
-            catch (Exception)
-            {
-                //Nothing to be done
-            }
-        }
 
-
-        public byte[] PackScreenCaptureData(Bitmap image, Rectangle bounds)
+        public static byte[] PackScreenCaptureData(Bitmap image, Rectangle bounds)
         {
             byte[] results;
             using (var screenStream = new MemoryStream())
@@ -280,7 +242,7 @@ namespace UlteriusServer.Api.Services.ScreenShare
             return new Rectangle(left, top, diffImgWidth, diffImgHeight);
         }
 
-        public  ScreenModel LocalScreen()
+        public static ScreenModel LocalScreen()
         {
             var screenModel = new ScreenModel
             {
@@ -290,9 +252,9 @@ namespace UlteriusServer.Api.Services.ScreenShare
             // Capture a new screenshot.
             //
             NewBitmap = CaptureDesktop();
+            
             lock (NewBitmap)
             {
-                
                 if (NewBitmap == null)
                 {
                     return null;
@@ -318,19 +280,19 @@ namespace UlteriusServer.Api.Services.ScreenShare
                     // Set the previous bitmap to the current to prepare
                     //	for the next screen capture.
                     //
-                 
+
                     screenModel.ScreenBitmap = NewBitmap.Clone(screenModel.Rectangle, NewBitmap.PixelFormat);
                     PrevBitmap = NewBitmap;
-                    
                 }
             }
-            System.GC.Collect();
-            System.GC.WaitForPendingFinalizers();
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
             return screenModel;
         }
 
+      
 
-        public Bitmap CaptureDesktop()
+        public static Bitmap CaptureDesktop()
         {
             try
             {
@@ -355,10 +317,12 @@ namespace UlteriusServer.Api.Services.ScreenShare
             return null;
         }
 
+
         public class ScreenModel : IDisposable
         {
             public Rectangle Rectangle { get; set; }
             public Bitmap ScreenBitmap { get; set; }
+
             public void Dispose()
             {
                 ScreenBitmap?.Dispose();
