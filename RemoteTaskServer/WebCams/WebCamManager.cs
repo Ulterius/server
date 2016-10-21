@@ -20,7 +20,7 @@ namespace UlteriusServer.WebCams
         public static Dictionary<string, VideoCaptureDevice> Cameras;
         public static ConcurrentDictionary<string, byte[]> Frames { get; set; }
         public static ConcurrentDictionary<string, Task> Streams { get; set; }
-        private static int _fpsLimit = 25;
+     
 
         public static bool StartCamera(string cameraId)
         {

@@ -4,7 +4,10 @@
 
 #endregion
 
+using System;
+using System.Runtime;
 using UlteriusServer.Forms.Utilities;
+using UlteriusServer.Utilities;
 using UlteriusServer.Utilities.Usage;
 
 namespace UlteriusServer
@@ -17,12 +20,24 @@ namespace UlteriusServer
         private static void Main(string[] args)
 
         {
+
+            ProfileOptimization.SetProfileRoot(AppEnvironment.DataPath);
+            ProfileOptimization.StartProfile("Startup.Profile");
+
             var ulterius = new Ulterius();
             ulterius.Start();
             var hardware = new HardwareSurvey();
             hardware.Setup();
-            UlteriusTray.ShowTray();
-           
+            //TODO Gdk tray icons
+            if (Tools.RunningPlatform() == Tools.Platform.Windows)
+            {
+                UlteriusTray.ShowTray();
+            }
+            else
+            {
+                Console.ReadKey(true);
+
+            }
         }
     }
 }

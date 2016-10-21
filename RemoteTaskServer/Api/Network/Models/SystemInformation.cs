@@ -1,6 +1,7 @@
 ﻿#region
 
 using System.Collections.Generic;
+using OpenHardwareMonitor.Hardware;
 
 #endregion
 
@@ -22,6 +23,7 @@ namespace UlteriusServer.Api.Network.Models
         public static object Bios { get; set; }
         public static object NetworkInfo { get; set; }
         public static List<float> CpuTemps { get; set; }
+        public static List<FanInformation> FanSpeeds { get; set; }
 
         public static object ToObject()
         {
@@ -39,7 +41,8 @@ namespace UlteriusServer.Api.Network.Models
                 cdRom = CdRom,
                 networkInfo = NetworkInfo,
                 motherBoard = MotherBoard,
-                biosInfo = Bios
+                biosInfo = Bios,
+                fanSpeeds = FanSpeeds
             };
             return data;
         }

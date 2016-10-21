@@ -81,6 +81,10 @@ namespace UlteriusServer.Api.Network.PacketHandlers
 
         public string GetIconForProcess(string path)
         {
+            if (Tools.RunningPlatform() == Tools.Platform.Mac)
+            {
+                return "null";
+            }
             if (string.IsNullOrEmpty(path))
             {
                 return "null";

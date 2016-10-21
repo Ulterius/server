@@ -50,7 +50,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                 }
                 else
                 {
-                    throw new Exception("Auth client is null");
+                    throw new Exception("AuthWindows client is null");
                 }
             }
             catch (Exception e)
@@ -90,10 +90,10 @@ namespace UlteriusServer.Api.Network.PacketHandlers
         public void Login()
         {
 
-
+            var authenticated = false;
             var connectionId = CookieManager.GetConnectionId(_client);
             var password = _packet.Args[0].ToString();
-            var authenticated = WindowsAuth.Auth(password);
+            authenticated = !string.IsNullOrEmpty(password) && AuthUtils.Authenticate(password);
             AuthClient authClient;
             UlteriusApiServer.AllClients.TryGetValue(connectionId, out authClient);
             if (authClient != null)

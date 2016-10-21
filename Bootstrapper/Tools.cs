@@ -108,7 +108,6 @@ namespace Bootstrapper
             catch (Exception ex)
             {
                 await mainWindow.ShowDialog(new DialogContent { Content = "Error, please restart and try again: " + ex.Message });
-
                 return false;
             }
         }
@@ -174,7 +173,6 @@ namespace Bootstrapper
             catch (Exception ex)
             {
                 await mainWindow.ShowDialog(new DialogContent { Content = "Error, please restart and try again: " + ex.Message });
-
                 return false;
             }
         }

@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Net.NetworkInformation;
 using System.Reflection;
+using System.Runtime;
 using System.Security.Principal;
 using System.Threading;
 using System.Threading.Tasks;
@@ -17,6 +18,7 @@ using NetFwTypeLib;
 using Open.Nat;
 using UlteriusServer.WebServer;
 using static System.Security.Principal.WindowsIdentity;
+using Task = System.Threading.Tasks.Task;
 
 #endregion
 
@@ -91,7 +93,34 @@ namespace UlteriusServer.Utilities
             }
         }
 
+        public enum Platform
+        {
+            Windows,
+            Linux,
+            Mac
+        }
+        public static Platform RunningPlatform()
+        {
+            switch (Environment.OSVersion.Platform)
+            {
+                case PlatformID.Unix:
+                    // Well, there are chances MacOSX is reported as Unix instead of MacOSX.
+                    // Instead of platform check, we'll do a feature checks (Mac specific root folders)
+                    if (Directory.Exists("/Applications")
+                        & Directory.Exists("/System")
+                        & Directory.Exists("/Users")
+                        & Directory.Exists("/Volumes"))
+                        return Platform.Mac;
+                    else
+                        return Platform.Linux;
 
+                case PlatformID.MacOSX:
+                    return Platform.Mac;
+
+                default:
+                    return Platform.Windows;
+            }
+        }
         public static void GenerateSettings()
         {
             //web server settings
@@ -222,8 +251,6 @@ namespace UlteriusServer.Utilities
             cts.CancelAfter(5000);
             NatDevice device;
             var t = nat.DiscoverDeviceAsync(type, cts);
-
-
             t.ContinueWith(tt =>
             {
                 device = tt.Result;
@@ -299,6 +326,7 @@ namespace UlteriusServer.Utilities
 
         public static void ConfigureServer()
         {
+          
             if (SetLogging())
             {
                 Console.WriteLine("Logs Ready");
@@ -307,48 +335,38 @@ namespace UlteriusServer.Utilities
             {
                 //setup listen sh
                 GenerateSettings();
-
-                var webServerPort = (ushort) Settings.Get("WebServer").WebServerPort;
-                var apiPort = (ushort) Settings.Get("TaskServer").TaskServerPort;
-                var webcamPort = (ushort) Settings.Get("Webcams").WebcamPort;
-                var terminalPort = (ushort) Settings.Get("Terminal").TerminalPort;
-                var screenSharePort = (ushort) Settings.Get("ScreenShareService").ScreenSharePort;
-                var prefix = $"http://*:{webServerPort}/";
-                var username = Environment.GetEnvironmentVariable("USERNAME");
-                var userdomain = Environment.GetEnvironmentVariable("USERDOMAIN");
-                var command = $@"/C netsh http add urlacl url={prefix} user={userdomain}\{username} listen=yes";
-                Process.Start("CMD.exe", command);
-                OpenFirewallPort(webcamPort, "Ulterius Web Cams");
-                OpenFirewallPort(webServerPort, "Ulterius Web Server");
-                OpenFirewallPort(apiPort, "Ulterius Task Server");
-                OpenFirewallPort(terminalPort, "Ulterius Terminal Server");
-                OpenFirewallPort(screenSharePort, "Ulterius ScreenShareService");
+                if (RunningPlatform() == Platform.Windows)
+                {
+                    var webServerPort = (ushort)Settings.Get("WebServer").WebServerPort;
+                    var apiPort = (ushort)Settings.Get("TaskServer").TaskServerPort;
+                    var webcamPort = (ushort)Settings.Get("Webcams").WebcamPort;
+                    var terminalPort = (ushort)Settings.Get("Terminal").TerminalPort;
+                    var screenSharePort = (ushort)Settings.Get("ScreenShareService").ScreenSharePort;
+                    var prefix = $"http://*:{webServerPort}/";
+                    var username = Environment.GetEnvironmentVariable("USERNAME");
+                    var userdomain = Environment.GetEnvironmentVariable("USERDOMAIN");
+                    var command = $@"/C netsh http add urlacl url={prefix} user={userdomain}\{username} listen=yes";
+                    Process.Start("CMD.exe", command);
+                    OpenFirewallPort(webcamPort, "Ulterius Web Cams");
+                    OpenFirewallPort(webServerPort, "Ulterius Web Server");
+                    OpenFirewallPort(apiPort, "Ulterius Task Server");
+                    OpenFirewallPort(terminalPort, "Ulterius Terminal Server");
+                    OpenFirewallPort(screenSharePort, "Ulterius ScreenShareService");
+                }
             }
-            SetStartup();
+            if (RunningPlatform() == Platform.Windows)
+            {
+                SetStartup();
+            }
             if (File.Exists("client.zip"))
             {
-                InstallClient();
+               Task.Run(() => InstallClient());
+             
             }
         }
 
-        public static bool IsWindows()
-        {
-            var os = Environment.OSVersion;
-            var pid = os.Platform;
-            switch (pid)
-            {
-                case PlatformID.Win32NT:
-                case PlatformID.Win32S:
-                case PlatformID.Win32Windows:
-                case PlatformID.WinCE:
-                    return true;
-
-                case PlatformID.Unix:
-                    return false;
-                default:
-                    return false;
-            }
-        }
+       
+        
 
 
         private static void LegacyStartupRemove()
