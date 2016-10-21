@@ -69,8 +69,17 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="AutoDismissDialog.xaml.cs">
+      <DependentUpon>AutoDismissDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="AutoDismissDialogController.cs" />
+    <Compile Include="AutoDismissDialogViewModel.cs" />
     <Compile Include="DialogContent.cs" />
     <Compile Include="Tools.cs" />
+    <Page Include="AutoDismissDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

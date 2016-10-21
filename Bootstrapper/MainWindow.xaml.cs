@@ -5,7 +5,9 @@ using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Security.Principal;
+using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Threading;
 using static System.IO.Path;
 
 #endregion
@@ -50,15 +52,23 @@ namespace Bootstrapper
             {
                 Process.GetCurrentProcess().Kill();
             }
-            InitializeComponent();
+            InitializeComponent();            
+        }
+
+        public async void Run()
+        {
+            Dispatcher.Invoke(() => { }, DispatcherPriority.Loaded);
+
+            //ensure window is loaded
 
             if (IsElevated)
             {
                 UpdateMessage("Bootstrapper starting...");
-                MainAsync();
+                await MainAsync();
             }
             else
             {
+                var workingDir = GetDirectoryName(Assembly.GetEntryAssembly().Location);
                 //restart as admin, needed to ensure windows lets as start at startup
                 var info = new ProcessStartInfo(Assembly.GetEntryAssembly().Location)
                 {
@@ -80,9 +90,9 @@ namespace Bootstrapper
                     UpdateMessage("Failed to start Ulterius -- Admin required");
                 }
             }
-           
         }
-        private async void MainAsync()
+        
+        private async Task MainAsync()
         {
             serverFile = "server.bin";
             if (!File.Exists(serverFile))
