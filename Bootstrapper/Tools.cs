@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using Ionic.Zip;
@@ -24,7 +25,7 @@ namespace Bootstrapper
         private static async Task<bool> DownloadUpdate()
         {
             try
-            {
+            {               
                 using (var httpClient = new HttpClient())
                 {
                     httpClient.Timeout = TimeSpan.FromSeconds(5);
@@ -44,7 +45,7 @@ namespace Bootstrapper
             }
             catch (Exception ex)
             {
-                await mainWindow.ShowDialog(new DialogContent { Content = "Error, please restart and try again: " + ex.Message });
+                await new AutoDismissDialogController().Show("Error, please restart and try again: " + ex.Message, mainWindow);
                 return false;
             }
         }
@@ -80,7 +81,7 @@ namespace Bootstrapper
                 return false;
             }
             try
-            {
+            {                                
                 //get the full location of the assembly with DaoTests in it
                 var fullPath = Assembly.GetAssembly(typeof(MainWindow)).Location;
 
@@ -107,7 +108,7 @@ namespace Bootstrapper
             }
             catch (Exception ex)
             {
-                await mainWindow.ShowDialog(new DialogContent { Content = "Error, please restart and try again: " + ex.Message });
+                await new AutoDismissDialogController().Show("Error, please restart and try again: " + ex.Message, mainWindow);
                 return false;
             }
         }
@@ -116,7 +117,7 @@ namespace Bootstrapper
         {
             mainWindow = file;
             try
-            {
+            {                
                 mainWindow.UpdateMessage("House cleaning...");
                 if (File.Exists("server.zip"))
                 {
@@ -172,7 +173,7 @@ namespace Bootstrapper
             }
             catch (Exception ex)
             {
-                await mainWindow.ShowDialog(new DialogContent { Content = "Error, please restart and try again: " + ex.Message });
+                await new AutoDismissDialogController().Show("Error, please restart and try again: " + ex.Message, mainWindow);
                 return false;
             }
         }
