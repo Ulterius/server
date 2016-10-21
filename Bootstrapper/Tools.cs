@@ -9,6 +9,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using Ionic.Zip;
+using MaterialDesignThemes.Wpf;
 
 namespace Bootstrapper
 {
@@ -41,9 +42,9 @@ namespace Bootstrapper
                     }
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-              //  MessageBox.Show(mainWindow, "Error, please restart and try again: " + ex.Message);
+                await mainWindow.ShowDialog(new DialogContent { Content = "Error, please restart and try again: " + ex.Message });
                 return false;
             }
         }
@@ -66,7 +67,7 @@ namespace Bootstrapper
             }
         }
 
-        private static bool ExtractUpdate(string remoteHash)
+        private async static Task<bool> ExtractUpdate(string remoteHash)
         {
             var sha = GetSha1Hash("server.zip");
             if (!sha.ToUpper().Equals(remoteHash))
@@ -104,10 +105,9 @@ namespace Bootstrapper
                     return true;
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-            //   MessageBox.Show(mainWindow, "Error, please restart and try again: " + ex.Message);
-
+                await mainWindow.ShowDialog(new DialogContent { Content = "Error, please restart and try again: " + ex.Message });
                 return false;
             }
         }
@@ -157,7 +157,7 @@ namespace Bootstrapper
                     mainWindow.UpdateProgressBar(75);
                     mainWindow.UpdateMessage("Unpacking update");
 
-                    var extracted = ExtractUpdate(remoteHash);
+                    var extracted = await ExtractUpdate(remoteHash);
                     if (!extracted)
                     {
                         WriteFailure("Error unpacking update...");
@@ -170,9 +170,9 @@ namespace Bootstrapper
                     return true;
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-               // MessageBox.Show(mainWindow, "Error, please restart and try again: " + ex.Message);
+                await mainWindow.ShowDialog(new DialogContent { Content = "Error, please restart and try again: " + ex.Message });
                 return false;
             }
         }
