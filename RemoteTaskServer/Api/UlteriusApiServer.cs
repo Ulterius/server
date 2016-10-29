@@ -27,7 +27,7 @@ namespace UlteriusServer.Api
     internal class UlteriusApiServer
     {
         public static ConcurrentDictionary<Guid, AuthClient> AllClients { get; set; }
-
+        public static bool RunningAsService { get; set; }
         public static ScreenShareService ScreenShareService { get; set; }
         public static FileSearchService FileSearchService { get; set; }
         public static CronJobService CronJobService { get; set; }
@@ -79,6 +79,8 @@ namespace UlteriusServer.Api
             server.Start();
             Log("Api Server started at " + address);
         }
+
+        
 
 
         /// <summary>
@@ -142,13 +144,25 @@ namespace UlteriusServer.Api
         ///     When a client connects, assign them a unique RSA keypair for handshake.
         /// </summary>
         /// <param name="clientSocket"></param>
-        private static void HandleConnect(WebSocket clientSocket)
+        private static async void HandleConnect(WebSocket clientSocket)
         {
             var connectionId = CookieManager.GetConnectionId(clientSocket);
             AuthClient authClient;
             AllClients.TryGetValue(connectionId, out authClient);
             if (authClient != null)
             {
+                if (RunningAsService)
+                {
+                    MessageQueueManager agentManager;
+                    if (!authClient.MessageQueueManagers.TryGetValue(22005, out agentManager))
+                    {
+                        if (authClient.MessageQueueManagers.TryAdd(22005,
+                            new MessageQueueManager()))
+                        {
+                            Console.WriteLine("Service Manager Started");
+                        }
+                    }
+                }
                 MessageQueueManager manager;
                 //check if a manager for that port exist, if not, create one
                 if (!authClient.MessageQueueManagers.TryGetValue(clientSocket.LocalEndpoint.Port, out manager))
@@ -172,7 +186,7 @@ namespace UlteriusServer.Api
             };
             client.MessageQueueManagers.TryAdd(clientSocket.LocalEndpoint.Port, new MessageQueueManager());
             AllClients.AddOrUpdate(connectionId, client, (key, value) => value);
-            SendWelcomeMessage(client, clientSocket);
+            await SendWelcomeMessage(client, clientSocket);
         }
 
         /// <summary>

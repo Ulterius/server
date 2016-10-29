@@ -4,6 +4,9 @@ using System;
 using System.Diagnostics;
 using System.DirectoryServices.AccountManagement;
 using System.DirectoryServices.ActiveDirectory;
+using System.IO;
+using System.Management;
+using UlteriusServer.Api.Win32;
 
 #endregion
 
@@ -60,12 +63,17 @@ namespace UlteriusServer.Utilities.Security
                 return false;
             }
         }
+
+
         
         private static bool AuthWindows(string password)
         {
             var authenticated = false;
+            var envName = Tools.GetUsernameAsService();
+           
+            var username = Environment.UserDomainName + "\\" + envName;
             //this will fix most domain logins, try first
-            var username = Environment.UserDomainName + "\\" + Environment.UserName;
+
             using (var context = new PrincipalContext(ContextType.Machine))
             {
                 authenticated = context.ValidateCredentials(username, password);

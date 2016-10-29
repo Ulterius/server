@@ -91,32 +91,11 @@
     <Compile Include="Api\Services\ScreenShare\ScreenData.cs" />
     <Compile Include="Api\Services\ScreenShare\ScreenModel.cs" />
     <Compile Include="Api\Services\Update\ClientUpdateService.cs" />
+    <Compile Include="Api\Win32\Desktop.cs" />
     <Compile Include="Api\Win32\Gdi.cs" />
+    <Compile Include="Api\Win32\ProcessStarter.cs" />
     <Compile Include="Api\Win32\Win32Exception.cs" />
     <Compile Include="Api\Win32\WinApi.cs" />
-    <Compile Include="Api\Win32\WindowsInput\IInputDeviceStateAdaptor.cs" />
-    <Compile Include="Api\Win32\WindowsInput\IInputMessageDispatcher.cs" />
-    <Compile Include="Api\Win32\WindowsInput\IInputSimulator.cs" />
-    <Compile Include="Api\Win32\WindowsInput\IKeyboardSimulator.cs" />
-    <Compile Include="Api\Win32\WindowsInput\IMouseSimulator.cs" />
-    <Compile Include="Api\Win32\WindowsInput\InputBuilder.cs" />
-    <Compile Include="Api\Win32\WindowsInput\InputSimulator.cs" />
-    <Compile Include="Api\Win32\WindowsInput\KeyboardSimulator.cs" />
-    <Compile Include="Api\Win32\WindowsInput\MouseButton.cs" />
-    <Compile Include="Api\Win32\WindowsInput\MouseSimulator.cs" />
-    <Compile Include="Api\Win32\WindowsInput\Native\HARDWAREINPUT.cs" />
-    <Compile Include="Api\Win32\WindowsInput\Native\INPUT.cs" />
-    <Compile Include="Api\Win32\WindowsInput\Native\InputType.cs" />
-    <Compile Include="Api\Win32\WindowsInput\Native\KEYBDINPUT.cs" />
-    <Compile Include="Api\Win32\WindowsInput\Native\KeyboardFlag.cs" />
-    <Compile Include="Api\Win32\WindowsInput\Native\MouseFlag.cs" />
-    <Compile Include="Api\Win32\WindowsInput\Native\MOUSEINPUT.cs" />
-    <Compile Include="Api\Win32\WindowsInput\Native\MOUSEKEYBDHARDWAREINPUT.cs" />
-    <Compile Include="Api\Win32\WindowsInput\Native\NativeMethods.cs" />
-    <Compile Include="Api\Win32\WindowsInput\Native\VirtualKeyCode.cs" />
-    <Compile Include="Api\Win32\WindowsInput\Native\XButton.cs" />
-    <Compile Include="Api\Win32\WindowsInput\WindowsInputDeviceStateAdaptor.cs" />
-    <Compile Include="Api\Win32\WindowsInput\WindowsInputMessageDispatcher.cs" />
     <Compile Include="Api\Network\Messages\Message.cs" />
     <Compile Include="Api\Network\Messages\MessageQueueManager.cs" />
     <Compile Include="Api\Services\LocalSystem\FileSearchService.cs" />
@@ -129,6 +108,7 @@
     <Compile Include="TerminalServer\Infrastructure\ILogger.cs" />
     <Compile Include="TerminalServer\Infrastructure\Log4NetLogger.cs" />
     <Compile Include="Ulterius.cs" />
+    <Compile Include="UlteriusAgent.cs" />
     <Compile Include="Utilities\Drive\Disk.cs" />
     <Compile Include="Utilities\Drive\Smart.cs" />
     <Compile Include="Utilities\Extensions\TaskExtensions.cs" />
@@ -348,12 +328,12 @@
     <Reference Include="System.Xaml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Xml" />
-    <Reference Include="vtortola.WebSockets, Version=2.2.2.0, Culture=neutral, PublicKeyToken=7f78616efb4a208d, processorArchitecture=MSIL">
-      <HintPath>..\packages\vtortola.WebSocketListener.2.2.2.0\lib\net45\vtortola.WebSockets.dll</HintPath>
+    <Reference Include="Topshelf, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b800c4cfcdeea87b, processorArchitecture=MSIL">
+      <HintPath>..\packages\Topshelf.4.0.3\lib\net452\Topshelf.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="vtortola.WebSockets.Deflate, Version=2.2.2.0, Culture=neutral, PublicKeyToken=7f78616efb4a208d, processorArchitecture=MSIL">
-      <HintPath>..\packages\vtortola.WebSocketListener.2.2.2.0\lib\net45\vtortola.WebSockets.Deflate.dll</HintPath>
+    <Reference Include="vtortola.WebSockets, Version=2.2.2.0, Culture=neutral, PublicKeyToken=7f78616efb4a208d, processorArchitecture=MSIL">
+      <HintPath>..\packages\vtortola.WebSocketListener.2.2.2.0\lib\net45\vtortola.WebSockets.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="vtortola.WebSockets.Rfc6455, Version=2.2.2.0, Culture=neutral, PublicKeyToken=7f78616efb4a208d, processorArchitecture=MSIL">
@@ -361,6 +341,10 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="WindowsBase" />
+    <Reference Include="WindowsInput, Version=1.0.4.0, Culture=neutral, PublicKeyToken=9b287f7dc5073cad, processorArchitecture=MSIL">
+      <HintPath>..\packages\InputSimulator.1.0.4.0\lib\net20\WindowsInput.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="ZetaLongPaths, Version=1.0.0.14, Culture=neutral, PublicKeyToken=b764f59068f31f38, processorArchitecture=MSIL">
       <HintPath>..\packages\ZetaLongPaths.1.0.0.14\lib\net40-full\ZetaLongPaths.dll</HintPath>
       <Private>True</Private>
@@ -384,6 +368,7 @@
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.1.0.2\build\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.1.0.2\build\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props'))" />
     <Error Condition="!Exists('..\packages\Microsoft.Net.Compilers.1.3.2\build\Microsoft.Net.Compilers.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Net.Compilers.1.3.2\build\Microsoft.Net.Compilers.props'))" />
+    <Error Condition="!Exists('..\packages\Fody.1.28.3\build\Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Fody.1.28.3\build\Fody.targets'))" />
   </Target>
   <PropertyGroup>
     <PostBuildEvent>
@@ -438,6 +423,7 @@ foreach (var item in filesToCleanup)
   <Target Name="CleanReferenceCopyLocalPaths" AfterTargets="AfterBuild;NonWinFodyTarget">
     <CosturaCleanup Config="FodyWeavers.xml" Files="@(ReferenceCopyLocalPaths->'$(OutDir)%(DestinationSubDirectory)%(Filename)%(Extension)')" />
   </Target>
+  <Import Project="..\packages\Fody.1.28.3\build\Fody.targets" Condition="Exists('..\packages\Fody.1.28.3\build\Fody.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

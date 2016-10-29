@@ -75,6 +75,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                         break;
                        
                     case HardwareType.GpuAti:
+                        Console.WriteLine("ATI");
                         foreach (
                             var sensor in
                                 hardwareItem.Sensors.Where(

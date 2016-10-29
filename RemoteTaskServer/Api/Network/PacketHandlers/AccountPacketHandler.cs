@@ -8,6 +8,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
 using UlteriusServer.Api.Network.Messages;
+using UlteriusServer.Api.Win32;
 using UlteriusServer.Utilities;
 using UlteriusServer.WebSocketAPI.Authentication;
 using vtortola.WebSockets;
@@ -24,9 +25,8 @@ namespace UlteriusServer.Api.Network.PacketHandlers
         private Packet _packet;
 
 
-        private string GetUserTilePath(string username)
-        {
-            // username: use null for current user
+        public static string GetUserTilePath(string username)
+        {   // username: use null for current user
             var sb = new StringBuilder(1000);
             GetUserTilePath(username, 0x80000000, sb, sb.Capacity);
             return sb.ToString();
@@ -39,7 +39,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
 
         private string GetWindowsAvatar()
         {
-            var avatar = GetUserTile(null);
+            var avatar = GetUserTile(GetUsername());
 
             return ImagetoBase64(avatar);
         }
@@ -109,7 +109,13 @@ namespace UlteriusServer.Api.Network.PacketHandlers
 
         private string GetUsername()
         {
-            return Environment.UserName;
+            var envName = Environment.UserName;
+            //cheap work around
+            if (envName.Equals("SYSTEM") && Tools.RunningPlatform() == Tools.Platform.Windows)
+            {
+                envName = Tools.GetUsernameAsService();
+            }
+            return envName;
         }
 
         public void GetAccountData()

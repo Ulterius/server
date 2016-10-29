@@ -1,9 +1,12 @@
 ﻿#region
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.DirectoryServices;
 using System.IO;
 using System.Linq;
+using System.Management;
 using System.Net.NetworkInformation;
 using System.Reflection;
 using System.Runtime;
@@ -16,6 +19,7 @@ using Microsoft.Win32;
 using Microsoft.Win32.TaskScheduler;
 using NetFwTypeLib;
 using Open.Nat;
+using UlteriusServer.Api.Win32;
 using UlteriusServer.WebServer;
 using static System.Security.Principal.WindowsIdentity;
 using Task = System.Threading.Tasks.Task;
@@ -81,7 +85,7 @@ namespace UlteriusServer.Utilities
                     firewallRule.Action = NET_FW_ACTION_.NET_FW_ACTION_ALLOW;
                     firewallRule.Enabled = true;
                     firewallRule.InterfaceTypes = "All";
-                    firewallRule.Protocol = (int) NET_FW_IP_PROTOCOL_.NET_FW_IP_PROTOCOL_TCP;
+                    firewallRule.Protocol = (int)NET_FW_IP_PROTOCOL_.NET_FW_IP_PROTOCOL_TCP;
                     firewallRule.LocalPorts = port.ToString();
                     firewallPolicy.Rules.Add(firewallRule);
                 }
@@ -92,6 +96,7 @@ namespace UlteriusServer.Utilities
                 Console.WriteLine(ex.StackTrace);
             }
         }
+
 
         public enum Platform
         {
@@ -307,6 +312,34 @@ namespace UlteriusServer.Utilities
             }
         }
 
+        public static string GetUsernameAsService()
+        {
+            if (!Environment.UserName.Equals("SYSTEM")) return Environment.UserName;
+            try
+            {
+                using (var searcher = new ManagementObjectSearcher("SELECT UserName FROM Win32_ComputerSystem"))
+                {
+                    using (var collection = searcher.Get())
+                    {
+                        var s = ((string)collection.Cast<ManagementBaseObject>().First()["UserName"]).Split('\\');
+                        return s.Length > 1 ? s.LastOrDefault() : s.FirstOrDefault();
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                //If we can't get the current user then we result to this
+                var users = new List<string>();
+                var path = $"WinNT://{Environment.MachineName},computer";
+                using (var computerEntry = new DirectoryEntry(path))
+                {
+                    users.AddRange(from DirectoryEntry childEntry in computerEntry.Children
+                        where childEntry.SchemaClassName == "User"
+                        select childEntry.Name);
+                }
+                return users.Count > 1 ? users.LastOrDefault() : users.FirstOrDefault();
+            }
+        }
         private static bool SetLogging()
         {
             try
@@ -346,15 +379,32 @@ namespace UlteriusServer.Utilities
                     var username = Environment.GetEnvironmentVariable("USERNAME");
                     var userdomain = Environment.GetEnvironmentVariable("USERDOMAIN");
                     var command = $@"/C netsh http add urlacl url={prefix} user={userdomain}\{username} listen=yes";
-                    Process.Start("CMD.exe", command);
+                    if (RunningAsService())
+                    {
+                        ProcessStarter.PROCESS_INFORMATION procInfo;
+                        ProcessStarter.StartProcessAndBypassUAC("CMD.exe " + command,
+                            out procInfo);
+                    }
+                    else
+                    {
+                        Process.Start("CMD.exe", command);
+                    }
+                    
                     OpenFirewallPort(webcamPort, "Ulterius Web Cams");
                     OpenFirewallPort(webServerPort, "Ulterius Web Server");
                     OpenFirewallPort(apiPort, "Ulterius Task Server");
                     OpenFirewallPort(terminalPort, "Ulterius Terminal Server");
                     OpenFirewallPort(screenSharePort, "Ulterius ScreenShareService");
+                    if (RunningAsService())
+                    {
+                        var path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+                        OpenFirewallForProgram(Path.Combine(path, "Ulterius Server.exe"),
+                                               "Ulterius Server");
+                    }
+                   
                 }
             }
-            if (RunningPlatform() == Platform.Windows)
+            if (!RunningAsService())
             {
                 SetStartup();
             }
@@ -365,33 +415,34 @@ namespace UlteriusServer.Utilities
             }
         }
 
-       
-        
 
-
-        private static void LegacyStartupRemove()
+        private static void OpenFirewallForProgram(string exeFileName, string displayName)
         {
-            try
-            {
-                var rk = Registry.CurrentUser.OpenSubKey
-                    ("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true);
-                rk?.DeleteValue("Ulterius", false);
-            }
-            catch (Exception)
-            {
-                //fail
-            }
+            var proc = Process.Start(
+                new ProcessStartInfo
+                {
+                    FileName = "netsh",
+                    Arguments =
+                            string.Format(
+                                "firewall add allowedprogram program=\"{0}\" name=\"{1}\" profile=\"ALL\"",
+                                exeFileName, displayName),
+                    WindowStyle = ProcessWindowStyle.Hidden
+                });
+            proc.WaitForExit();
         }
+
+        private static bool RunningAsService()
+        {
+           return GetCurrent().Name.ToLower().Contains(@"nt authority\system");
+        }
+
 
         private static void SetStartup()
         {
-            Console.WriteLine("Set Startup");
-            LegacyStartupRemove();
             try
             {
                 var runStartup = Convert.ToBoolean(Settings.Get("General").RunStartup);
-                var fileName = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
-                    "Bootstrapper.exe");
+                var fileName = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
                 using (var sched = new TaskService())
                 {
                     var username = Environment.UserDomainName + "\\" + Environment.UserName;
@@ -405,8 +456,7 @@ namespace UlteriusServer.Utilities
 
                         td.RegistrationInfo.Author = "Octopodal Solutions";
                         td.RegistrationInfo.Date = new DateTime();
-                        td.RegistrationInfo.Description =
-                            "Keeps your Ulterius server up to date. If this task is disabled or stopped, your Ulterius server will not be kept up to date, meaning security vulnerabilities that may arise cannot be fixed and features may not work.";
+                        td.RegistrationInfo.Description = "Keeps your Ulterius server up to date. If this task is disabled or stopped, your Ulterius server will not be kept up to date, meaning security vulnerabilities that may arise cannot be fixed and features may not work.";
 
                         var logT = new LogonTrigger
                         {

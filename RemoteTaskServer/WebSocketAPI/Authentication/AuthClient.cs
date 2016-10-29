@@ -13,6 +13,8 @@ namespace UlteriusServer.WebSocketAPI.Authentication
 {
     public class AuthClient
     {
+      
+
         public AuthClient()
         {
             LastUpdate = DateTime.Now;
@@ -29,5 +31,6 @@ namespace UlteriusServer.WebSocketAPI.Authentication
         public SecureString AesKey { get; set; }
         public SecureString AesIv { get; set; }
         public bool AesShook { get; set; }
+        public bool ShutDownScreenShare { get; set; }
     }
 }

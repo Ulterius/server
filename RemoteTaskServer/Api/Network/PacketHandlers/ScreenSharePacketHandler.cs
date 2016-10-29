@@ -7,15 +7,19 @@ using System.Drawing.Imaging;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Sockets;
+using System.Text;
 using System.Threading;
 using System.Windows.Forms;
+using WindowsInput.Native;
 using Ionic.Zlib;
 using UlteriusServer.Api.Network.Messages;
 using UlteriusServer.Api.Services.LocalSystem;
 using UlteriusServer.Api.Services.ScreenShare;
-using UlteriusServer.Api.Win32.WindowsInput.Native;
 using UlteriusServer.WebSocketAPI.Authentication;
 using vtortola.WebSockets;
+using Message = UlteriusServer.Api.Network.Messages.Message;
 
 #endregion
 
@@ -23,7 +27,6 @@ namespace UlteriusServer.Api.Network.PacketHandlers
 {
     internal class ScreenSharePacketHandler : PacketHandler
     {
-
         private readonly Screen[] _screens = Screen.AllScreens;
         private readonly ScreenShareService _shareService = UlteriusApiServer.ScreenShareService;
         private AuthClient _authClient;
@@ -36,12 +39,13 @@ namespace UlteriusServer.Api.Network.PacketHandlers
         {
             try
             {
-                var streamThread = ScreenShareService.Streams[_authClient];
-                if (streamThread == null || !streamThread.IsAlive) return;
-                streamThread.Abort();
+                _authClient.ShutDownScreenShare = true;
                 Thread outtemp;
-                ScreenShareService.Streams.TryRemove(_authClient, out outtemp);
-                CleanUp();
+                if (!ScreenShareService.Streams.TryRemove(_authClient, out outtemp)) return;
+                if (!UlteriusApiServer.RunningAsService)
+                {
+                    CleanUp();
+                }
                 if (!_client.IsConnected) return;
                 var data = new
                 {
@@ -94,7 +98,10 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                     _builder.WriteMessage(failData);
                     return;
                 }
-                var stream = new Thread(GetScreenFrame) {IsBackground = true};
+                _authClient.ShutDownScreenShare = false;
+                var stream = UlteriusApiServer.RunningAsService
+                    ? new Thread(GetScreenAgentFrame) {IsBackground = true}
+                    : new Thread(GetScreenFrame) {IsBackground = true};
                 ScreenShareService.Streams[_authClient] = stream;
                 var data = new
                 {
@@ -115,19 +122,81 @@ namespace UlteriusServer.Api.Network.PacketHandlers
             }
         }
 
-        private void GetScreenFrame()
+
+        public Bitmap GetImageFromByteArray(byte[] byteArray)
         {
-           
-            var lastClipBoard = string.Empty;
-            while (_client != null && _client.IsConnected)
+            Bitmap newBitmap;
+            using (var memoryStream = new MemoryStream(byteArray))
+            using (var newImage = Image.FromStream(memoryStream))
+                newBitmap = new Bitmap(newImage);
+            return newBitmap;
+        }
+
+        private async void GetScreenAgentFrame()
+        {
+            var client = new TcpClient();
+            StreamReader streamReader = null;
+            StreamWriter streamWriter = null;
+            await client.ConnectAsync(IPAddress.Loopback, 22005);
+            var stream = client.GetStream();
+            streamReader = new StreamReader(stream, Encoding.UTF8);
+            streamWriter = new StreamWriter(stream, Encoding.UTF8);
+            while (_client != null && _client.IsConnected && _authClient != null &&
+                   !_authClient.ShutDownScreenShare)
             {
                 try
                 {
+                    if (!client.Connected)
+                    {
+                        client = new TcpClient();
+                        await client.ConnectAsync(IPAddress.Loopback, 22005);
+                        stream = client.GetStream();
+                        streamReader = new StreamReader(stream, Encoding.UTF8);
+                        streamWriter = new StreamWriter(stream, Encoding.UTF8);
+                    }
+                    await streamWriter.WriteLineAsync("cleanframe");
+                    await streamWriter.FlushAsync();
+                    var base64 = await streamReader.ReadLineAsync();
+                    if (base64 == null || base64.Length <= 1) continue;
+                    var image = GetImageFromByteArray(Convert.FromBase64String(base64));
+                    using (var screenData = ScreenData.LocalAgentScreen(image))
+                    {
+                        if (screenData.ScreenBitmap == null)
+                        {
+                            continue;
+                        }
+                        if (screenData.Rectangle == Rectangle.Empty) continue;
+                        var data = ScreenData.PackScreenCaptureData(screenData.ScreenBitmap,
+                            screenData.Rectangle);
+                        if (data == null || data.Length <= 0) continue;
+                        _builder.Endpoint = "screensharedata";
+                        _builder.WriteScreenFrame(data);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                    Thread.Sleep(250);
+                }
+            }
+            client?.Dispose();
+            streamWriter?.Dispose();
+            streamReader?.Dispose();
+            Console.WriteLine("Screen Share Died");
+        }
 
+        private void GetScreenFrame()
+        {
+            while (_client != null && _client.IsConnected && _authClient != null &&
+                   !_authClient.ShutDownScreenShare)
+            {
+                try
+                {
                     using (var image = ScreenData.LocalScreen())
                     {
                         if (image == null)
                         {
+                            Thread.Sleep(250);
                             continue;
                         }
                         if (image.Rectangle != Rectangle.Empty)
@@ -137,21 +206,13 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                             {
                                 _builder.Endpoint = "screensharedata";
                                 _builder.WriteScreenFrame(data);
+
                                 data = null;
                                 GC.Collect();
                                 GC.WaitForPendingFinalizers();
                             }
                         }
                     }
-                    var clipboard = ScreenShareService.ClipboardText;
-                    if (clipboard.Equals(lastClipBoard) || string.IsNullOrEmpty(clipboard)) continue;
-                    var clipBoardData = new
-                    {
-                        Text = clipboard
-                    };
-                    _builder.Endpoint = "clipboarddata";
-                    _builder.WriteMessage(clipBoardData);
-                    lastClipBoard = clipboard;
                 }
                 catch (Exception e)
                 {
@@ -170,30 +231,89 @@ namespace UlteriusServer.Api.Network.PacketHandlers
             switch (_packet.PacketType)
             {
                 case PacketManager.PacketTypes.MouseDown:
-                    HandleMouseDown();
+                    if (UlteriusApiServer.RunningAsService)
+                    {
+                        HandleAgentMouseDown();
+                    }
+                    else
+                    {
+                        HandleMouseDown();
+                    }
                     break;
                 case PacketManager.PacketTypes.MouseUp:
-                    HandleMouseUp();
+                    if (UlteriusApiServer.RunningAsService)
+                    {
+                        HandleAgentMouseUp();
+                    }
+                    else
+                    {
+                        HandleMouseUp();
+                    }
                     break;
                 case PacketManager.PacketTypes.MouseScroll:
-                    HandleScroll();
+                    if (UlteriusApiServer.RunningAsService)
+                    {
+                        HandleAgentMouseScroll();
+                    }
+                    else
+                    {
+                        HandleScroll();
+                    }
+
                     break;
                 case PacketManager.PacketTypes.LeftDblClick:
                     break;
                 case PacketManager.PacketTypes.KeyDown:
-                    HandleKeyDown();
+                    if (UlteriusApiServer.RunningAsService)
+                    {
+                        HandleAgentKeyDown();
+                    }
+                    else
+                    {
+                        HandleKeyDown();
+                    }
+
                     break;
                 case PacketManager.PacketTypes.KeyUp:
-                    HandleKeyUp();
+                    if (UlteriusApiServer.RunningAsService)
+                    {
+                        HandleAgentKeyUp();
+                    }
+                    else
+                    {
+                        HandleKeyUp();
+                    }
                     break;
                 case PacketManager.PacketTypes.FullFrame:
-                    HandleFullFrame();
+                    if (UlteriusApiServer.RunningAsService)
+                    {
+                        HandleAgentFullFrame();
+                    }
+                    else
+                    {
+                        HandleFullFrame();
+                    }
                     break;
                 case PacketManager.PacketTypes.RightClick:
-                    HandleRightClick();
+                    if (UlteriusApiServer.RunningAsService)
+                    {
+                        HandleAgentRightClick();
+                    }
+                    else
+                    {
+                        HandleRightClick();
+                    }
+
                     break;
                 case PacketManager.PacketTypes.MouseMove:
-                    HandleMoveMouse();
+                    if (UlteriusApiServer.RunningAsService)
+                    {
+                        HandleAgentMouseMove();
+                    }
+                    else
+                    {
+                        HandleMoveMouse();
+                    }
                     break;
                 case PacketManager.PacketTypes.CheckScreenShare:
                     CheckServer();
@@ -207,6 +327,139 @@ namespace UlteriusServer.Api.Network.PacketHandlers
             }
         }
 
+        private void HandleAgentRightClick()
+        {
+            if (!ScreenShareService.Streams.ContainsKey(_authClient)) return;
+            var command = "rightclick";
+            var message = new Message(command, Message.MessageType.Service);
+            _authClient?.MessageQueueManagers[22005]?.SendQueue.Add(message);
+        }
+
+        private  void HandleAgentMouseScroll()
+        {
+            if (!ScreenShareService.Streams.ContainsKey(_authClient)) return;
+            var delta = Convert.ToInt32(_packet.Args[0], CultureInfo.InvariantCulture);
+            var arguments = delta + "," + "0";
+            var command = "mousescroll|" + arguments;
+            var message = new Message(command, Message.MessageType.Service);
+            _authClient?.MessageQueueManagers[22005]?.SendQueue.Add(message);
+        }
+
+        private void HandleAgentMouseDown()
+        {
+            if (!ScreenShareService.Streams.ContainsKey(_authClient)) return;
+            var command = "mousedown";
+            var message = new Message(command, Message.MessageType.Service);
+            _authClient?.MessageQueueManagers[22005]?.SendQueue.Add(message);
+        }
+
+        private void HandleAgentMouseUp()
+        {
+            if (!ScreenShareService.Streams.ContainsKey(_authClient)) return;
+            var command = "mouseup";
+            var message = new Message(command, Message.MessageType.Service);
+            _authClient?.MessageQueueManagers[22005]?.SendQueue.Add(message);
+        }
+
+        private void HandleAgentMouseMove()
+        {
+            if (!ScreenShareService.Streams.ContainsKey(_authClient)) return;
+            int y = Convert.ToInt16(_packet.Args[0], CultureInfo.InvariantCulture);
+            int x = Convert.ToInt16(_packet.Args[1], CultureInfo.InvariantCulture);
+            var command = "mousemove|" + $"{x},{y}";
+            var message = new Message(command, Message.MessageType.Service);
+            _authClient?.MessageQueueManagers[22005]?.SendQueue.Add(message);
+        }
+
+        private void HandleAgentKeyDown()
+        {
+            if (!ScreenShareService.Streams.ContainsKey(_authClient)) return;
+            var keyCodes = ((IEnumerable) _packet.Args[0]).Cast<object>()
+                .Select(x => x.ToString())
+                .ToList();
+            var codes =
+                keyCodes.Select(code => ToHex(int.Parse(code.ToString())))
+                    .Select(hexString => Convert.ToInt32(hexString, 16))
+                    .ToList();
+            var result = string.Join(",", codes);
+            var command = "keydown|" + result;
+            var message = new Message(command, Message.MessageType.Service);
+            _authClient?.MessageQueueManagers[22005]?.SendQueue.Add(message);
+        }
+
+        private void HandleAgentKeyUp()
+        {
+            if (!ScreenShareService.Streams.ContainsKey(_authClient)) return;
+            var keyCodes = ((IEnumerable) _packet.Args[0]).Cast<object>()
+                .Select(x => x.ToString())
+                .ToList();
+            var codes =
+                keyCodes.Select(code => ToHex(int.Parse(code.ToString())))
+                    .Select(hexString => Convert.ToInt32(hexString, 16))
+                    .ToList();
+            var result = string.Join(",", codes);
+            var command = "keyup|" + result;
+            var message = new Message(command, Message.MessageType.Service);
+            _authClient?.MessageQueueManagers[22005]?.SendQueue.Add(message);
+        }
+
+
+        private async void HandleAgentFullFrame()
+        {
+            try
+            {
+                using (var client = new TcpClient())
+                {
+                    await client.ConnectAsync(IPAddress.Loopback, 22005);
+                    using (var stream = client.GetStream())
+                    using (var sr = new StreamReader(stream, Encoding.UTF8))
+                    using (var sw = new StreamWriter(stream, Encoding.UTF8))
+                    {
+                        if (client.Connected)
+                        {
+                            await sw.WriteLineAsync("fullframe");
+                            await sw.FlushAsync();
+                            var base64 = await sr.ReadLineAsync();
+
+                            if (base64 != null && base64.Length > 1)
+                            {
+                                var data = Convert.FromBase64String(base64);
+                                using (var ms = new MemoryStream(data))
+                                using (var memoryReader = new BinaryReader(ms))
+                                {
+                                    var bottom = memoryReader.ReadInt32();
+                                    var right = memoryReader.ReadInt32();
+                                    var imageLength = memoryReader.ReadInt32();
+                                    var image = memoryReader.ReadBytes(imageLength);
+                                    var compressed = ZlibStream.CompressBuffer(image);
+                                    var screenBounds = new
+                                    {
+                                        bottom,
+                                        right
+                                    };
+                                    var frameData = new
+                                    {
+                                        screenBounds,
+                                        frameData = compressed.Select(b => (int) b).ToArray()
+                                    };
+                                    _builder.WriteMessage(frameData);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                var data = new
+                {
+                    frameFailed = true,
+                    message = ex.Message
+                };
+                _builder.WriteMessage(data);
+            }
+        }
+
         private void HandleFullFrame()
         {
             using (var ms = new MemoryStream())
@@ -216,7 +469,6 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                     grab.Save(ms, ImageFormat.Jpeg);
                     var imgData = ms.ToArray();
                     var compressed = ZlibStream.CompressBuffer(imgData);
-
                     var bounds = Screen.PrimaryScreen.Bounds;
                     var screenBounds = new
                     {
@@ -235,7 +487,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                     var frameData = new
                     {
                         screenBounds,
-                        frameData = compressed.Select(b => (int)b).ToArray()
+                        frameData = compressed.Select(b => (int) b).ToArray()
                     };
                     _builder.WriteMessage(frameData);
                 }

@@ -6,8 +6,10 @@ using System.Diagnostics;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using UlteriusServer.Api.Network.Messages;
 using UlteriusServer.Api.Network.Models;
+using UlteriusServer.Api.Win32;
 using UlteriusServer.Utilities;
 using UlteriusServer.WebSocketAPI.Authentication;
 using vtortola.WebSockets;
@@ -18,10 +20,10 @@ namespace UlteriusServer.Api.Network.PacketHandlers
 {
     public class ProcessPacketHandler : PacketHandler
     {
-        private MessageBuilder _builder;
         private AuthClient _authClient;
-        private Packet _packet;
+        private MessageBuilder _builder;
         private WebSocket _client;
+        private Packet _packet;
 
 
         public void StartProcess()
@@ -31,14 +33,33 @@ namespace UlteriusServer.Api.Network.PacketHandlers
             var processId = -1;
             try
             {
-                var processStartInfo = new ProcessStartInfo(path);
-
-                var process = new Process {StartInfo = processStartInfo};
-                processStarted = process.Start();
-                processId = process.Id;
+                if (Environment.UserName.Equals("SYSTEM") && Tools.RunningPlatform() == Tools.Platform.Windows)
+                {
+                    var task = Task.Run(() =>
+                    {
+                        try
+                        {
+                            ProcessStarter.PROCESS_INFORMATION procInfo;
+                            ProcessStarter.StartProcessAndBypassUAC(path, out procInfo);
+                        }
+                        catch (Exception)
+                        {
+                            //continue
+                        }
+                    });
+                    processStarted = task.Wait(TimeSpan.FromSeconds(5));
+                }
+                else
+                {
+                    var processStartInfo = new ProcessStartInfo(path);
+                    var process = new Process {StartInfo = processStartInfo};
+                    processStarted = process.Start();
+                    processId = process.Id;
+                }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                Console.WriteLine(ex.Message);
                 processStarted = false;
             }
             var data = new
@@ -89,7 +110,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
             {
                 return "null";
             }
-            var icon = IconTools.GetIconForFile(path,ShellIconSize.LargeIcon);
+            var icon = IconTools.GetIconForFile(path, ShellIconSize.LargeIcon);
             if (icon == null) return "null";
             var ms = new MemoryStream();
             icon.ToBitmap().Save(ms, ImageFormat.Png);

@@ -11,7 +11,8 @@ namespace UlteriusServer.Api.Network.Messages
         public enum MessageType
         {
             Text,
-            Binary
+            Binary,
+            Service
         }
 
         public readonly byte[] Data;
@@ -30,6 +31,12 @@ namespace UlteriusServer.Api.Network.Messages
         {
             RemoteClient = remoteClient;
             Json = json;
+            Type = type;
+        }
+
+        public Message(string message, MessageType type)
+        {
+            Json = message;
             Type = type;
         }
 

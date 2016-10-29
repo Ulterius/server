@@ -3,6 +3,8 @@
 using System;
 using System.Collections.Concurrent;
 using System.IO;
+using System.Net;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 using vtortola.WebSockets;
@@ -34,7 +36,36 @@ namespace UlteriusServer.Api.Network.Messages
                 else if (packet.Type == Message.MessageType.Text)
                 {
                     await SendJsonPacket(packet);
+                } else if (packet.Type == Message.MessageType.Service)
+                {
+                    await SendServiceMessage(packet);
                 }
+            }
+        }
+
+        private async Task SendServiceMessage(Message packet)
+        {
+            var command = packet.Json;
+            try
+            {
+                using (var tcpClient = new TcpClient())
+                {
+                    await tcpClient.ConnectAsync(IPAddress.Loopback, 22005);
+                    using (var stream = tcpClient.GetStream())
+                    using (var sw = new StreamWriter(stream, Encoding.UTF8))
+                    {
+
+                        if (tcpClient.Connected)
+                        {
+                            await sw.WriteLineAsync(command);
+                            await sw.FlushAsync();
+                        }
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
             }
         }
 

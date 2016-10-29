@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.DirectoryServices.AccountManagement;
 using System.DirectoryServices.ActiveDirectory;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using UlteriusServer.Api.Network.Messages;
 using UlteriusServer.Utilities;
@@ -94,6 +95,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
             var connectionId = CookieManager.GetConnectionId(_client);
             var password = _packet.Args[0].ToString();
             authenticated = !string.IsNullOrEmpty(password) && AuthUtils.Authenticate(password);
+           
             AuthClient authClient;
             UlteriusApiServer.AllClients.TryGetValue(connectionId, out authClient);
             if (authClient != null)
@@ -118,28 +120,40 @@ namespace UlteriusServer.Api.Network.PacketHandlers
             _builder.WriteMessage(authenticationData);
         }
 
+     
+
         public void CheckForUpdate()
         {
+            var versionInfo = new
+            {
+                productVersion = new Version(System.Windows.Forms.Application.ProductVersion)
+            };
+            _builder.WriteMessage(versionInfo);
         }
 
         public void RestartServer()
         {
-            var data = new
+          
+            if (UlteriusApiServer.RunningAsService)
             {
-                serverRestarting = true
-            };
-            _builder.WriteMessage(data);
-            // Starts a new instance of the program itself
-            // Starts a new instance of the program itself
-            var fileName = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
-                "Bootstrapper.exe");
-            var startInfo = new ProcessStartInfo(fileName)
+                var restartServiceScript = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
+                    "restartservice.bat");
+                var serviceRestartInfo = new ProcessStartInfo(restartServiceScript)
+                {
+                    WindowStyle = ProcessWindowStyle.Minimized
+                };
+                Process.Start(serviceRestartInfo);
+            }
+            else
             {
-                WindowStyle = ProcessWindowStyle.Minimized,
-                Arguments = "restart"
-            };
-            Process.Start(startInfo);
-            Environment.Exit(0);
+                var restartServerScript = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
+               "restartulterius.bat");
+                var startInfo = new ProcessStartInfo(restartServerScript)
+                {
+                    WindowStyle = ProcessWindowStyle.Minimized
+                };
+                Process.Start(startInfo);
+            }
         }
 
         public override void HandlePacket(Packet packet)
@@ -162,7 +176,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                 case PacketManager.PacketTypes.ListPorts:
                    ListPorts();
                     break;
-                case PacketManager.PacketTypes.CheckUpdate:
+                case PacketManager.PacketTypes.CheckVersion:
                     CheckForUpdate();
                     break;
             }

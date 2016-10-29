@@ -63,7 +63,15 @@ namespace UlteriusServer.Api.Network.Models
             }
             else if (Type.Equals("cmd"))
             {
-                await RunProcessAsync(Name);
+                try
+                {
+                    await RunProcessAsync(Name);
+                }
+                catch (Exception ex)
+                {
+
+                    Console.WriteLine(ex.Message);
+                }
             }
         }
 

@@ -40,7 +40,7 @@ namespace UlteriusServer.Api.Network
             ChangeNetworkResolve,
             GetCurrentSettings,
             GetEventLogs,
-            CheckUpdate,
+            CheckVersion,
             GetWindowsData,
             RestartServer,
             GetActiveWindowsSnapshots,
@@ -249,6 +249,8 @@ namespace UlteriusServer.Api.Network
                     return new PacketInfo {Type = PacketTypes.SearchFiles, Handler = typeof(FilePacketHandler)};
                 case "aeshandshake":
                     return new PacketInfo {Type = PacketTypes.AesHandshake, Handler = typeof(ServerPacketHandler)};
+                case "checkversion":
+                    return new PacketInfo { Type = PacketTypes.CheckVersion, Handler = typeof(ServerPacketHandler) };
                 case "requestfile":
                     return new PacketInfo {Type = PacketTypes.RequestFile, Handler = typeof(FilePacketHandler)};
                 case "approvefile":

@@ -20,9 +20,12 @@ namespace UlteriusServer
     public class Ulterius
     {
         private SystemService systemService;
+        private bool isService;
 
-        public void Start()
+        public void Start(bool serviceMode = false)
         {
+            isService = serviceMode;
+
             if (Process.GetProcessesByName(
                 Path.GetFileNameWithoutExtension(Assembly.GetEntryAssembly().Location))
                 .Length > 1)
@@ -54,7 +57,14 @@ namespace UlteriusServer
         {
             if (Tools.RunningPlatform() == Tools.Platform.Windows)
             {
-                HideWindow();
+                try
+                {
+                    HideWindow();
+                }
+                catch
+                {
+                    //Failed to hide window, probably in service mode.
+                }
             }
             Console.WriteLine("Creating settings");
             try
@@ -87,7 +97,9 @@ namespace UlteriusServer
             systemService = new SystemService();
             Console.WriteLine("Creating system service");
             systemService.Start();
+            UlteriusApiServer.RunningAsService = isService;
             UlteriusApiServer.Start();
+           
             if (useTerminal)
             {
                 Console.WriteLine("Starting Terminal API");
