@@ -1,3 +1,3 @@
 @echo off
-net stop UlteriusService
-net start UlteriusService
+net stop UlteriusServer
+net start UlteriusServer

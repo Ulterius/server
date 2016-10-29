@@ -1,6 +1,8 @@
 ﻿#region
 
 using System;
+using System.Collections;
+using System.Linq;
 using System.Runtime;
 using Topshelf;
 using UlteriusServer.Forms.Utilities;
@@ -19,6 +21,9 @@ namespace UlteriusServer
         private static void Main(string[] args)
 
         {
+
+            if (System.Diagnostics.Process.GetProcessesByName(System.IO.Path.GetFileNameWithoutExtension(System.Reflection.Assembly.GetEntryAssembly().Location)).Count() > 1) return;
+
             ProfileOptimization.SetProfileRoot(AppEnvironment.DataPath);
             ProfileOptimization.StartProfile("Startup.Profile");
 

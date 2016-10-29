@@ -9,14 +9,12 @@ using System.Linq;
 using System.Management;
 using System.Net.NetworkInformation;
 using System.Reflection;
-using System.Runtime;
 using System.Security.Principal;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
 using Ionic.Zip;
-using Microsoft.Win32;
-using Microsoft.Win32.TaskScheduler;
+
 using NetFwTypeLib;
 using Open.Nat;
 using UlteriusServer.Api.Win32;
@@ -404,10 +402,6 @@ namespace UlteriusServer.Utilities
                    
                 }
             }
-            if (!RunningAsService())
-            {
-                SetStartup();
-            }
             if (File.Exists("client.zip"))
             {
                Task.Run(() => InstallClient());
@@ -437,55 +431,7 @@ namespace UlteriusServer.Utilities
         }
 
 
-        private static void SetStartup()
-        {
-            try
-            {
-                var runStartup = Convert.ToBoolean(Settings.Get("General").RunStartup);
-                var fileName = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-                using (var sched = new TaskService())
-                {
-                    var username = Environment.UserDomainName + "\\" + Environment.UserName;
-                    var t = sched.GetTask($"Ulterius {Environment.UserName}");
-                    var taskExists = t != null;
-                    if (runStartup)
-                    {
-                        if (taskExists) return;
-                        var td = TaskService.Instance.NewTask();
-                        td.Principal.RunLevel = TaskRunLevel.Highest;
-
-                        td.RegistrationInfo.Author = "Octopodal Solutions";
-                        td.RegistrationInfo.Date = new DateTime();
-                        td.RegistrationInfo.Description = "Keeps your Ulterius server up to date. If this task is disabled or stopped, your Ulterius server will not be kept up to date, meaning security vulnerabilities that may arise cannot be fixed and features may not work.";
-
-                        var logT = new LogonTrigger
-                        {
-                            Delay = new TimeSpan(0, 0, 0, 10),
-                            UserId = username
-                        };
-                        //wait 10 seconds until after login is complete to boot
-                        td.Triggers.Add(logT);
-
-                        td.Actions.Add(fileName);
-                        TaskService.Instance.RootFolder.RegisterTaskDefinition($"Ulterius {Environment.UserName}", td);
-                        Console.WriteLine("Task Registered");
-                    }
-                    else
-                    {
-                        if (taskExists)
-                        {
-                            sched.RootFolder.DeleteTask($"Ulterius {Environment.UserName}");
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Could not set startup task");
-                Console.WriteLine(ex.Message);
-                Console.WriteLine(ex.StackTrace);
-            }
-        }
+      
 
         public static bool InstallClient()
         {
