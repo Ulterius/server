@@ -121,15 +121,15 @@ namespace UlteriusServer.Api.Services.LocalSystem
                     CpuInformation.Socket = (string) cpu["SocketDesignation"];
                     CpuInformation.Name = (string) cpu["Name"];
                     CpuInformation.Description = (string) cpu["Caption"];
-                    CpuInformation.AddressWidth = (ushort) cpu["AddressWidth"];
-                    CpuInformation.DataWidth = (ushort) cpu["DataWidth"];
+                    CpuInformation.AddressWidth = (ushort?) cpu["AddressWidth"] ?? 0;
+                    CpuInformation.DataWidth = (ushort?) cpu["DataWidth"] ?? 0;
                     CpuInformation.Architecture = Environment.Is64BitOperatingSystem ? "x64" : "x86";
-                    CpuInformation.SpeedMHz = (uint) cpu["MaxClockSpeed"];
-                    CpuInformation.BusSpeedMHz = (uint) cpu["ExtClock"];
-                    CpuInformation.L2Cache = (uint) cpu["L2CacheSize"]*(ulong) 1024;
-                    CpuInformation.L3Cache = (uint) cpu["L3CacheSize"]*(ulong) 1024;
-                    CpuInformation.Cores = (uint) cpu["NumberOfCores"];
-                    CpuInformation.Threads = (uint) cpu["NumberOfLogicalProcessors"];
+                    CpuInformation.SpeedMHz = (uint?) cpu["MaxClockSpeed"] ?? 0;
+                    CpuInformation.BusSpeedMHz = (uint?) cpu["ExtClock"] ?? 0;
+                    CpuInformation.L2Cache = (uint?) cpu["L2CacheSize"]*(ulong) 1024 ?? 0;
+                    CpuInformation.L3Cache = (uint?) cpu["L3CacheSize"]*(ulong) 1024 ?? 0;
+                    CpuInformation.Cores = (uint?) cpu["NumberOfCores"] ?? 0;
+                    CpuInformation.Threads = (uint?) cpu["NumberOfLogicalProcessors"] ?? 0;
                     CpuInformation.Name =
                         CpuInformation.Name
                             .Replace("(TM)", "™")
@@ -422,7 +422,7 @@ namespace UlteriusServer.Api.Services.LocalSystem
             var myComputer = new Computer();
             myComputer.Open();
             myComputer.CPUEnabled = true;
-            return (from hardwareItem in myComputer.Hardware
+            var temps = (from hardwareItem in myComputer.Hardware
                 where hardwareItem.HardwareType == HardwareType.CPU
                 from sensor in hardwareItem.Sensors
                 where sensor.SensorType == SensorType.Temperature
@@ -430,6 +430,14 @@ namespace UlteriusServer.Api.Services.LocalSystem
                 where value != null
                 where value != null
                 select (float) value).ToList();
+            if (temps.Count != 0) return temps;
+            var tempTemps = new List<float>();
+            var procCount = Environment.ProcessorCount;
+            for (int i = 0; i < procCount; i++)
+            {
+                tempTemps.Add(-1);
+            }
+            return tempTemps;
         }
 
 

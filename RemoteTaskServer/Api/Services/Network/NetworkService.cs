@@ -96,17 +96,17 @@ namespace UlteriusServer.Api.Services.Network
                 {
                     try
                     {
-                        var hostEntry = GetReverseDns(ip, 150);
-                        name = hostEntry.Equals(ip) ? "Unknown" : hostEntry;
+                        var hostEntry = GetReverseDns(ip, 200);
+                        name = hostEntry.Equals(ip) ? "Unknown-U" : hostEntry;
                     }
                     catch (SocketException)
                     {
-                        name = "Unknown";
+                        name = "Unknown-E";
                     }
                 }
                 else
                 {
-                    name = "Unknown";
+                    name = "Unknown-O";
                 }
                 Devices.Add(new NetworkDevices
                 {
