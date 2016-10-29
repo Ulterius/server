@@ -60,7 +60,7 @@ namespace UlteriusServer.Utilities.Usage
             }
         }
 
-        public void Setup()
+        public void Setup(bool service = false)
         {
             if (File.Exists(results))
             {
@@ -72,7 +72,14 @@ namespace UlteriusServer.Utilities.Usage
             }
             else
             {
-                Prompt();
+                if (service)
+                {
+                    SendData();
+                }
+                else
+                {
+                    Prompt();
+                }
             }
         }
 

@@ -24,6 +24,7 @@ namespace UlteriusServer
 
             if (args.Length > 0)
             {
+
                 HostFactory.Run(x => //1
                 {
                     x.Service<UlteriusAgent>(s => //2

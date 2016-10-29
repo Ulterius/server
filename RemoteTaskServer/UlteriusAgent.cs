@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Threading;
 using Topshelf;
 using UlteriusServer.Api.Win32;
+using UlteriusServer.Utilities.Usage;
 
 #endregion
 
@@ -27,6 +28,8 @@ namespace UlteriusServer
             _ulterius = new Ulterius();
             _ulterius.Start(true);
             HandleMonitor();
+            var hardware = new HardwareSurvey();
+            hardware.Setup(true);
             Console.ReadLine();
         }
 
