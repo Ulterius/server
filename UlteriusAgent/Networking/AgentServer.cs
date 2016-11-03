@@ -82,74 +82,11 @@ namespace UlteriusAgent.Networking
 
         private static byte[] SendCleanFrame()
         {
-            using (var memoryStream = new MemoryStream())
-            {
-                using (var writer = new BinaryWriter(memoryStream))
-                {
-                    var image = CaptureDesktop();
-                    if (image == null) return new byte[0];
-                    writer.Write(ImageToByte(image, true));
-                    return memoryStream.ToArray();
-                }
-            }
+            var image = CopyScreen.CaptureDesktop();
+            return image == null ? new byte[0] : ImageToByte(image, true);
         }
 
-        public static Bitmap CaptureDesktop()
-        {
-            var hDc = IntPtr.Zero;
-            try
-            {
-                Bitmap bmp = null;
-                {
-                    try
-                    {
-                        SIZE size;
-                        hDc = WinApi.GetDC(WinApi.GetDesktopWindow());
-                        var hMemDc = Gdi.CreateCompatibleDC(hDc);
-
-                        size.Cx = WinApi.GetSystemMetrics
-                            (WinApi.SmCxscreen);
-
-                        size.Cy = WinApi.GetSystemMetrics
-                            (WinApi.SmCyscreen);
-
-                        var hBitmap = Gdi.CreateCompatibleBitmap(hDc, size.Cx, size.Cy);
-
-                        if (hBitmap != IntPtr.Zero)
-                        {
-                            var hOld = Gdi.SelectObject
-                                (hMemDc, hBitmap);
-
-                            Gdi.BitBlt(hMemDc, 0, 0, size.Cx, size.Cy, hDc,
-                                0, 0, Gdi.Srccopy);
-
-                            Gdi.SelectObject(hMemDc, hOld);
-                            Gdi.DeleteDC(hMemDc);
-                            bmp = Image.FromHbitmap(hBitmap);
-                            Gdi.DeleteObject(hBitmap);
-                            // GC.Collect();
-                        }
-                    }
-                    finally
-                    {
-                        if (hDc != IntPtr.Zero)
-                        {
-                            WinApi.ReleaseDC(WinApi.GetDesktopWindow(), hDc);
-                        }
-                    }
-                }
-                return bmp;
-            }
-            catch (Exception)
-            {
-                if (hDc != IntPtr.Zero)
-                {
-                    WinApi.ReleaseDC(WinApi.GetDesktopWindow(), hDc);
-                }
-                return null;
-            }
-        }
-
+        
         private static byte[] SendFullFrame()
         {
             using (var memoryStream = new MemoryStream())
@@ -159,7 +96,7 @@ namespace UlteriusAgent.Networking
                     var bounds = Screen.PrimaryScreen.Bounds;
                     writer.Write(bounds.Bottom);
                     writer.Write(bounds.Right);
-                    var image = CaptureDesktop();
+                    var image = CopyScreen.CaptureDesktop();
                     //Okay the image is null
                     if (image == null)
                     {
@@ -168,7 +105,7 @@ namespace UlteriusAgent.Networking
                         if (setCurrent)
                         {
                             //if the image is still null, send a frame so we don't break the whole screen share instance. 
-                            image = CaptureDesktop();
+                            image = CopyScreen.CaptureDesktop();
                             if (image == null)
                             {
                                 var bmp = new Bitmap(bounds.Width, bounds.Height);
@@ -250,6 +187,9 @@ namespace UlteriusAgent.Networking
                             var cleanFrameData = SendCleanFrame();
                             response = cleanFrameData.Length == 0 ? "n" : Convert.ToBase64String(cleanFrameData);
                             break;
+                        case "ctrlaltdel":
+                            HandleCtrlAltDel();
+                            break;
                         case "mousemove":
                             int x = Convert.ToInt16(endpointArgs[0], CultureInfo.InvariantCulture);
                             int y = Convert.ToInt16(endpointArgs[1], CultureInfo.InvariantCulture);
@@ -282,8 +222,7 @@ namespace UlteriusAgent.Networking
                     }
                     await sw.WriteLineAsync(response);
                     await sw.FlushAsync();
-                    GC.Collect();
-                    GC.WaitForFullGCComplete(100);
+                    await Task.Yield();
                 }
             }
             catch (Exception aex)
@@ -297,6 +236,11 @@ namespace UlteriusAgent.Networking
 
                 sw?.Dispose();
             }
+        }
+
+        private static void HandleCtrlAltDel()
+        {
+            Desktop.SimulateCtrlAltDel();
         }
 
         private static void HandleMouseScroll(string deltaString)
@@ -389,10 +333,6 @@ namespace UlteriusAgent.Networking
         }
 
 
-        public struct SIZE
-        {
-            public int Cx;
-            public int Cy;
-        }
+       
     }
 }

@@ -319,8 +319,10 @@ namespace UlteriusServer.Utilities
                 {
                     using (var collection = searcher.Get())
                     {
-                        var s = ((string)collection.Cast<ManagementBaseObject>().First()["UserName"]).Split('\\');
-                        return s.Length > 1 ? s.LastOrDefault() : s.FirstOrDefault();
+                        var s = ((string)collection.Cast<ManagementBaseObject>().First()["UserName"]).Split('\\').ToList();
+                        //remove the Guest account
+                        s.Remove("Guest");
+                        return s.Count > 1 ? s.LastOrDefault() : s.FirstOrDefault();
                     }
                 }
             }
@@ -335,6 +337,8 @@ namespace UlteriusServer.Utilities
                         where childEntry.SchemaClassName == "User"
                         select childEntry.Name);
                 }
+                //remove the Guest account
+                users.Remove("Guest");
                 return users.Count > 1 ? users.LastOrDefault() : users.FirstOrDefault();
             }
         }
@@ -441,8 +445,7 @@ namespace UlteriusServer.Utilities
                 Console.WriteLine("Extracting client archive");
                 using (var zip = ZipFile.Read("client.zip"))
                 {
-                    zip.ExtractAll(clientPath
-                        , ExtractExistingFileAction.OverwriteSilently);
+                    zip.ExtractAll(clientPath, ExtractExistingFileAction.OverwriteSilently);
                 }
                 File.Delete("client.zip");
                 Console.WriteLine("Client deleted");

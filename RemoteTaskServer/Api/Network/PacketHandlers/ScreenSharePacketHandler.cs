@@ -9,6 +9,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
@@ -33,7 +34,8 @@ namespace UlteriusServer.Api.Network.PacketHandlers
         private MessageBuilder _builder;
         private WebSocket _client;
         private Packet _packet;
-
+        [DllImport("Sas.dll", SetLastError = true)]
+        public static extern void SendSAS(bool asUser);
 
         public void StopScreenShare()
         {
@@ -162,7 +164,9 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                     using (var screenData = ScreenData.LocalAgentScreen(image))
                     {
                         if (screenData.ScreenBitmap == null)
+
                         {
+                            Thread.Sleep(250);
                             continue;
                         }
                         if (screenData.Rectangle == Rectangle.Empty) continue;
@@ -250,6 +254,11 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                         HandleMouseUp();
                     }
                     break;
+                case PacketManager.PacketTypes.CtrlAltDel:
+                   
+                        HandleCtrlAltDel();
+         
+                    break;
                 case PacketManager.PacketTypes.MouseScroll:
                     if (UlteriusApiServer.RunningAsService)
                     {
@@ -325,6 +334,12 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                     StopScreenShare();
                     break;
             }
+        }
+
+        private void HandleCtrlAltDel()
+        {
+           
+            SendSAS(false);
         }
 
         private void HandleAgentRightClick()
@@ -431,7 +446,6 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                                     var right = memoryReader.ReadInt32();
                                     var imageLength = memoryReader.ReadInt32();
                                     var image = memoryReader.ReadBytes(imageLength);
-                                    var compressed = ZlibStream.CompressBuffer(image);
                                     var screenBounds = new
                                     {
                                         bottom,
@@ -440,7 +454,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                                     var frameData = new
                                     {
                                         screenBounds,
-                                        frameData = compressed.Select(b => (int) b).ToArray()
+                                        frameData = image.Select(b => (int) b).ToArray()
                                     };
                                     _builder.WriteMessage(frameData);
                                 }
@@ -468,7 +482,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                 {
                     grab.Save(ms, ImageFormat.Jpeg);
                     var imgData = ms.ToArray();
-                    var compressed = ZlibStream.CompressBuffer(imgData);
+         
                     var bounds = Screen.PrimaryScreen.Bounds;
                     var screenBounds = new
                     {
@@ -487,7 +501,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                     var frameData = new
                     {
                         screenBounds,
-                        frameData = compressed.Select(b => (int) b).ToArray()
+                        frameData = imgData.Select(b => (int) b).ToArray()
                     };
                     _builder.WriteMessage(frameData);
                 }

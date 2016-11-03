@@ -201,23 +201,18 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                     var imageBytes = WebCamManager.Frames[cameraId];
                     if (imageBytes.Length > 0)
                     {
-                        using (var memoryStream = new MemoryStream())
-                        {
-                            using (var binaryWriter = new BinaryWriter(memoryStream))
-                            {
-                                var compressed = ZlibStream.CompressBuffer(imageBytes);
-                                binaryWriter.Write(compressed);
-                            }
+                       
+                          
                             //JSON.net turns my byte array into base64.
                             var cameraData = new
                             {
                                 cameraId,
-                                cameraData = memoryStream.ToArray().Select(b => (int)b).ToArray()
+                                cameraData = imageBytes.Select(b => (int)b).ToArray()
                             };
                             _builder.Endpoint = "cameraframe";
                             _builder.WriteMessage(cameraData);
                             Thread.Sleep(100);
-                        }
+                        
                     }
                 }
 

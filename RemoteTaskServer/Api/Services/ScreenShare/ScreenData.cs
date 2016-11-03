@@ -56,9 +56,9 @@ namespace UlteriusServer.Api.Services.ScreenShare
                         image.Save(ms, ImageFormat.Jpeg);
 
                         var imgData = ms.ToArray();
-                        var compressed = ZlibStream.CompressBuffer(imgData);
+                       
                         //write the image
-                        binaryWriter.Write(compressed);
+                        binaryWriter.Write(imgData);
                     }
                 }
                 results = screenStream.ToArray();

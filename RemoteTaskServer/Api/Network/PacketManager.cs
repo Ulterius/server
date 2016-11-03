@@ -91,7 +91,8 @@ namespace UlteriusServer.Api.Network
             RemoveJob,
             GetJobContents,
             GetAllJobs,
-            GetDescription
+            GetDescription,
+            CtrlAltDel
         }
 
         #endregion
@@ -208,6 +209,8 @@ namespace UlteriusServer.Api.Network
                     };
                 case "startprocess":
                     return new PacketInfo {Type = PacketTypes.StartProcess, Handler = typeof(ProcessPacketHandler)};
+                case "ctrlaltdel":
+                    return new PacketInfo { Type = PacketTypes.CtrlAltDel, Handler = typeof(ScreenSharePacketHandler) };
                 case "killprocess":
                     return new PacketInfo {Type = PacketTypes.KillProcess, Handler = typeof(ProcessPacketHandler)};
                 case "savesettings":

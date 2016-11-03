@@ -5,7 +5,10 @@ using System.Collections;
 using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.ConstrainedExecution;
 using System.Runtime.InteropServices;
+using WindowsInput;
+using WindowsInput.Native;
 
 #endregion
 
@@ -53,10 +56,19 @@ namespace UlteriusAgent
 
         #region Imports
 
+
+        public static int MOD_ALT = 0x1;
+        public static int VK_DELETE = 0x2E;
+        public static int MOD_CONTROL = 0x2;
+        public static int MOD_SHIFT = 0x4;
+        public static int MOD_WIN = 0x8;
+        public static int WM_HOTKEY = 0x312;
+
         [DllImport("Kernel32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.U4)]
         public static extern int WTSGetActiveConsoleSessionId();
-
+        [DllImport("Sas.dll", SetLastError = true)]
+        public static extern void SendSAS(bool asUser);
         [DllImport("kernel32.dll")]
         private static extern int GetThreadId(IntPtr thread);
 
@@ -65,7 +77,52 @@ namespace UlteriusAgent
 
         [DllImport("kernel32.dll")]
         private static extern int GetCurrentThreadId();
+        /// <summary>
+        ///     Retrieves a handle to the top-level window whose class name and window name match the specified strings. This
+        ///     function does not search child windows. This function does not perform a case-sensitive search. To search child
+        ///     windows, beginning with a specified child window, use the
+        ///     <see cref="!:https://msdn.microsoft.com/en-us/library/windows/desktop/ms633500%28v=vs.85%29.aspx">FindWindowEx</see>
+        ///     function.
+        ///     <para>
+        ///     Go to https://msdn.microsoft.com/en-us/library/windows/desktop/ms633499%28v=vs.85%29.aspx for FindWindow
+        ///     information or https://msdn.microsoft.com/en-us/library/windows/desktop/ms633500%28v=vs.85%29.aspx for
+        ///     FindWindowEx
+        ///     </para>
+        /// </summary>
+        /// <param name="lpClassName">
+        ///     C++ ( lpClassName [in, optional]. Type: LPCTSTR )<br />The class name or a class atom created by a previous call to
+        ///     the RegisterClass or RegisterClassEx function. The atom must be in the low-order word of lpClassName; the
+        ///     high-order word must be zero.
+        ///     <para>
+        ///     If lpClassName points to a string, it specifies the window class name. The class name can be any name
+        ///     registered with RegisterClass or RegisterClassEx, or any of the predefined control-class names.
+        ///     </para>
+        ///     <para>If lpClassName is NULL, it finds any window whose title matches the lpWindowName parameter.</para>
+        /// </param>
+        /// <param name="lpWindowName">
+        ///     C++ ( lpWindowName [in, optional]. Type: LPCTSTR )<br />The window name (the window's
+        ///     title). If this parameter is NULL, all window names match.
+        /// </param>
+        /// <returns>
+        ///     C++ ( Type: HWND )<br />If the function succeeds, the return value is a handle to the window that has the
+        ///     specified class name and window name. If the function fails, the return value is NULL.
+        ///     <para>To get extended error information, call GetLastError.</para>
+        /// </returns>
+        /// <remarks>
+        ///     If the lpWindowName parameter is not NULL, FindWindow calls the <see cref="M:GetWindowText" /> function to
+        ///     retrieve the window name for comparison. For a description of a potential problem that can arise, see the Remarks
+        ///     for <see cref="M:GetWindowText" />.
+        /// </remarks>
+        // For Windows Mobile, replace user32.dll with coredll.dll
+        [DllImport("user32.dll", SetLastError = true)]
+        static extern IntPtr FindWindow(string lpClassName, string lpWindowName);
 
+        // Find window by Caption only. Note you must pass IntPtr.Zero as the first parameter.
+
+        [DllImport("user32.dll", EntryPoint = "FindWindow", SetLastError = true)]
+        static extern IntPtr FindWindowByCaption(IntPtr ZeroOnly, string lpWindowName);
+
+        // You can also call FindWindow(default(string), lpWindowName) or FindWindow((string)null, lpWindowName)
         //
         // Imported winAPI functions.
         //
@@ -96,6 +153,12 @@ namespace UlteriusAgent
 
         [DllImport("user32.dll")]
         private static extern bool SetThreadDesktop(IntPtr hDesktop);
+
+        [return: MarshalAs(UnmanagedType.Bool)]
+        [ReliabilityContract(Consistency.WillNotCorruptState, Cer.MayFail)]
+        [DllImport("user32", CharSet = CharSet.Unicode, SetLastError = true)]
+        public static extern bool CloseWindowStation(IntPtr hWinsta);
+
 
         [DllImport("user32.dll")]
         private static extern IntPtr GetThreadDesktop(int dwThreadId);
@@ -133,7 +196,10 @@ namespace UlteriusAgent
             public readonly int dwProcessId;
             public readonly int dwThreadId;
         }
-
+        private static int MAKELPARAM(int p, int p_2)
+        {
+            return ((p_2 << 16) | (p & 0xFFFF));
+        }
         [StructLayout(LayoutKind.Sequential)]
         private struct STARTUPINFO
         {
@@ -156,6 +222,60 @@ namespace UlteriusAgent
             public readonly IntPtr hStdOutput;
             public readonly IntPtr hStdError;
         }
+        [Flags]
+        public enum ACCESS_MASK : uint
+        {
+            DELETE = 0x00010000,
+            READ_CONTROL = 0x00020000,
+            WRITE_DAC = 0x00040000,
+            WRITE_OWNER = 0x00080000,
+            SYNCHRONIZE = 0x00100000,
+
+            STANDARD_RIGHTS_REQUIRED = 0x000F0000,
+
+            STANDARD_RIGHTS_READ = 0x00020000,
+            STANDARD_RIGHTS_WRITE = 0x00020000,
+            STANDARD_RIGHTS_EXECUTE = 0x00020000,
+
+            STANDARD_RIGHTS_ALL = 0x001F0000,
+
+            SPECIFIC_RIGHTS_ALL = 0x0000FFFF,
+
+            ACCESS_SYSTEM_SECURITY = 0x01000000,
+
+            MAXIMUM_ALLOWED = 0x02000000,
+
+            GENERIC_READ = 0x80000000,
+            GENERIC_WRITE = 0x40000000,
+            GENERIC_EXECUTE = 0x20000000,
+            GENERIC_ALL = 0x10000000,
+
+            DESKTOP_READOBJECTS = 0x00000001,
+            DESKTOP_CREATEWINDOW = 0x00000002,
+            DESKTOP_CREATEMENU = 0x00000004,
+            DESKTOP_HOOKCONTROL = 0x00000008,
+            DESKTOP_JOURNALRECORD = 0x00000010,
+            DESKTOP_JOURNALPLAYBACK = 0x00000020,
+            DESKTOP_ENUMERATE = 0x00000040,
+            DESKTOP_WRITEOBJECTS = 0x00000080,
+            DESKTOP_SWITCHDESKTOP = 0x00000100,
+
+            WINSTA_ENUMDESKTOPS = 0x00000001,
+            WINSTA_READATTRIBUTES = 0x00000002,
+            WINSTA_ACCESSCLIPBOARD = 0x00000004,
+            WINSTA_CREATEDESKTOP = 0x00000008,
+            WINSTA_WRITEATTRIBUTES = 0x00000010,
+            WINSTA_ACCESSGLOBALATOMS = 0x00000020,
+            WINSTA_EXITWINDOWS = 0x00000040,
+            WINSTA_ENUMERATE = 0x00000100,
+            WINSTA_READSCREEN = 0x00000200,
+
+            WINSTA_ALL_ACCESS = 0x0000037F
+        }
+        [DllImport("User32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+        public static extern IntPtr OpenWindowStation(string lpszWinSta, bool fInherit, ACCESS_MASK dwDesiredAccess);
+        [DllImport("user32.dll", SetLastError = true)]
+        public static extern bool SetProcessWindowStation(IntPtr hWinSta);
 
         [DllImport("User32.Dll")]
         public static extern long SetCursorPos(int x, int y);
@@ -170,6 +290,15 @@ namespace UlteriusAgent
             public int y;
         }
 
+        public static readonly IntPtr HWND_BROADCAST = new IntPtr(0xffff);
+        public static readonly IntPtr HWND_TOP = new IntPtr(0);
+        public static readonly IntPtr HWND_BOTTOM = new IntPtr(1);
+        public static readonly IntPtr HWND_TOPMOST = new IntPtr(-1);
+        public static readonly IntPtr HWND_NOTOPMOST = new IntPtr(-2);
+        public static readonly IntPtr HWND_MESSAGE = new IntPtr(-3);
+
+        [DllImport("User32.dll")]
+        public static extern int PostMessage(IntPtr hWnd, int uMsg, int wParam, int lParam);
         #endregion
 
         #region Constants
@@ -657,6 +786,18 @@ namespace UlteriusAgent
         {
             // get the desktop.
             return new Desktop(GetThreadDesktop(GetCurrentThreadId()));
+        }
+
+        public static bool SimulateCtrlAltDel()
+        {
+
+            SendSAS(false);
+            return true;
+        }
+
+        public static int MakeLong(int low, int high)
+        {
+            return (high << 16) | (low & 0xffff);
         }
 
         /// <summary>
