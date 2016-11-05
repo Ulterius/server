@@ -430,35 +430,31 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                     using (var sr = new StreamReader(stream, Encoding.UTF8))
                     using (var sw = new StreamWriter(stream, Encoding.UTF8))
                     {
-                        if (client.Connected)
-                        {
-                            await sw.WriteLineAsync("fullframe");
-                            await sw.FlushAsync();
-                            var base64 = await sr.ReadLineAsync();
+                        if (!client.Connected) throw new InvalidOperationException("Screen share agent is not connected");
+                        await sw.WriteLineAsync("fullframe");
+                        await sw.FlushAsync();
+                        var base64 = await sr.ReadLineAsync();
 
-                            if (base64 != null && base64.Length > 1)
+                        if (base64 == null || base64.Length <= 1) throw new InvalidOperationException("Frame was null");
+                        var data = Convert.FromBase64String(base64);
+                        using (var ms = new MemoryStream(data))
+                        using (var memoryReader = new BinaryReader(ms))
+                        {
+                            var bottom = memoryReader.ReadInt32();
+                            var right = memoryReader.ReadInt32();
+                            var imageLength = memoryReader.ReadInt32();
+                            var image = memoryReader.ReadBytes(imageLength);
+                            var screenBounds = new
                             {
-                                var data = Convert.FromBase64String(base64);
-                                using (var ms = new MemoryStream(data))
-                                using (var memoryReader = new BinaryReader(ms))
-                                {
-                                    var bottom = memoryReader.ReadInt32();
-                                    var right = memoryReader.ReadInt32();
-                                    var imageLength = memoryReader.ReadInt32();
-                                    var image = memoryReader.ReadBytes(imageLength);
-                                    var screenBounds = new
-                                    {
-                                        bottom,
-                                        right
-                                    };
-                                    var frameData = new
-                                    {
-                                        screenBounds,
-                                        frameData = image.Select(b => (int) b).ToArray()
-                                    };
-                                    _builder.WriteMessage(frameData);
-                                }
-                            }
+                                bottom,
+                                right
+                            };
+                            var frameData = new
+                            {
+                                screenBounds,
+                                frameData = image.Select(b => (int) b).ToArray()
+                            };
+                            _builder.WriteMessage(frameData);
                         }
                     }
                 }
