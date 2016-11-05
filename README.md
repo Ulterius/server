@@ -21,7 +21,7 @@ Features
 
 Installation and use:
 ----
-No release at this moment. 
+Download from https://ulterius.io
 
 Plugins
 ----
