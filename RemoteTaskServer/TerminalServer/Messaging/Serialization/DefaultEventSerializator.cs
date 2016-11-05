@@ -39,7 +39,7 @@ namespace UlteriusServer.TerminalServer.Messaging.Serialization
 
                     using (var memoryStream = new MemoryStream())
                     {
-                        using (var binaryWriter = new BinaryWriter(memoryStream))
+                        using (var binaryWriter = new BinaryWriter(memoryStream, Encoding.UTF8))
                         {
                             var Endpoint = "terminal";
                             binaryWriter.Write(Endpoint.Length);
