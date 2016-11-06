@@ -22,8 +22,9 @@ namespace UlteriusServer
 
         {
 
-            if (System.Diagnostics.Process.GetProcessesByName(System.IO.Path.GetFileNameWithoutExtension(System.Reflection.Assembly.GetEntryAssembly().Location)).Count() > 1) return;
 
+            if (System.Diagnostics.Process.GetProcessesByName(System.IO.Path.GetFileNameWithoutExtension(System.Reflection.Assembly.GetEntryAssembly().Location)).Count() > 1) return;
+          
             ProfileOptimization.SetProfileRoot(AppEnvironment.DataPath);
             ProfileOptimization.StartProfile("Startup.Profile");
 

@@ -3,9 +3,13 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using UlteriusServer.TerminalServer.Infrastructure;
+using UlteriusServer.Utilities.Extensions;
 
 #endregion
 
@@ -60,11 +64,14 @@ namespace UlteriusServer.TerminalServer.Cli
                     RedirectStandardInput = true,
                     RedirectStandardError = true,
                     CreateNoWindow = true,
-                    WorkingDirectory = CurrentPath = "C:\\"
+                    StandardErrorEncoding = Encoding.GetEncoding(866),
+                    StandardOutputEncoding = Encoding.GetEncoding(866),
+                    WorkingDirectory = CurrentPath = Path.GetPathRoot(Environment.SystemDirectory)
                 }
             };
 
             _proc.Start();
+
             Task.Run(ReadAsync);
             Task.Run(ReadErrorAsync);
         }
@@ -124,6 +131,10 @@ namespace UlteriusServer.TerminalServer.Cli
                 Output(line, _commandCorrelationId, _lastCommand == null, false);
         }
 
+     
+
+
+   
         private async Task ReadAsync()
         {
             while (!_cancel.IsCancellationRequested && !_proc.HasExited)
@@ -132,7 +143,9 @@ namespace UlteriusServer.TerminalServer.Cli
                 {
                     var line = await _proc.StandardOutput.ReadLineAsync().ConfigureAwait(false);
                     if (line != null)
-                        Push(line);
+                    {
+                        Push(line.UnicodeUtf8());
+                    }
                     Thread.Sleep(20);
                 }
                 catch (TaskCanceledException)
@@ -153,7 +166,10 @@ namespace UlteriusServer.TerminalServer.Cli
                 try
                 {
                     var line = await _proc.StandardError.ReadLineAsync().ConfigureAwait(false);
-                    _errorBuffer.Add(line);
+                    if (line != null)
+                    {
+                        _errorBuffer.Add(line.UnicodeUtf8());
+                    }
                 }
                 catch (TaskCanceledException)
                 {

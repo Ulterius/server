@@ -10,6 +10,7 @@ using System.Management;
 using System.Net.NetworkInformation;
 using System.Reflection;
 using System.Security.Principal;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
@@ -346,9 +347,9 @@ namespace UlteriusServer.Utilities
         {
             try
             {
-                var filestream = new FileStream(Path.Combine(AppEnvironment.DataPath, "server.log"),
-                    FileMode.Create);
-                var streamwriter = new StreamWriter(filestream) {AutoFlush = true};
+
+                var filestream = new FileStream(Path.Combine(AppEnvironment.DataPath, "server.log"), FileMode.Create);
+                var streamwriter = new StreamWriter(filestream, Encoding.UTF8) {AutoFlush = true};
                 Console.SetOut(streamwriter);
                 Console.SetError(streamwriter);
                 return true;

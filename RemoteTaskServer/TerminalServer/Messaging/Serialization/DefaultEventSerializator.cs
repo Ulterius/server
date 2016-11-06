@@ -10,6 +10,7 @@ using UlteriusServer.Api.Network.Messages;
 using UlteriusServer.TerminalServer.Messaging.Connection;
 using UlteriusServer.TerminalServer.Messaging.TerminalControl.Requests;
 using UlteriusServer.TerminalServer.Session;
+using UlteriusServer.Utilities.Extensions;
 using UlteriusServer.Utilities.Security;
 
 #endregion
@@ -28,9 +29,8 @@ namespace UlteriusServer.TerminalServer.Messaging.Serialization
                 var json = JObject.FromObject(eventObject, serializer);
                 json.Add("type", new JValue(eventObject.GetType().Name));
                 json.Remove("connectionId");
-                var jsonString = json.ToString();
-                var utfJson = Encoding.Default.GetBytes(jsonString);
-                jsonString = Encoding.UTF8.GetString(utfJson);
+                var jsonString = json.ToString().UnicodeUtf8();
+                Console.WriteLine(jsonString);
                 if (user.AesShook)
                 {
                     var keybytes = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(user.AesKey));

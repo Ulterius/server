@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Management.Automation;
 using UlteriusServer.TerminalServer.Infrastructure;
+using UlteriusServer.Utilities.Extensions;
 
 #endregion
 
@@ -39,6 +40,7 @@ namespace UlteriusServer.TerminalServer.Cli
             _log = log;
             _proc.Commands.Clear();
             _proc.AddCommand("cd\\");
+           
             _proc.Invoke();
             _proc.Commands.Clear();
             _proc.AddCommand("Get-Location");
@@ -71,7 +73,7 @@ namespace UlteriusServer.TerminalServer.Cli
                 _proc.Commands.Clear();
                 _proc.AddCommand(value);
                 _proc.AddCommand("Out-String");
-                lines.AddRange(_proc.Invoke().Select(result => result.ToString()));
+                lines.AddRange(_proc.Invoke().Select(result => result.ToString().UnicodeUtf8()));
             }
             catch (Exception ex)
             {
@@ -87,6 +89,7 @@ namespace UlteriusServer.TerminalServer.Cli
 
             foreach (var line in lines)
             {
+
                 Output?.Invoke(line, commandCorrelationId, line == lines.Last(), false);
             }
         }
