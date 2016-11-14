@@ -1,68 +1,28 @@
-﻿using System;
-using System.Collections.Generic;
+﻿#region
+
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Windows.Forms;
+
+#endregion
 
 namespace UlteriusAgent.Api
 {
-    class CopyScreen
+    internal class CopyScreen
     {
         public static Bitmap CaptureDesktop()
         {
-            var hDc = IntPtr.Zero;
-            try
-            {
-                Bitmap bmp = null;
-                {
-                    try
-                    {
-                        SIZE size;
-                        hDc = WinApi.GetDC(WinApi.GetDesktopWindow());
-                        var hMemDc = Gdi.CreateCompatibleDC(hDc);
+            var desktopBmp = new Bitmap(
+                Screen.PrimaryScreen.Bounds.Width,
+                Screen.PrimaryScreen.Bounds.Height);
 
-                        size.Cx = WinApi.GetSystemMetrics
-                            (WinApi.SmCxscreen);
+            var g = Graphics.FromImage(desktopBmp);
 
-                        size.Cy = WinApi.GetSystemMetrics
-                            (WinApi.SmCyscreen);
-
-                        var hBitmap = Gdi.CreateCompatibleBitmap(hDc, size.Cx, size.Cy);
-
-                        if (hBitmap != IntPtr.Zero)
-                        {
-                            var hOld = Gdi.SelectObject
-                                (hMemDc, hBitmap);
-
-                            Gdi.BitBlt(hMemDc, 0, 0, size.Cx, size.Cy, hDc,
-                                0, 0, Gdi.Srccopy);
-
-                            Gdi.SelectObject(hMemDc, hOld);
-                            Gdi.DeleteDC(hMemDc);
-                            bmp = Image.FromHbitmap(hBitmap);
-                            Gdi.DeleteObject(hBitmap);
-                            // GC.Collect();
-                        }
-                    }
-                    finally
-                    {
-                        if (hDc != IntPtr.Zero)
-                        {
-                            WinApi.ReleaseDC(WinApi.GetDesktopWindow(), hDc);
-                        }
-                    }
-                }
-                return bmp;
-            }
-            catch (Exception)
-            {
-                if (hDc != IntPtr.Zero)
-                {
-                    WinApi.ReleaseDC(WinApi.GetDesktopWindow(), hDc);
-                }
-                return null;
-            }
+            g.CopyFromScreen(0, 0, 0, 0,
+                new Size(
+                    Screen.PrimaryScreen.Bounds.Width,
+                    Screen.PrimaryScreen.Bounds.Height));
+            g.Dispose();
+            return desktopBmp;
         }
 
         public struct SIZE
@@ -70,6 +30,5 @@ namespace UlteriusAgent.Api
             public int Cx;
             public int Cy;
         }
-
     }
 }
