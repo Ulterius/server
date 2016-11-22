@@ -57,7 +57,7 @@ namespace UlteriusServer.Api.Services.LocalSystem
 
 
         // ReSharper disable once UnusedMethodReturnValue.Local
-        private void SetNetworkInformation()
+        private  void SetNetworkInformation()
         {
             try
             {
@@ -68,6 +68,7 @@ namespace UlteriusServer.Api.Services.LocalSystem
                     NetworkInformation.InternalIp = NetworkService.GetIpAddress().ToString();
                     NetworkInformation.NetworkComputers = NetworkService.ConnectedDevices();
                 }
+               
             }
             catch (Exception ex)
             {

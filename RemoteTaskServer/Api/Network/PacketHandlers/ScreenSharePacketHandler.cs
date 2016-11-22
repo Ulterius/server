@@ -136,57 +136,64 @@ namespace UlteriusServer.Api.Network.PacketHandlers
 
         private async void GetScreenAgentFrame()
         {
-            var client = new TcpClient();
-            StreamReader streamReader = null;
-            StreamWriter streamWriter = null;
-            await client.ConnectAsync(IPAddress.Loopback, 22005);
-            var stream = client.GetStream();
-            streamReader = new StreamReader(stream, Encoding.UTF8);
-            streamWriter = new StreamWriter(stream, Encoding.UTF8);
-            while (_client != null && _client.IsConnected && _authClient != null &&
-                   !_authClient.ShutDownScreenShare)
+            try
             {
-                try
+                var client = new TcpClient();
+                StreamReader streamReader = null;
+                StreamWriter streamWriter = null;
+                await client.ConnectAsync(IPAddress.Loopback, 22005);
+                var stream = client.GetStream();
+                streamReader = new StreamReader(stream, Encoding.UTF8);
+                streamWriter = new StreamWriter(stream, Encoding.UTF8);
+                while (_client != null && _client.IsConnected && _authClient != null &&
+                       !_authClient.ShutDownScreenShare)
                 {
-                    if (!client.Connected)
+                    try
                     {
-                        client = new TcpClient();
-                        await client.ConnectAsync(IPAddress.Loopback, 22005);
-                        stream = client.GetStream();
-                        streamReader = new StreamReader(stream, Encoding.UTF8);
-                        streamWriter = new StreamWriter(stream, Encoding.UTF8);
-                    }
-                    await streamWriter.WriteLineAsync("cleanframe");
-                    await streamWriter.FlushAsync();
-                    var base64 = await streamReader.ReadLineAsync();
-                    if (base64 == null || base64.Length <= 1) continue;
-                    var image = GetImageFromByteArray(Convert.FromBase64String(base64));
-                    using (var screenData = ScreenData.LocalAgentScreen(image))
-                    {
-                        if (screenData.ScreenBitmap == null)
-
+                        if (!client.Connected)
                         {
-                            Thread.Sleep(250);
-                            continue;
+                            client = new TcpClient();
+                            await client.ConnectAsync(IPAddress.Loopback, 22005);
+                            stream = client.GetStream();
+                            streamReader = new StreamReader(stream, Encoding.UTF8);
+                            streamWriter = new StreamWriter(stream, Encoding.UTF8);
                         }
-                        if (screenData.Rectangle == Rectangle.Empty) continue;
-                        var data = ScreenData.PackScreenCaptureData(screenData.ScreenBitmap,
-                            screenData.Rectangle);
-                        if (data == null || data.Length <= 0) continue;
-                        _builder.Endpoint = "screensharedata";
-                        _builder.WriteScreenFrame(data);
+                        await streamWriter.WriteLineAsync("cleanframe");
+                        await streamWriter.FlushAsync();
+                        var base64 = await streamReader.ReadLineAsync();
+                        if (base64 == null || base64.Length <= 1) continue;
+                        var image = GetImageFromByteArray(Convert.FromBase64String(base64));
+                        using (var screenData = ScreenData.LocalAgentScreen(image))
+                        {
+                            if (screenData.ScreenBitmap == null)
+
+                            {
+                                continue;
+                            }
+                            if (screenData.Rectangle == Rectangle.Empty) continue;
+                            var data = ScreenData.PackScreenCaptureData(screenData.ScreenBitmap,
+                                screenData.Rectangle);
+                            if (data == null || data.Length <= 0) continue;
+                            _builder.Endpoint = "screensharedata";
+                            _builder.WriteScreenFrame(data);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.Message);
+                        Thread.Sleep(250);
                     }
                 }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.Message);
-                    Thread.Sleep(250);
-                }
+                client?.Dispose();
+                streamWriter?.Dispose();
+                streamReader?.Dispose();
+                Console.WriteLine("Screen Share Died");
             }
-            client?.Dispose();
-            streamWriter?.Dispose();
-            streamReader?.Dispose();
-            Console.WriteLine("Screen Share Died");
+            catch (Exception)
+            {
+
+               
+            }
         }
 
         private void GetScreenFrame()

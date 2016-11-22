@@ -128,7 +128,6 @@ namespace UlteriusAgent.Networking
 
         public static async Task HandleClientAsync(TcpClient client, CancellationToken cancel)
         {
-            await Task.Yield();
             StreamReader sr = null;
             StreamWriter sw = null;
             try
@@ -222,7 +221,6 @@ namespace UlteriusAgent.Networking
                     }
                     await sw.WriteLineAsync(response);
                     await sw.FlushAsync();
-                    await Task.Yield();
                 }
             }
             catch (Exception aex)

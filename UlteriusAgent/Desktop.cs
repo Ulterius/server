@@ -808,6 +808,7 @@ namespace UlteriusAgent
         /// <returns>True if the threads desktop was successfully changed.</returns>
         public static bool SetCurrent(Desktop desktop)
         {
+            
             // set threads desktop.
             return desktop.IsOpen && SetThreadDesktop(desktop.DesktopHandle);
         }

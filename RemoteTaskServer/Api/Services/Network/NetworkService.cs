@@ -36,7 +36,7 @@ namespace UlteriusServer.Api.Services.Network
             {
                 address = GetIPv4Address();
             }
-            var bindLocal = (bool) Settings.Get("Network").BindLocal;
+            var bindLocal = (bool)Settings.Get("Network").BindLocal;
             return bindLocal ? IPAddress.Parse(address) : IPAddress.Any;
         }
 
@@ -85,7 +85,7 @@ namespace UlteriusServer.Api.Services.Network
         }
         public static List<NetworkDevices> ConnectedDevices()
         {
-        
+
             var all = GetAllDevicesOnLan();
             foreach (var device in all)
             {
@@ -144,7 +144,7 @@ namespace UlteriusServer.Api.Services.Network
         /// <returns></returns>
         private static Dictionary<IPAddress, PhysicalAddress> GetAllDevicesOnLan()
         {
-            var all = new Dictionary<IPAddress, PhysicalAddress> {{GetIpAddress(), GetMacAddress()}};
+            var all = new Dictionary<IPAddress, PhysicalAddress> { { GetIpAddress(), GetMacAddress() } };
             // Add this PC to the list...
             var spaceForNetTable = 0;
             // Get the space needed
@@ -171,19 +171,19 @@ namespace UlteriusServer.Api.Services.Network
                 var rows = new MibIpnetrow[rowsCount];
                 for (var index = 0; index < rowsCount; index++)
                 {
-                    rows[index] = (MibIpnetrow) Marshal.PtrToStructure(new IntPtr(currentBuffer.ToInt64() +
-                                                                                  index*
+                    rows[index] = (MibIpnetrow)Marshal.PtrToStructure(new IntPtr(currentBuffer.ToInt64() +
+                                                                                  index *
                                                                                   Marshal.SizeOf(typeof(MibIpnetrow))
                         ),
                         typeof(MibIpnetrow));
                 }
                 // Define the dummy entries list (we can discard these)
-                var virtualMac = new PhysicalAddress(new byte[] {0, 0, 0, 0, 0, 0});
-                var broadcastMac = new PhysicalAddress(new byte[] {255, 255, 255, 255, 255, 255});
+                var virtualMac = new PhysicalAddress(new byte[] { 0, 0, 0, 0, 0, 0 });
+                var broadcastMac = new PhysicalAddress(new byte[] { 255, 255, 255, 255, 255, 255 });
                 foreach (var row in rows)
                 {
                     var ip = new IPAddress(BitConverter.GetBytes(row.dwAddr));
-                    byte[] rawMac = {row.mac0, row.mac1, row.mac2, row.mac3, row.mac4, row.mac5};
+                    byte[] rawMac = { row.mac0, row.mac1, row.mac2, row.mac3, row.mac4, row.mac5 };
                     var pa = new PhysicalAddress(rawMac);
                     if (!pa.Equals(virtualMac) && !pa.Equals(broadcastMac) && !IsMulticast(ip))
                     {
@@ -226,10 +226,10 @@ namespace UlteriusServer.Api.Services.Network
         public static PhysicalAddress GetMacAddress()
         {
             return (from nic in NetworkInterface.GetAllNetworkInterfaces()
-                where
-                    nic.NetworkInterfaceType == NetworkInterfaceType.Ethernet &&
-                    nic.OperationalStatus == OperationalStatus.Up
-                select nic.GetPhysicalAddress()).FirstOrDefault();
+                    where
+                        nic.NetworkInterfaceType == NetworkInterfaceType.Ethernet &&
+                        nic.OperationalStatus == OperationalStatus.Up
+                    select nic.GetPhysicalAddress()).FirstOrDefault();
         }
 
         /// <summary>
@@ -288,18 +288,30 @@ namespace UlteriusServer.Api.Services.Network
         [StructLayout(LayoutKind.Sequential)]
         private struct MibIpnetrow
         {
-            [MarshalAs(UnmanagedType.U4)] private readonly int dwIndex;
-            [MarshalAs(UnmanagedType.U4)] private readonly int dwPhysAddrLen;
-            [MarshalAs(UnmanagedType.U1)] public readonly byte mac0;
-            [MarshalAs(UnmanagedType.U1)] public readonly byte mac1;
-            [MarshalAs(UnmanagedType.U1)] public readonly byte mac2;
-            [MarshalAs(UnmanagedType.U1)] public readonly byte mac3;
-            [MarshalAs(UnmanagedType.U1)] public readonly byte mac4;
-            [MarshalAs(UnmanagedType.U1)] public readonly byte mac5;
-            [MarshalAs(UnmanagedType.U1)] private readonly byte mac6;
-            [MarshalAs(UnmanagedType.U1)] private readonly byte mac7;
-            [MarshalAs(UnmanagedType.U4)] public readonly int dwAddr;
-            [MarshalAs(UnmanagedType.U4)] private readonly int dwType;
+            [MarshalAs(UnmanagedType.U4)]
+            private readonly int dwIndex;
+            [MarshalAs(UnmanagedType.U4)]
+            private readonly int dwPhysAddrLen;
+            [MarshalAs(UnmanagedType.U1)]
+            public readonly byte mac0;
+            [MarshalAs(UnmanagedType.U1)]
+            public readonly byte mac1;
+            [MarshalAs(UnmanagedType.U1)]
+            public readonly byte mac2;
+            [MarshalAs(UnmanagedType.U1)]
+            public readonly byte mac3;
+            [MarshalAs(UnmanagedType.U1)]
+            public readonly byte mac4;
+            [MarshalAs(UnmanagedType.U1)]
+            public readonly byte mac5;
+            [MarshalAs(UnmanagedType.U1)]
+            private readonly byte mac6;
+            [MarshalAs(UnmanagedType.U1)]
+            private readonly byte mac7;
+            [MarshalAs(UnmanagedType.U4)]
+            public readonly int dwAddr;
+            [MarshalAs(UnmanagedType.U4)]
+            private readonly int dwType;
         }
     }
 }

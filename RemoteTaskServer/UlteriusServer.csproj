@@ -111,6 +111,7 @@
     <Compile Include="UlteriusAgent.cs" />
     <Compile Include="Utilities\Drive\Disk.cs" />
     <Compile Include="Utilities\Drive\Smart.cs" />
+    <Compile Include="Utilities\Extensions\NetworkBrowser.cs" />
     <Compile Include="Utilities\Extensions\TaskExtensions.cs" />
     <Compile Include="Utilities\Files\Database\DatabaseController.cs" />
     <Compile Include="Utilities\Files\Database\DatabaseManager.cs" />
