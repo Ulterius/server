@@ -35,7 +35,7 @@ namespace UlteriusServer.TerminalServer.Messaging.Serialization
                 {
                     var keybytes = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(user.AesKey));
                     var iv = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(user.AesIv));
-                    var encrpytedJson = UlteriusAes.Encrypt(jsonString, keybytes, iv);
+                    var encrpytedJson = UlteriusAes.Encrypt(Encoding.UTF8.GetBytes(jsonString), keybytes, iv);
 
                     using (var memoryStream = new MemoryStream())
                     {

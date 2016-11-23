@@ -58,7 +58,7 @@ namespace UlteriusServer.Api.Network.Messages
                             var keyBytes = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(_authClient.AesKey));
                             var keyIv = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(_authClient.AesIv));
 
-                            var encryptedData = Encrypt(json, keyBytes, keyIv);
+                            var encryptedData = Encrypt(Encoding.UTF8.GetBytes(json), keyBytes, keyIv);
                             using (var memoryStream = new MemoryStream())
                             {
                                 using (var binaryWriter = new BinaryWriter(memoryStream))
