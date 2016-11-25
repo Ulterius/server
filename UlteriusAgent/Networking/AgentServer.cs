@@ -12,8 +12,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using WindowsInput;
-using WindowsInput.Native;
+using InputManager;
 using UlteriusAgent.Api;
 
 #endregion
@@ -248,8 +247,8 @@ namespace UlteriusAgent.Networking
             var setCurrent = Desktop.SetCurrent(lastDesktopInput);
             if (setCurrent)
             {
-                var inputSimualtor = new InputSimulator();
-                inputSimualtor.Mouse.VerticalScroll(delta);
+                bool positive = delta > 0;
+                Mouse.Scroll(positive ? Mouse.ScrollDirection.Up : Mouse.ScrollDirection.Down);
             }
         }
 
@@ -258,8 +257,8 @@ namespace UlteriusAgent.Networking
             var setCurrent = Desktop.SetCurrent(lastDesktopInput);
             if (setCurrent)
             {
-                var inputSimualtor = new InputSimulator();
-                inputSimualtor.Mouse.RightButtonClick();
+
+                Mouse.PressButton(Mouse.MouseKeys.Right);
             }
         }
 
@@ -268,8 +267,7 @@ namespace UlteriusAgent.Networking
             var setCurrent = Desktop.SetCurrent(lastDesktopInput);
             if (setCurrent)
             {
-                var inputSimualtor = new InputSimulator();
-                inputSimualtor.Mouse.LeftButtonUp();
+                Mouse.ButtonUp(Mouse.MouseKeys.Left);
             }
         }
 
@@ -278,8 +276,7 @@ namespace UlteriusAgent.Networking
             var setCurrent = Desktop.SetCurrent(lastDesktopInput);
             if (setCurrent)
             {
-                var inputSimualtor = new InputSimulator();
-                inputSimualtor.Mouse.LeftButtonDown();
+                Mouse.ButtonDown(Mouse.MouseKeys.Left);
             }
         }
 
@@ -288,7 +285,7 @@ namespace UlteriusAgent.Networking
             var setCurrent = Desktop.SetCurrent(lastDesktopInput);
             if (setCurrent)
             {
-                Cursor.Position = new Point(x, y);
+                Mouse.Move(x, y);
             }
         }
 
@@ -297,11 +294,11 @@ namespace UlteriusAgent.Networking
             try
             {
                 var keycodes = Array.ConvertAll(endpointArgs, int.Parse);
-                var inputSimualtor = new InputSimulator();
+                
                 foreach (var code in keycodes)
                 {
-                    var virtualKey = (VirtualKeyCode) code;
-                    inputSimualtor.Keyboard.KeyUp(virtualKey);
+                    var virtualKey = (Keys) code;
+                    Keyboard.KeyUp(virtualKey);
                 }
             }
             catch (Exception ex)
@@ -317,11 +314,11 @@ namespace UlteriusAgent.Networking
                 var keycodes = Array.ConvertAll(endpointArgs, int.Parse);
 
 
-                var inputSimualtor = new InputSimulator();
+              
                 foreach (var code in keycodes)
                 {
-                    var virtualKey = (VirtualKeyCode) code;
-                    inputSimualtor.Keyboard.KeyDown(virtualKey);
+                    var virtualKey = (Keys) code;
+                   Keyboard.KeyDown(virtualKey);
                 }
             }
             catch (Exception ex)

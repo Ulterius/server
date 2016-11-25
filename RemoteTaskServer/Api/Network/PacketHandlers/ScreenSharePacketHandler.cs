@@ -13,7 +13,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
-using WindowsInput.Native;
+using InputManager;
 using Ionic.Zlib;
 using UlteriusServer.Api.Network.Messages;
 using UlteriusServer.Api.Services.LocalSystem;
@@ -71,14 +71,11 @@ namespace UlteriusServer.Api.Network.PacketHandlers
 
         private void CleanUp()
         {
-            var keyCodes = Enum.GetValues(typeof(VirtualKeyCode));
+            var keyCodes = Enum.GetValues(typeof(Keys));
             //release all keys
             foreach (var keyCode in keyCodes)
             {
-                if (_shareService.Simulator.InputDeviceState.IsKeyDown((VirtualKeyCode) keyCode))
-                {
-                    _shareService.Simulator.Keyboard.KeyUp((VirtualKeyCode) keyCode);
-                }
+               
             }
         }
 
@@ -525,8 +522,8 @@ namespace UlteriusServer.Api.Network.PacketHandlers
 
             foreach (var code in codes)
             {
-                var virtualKey = (VirtualKeyCode) code;
-                _shareService.Simulator.Keyboard.KeyUp(virtualKey);
+                var virtualKey = (Keys) code;
+                Keyboard.KeyUp(virtualKey);
             }
         }
 
@@ -548,8 +545,8 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                     .ToList();
             foreach (var code in codes)
             {
-                var virtualKey = (VirtualKeyCode) code;
-                _shareService.Simulator.Keyboard.KeyDown(virtualKey);
+                var virtualKey = (Keys) code;
+               Keyboard.KeyDown(virtualKey);
             }
         }
 
@@ -558,7 +555,8 @@ namespace UlteriusServer.Api.Network.PacketHandlers
             if (!ScreenShareService.Streams.ContainsKey(_authClient)) return;
             var delta = Convert.ToInt32(_packet.Args[0], CultureInfo.InvariantCulture);
             delta = ~delta;
-            _shareService.Simulator.Mouse.VerticalScroll(delta);
+            bool positive = delta > 0;
+            Mouse.Scroll(positive ? Mouse.ScrollDirection.Up : Mouse.ScrollDirection.Down);
         }
 
         private void HandleMoveMouse()
@@ -573,7 +571,8 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                 {
                     return;
                 }
-                Cursor.Position = new Point(x, y);
+                Mouse.Move(x, y);
+                //Cursor.Position = new Point(x, y);
             }
             catch
             {
@@ -585,7 +584,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
         {
             if (ScreenShareService.Streams.ContainsKey(_authClient))
             {
-                _shareService.Simulator.Mouse.RightButtonClick();
+                Mouse.PressButton(Mouse.MouseKeys.Right);
             }
         }
 
@@ -593,7 +592,8 @@ namespace UlteriusServer.Api.Network.PacketHandlers
         {
             if (ScreenShareService.Streams.ContainsKey(_authClient))
             {
-                _shareService.Simulator.Mouse.LeftButtonUp();
+                Mouse.ButtonUp(Mouse.MouseKeys.Left);
+
             }
         }
 
@@ -601,7 +601,8 @@ namespace UlteriusServer.Api.Network.PacketHandlers
         {
             if (ScreenShareService.Streams.ContainsKey(_authClient))
             {
-                _shareService.Simulator.Mouse.LeftButtonDown();
+                Mouse.ButtonDown(Mouse.MouseKeys.Left);
+
             }
         }
     }

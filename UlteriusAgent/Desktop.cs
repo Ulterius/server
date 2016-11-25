@@ -7,9 +7,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Runtime.ConstrainedExecution;
 using System.Runtime.InteropServices;
-using WindowsInput;
-using WindowsInput.Native;
-
 #endregion
 
 namespace UlteriusAgent
