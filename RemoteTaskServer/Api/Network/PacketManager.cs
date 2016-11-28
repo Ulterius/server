@@ -92,7 +92,9 @@ namespace UlteriusServer.Api.Network
             GetJobContents,
             GetAllJobs,
             GetDescription,
-            CtrlAltDel
+            CtrlAltDel,
+            RightDown,
+            RightUp
         }
 
         #endregion
@@ -207,6 +209,10 @@ namespace UlteriusServer.Api.Network
                         Type = PacketTypes.RequestSystemInformation,
                         Handler = typeof(SystemPacketHandler)
                     };
+                case "rightdown":
+                    return new PacketInfo { Type = PacketTypes.RightDown, Handler = typeof(ScreenSharePacketHandler) };
+                case "rightup":
+                    return new PacketInfo { Type = PacketTypes.RightUp, Handler = typeof(ScreenSharePacketHandler) };
                 case "startprocess":
                     return new PacketInfo {Type = PacketTypes.StartProcess, Handler = typeof(ProcessPacketHandler)};
                 case "ctrlaltdel":

@@ -312,6 +312,27 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                     }
 
                     break;
+                case PacketManager.PacketTypes.RightDown:
+                    if (UlteriusApiServer.RunningAsService)
+                    {
+                        HandleAgentRightDown();
+                    }
+                    else
+                    {
+                        RightDown();
+                    }
+                    break;
+                case PacketManager.PacketTypes.RightUp:
+                    if (UlteriusApiServer.RunningAsService)
+                    {
+                        HandleAgentRightUp();
+                    }
+                    else
+                    {
+                        RightUp();
+                    }
+
+                    break;
                 case PacketManager.PacketTypes.KeyUp:
                     if (UlteriusApiServer.RunningAsService)
                     {
@@ -362,6 +383,40 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                 case PacketManager.PacketTypes.StopScreenShare:
                     StopScreenShare();
                     break;
+            }
+        }
+
+
+        private void HandleAgentRightDown()
+        {
+            if (!ScreenShareService.Streams.ContainsKey(_authClient)) return;
+            var command = "rightdown";
+            var message = new Message(command, Message.MessageType.Service);
+            _authClient?.MessageQueueManagers[22005]?.SendQueue.Add(message);
+        }
+
+        private void HandleAgentRightUp()
+        {
+            if (!ScreenShareService.Streams.ContainsKey(_authClient)) return;
+            var command = "rightup";
+            var message = new Message(command, Message.MessageType.Service);
+            _authClient?.MessageQueueManagers[22005]?.SendQueue.Add(message);
+        }
+
+        private void RightUp()
+        {
+            if (ScreenShareService.Streams.ContainsKey(_authClient))
+            {
+                Console.WriteLine("Right up");
+                Mouse.ButtonUp(Mouse.MouseKeys.Right);
+            }
+        }
+
+        private void RightDown()
+        {
+            if (ScreenShareService.Streams.ContainsKey(_authClient))
+            {
+                Mouse.ButtonDown(Mouse.MouseKeys.Right);
             }
         }
 

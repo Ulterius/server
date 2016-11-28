@@ -188,6 +188,12 @@ namespace UlteriusAgent.Networking
                         case "ctrlaltdel":
                             HandleCtrlAltDel();
                             break;
+                        case "rightdown":
+                            HandleRightDown();
+                            break;
+                        case "rightup":
+                            HandleRightUp();
+                            break;
                         case "mousemove":
                             int x = Convert.ToInt16(endpointArgs[0], CultureInfo.InvariantCulture);
                             int y = Convert.ToInt16(endpointArgs[1], CultureInfo.InvariantCulture);
@@ -232,6 +238,24 @@ namespace UlteriusAgent.Networking
                 sr?.Dispose();
 
                 sw?.Dispose();
+            }
+        }
+
+        private static void HandleRightUp()
+        {
+            var setCurrent = Desktop.SetCurrent(lastDesktopInput);
+            if (setCurrent)
+            {
+                Mouse.ButtonUp(Mouse.MouseKeys.Right);
+            }
+        }
+
+        private static void HandleRightDown()
+        {
+            var setCurrent = Desktop.SetCurrent(lastDesktopInput);
+            if (setCurrent)
+            {
+                Mouse.ButtonDown(Mouse.MouseKeys.Right);
             }
         }
 
