@@ -97,7 +97,7 @@ namespace UlteriusServer
             systemService = new SystemService();
             Console.WriteLine("Creating system service");
             systemService.Start();
-            UlteriusApiServer.RunningAsService = isService;
+            UlteriusApiServer.RunningAsService = true;
             UlteriusApiServer.Start();
            
             if (useTerminal)

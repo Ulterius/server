@@ -15,8 +15,7 @@ namespace UlteriusServer.Api.Network.Messages
 {
     public class MessageQueueManager
     {
-        public BlockingCollection<Message> SendQueue =
-            new BlockingCollection<Message>(new ConcurrentQueue<Message>());
+        public BlockingCollection<Message> SendQueue = new BlockingCollection<Message>();
 
         public MessageQueueManager()
         {
@@ -26,19 +25,19 @@ namespace UlteriusServer.Api.Network.Messages
 
         private async void MessageWorker()
         {
-            while (true)
+            foreach (var packet in SendQueue.GetConsumingEnumerable())  //it will block here automatically waiting from new items to be added and it will not take cpu down 
             {
-                var packet = SendQueue.Take();
-                if (packet.Type == Message.MessageType.Binary)
+                switch (packet.Type)
                 {
-                    await SendBinaryPacket(packet);
-                }
-                else if (packet.Type == Message.MessageType.Text)
-                {
-                    await SendJsonPacket(packet);
-                } else if (packet.Type == Message.MessageType.Service)
-                {
-                    await SendServiceMessage(packet);
+                    case Message.MessageType.Binary:
+                        await SendBinaryPacket(packet);
+                        break;
+                    case Message.MessageType.Text:
+                        await SendJsonPacket(packet);
+                        break;
+                    case Message.MessageType.Service:
+                        await SendServiceMessage(packet);
+                        break;
                 }
             }
         }

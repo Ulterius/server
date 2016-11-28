@@ -14,7 +14,6 @@ using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 using InputManager;
-using Ionic.Zlib;
 using UlteriusServer.Api.Network.Messages;
 using UlteriusServer.Api.Services.LocalSystem;
 using UlteriusServer.Api.Services.ScreenShare;
@@ -28,12 +27,19 @@ namespace UlteriusServer.Api.Network.PacketHandlers
 {
     internal class ScreenSharePacketHandler : PacketHandler
     {
+        private static readonly int _targetFps = 15;
+        private readonly long _optimalTime = 1000000000/_targetFps;
         private readonly Screen[] _screens = Screen.AllScreens;
         private readonly ScreenShareService _shareService = UlteriusApiServer.ScreenShareService;
         private AuthClient _authClient;
         private MessageBuilder _builder;
         private WebSocket _client;
+        private long _lastLoopTime = Environment.TickCount;
         private Packet _packet;
+        private int fps;
+        private long lastFpsTime;
+        private int lastLoopTime;
+
         [DllImport("Sas.dll", SetLastError = true)]
         public static extern void SendSAS(bool asUser);
 
@@ -75,7 +81,6 @@ namespace UlteriusServer.Api.Network.PacketHandlers
             //release all keys
             foreach (var keyCode in keyCodes)
             {
-               
             }
         }
 
@@ -145,6 +150,18 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                 while (_client != null && _client.IsConnected && _authClient != null &&
                        !_authClient.ShutDownScreenShare)
                 {
+                    var now = Environment.TickCount;
+                    long updateLength = now - lastLoopTime;
+                    lastLoopTime = now;
+                    var delta = updateLength/(double) _optimalTime;
+                    lastFpsTime += updateLength;
+                    fps++;
+                    if (lastFpsTime >= 1000000000)
+                    {
+                        Console.WriteLine("(FPS: " + fps + ")");
+                        lastFpsTime = 0;
+                        fps = 0;
+                    }
                     try
                     {
                         if (!client.Connected)
@@ -158,28 +175,30 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                         await streamWriter.WriteLineAsync("cleanframe");
                         await streamWriter.FlushAsync();
                         var base64 = await streamReader.ReadLineAsync();
-                        if (base64 == null || base64.Length <= 1) continue;
-                        var image = GetImageFromByteArray(Convert.FromBase64String(base64));
-                        using (var screenData = ScreenData.LocalAgentScreen(image))
+                        if (base64 != null && base64.Length > 1)
                         {
-                            if (screenData.ScreenBitmap == null)
-
+                            var image = GetImageFromByteArray(Convert.FromBase64String(base64));
+                            using (var screenData = ScreenData.LocalAgentScreen(image))
                             {
-                                continue;
+                                if (screenData.ScreenBitmap != null && screenData.Rectangle != Rectangle.Empty)
+                                {
+                                    var data = ScreenData.PackScreenCaptureData(screenData.ScreenBitmap,
+                                        screenData.Rectangle);
+                                    if (data != null && data.Length > 0)
+                                    {
+                                        _builder.Endpoint = "screensharedata";
+                                        _builder.WriteScreenFrame(data);
+                                    }
+                                }
                             }
-                            if (screenData.Rectangle == Rectangle.Empty) continue;
-                            var data = ScreenData.PackScreenCaptureData(screenData.ScreenBitmap,
-                                screenData.Rectangle);
-                            if (data == null || data.Length <= 0) continue;
-                            _builder.Endpoint = "screensharedata";
-                            _builder.WriteScreenFrame(data);
                         }
                     }
                     catch (Exception ex)
                     {
                         Console.WriteLine(ex.Message);
-                        Thread.Sleep(250);
                     }
+                    var time = (lastLoopTime - Environment.TickCount + _optimalTime)/1000000;
+                    Thread.Sleep(TimeSpan.FromMilliseconds(time));
                 }
                 client?.Dispose();
                 streamWriter?.Dispose();
@@ -188,8 +207,6 @@ namespace UlteriusServer.Api.Network.PacketHandlers
             }
             catch (Exception)
             {
-
-               
             }
         }
 
@@ -198,23 +215,29 @@ namespace UlteriusServer.Api.Network.PacketHandlers
             while (_client != null && _client.IsConnected && _authClient != null &&
                    !_authClient.ShutDownScreenShare)
             {
+                var now = Environment.TickCount;
+                long updateLength = now - lastLoopTime;
+                lastLoopTime = now;
+                var delta = updateLength / (double)_optimalTime;
+                lastFpsTime += updateLength;
+                fps++;
+                if (lastFpsTime >= 1000000000)
+                {
+                    Console.WriteLine("(FPS: " + fps + ")");
+                    lastFpsTime = 0;
+                    fps = 0;
+                }
                 try
                 {
                     using (var image = ScreenData.LocalScreen())
                     {
-                        if (image == null)
-                        {
-                            Thread.Sleep(250);
-                            continue;
-                        }
-                        if (image.Rectangle != Rectangle.Empty)
+                        if (image != null && image.Rectangle != Rectangle.Empty)
                         {
                             var data = ScreenData.PackScreenCaptureData(image.ScreenBitmap, image.Rectangle);
                             if (data != null && data.Length > 0)
                             {
                                 _builder.Endpoint = "screensharedata";
                                 _builder.WriteScreenFrame(data);
-
                                 data = null;
                                 GC.Collect();
                                 GC.WaitForPendingFinalizers();
@@ -226,6 +249,8 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                 {
                     Console.WriteLine(e.Message + " " + e.StackTrace);
                 }
+                var time = (lastLoopTime - Environment.TickCount + _optimalTime) / 1000000;
+                Thread.Sleep(TimeSpan.FromMilliseconds(time));
             }
             Console.WriteLine("Screen Share Died");
         }
@@ -259,9 +284,9 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                     }
                     break;
                 case PacketManager.PacketTypes.CtrlAltDel:
-                   
-                        HandleCtrlAltDel();
-         
+
+                    HandleCtrlAltDel();
+
                     break;
                 case PacketManager.PacketTypes.MouseScroll:
                     if (UlteriusApiServer.RunningAsService)
@@ -342,7 +367,6 @@ namespace UlteriusServer.Api.Network.PacketHandlers
 
         private void HandleCtrlAltDel()
         {
-           
             SendSAS(false);
         }
 
@@ -354,7 +378,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
             _authClient?.MessageQueueManagers[22005]?.SendQueue.Add(message);
         }
 
-        private  void HandleAgentMouseScroll()
+        private void HandleAgentMouseScroll()
         {
             if (!ScreenShareService.Streams.ContainsKey(_authClient)) return;
             var delta = Convert.ToInt32(_packet.Args[0], CultureInfo.InvariantCulture);
@@ -434,7 +458,8 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                     using (var sr = new StreamReader(stream, Encoding.UTF8))
                     using (var sw = new StreamWriter(stream, Encoding.UTF8))
                     {
-                        if (!client.Connected) throw new InvalidOperationException("Screen share agent is not connected");
+                        if (!client.Connected)
+                            throw new InvalidOperationException("Screen share agent is not connected");
                         await sw.WriteLineAsync("fullframe");
                         await sw.FlushAsync();
                         var base64 = await sr.ReadLineAsync();
@@ -482,7 +507,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                 {
                     grab.Save(ms, ImageFormat.Jpeg);
                     var imgData = ms.ToArray();
-         
+
                     var bounds = Screen.PrimaryScreen.Bounds;
                     var screenBounds = new
                     {
@@ -546,7 +571,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
             foreach (var code in codes)
             {
                 var virtualKey = (Keys) code;
-               Keyboard.KeyDown(virtualKey);
+                Keyboard.KeyDown(virtualKey);
             }
         }
 
@@ -555,7 +580,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
             if (!ScreenShareService.Streams.ContainsKey(_authClient)) return;
             var delta = Convert.ToInt32(_packet.Args[0], CultureInfo.InvariantCulture);
             delta = ~delta;
-            bool positive = delta > 0;
+            var positive = delta > 0;
             Mouse.Scroll(positive ? Mouse.ScrollDirection.Up : Mouse.ScrollDirection.Down);
         }
 
@@ -593,7 +618,6 @@ namespace UlteriusServer.Api.Network.PacketHandlers
             if (ScreenShareService.Streams.ContainsKey(_authClient))
             {
                 Mouse.ButtonUp(Mouse.MouseKeys.Left);
-
             }
         }
 
@@ -602,7 +626,6 @@ namespace UlteriusServer.Api.Network.PacketHandlers
             if (ScreenShareService.Streams.ContainsKey(_authClient))
             {
                 Mouse.ButtonDown(Mouse.MouseKeys.Left);
-
             }
         }
     }

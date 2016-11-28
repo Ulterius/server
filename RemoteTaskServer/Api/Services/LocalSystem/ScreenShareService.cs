@@ -11,7 +11,7 @@ namespace UlteriusServer.Api.Services.LocalSystem
 {
     public class ScreenShareService
     {
-      
+
 
         public ScreenShareService()
         {

@@ -36,7 +36,7 @@ namespace UlteriusAgent.Networking
                 var task = AcceptClientsAsync(listener, cancel);
                 Console.ReadLine();
                 cancellationTokenSource.Cancel();
-                task.Wait();
+                task.Wait(cancel);
             }
             catch (SocketException ex)
             {
@@ -47,7 +47,7 @@ namespace UlteriusAgent.Networking
 
         public static async Task AcceptClientsAsync(TcpListener listener, CancellationToken cancel)
         {
-            await Task.Yield();
+          
             while (!cancel.IsCancellationRequested)
             {
                 try
@@ -85,7 +85,7 @@ namespace UlteriusAgent.Networking
             return image == null ? new byte[0] : ImageToByte(image, true);
         }
 
-        
+
         private static byte[] SendFullFrame()
         {
             using (var memoryStream = new MemoryStream())
@@ -167,7 +167,7 @@ namespace UlteriusAgent.Networking
                     {
                         break;
                     }
-                    string[] endpointArgs = {};
+                    string[] endpointArgs = { };
                     if (endpoint.Contains("|"))
                     {
                         var splitPoint = endpoint.Split('|');
@@ -294,10 +294,10 @@ namespace UlteriusAgent.Networking
             try
             {
                 var keycodes = Array.ConvertAll(endpointArgs, int.Parse);
-                
+
                 foreach (var code in keycodes)
                 {
-                    var virtualKey = (Keys) code;
+                    var virtualKey = (Keys)code;
                     Keyboard.KeyUp(virtualKey);
                 }
             }
@@ -314,11 +314,11 @@ namespace UlteriusAgent.Networking
                 var keycodes = Array.ConvertAll(endpointArgs, int.Parse);
 
 
-              
+
                 foreach (var code in keycodes)
                 {
-                    var virtualKey = (Keys) code;
-                   Keyboard.KeyDown(virtualKey);
+                    var virtualKey = (Keys)code;
+                    Keyboard.KeyDown(virtualKey);
                 }
             }
             catch (Exception ex)
@@ -328,6 +328,6 @@ namespace UlteriusAgent.Networking
         }
 
 
-       
+
     }
 }
