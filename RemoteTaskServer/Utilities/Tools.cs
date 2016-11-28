@@ -430,7 +430,7 @@ namespace UlteriusServer.Utilities
             proc.WaitForExit();
         }
 
-        private static bool RunningAsService()
+        public static bool RunningAsService()
         {
            return GetCurrent().Name.ToLower().Contains(@"nt authority\system");
         }
