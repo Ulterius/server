@@ -83,8 +83,10 @@ namespace UlteriusServer.Utilities.Security
             {
                 try
                 {
+                  
                     var domainContext = new DirectoryContext(DirectoryContextType.Domain, Environment.UserDomainName,
                         username, password);
+
                     var domain = Domain.GetDomain(domainContext);
                     var controller = domain.FindDomainController();
                     //controller logged in if we didn't throw.

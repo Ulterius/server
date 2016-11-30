@@ -60,7 +60,7 @@ namespace UlteriusServer.TerminalServer.Messaging.TerminalControl.Handlers
                 });
                 if (!connection.IsAuthed)
                 {
-                    cli.Output("Please Login to continue (ulterius-auth)", 0, true, false);
+                    cli.Output("Please Login to continue, type: ulterius-auth", 0, true, false);
                 }
             }
             catch (Exception e)

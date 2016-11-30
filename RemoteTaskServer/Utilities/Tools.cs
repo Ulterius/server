@@ -207,6 +207,7 @@ namespace UlteriusServer.Utilities
                     {
                         var s = ((string)collection.Cast<ManagementBaseObject>().First()["UserName"]).Split('\\').ToList();
                         //remove the Guest account
+                        s.Remove("HomeGroupUser$");
                         s.Remove("Guest");
                         return s.Count > 1 ? s.LastOrDefault() : s.FirstOrDefault();
                     }
@@ -224,6 +225,7 @@ namespace UlteriusServer.Utilities
                         select childEntry.Name);
                 }
                 //remove the Guest account
+                users.Remove("HomeGroupUser$");
                 users.Remove("Guest");
                 return users.Count > 1 ? users.LastOrDefault() : users.FirstOrDefault();
             }

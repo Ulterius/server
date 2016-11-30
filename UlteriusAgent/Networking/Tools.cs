@@ -25,7 +25,7 @@ namespace UlteriusAgent.Networking
                     process.WaitForExit();
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 // ignored
             }

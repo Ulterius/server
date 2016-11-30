@@ -52,7 +52,7 @@ namespace UlteriusServer.TerminalServer.Messaging.TerminalControl.Handlers
             }
             else if (!connection.IsAuthed)
             {
-                cli.Output("Please login to use this terminal (ulterius-auth)", 0, true, false);
+                cli.Output("Please Login to continue, type: ulterius-auth", 0, true, false);
             }
             else if (connection.IsAuthed)
             {

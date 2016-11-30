@@ -26,11 +26,5 @@ namespace UlteriusAgent.Api
             g.Dispose();
             return desktopBmp;
         }
-
-        public struct SIZE
-        {
-            public int Cx;
-            public int Cy;
-        }
     }
 }

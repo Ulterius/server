@@ -38,7 +38,7 @@ namespace UlteriusAgent.Networking
                 cancellationTokenSource.Cancel();
                 task.Wait(cancel);
             }
-            catch (SocketException ex)
+            catch (SocketException)
             {
                 Process.GetCurrentProcess().Kill();
                 Process.GetCurrentProcess().WaitForExit();
