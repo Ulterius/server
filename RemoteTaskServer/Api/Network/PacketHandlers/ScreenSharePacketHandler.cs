@@ -15,11 +15,12 @@ using System.Threading;
 using System.Windows.Forms;
 using InputManager;
 using UlteriusServer.Api.Network.Messages;
-using UlteriusServer.Api.Services.LocalSystem;
 using UlteriusServer.Api.Services.ScreenShare;
+using UlteriusServer.Utilities.Settings;
 using UlteriusServer.WebSocketAPI.Authentication;
 using vtortola.WebSockets;
 using Message = UlteriusServer.Api.Network.Messages.Message;
+using ScreenShareService = UlteriusServer.Api.Services.LocalSystem.ScreenShareService;
 
 #endregion
 
@@ -27,8 +28,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
 {
     internal class ScreenSharePacketHandler : PacketHandler
     {
-        private static readonly int _targetFps = 60;
-        private readonly long _optimalTime = 1000000000/_targetFps;
+       
         private readonly Screen[] _screens = Screen.AllScreens;
         private readonly ScreenShareService _shareService = UlteriusApiServer.ScreenShareService;
         private AuthClient _authClient;
@@ -147,21 +147,18 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                 var stream = client.GetStream();
                 streamReader = new StreamReader(stream, Encoding.UTF8);
                 streamWriter = new StreamWriter(stream, Encoding.UTF8);
+                var targetFps = Config.Load().ScreenShareService.ScreenShareFps;
+
+                 var optimalTime = 1000000000 / targetFps;
                 while (_client != null && _client.IsConnected && _authClient != null &&
                        !_authClient.ShutDownScreenShare)
                 {
                     var now = Environment.TickCount;
                     long updateLength = now - lastLoopTime;
                     lastLoopTime = now;
-                    var delta = updateLength/(double) _optimalTime;
+                    var delta = updateLength/(double)optimalTime;
                     lastFpsTime += updateLength;
                     fps++;
-                    if (lastFpsTime >= 1000000000)
-                    {
-                        Console.WriteLine("(FPS: " + fps + ")");
-                        lastFpsTime = 0;
-                        fps = 0;
-                    }
                     try
                     {
                         if (!client.Connected)
@@ -192,13 +189,14 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                                 }
                             }
                         }
+                        var time = (lastLoopTime - Environment.TickCount + optimalTime) / 1000000;
+                        Thread.Sleep(TimeSpan.FromMilliseconds(time));
                     }
                     catch (Exception ex)
                     {
                         Console.WriteLine(ex.Message);
                     }
-                    var time = (lastLoopTime - Environment.TickCount + _optimalTime)/1000000;
-                    Thread.Sleep(TimeSpan.FromMilliseconds(time));
+                   
                 }
                 client?.Dispose();
                 streamWriter?.Dispose();
@@ -212,21 +210,18 @@ namespace UlteriusServer.Api.Network.PacketHandlers
 
         private void GetScreenFrame()
         {
+            var targetFps = Config.Load().ScreenShareService.ScreenShareFps;
+
+            var optimalTime = 1000000000 / targetFps;
             while (_client != null && _client.IsConnected && _authClient != null &&
                    !_authClient.ShutDownScreenShare)
             {
                 var now = Environment.TickCount;
                 long updateLength = now - lastLoopTime;
                 lastLoopTime = now;
-                var delta = updateLength / (double)_optimalTime;
+                var delta = updateLength / (double)optimalTime;
                 lastFpsTime += updateLength;
                 fps++;
-                if (lastFpsTime >= 1000000000)
-                {
-                    Console.WriteLine("(FPS: " + fps + ")");
-                    lastFpsTime = 0;
-                    fps = 0;
-                }
                 try
                 {
                     using (var image = ScreenData.LocalScreen())
@@ -244,13 +239,14 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                             }
                         }
                     }
+                    var time = (lastLoopTime - Environment.TickCount + optimalTime) / 1000000;
+                    Thread.Sleep(TimeSpan.FromMilliseconds(time));
                 }
                 catch (Exception e)
                 {
                     Console.WriteLine(e.Message + " " + e.StackTrace);
                 }
-                var time = (lastLoopTime - Environment.TickCount + _optimalTime) / 1000000;
-                Thread.Sleep(TimeSpan.FromMilliseconds(time));
+               
             }
             Console.WriteLine("Screen Share Died");
         }
