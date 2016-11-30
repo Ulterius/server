@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Threading;
+using System.Threading.Tasks;
 using Topshelf;
 using UlteriusServer.Api.Win32;
 using UlteriusServer.Utilities.Usage;
@@ -28,12 +29,27 @@ namespace UlteriusServer
             _ulterius = new Ulterius();
             _ulterius.Start(true);
             HandleMonitor();
+            WatchForAgent();
             var hardware = new HardwareSurvey();
             hardware.Setup(true);
             Console.ReadLine();
         }
 
-
+        private void WatchForAgent()
+        {
+            Task.Run(() =>
+            {
+                while (true)
+                {
+                    var agentList = Process.GetProcessesByName("UlteriusAgent");
+                    if (agentList.Length == 0)
+                    {
+                        HandleMonitor();
+                    }
+                    Thread.Sleep(1000);
+                }
+            });
+        }
         public void HandleMonitor()
         {
             _LastSession = Desktop.WTSGetActiveConsoleSessionId();

@@ -3,8 +3,10 @@
 using System;
 using System.IO;
 using System.Text;
+using Newtonsoft.Json;
 using UlteriusServer.Api.Network.Messages;
 using UlteriusServer.Utilities;
+using UlteriusServer.Utilities.Settings;
 using UlteriusServer.WebSocketAPI.Authentication;
 using vtortola.WebSockets;
 
@@ -21,7 +23,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
 
         public void GetCurrentSettings()
         {
-            _builder.WriteMessage(Settings.GetRaw());
+            _builder.WriteMessage(Config.GetRaw());
         }
 
         public void SaveSettings()
@@ -31,8 +33,10 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                 var base64Settings = _packet.Args[0].ToString();
                 var data = Convert.FromBase64String(base64Settings);
                 var decodedString = Encoding.UTF8.GetString(data);
-                File.WriteAllText(Settings.FilePath, decodedString);
-                Settings.Load();
+                var fileName = "Config.json";
+                var filePath = Path.Combine(AppEnvironment.DataPath, fileName);
+                var config =  JsonConvert.DeserializeObject<Config>(decodedString);
+                File.WriteAllText(filePath, JsonConvert.SerializeObject(config, Formatting.Indented));
                 var response = new
                 {
                     changedStatus = true

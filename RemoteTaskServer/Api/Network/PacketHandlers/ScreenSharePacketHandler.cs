@@ -27,7 +27,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
 {
     internal class ScreenSharePacketHandler : PacketHandler
     {
-        private static readonly int _targetFps = 15;
+        private static readonly int _targetFps = 60;
         private readonly long _optimalTime = 1000000000/_targetFps;
         private readonly Screen[] _screens = Screen.AllScreens;
         private readonly ScreenShareService _shareService = UlteriusApiServer.ScreenShareService;

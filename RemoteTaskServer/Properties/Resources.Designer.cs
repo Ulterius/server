@@ -8,9 +8,6 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-using System.Drawing;
-using System.Windows.Forms;
-
 namespace UlteriusServer.Properties {
     using System;
     
@@ -66,7 +63,7 @@ namespace UlteriusServer.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
         /// </summary>
-        internal static Icon ApplicationIcon {
+        internal static System.Drawing.Icon ApplicationIcon {
             get {
                 object obj = ResourceManager.GetObject("ApplicationIcon", resourceCulture);
                 return ((System.Drawing.Icon)(obj));
@@ -106,7 +103,7 @@ namespace UlteriusServer.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Settings didn&apos;t exist, writing to disk..
+        ///   Looks up a localized string similar to Config didn&apos;t exist, writing to disk..
         /// </summary>
         internal static string Program_Main_Settings_didn_t_exist__writing_to_disk_ {
             get {

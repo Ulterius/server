@@ -10,6 +10,7 @@ using UlteriusServer.Api;
 using UlteriusServer.Api.Services.LocalSystem;
 using UlteriusServer.TerminalServer;
 using UlteriusServer.Utilities;
+using UlteriusServer.Utilities.Settings;
 using UlteriusServer.WebCams;
 using UlteriusServer.WebServer;
 
@@ -66,24 +67,21 @@ namespace UlteriusServer
                     //Failed to hide window, probably in service mode.
                 }
             }
-            Console.WriteLine("Creating settings");
-            try
-            {
-                Settings.Initialize("Config.json");
-            }
-            catch (JsonReaderException)
-            {
-                Console.WriteLine("Settings broken, fixing.");
-                var settingsPath = Path.Combine(AppEnvironment.DataPath, "Config.json");
-                //Handle settings failing to create, rarely happens but it does.
-                File.Delete(settingsPath);
-                Settings.Initialize("Config.json");
-            }
+
+
+             Console.WriteLine("Creating settings");
+           
+            var settings = Config.Load();
+
+        
+           
             Console.WriteLine("Configuring up server");
             Tools.ConfigureServer();
-            var useTerminal = Convert.ToBoolean(Settings.Get("Terminal").AllowTerminal);
-            var useWebServer = Convert.ToBoolean(Settings.Get("WebServer").ToggleWebServer);
-            var useWebCams = Convert.ToBoolean(Settings.Get("Webcams").UseWebcams);
+          
+
+            var useTerminal = settings.Terminal.AllowTerminal;
+            var useWebServer = settings.WebServer.ToggleWebServer;
+            var useWebCams = settings.Webcams.UseWebcams;
             if (useWebCams)
             {
                 Console.WriteLine("Loading Webcams");
@@ -107,7 +105,7 @@ namespace UlteriusServer
             }
             try
             {
-                var useUpnp = Convert.ToBoolean(Settings.Get("Network").UpnpEnabled);
+                var useUpnp = settings.Network.UpnpEnabled;
                 if (useUpnp)
                 {
                     Console.WriteLine("Trying to forward ports");

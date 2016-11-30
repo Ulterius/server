@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using UlteriusServer.Utilities.Extensions;
+using UlteriusServer.Utilities.Settings;
 
 #endregion
 
@@ -21,6 +22,7 @@ namespace UlteriusServer.Utilities
                                                             $"{DateTime.Now:HH-mm-ss tt} {(int) (DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalSeconds}.log";
 
         private static List<TraceDelegate> _traceDelegates;
+        private static Config config;
 
         public static void AddTraceLogger(TraceDelegate traceAction)
         {
@@ -29,7 +31,8 @@ namespace UlteriusServer.Utilities
 
         public static void Debug(string format, params object[] args)
         {
-            if (Settings.Get("Debug").TraceDebug)
+
+            if (config.Debug.TraceDebug)
             {
                 Log(format, args);
             }
@@ -37,6 +40,7 @@ namespace UlteriusServer.Utilities
 
         public static void Initialize()
         {
+             config = Config.Load();
             _traceDelegates = new List<TraceDelegate>();
             var tracePath = Path.Combine(ExceptionHandler.LogsPath, "Traces");
             var filePath = Path.Combine(tracePath, TraceFilenameFormat);

@@ -16,6 +16,7 @@ using UlteriusServer.Api.Services.Network;
 using UlteriusServer.Properties;
 using UlteriusServer.Utilities;
 using UlteriusServer.Utilities.Files;
+using UlteriusServer.Utilities.Settings;
 using UlteriusServer.WebServer.RemoteTaskServer.WebServer;
 using File = System.IO.File;
 
@@ -145,11 +146,12 @@ namespace UlteriusServer.WebServer
 
         public static void Setup()
         {
-            var useWebServer = Convert.ToBoolean(Settings.Get("WebServer").ToggleWebServer);
+            var config = Config.Load();
+            var useWebServer = config.WebServer.ToggleWebServer;
             if (useWebServer)
             {
-                var root = Settings.Get("WebServer").WebFilePath.ToString();
-                var port = (int) Settings.Get("WebServer").WebServerPort;
+                var root = config.WebServer.WebFilePath;
+                var port = config.WebServer.WebServerPort;
                 GlobalPort = port;
                 var httpServer = new HttpServer(root, port);
                 Console.WriteLine(Resources.Program_Main_Web_Server_is_running_on_this_port__ + httpServer.Port);

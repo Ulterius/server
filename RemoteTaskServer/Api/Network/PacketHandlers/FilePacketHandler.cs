@@ -12,6 +12,7 @@ using UlteriusServer.Utilities;
 using UlteriusServer.Utilities.Extensions;
 using UlteriusServer.Utilities.Files;
 using UlteriusServer.Utilities.Security;
+using UlteriusServer.Utilities.Settings;
 using UlteriusServer.WebSocketAPI.Authentication;
 using vtortola.WebSockets;
 using ZetaLongPaths;
@@ -30,6 +31,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
         private AuthClient _authClient;
         private WebSocket _client;
         private Packet _packet;
+        private Config config;
 
         public void CreateFileTree()
         {
@@ -147,9 +149,10 @@ namespace UlteriusServer.Api.Network.PacketHandlers
 
         public void RemoveFile()
         {
+            
             var fileName = _packet.Args[0].ToString();
        
-            var webPath = Settings.Get("WebServer").WebFilePath.ToString();
+            var webPath = config.WebServer.WebFilePath.ToString();
             var tempFolderPath = webPath + "temp\\";
             string[] filePaths = Directory.GetFiles(tempFolderPath, "*.*",
                 SearchOption.TopDirectoryOnly);
@@ -210,7 +213,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
 
         public void ProcessFile(string path, string password, long totalSize)
         {
-            var webPath = Settings.Get("WebServer").WebFilePath.ToString();
+            var webPath = config.WebServer.WebFilePath;
             var tempFolderPath = webPath + "temp\\";
             if (!Directory.Exists(tempFolderPath))
             {
@@ -223,7 +226,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
             var fileName = Path.GetFileName(path);
 
             var ip = NetworkService.GetAddress();
-            var port = (int) Settings.Get("WebServer").WebServerPort;
+            var port = config.WebServer.WebServerPort;
 
             var passwordBytes = Encoding.UTF8.GetBytes(password);
 
@@ -266,6 +269,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
 
         public override void HandlePacket(Packet packet)
         {
+             config = Config.Load();
             _client = packet.Client;
             _authClient = packet.AuthClient;
             _packet = packet;

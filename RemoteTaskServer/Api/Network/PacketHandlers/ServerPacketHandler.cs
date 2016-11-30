@@ -10,8 +10,10 @@ using System.Reflection;
 using UlteriusServer.Api.Network.Messages;
 using UlteriusServer.Utilities;
 using UlteriusServer.Utilities.Security;
+using UlteriusServer.Utilities.Settings;
 using UlteriusServer.WebSocketAPI.Authentication;
 using vtortola.WebSockets;
+using Version = System.Version;
 
 #endregion
 
@@ -72,11 +74,12 @@ namespace UlteriusServer.Api.Network.PacketHandlers
 
         public void ListPorts()
         {
-            var webServerPort = (ushort)Settings.Get("WebServer").WebServerPort;
-            var apiPort = (ushort)Settings.Get("TaskServer").TaskServerPort;
-            var webcamPort = (ushort)Settings.Get("Webcams").WebcamPort;
-            var terminalPort = (ushort)Settings.Get("Terminal").TerminalPort;
-            var screenSharePort = (ushort)Settings.Get("ScreenShareService").ScreenSharePort;
+            var config = Config.Load();
+            var webServerPort = config.WebServer.WebServerPort;
+            var apiPort = config.TaskServer.TaskServerPort;
+            var webcamPort = config.Webcams.WebcamPort;
+            var terminalPort = config.Terminal.TerminalPort;
+            var screenSharePort = config.ScreenShareService.ScreenSharePort;
             var portData = new
             {
               webServerPort,

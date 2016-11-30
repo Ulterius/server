@@ -121,7 +121,7 @@
     <value />
   </data>
   <data name="Program_Main_Settings_didn_t_exist__writing_to_disk_" xml:space="preserve">
-    <value>Settings didn't exist, writing to disk.</value>
+    <value>Config didn't exist, writing to disk.</value>
   </data>
   <data name="Program_Main_Its_recommended_You_need_to_elevate_this_server_to_administrator_" xml:space="preserve">
     <value>Its recommended You need to elevate this server to administrator.</value>

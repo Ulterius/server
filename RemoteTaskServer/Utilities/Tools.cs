@@ -19,6 +19,7 @@ using Ionic.Zip;
 using NetFwTypeLib;
 using Open.Nat;
 using UlteriusServer.Api.Win32;
+using UlteriusServer.Utilities.Settings;
 using UlteriusServer.WebServer;
 using static System.Security.Principal.WindowsIdentity;
 using Task = System.Threading.Tasks.Task;
@@ -70,7 +71,7 @@ namespace UlteriusServer.Utilities
             return (T) Activator.CreateInstance(t);
         }
 
-        private static void OpenFirewallPort(ushort port, string name)
+        private static void OpenFirewallPort(int port, string name)
         {
             try
             {
@@ -125,131 +126,15 @@ namespace UlteriusServer.Utilities
                     return Platform.Windows;
             }
         }
-        public static void GenerateSettings()
-        {
-            //web server settings
-            Settings.Get()["General"] = new Settings.Header
-            {
-                {
-                    "Version", Assembly.GetExecutingAssembly().GetName().Version
-                },
-                {
-                    "RunStartup", true
-                },
-                {
-                    "UploadLogs", true
-                },
-                {
-                    "Github", "https://github.com/Ulterius"
-                },
-                {
-                    "ServerIssues", "https://github.com/Ulterius/server/issues"
-                },
-                {
-                    "ClientIssues", "https://github.com/Ulterius/client/issues"
-                },
-                {
-                    //this is kind of nasty 
-                    "Maintainers", new[]
-                    {
-                        new
-                        {
-                            Name = "Andrew Sampson",
-                            Twitter = "https://twitter.com/Andrewmd5",
-                            Github = "https://github.com/codeusa",
-                            Website = "https://andrew.im/"
-                        },
-                        new
-                        {
-                            Name = "Evan Banyash",
-                            Twitter = "https://twitter.com/frobthebuilder",
-                            Github = "https://github.com/FrobtheBuilder",
-                            Website = "http://banyash.com/"
-                        }
-                    }
-                }
-            };
-            Settings.Get()["WebServer"] = new Settings.Header
-            {
-                {
-                    "WebFilePath", HttpServer.DefaultPath
-                },
-                {
-                    "WebServerPort", 22006
-                },
-                {
-                    "ToggleWebServer", true
-                }
-            };
-            Settings.Get()["TaskServer"] = new Settings.Header
-            {
-                {
-                    "TaskServerPort", 22007
-                },
-                {
-                    "Encryption", true
-                }
-            };
-            Settings.Get()["Network"] = new Settings.Header
-            {
-                {
-                    "SkipHostNameResolve", false
-                },
-                {
-                    "UpnpEnabled", true
-                },
-                {
-                    "BindLocal", false
-                }
-            };
-            Settings.Get()["Plugins"] = new Settings.Header
-            {
-                {
-                    "LoadPlugins", true
-                }
-            };
-            Settings.Get()["ScreenShareService"] = new Settings.Header
-            {
-                {
-                    "ScreenSharePort", 22009
-                }
-            };
-            Settings.Get()["Terminal"] = new Settings.Header
-            {
-                {
-                    "AllowTerminal", true
-                },
-                {
-                    "TerminalPort", 22008
-                }
-            };
-            Settings.Get()["Webcams"] = new Settings.Header
-            {
-                {
-                    "UseWebcams", true
-                },
-                {
-                    "WebcamPort", 22010
-                }
-            };
-
-            Settings.Get()["Debug"] = new Settings.Header
-            {
-                {
-                    "TraceDebug", true
-                }
-            };
-
-            Settings.Save();
-        }
-
+     
         public static void ForwardPorts(PortMapper type = PortMapper.Upnp, bool retry = false)
         {
-            var webServerPort = (int) Settings.Get("WebServer").WebServerPort;
-            var apiPort = (int) Settings.Get("TaskServer").TaskServerPort;
-            var webCamPort = (int) Settings.Get("Webcams").WebcamPort;
-            var terminalPort = (int) Settings.Get("Terminal").TerminalPort;
-            var screenSharePort = (int) Settings.Get("ScreenShareService").ScreenSharePort;
+            var config = Config.Load();
+            var webServerPort = config.WebServer.WebServerPort;
+            var apiPort =   config.TaskServer.TaskServerPort;
+            var webCamPort = config.Webcams.WebcamPort;
+            var terminalPort = config.Terminal.TerminalPort;
+            var screenSharePort = config.ScreenShareService.ScreenSharePort;
             var nat = new NatDiscoverer();
             var cts = new CancellationTokenSource();
             cts.CancelAfter(5000);
@@ -362,22 +247,20 @@ namespace UlteriusServer.Utilities
 
         public static void ConfigureServer()
         {
-          
             if (SetLogging())
             {
                 Console.WriteLine("Logs Ready");
             }
-            if (Settings.Empty)
+            if (Config.Empty)
             {
-                //setup listen sh
-                GenerateSettings();
                 if (RunningPlatform() == Platform.Windows)
                 {
-                    var webServerPort = (ushort)Settings.Get("WebServer").WebServerPort;
-                    var apiPort = (ushort)Settings.Get("TaskServer").TaskServerPort;
-                    var webcamPort = (ushort)Settings.Get("Webcams").WebcamPort;
-                    var terminalPort = (ushort)Settings.Get("Terminal").TerminalPort;
-                    var screenSharePort = (ushort)Settings.Get("ScreenShareService").ScreenSharePort;
+                    var config = Config.Load();
+                    var webServerPort = config.WebServer.WebServerPort;
+                    var apiPort = config.TaskServer.TaskServerPort;
+                    var webcamPort = config.Webcams.WebcamPort;
+                    var terminalPort = config.Terminal.TerminalPort;
+                    var screenSharePort = config.ScreenShareService.ScreenSharePort;
                     var prefix = $"http://*:{webServerPort}/";
                     var username = Environment.GetEnvironmentVariable("USERNAME");
                     var userdomain = Environment.GetEnvironmentVariable("USERDOMAIN");
@@ -413,6 +296,8 @@ namespace UlteriusServer.Utilities
              
             }
         }
+
+      
 
 
         private static void OpenFirewallForProgram(string exeFileName, string displayName)

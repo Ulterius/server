@@ -9,6 +9,8 @@ namespace UlteriusAgent.Api
 {
     internal class CopyScreen
     {
+
+
         public static Bitmap CaptureDesktop()
         {
             var desktopBmp = new Bitmap(

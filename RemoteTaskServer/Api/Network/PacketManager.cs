@@ -8,6 +8,7 @@ using UlteriusServer.Api.Network.Messages;
 using UlteriusServer.Api.Network.PacketHandlers;
 using UlteriusServer.Utilities;
 using UlteriusServer.Utilities.Security;
+using UlteriusServer.Utilities.Settings;
 using UlteriusServer.WebSocketAPI.Authentication;
 using vtortola.WebSockets;
 
@@ -142,8 +143,7 @@ namespace UlteriusServer.Api.Network
             _client = client;
             try
             {
-                if ((bool) Settings.Get("TaskServer").Encryption)
-                {
+              
                     var validHandshake = JObject.Parse(packetData);
                     var endpoint = validHandshake["endpoint"].ToString().Trim().ToLower();
                     if (!endpoint.Equals("aeshandshake") || authClient.AesShook)
@@ -152,7 +152,7 @@ namespace UlteriusServer.Api.Network
                         _packetType = PacketTypes.InvalidOrEmptyPacket;
                         return;
                     }
-                }
+                
             }
             catch (Exception e)
             {

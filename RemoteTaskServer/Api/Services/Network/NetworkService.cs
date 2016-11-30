@@ -10,6 +10,7 @@ using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using UlteriusServer.Utilities;
+using UlteriusServer.Utilities.Settings;
 
 #endregion
 
@@ -36,7 +37,8 @@ namespace UlteriusServer.Api.Services.Network
             {
                 address = GetIPv4Address();
             }
-            var bindLocal = (bool)Settings.Get("Network").BindLocal;
+            var config = Config.Load();
+            var bindLocal = config.Network.BindLocal;
             return bindLocal ? IPAddress.Parse(address) : IPAddress.Any;
         }
 
@@ -85,13 +87,13 @@ namespace UlteriusServer.Api.Services.Network
         }
         public static List<NetworkDevices> ConnectedDevices()
         {
-
+            var config = Config.Load();
             var all = GetAllDevicesOnLan();
             foreach (var device in all)
             {
                 var ip = device.Key.ToString();
                 string name;
-                var currentStatus = Convert.ToBoolean(Settings.Get("Network").SkipHostNameResolve);
+                var currentStatus = config.Network.SkipHostNameResolve;
                 if (!currentStatus)
                 {
                     try

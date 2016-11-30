@@ -118,6 +118,7 @@
     <Compile Include="Utilities\Security\Streams\OfbStream.cs" />
     <Compile Include="Utilities\Security\Streams\ZeroStream.cs" />
     <Compile Include="Utilities\Security\AuthUtils.cs" />
+    <Compile Include="Utilities\Settings\Config.cs" />
     <Compile Include="Utilities\Usage\HardwareSurvey.cs" />
     <Compile Include="WebSocketAPI\Authentication\AuthClient.cs" />
     <Compile Include="Forms\Utilities\UlteriusTray.cs" />
@@ -182,7 +183,6 @@
     <Compile Include="Utilities\IconTools.cs" />
     <Compile Include="Utilities\Security\UlteriusAes.cs" />
     <Compile Include="Utilities\Security\Rsa.cs" />
-    <Compile Include="Utilities\Settings.cs" />
     <Compile Include="Utilities\Files\FileTree.cs" />
     <Compile Include="Utilities\Trace.cs" />
     <Compile Include="WebCams\WebCamManager.cs" />

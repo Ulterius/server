@@ -16,9 +16,11 @@ using UlteriusServer.Api.Services.Update;
 using UlteriusServer.Forms.Utilities;
 using UlteriusServer.Utilities;
 using UlteriusServer.Utilities.Security;
+using UlteriusServer.Utilities.Settings;
 using UlteriusServer.WebSocketAPI;
 using UlteriusServer.WebSocketAPI.Authentication;
 using vtortola.WebSockets;
+using ScreenShareService = UlteriusServer.Api.Services.LocalSystem.ScreenShareService;
 
 #endregion
 
@@ -37,18 +39,19 @@ namespace UlteriusServer.Api
         /// </summary>
         public static void Start()
         {
+            var config = Config.Load();
             var clientUpdateService = new ClientUpdateService();
             clientUpdateService.Start();
             FileSearchService = new FileSearchService(Path.Combine(AppEnvironment.DataPath, "fileIndex.db"));
             FileSearchService.Start();
             CronJobService = new CronJobService(Path.Combine(AppEnvironment.DataPath, "jobs.json"), Path.Combine(AppEnvironment.DataPath, "scripts"));
             CronJobService.ConfigureJobs();
-            var apiPort = (int) Settings.Get("TaskServer").TaskServerPort;
+            var apiPort = config.TaskServer.TaskServerPort;
             AllClients = new ConcurrentDictionary<Guid, AuthClient>();
             ScreenShareService = new ScreenShareService();
             var address = NetworkService.GetAddress();
-            var webCamPort = (int) Settings.Get("Webcams").WebcamPort;
-            var screenSharePort = (int) Settings.Get("ScreenShareService").ScreenSharePort;
+            var webCamPort = config.Webcams.WebcamPort;
+            var screenSharePort = config.ScreenShareService.ScreenSharePort;
             var endPoints = new List<IPEndPoint>
             {
                 new IPEndPoint(address, apiPort),
