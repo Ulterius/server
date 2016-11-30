@@ -78,7 +78,7 @@ namespace UlteriusServer
             Console.WriteLine("Configuring up server");
             Tools.ConfigureServer();
           
-
+            Console.WriteLine(Assembly.GetExecutingAssembly().GetName().Version);
             var useTerminal = settings.Terminal.AllowTerminal;
             var useWebServer = settings.WebServer.ToggleWebServer;
             var useWebCams = settings.Webcams.UseWebcams;

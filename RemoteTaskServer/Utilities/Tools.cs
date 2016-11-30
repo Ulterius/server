@@ -15,12 +15,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
 using Ionic.Zip;
-
+using Microsoft.Win32.TaskScheduler;
 using NetFwTypeLib;
 using Open.Nat;
 using UlteriusServer.Api.Win32;
 using UlteriusServer.Utilities.Settings;
-using UlteriusServer.WebServer;
 using static System.Security.Principal.WindowsIdentity;
 using Task = System.Threading.Tasks.Task;
 
@@ -30,6 +29,13 @@ namespace UlteriusServer.Utilities
 {
     internal class Tools
     {
+        public enum Platform
+        {
+            Windows,
+            Linux,
+            Mac
+        }
+
         private const string NetFwPolicy2ProgId = "HNetCfg.FwPolicy2";
         private const string NetFwRuleProgId = "HNetCfg.FWRule";
 
@@ -85,7 +91,7 @@ namespace UlteriusServer.Utilities
                     firewallRule.Action = NET_FW_ACTION_.NET_FW_ACTION_ALLOW;
                     firewallRule.Enabled = true;
                     firewallRule.InterfaceTypes = "All";
-                    firewallRule.Protocol = (int)NET_FW_IP_PROTOCOL_.NET_FW_IP_PROTOCOL_TCP;
+                    firewallRule.Protocol = (int) NET_FW_IP_PROTOCOL_.NET_FW_IP_PROTOCOL_TCP;
                     firewallRule.LocalPorts = port.ToString();
                     firewallPolicy.Rules.Add(firewallRule);
                 }
@@ -97,13 +103,6 @@ namespace UlteriusServer.Utilities
             }
         }
 
-
-        public enum Platform
-        {
-            Windows,
-            Linux,
-            Mac
-        }
         public static Platform RunningPlatform()
         {
             switch (Environment.OSVersion.Platform)
@@ -116,8 +115,7 @@ namespace UlteriusServer.Utilities
                         & Directory.Exists("/Users")
                         & Directory.Exists("/Volumes"))
                         return Platform.Mac;
-                    else
-                        return Platform.Linux;
+                    return Platform.Linux;
 
                 case PlatformID.MacOSX:
                     return Platform.Mac;
@@ -126,12 +124,12 @@ namespace UlteriusServer.Utilities
                     return Platform.Windows;
             }
         }
-     
+
         public static void ForwardPorts(PortMapper type = PortMapper.Upnp, bool retry = false)
         {
             var config = Config.Load();
             var webServerPort = config.WebServer.WebServerPort;
-            var apiPort =   config.TaskServer.TaskServerPort;
+            var apiPort = config.TaskServer.TaskServerPort;
             var webCamPort = config.Webcams.WebcamPort;
             var terminalPort = config.Terminal.TerminalPort;
             var screenSharePort = config.ScreenShareService.ScreenSharePort;
@@ -205,7 +203,8 @@ namespace UlteriusServer.Utilities
                 {
                     using (var collection = searcher.Get())
                     {
-                        var s = ((string)collection.Cast<ManagementBaseObject>().First()["UserName"]).Split('\\').ToList();
+                        var s =
+                            ((string) collection.Cast<ManagementBaseObject>().First()["UserName"]).Split('\\').ToList();
                         //remove the Guest account
                         s.Remove("HomeGroupUser$");
                         s.Remove("Guest");
@@ -230,11 +229,11 @@ namespace UlteriusServer.Utilities
                 return users.Count > 1 ? users.LastOrDefault() : users.FirstOrDefault();
             }
         }
+
         private static bool SetLogging()
         {
             try
             {
-
                 var filestream = new FileStream(Path.Combine(AppEnvironment.DataPath, "server.log"), FileMode.Create);
                 var streamwriter = new StreamWriter(filestream, Encoding.UTF8) {AutoFlush = true};
                 Console.SetOut(streamwriter);
@@ -257,6 +256,7 @@ namespace UlteriusServer.Utilities
             {
                 if (RunningPlatform() == Platform.Windows)
                 {
+                    SetupUpdater();
                     var config = Config.Load();
                     var webServerPort = config.WebServer.WebServerPort;
                     var apiPort = config.TaskServer.TaskServerPort;
@@ -277,7 +277,7 @@ namespace UlteriusServer.Utilities
                     {
                         Process.Start("CMD.exe", command);
                     }
-                    
+
                     OpenFirewallPort(webcamPort, "Ulterius Web Cams");
                     OpenFirewallPort(webServerPort, "Ulterius Web Server");
                     OpenFirewallPort(apiPort, "Ulterius Task Server");
@@ -287,19 +287,43 @@ namespace UlteriusServer.Utilities
                     {
                         var path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
                         OpenFirewallForProgram(Path.Combine(path, "Ulterius Server.exe"),
-                                               "Ulterius Server");
+                            "Ulterius Server");
                     }
-                   
                 }
             }
             if (File.Exists("client.zip"))
             {
-               Task.Run(() => InstallClient());
-             
+                Task.Run(() => InstallClient());
             }
         }
 
-      
+        private static void SetupUpdater()
+        {
+            var fileName = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
+                "Ulterius Updater.exe /silentall -nofreqcheck");
+            using (var sched = new TaskService())
+            {
+                var t = sched.GetTask("Ulterius Updater");
+                var taskExists = t != null;
+                if (taskExists) return;
+                var td = TaskService.Instance.NewTask();
+                td.Principal.RunLevel = TaskRunLevel.Highest;
+                td.RegistrationInfo.Author = "Octopodal Solutions";
+                td.RegistrationInfo.Date = new DateTime();
+                td.RegistrationInfo.Description = "Starts and Updates the Ulterius installation";
+                var logonTrigger = new LogonTrigger {Delay = TimeSpan.FromSeconds(10)};
+                var timeTrigger = new TimeTrigger
+                {
+                    StartBoundary = DateTime.Now,
+                    Repetition = {Interval = TimeSpan.FromHours(1)}
+                };
+                td.Triggers.Add(logonTrigger);
+                td.Triggers.Add(timeTrigger);
+                td.Actions.Add(fileName);
+                TaskService.Instance.RootFolder.RegisterTaskDefinition("Ulterius", td);
+                Console.WriteLine("Task Registered");
+            }
+        }
 
 
         private static void OpenFirewallForProgram(string exeFileName, string displayName)
@@ -309,9 +333,9 @@ namespace UlteriusServer.Utilities
                 {
                     FileName = "netsh",
                     Arguments =
-                            string.Format(
-                                "firewall add allowedprogram program=\"{0}\" name=\"{1}\" profile=\"ALL\"",
-                                exeFileName, displayName),
+                        string.Format(
+                            "firewall add allowedprogram program=\"{0}\" name=\"{1}\" profile=\"ALL\"",
+                            exeFileName, displayName),
                     WindowStyle = ProcessWindowStyle.Hidden
                 });
             proc.WaitForExit();
@@ -319,11 +343,9 @@ namespace UlteriusServer.Utilities
 
         public static bool RunningAsService()
         {
-           return GetCurrent().Name.ToLower().Contains(@"nt authority\system");
+            return GetCurrent().Name.ToLower().Contains(@"nt authority\system");
         }
 
-
-      
 
         public static bool InstallClient()
         {

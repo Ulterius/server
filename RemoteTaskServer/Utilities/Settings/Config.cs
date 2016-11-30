@@ -14,13 +14,7 @@ namespace UlteriusServer.Utilities.Settings
     internal class Config
     {
         public static bool Empty;
-        private string _json;
 
-        /// <summary>
-        ///     Gets or sets the file path.
-        /// </summary>
-        /// <value>The file path.</value>
-        public static string FilePath { get; set; }
 
         public General General { get; set; } = new General();
         public WebServer WebServer { get; set; } = new WebServer();
@@ -39,6 +33,7 @@ namespace UlteriusServer.Utilities.Settings
             var filePath = Path.Combine(AppEnvironment.DataPath, fileName);
             if (!File.Exists(filePath))
             {
+                Empty = true;
                 GenerateDefault();
             }
             var json = File.ReadAllText(filePath);
@@ -52,7 +47,7 @@ namespace UlteriusServer.Utilities.Settings
                 //Handle settings failing to create, rarely happens but it does.
                 File.Delete(settingsPath);
                 GenerateDefault();
-                json = File.ReadAllText(FilePath);
+                json = File.ReadAllText(settingsPath);
                 return JsonConvert.DeserializeObject<Config>(json);
             }
         }
