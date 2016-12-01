@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Topshelf;
 using UlteriusServer.Api.Win32;
+using UlteriusServer.Utilities;
 using UlteriusServer.Utilities.Usage;
 
 #endregion
@@ -29,54 +30,15 @@ namespace UlteriusServer
             _ulterius = new Ulterius();
             _ulterius.Start(true);
             HandleMonitor();
-            WatchForAgent();
             var hardware = new HardwareSurvey();
             hardware.Setup(true);
             Console.ReadLine();
         }
 
-        private void WatchForAgent()
-        {
-            Task.Run(() =>
-            {
-                while (true)
-                {
-                    var agentList = Process.GetProcessesByName("UlteriusAgent");
-                    if (agentList.Length == 0)
-                    {
-                        HandleMonitor();
-                    }
-                    Thread.Sleep(1000);
-                }
-            });
-        }
+       
         public void HandleMonitor()
         {
-            _LastSession = Desktop.WTSGetActiveConsoleSessionId();
-            _CurrentSession = _LastSession;
-            try
-            {
-                process?.Kill();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
-            Thread.Sleep(3000);
-            ProcessStarter.PROCESS_INFORMATION procInfo;
-            var agentPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
-                "UlteriusAgent.exe");
-            ProcessStarter.StartProcessAndBypassUAC(agentPath,
-                out procInfo);
-            process = Process.GetProcessById((int) procInfo.dwProcessId);
-            if (process != null)
-            {
-                Console.WriteLine("Started Monitor on " + _CurrentSession);
-            }
-            else
-            {
-                Console.WriteLine("Failed to start monitor on " + _CurrentSession);
-            }
+            Tools.RestartAgent();
         }
 
 

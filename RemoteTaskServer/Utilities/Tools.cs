@@ -15,7 +15,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
 using Ionic.Zip;
-using Microsoft.Win32.TaskScheduler;
 using NetFwTypeLib;
 using Open.Nat;
 using UlteriusServer.Api.Win32;
@@ -29,6 +28,10 @@ namespace UlteriusServer.Utilities
 {
     internal class Tools
     {
+        private static int _LastSession;
+        private static int _CurrentSession;
+        private static Process process;
+
         public enum Platform
         {
             Windows,
@@ -70,7 +73,34 @@ namespace UlteriusServer.Utilities
             }
         }
 
-
+        public static void RestartAgent()
+        {
+            _LastSession = Desktop.WTSGetActiveConsoleSessionId();
+            _CurrentSession = _LastSession;
+            try
+            {
+                process?.Kill();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            Thread.Sleep(3000);
+            ProcessStarter.PROCESS_INFORMATION procInfo;
+            var agentPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
+                "UlteriusAgent.exe");
+            ProcessStarter.StartProcessAndBypassUAC(agentPath,
+                out procInfo);
+            process = Process.GetProcessById((int)procInfo.dwProcessId);
+            if (process != null)
+            {
+                Console.WriteLine("Started Monitor on " + _CurrentSession);
+            }
+            else
+            {
+                Console.WriteLine("Failed to start monitor on " + _CurrentSession);
+            }
+        }
         private static T GetComObject<T>(string progId)
         {
             var t = Type.GetTypeFromProgID(progId, true);
@@ -256,7 +286,6 @@ namespace UlteriusServer.Utilities
             {
                 if (RunningPlatform() == Platform.Windows)
                 {
-                    SetupUpdater();
                     var config = Config.Load();
                     var webServerPort = config.WebServer.WebServerPort;
                     var apiPort = config.TaskServer.TaskServerPort;
@@ -297,33 +326,7 @@ namespace UlteriusServer.Utilities
             }
         }
 
-        private static void SetupUpdater()
-        {
-            var fileName = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
-                "Ulterius Updater.exe /silentall -nofreqcheck");
-            using (var sched = new TaskService())
-            {
-                var t = sched.GetTask("Ulterius Updater");
-                var taskExists = t != null;
-                if (taskExists) return;
-                var td = TaskService.Instance.NewTask();
-                td.Principal.RunLevel = TaskRunLevel.Highest;
-                td.RegistrationInfo.Author = "Octopodal Solutions";
-                td.RegistrationInfo.Date = new DateTime();
-                td.RegistrationInfo.Description = "Starts and Updates the Ulterius installation";
-                var logonTrigger = new LogonTrigger {Delay = TimeSpan.FromSeconds(10)};
-                var timeTrigger = new TimeTrigger
-                {
-                    StartBoundary = DateTime.Now,
-                    Repetition = {Interval = TimeSpan.FromHours(1)}
-                };
-                td.Triggers.Add(logonTrigger);
-                td.Triggers.Add(timeTrigger);
-                td.Actions.Add(fileName);
-                TaskService.Instance.RootFolder.RegisterTaskDefinition("Ulterius", td);
-                Console.WriteLine("Task Registered");
-            }
-        }
+       
 
 
         private static void OpenFirewallForProgram(string exeFileName, string displayName)

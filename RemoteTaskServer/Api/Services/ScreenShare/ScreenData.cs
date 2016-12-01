@@ -370,6 +370,7 @@ namespace UlteriusServer.Api.Services.ScreenShare
 
         public static Bitmap CaptureDesktop()
         {
+
             var desktopBmp = new Bitmap(
                 Screen.PrimaryScreen.Bounds.Width,
                 Screen.PrimaryScreen.Bounds.Height);

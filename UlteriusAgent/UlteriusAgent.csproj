@@ -72,7 +72,7 @@
     <Reference Include="System.Windows.Forms" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Api\CopyScreen.cs" />
+    <Compile Include="AppEnvironment.cs" />
     <Compile Include="Gdi.cs" />
     <Compile Include="Api\WinApi.cs" />
     <Compile Include="Desktop.cs" />

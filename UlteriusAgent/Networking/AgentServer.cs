@@ -12,6 +12,8 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+
+
 using InputManager;
 using UlteriusAgent.Api;
 
@@ -28,6 +30,32 @@ namespace UlteriusAgent.Networking
         {
             try
             {
+                var inputDesktop = new Desktop();
+                inputDesktop.OpenInput();
+                if (!inputDesktop.DesktopName.Equals(LastDesktop))
+                {
+                    var switched = inputDesktop.Show();
+
+                    if (switched)
+                    {
+                        var setCurrent = Desktop.SetCurrent(inputDesktop);
+                        if (setCurrent)
+                        {
+                            Console.WriteLine(
+                                $"Desktop switched from {LastDesktop} to {inputDesktop.DesktopName}");
+                            LastDesktop = inputDesktop.DesktopName;
+                            lastDesktopInput = inputDesktop;
+                        }
+                        else
+                        {
+                            lastDesktopInput.Close();
+                        }
+                    }
+                }
+                else
+                {
+                    inputDesktop.Close();
+                }
                 var cancellationTokenSource = new CancellationTokenSource();
                 var cancel = cancellationTokenSource.Token;
                 var listener = new TcpListener(IPAddress.Loopback, 22005);
@@ -36,9 +64,9 @@ namespace UlteriusAgent.Networking
                 var task = AcceptClientsAsync(listener, cancel);
                 Console.ReadLine();
                 cancellationTokenSource.Cancel();
-                task.Wait(cancel);
+                task.Wait();
             }
-            catch (SocketException)
+            catch (SocketException ex)
             {
                 Process.GetCurrentProcess().Kill();
                 Process.GetCurrentProcess().WaitForExit();
@@ -47,7 +75,7 @@ namespace UlteriusAgent.Networking
 
         public static async Task AcceptClientsAsync(TcpListener listener, CancellationToken cancel)
         {
-          
+            await Task.Yield();
             while (!cancel.IsCancellationRequested)
             {
                 try
@@ -79,9 +107,29 @@ namespace UlteriusAgent.Networking
             }
         }
 
+
+        public static Bitmap CaptureDesktop()
+        {
+            var desktopBmp = new Bitmap(
+                Screen.PrimaryScreen.Bounds.Width,
+                Screen.PrimaryScreen.Bounds.Height);
+
+            var g = Graphics.FromImage(desktopBmp);
+
+            g.CopyFromScreen(0, 0, 0, 0,
+                new Size(
+                    Screen.PrimaryScreen.Bounds.Width,
+                    Screen.PrimaryScreen.Bounds.Height));
+            g.Dispose();
+            return desktopBmp;
+        }
+
+
         private static byte[] SendCleanFrame()
         {
-            var image = CopyScreen.CaptureDesktop();
+            var setCurrent = Desktop.SetCurrent(lastDesktopInput);
+            if (!setCurrent) return null;
+            var image = CaptureDesktop();
             return image == null ? new byte[0] : ImageToByte(image, true);
         }
 
@@ -95,27 +143,19 @@ namespace UlteriusAgent.Networking
                     var bounds = Screen.PrimaryScreen.Bounds;
                     writer.Write(bounds.Bottom);
                     writer.Write(bounds.Right);
-                    var image = CopyScreen.CaptureDesktop();
-                    //Okay the image is null
+                    var setCurrent = Desktop.SetCurrent(lastDesktopInput);
+                    if (!setCurrent) return null;
+                    var image = CaptureDesktop();
                     if (image == null)
                     {
-                        //Lets try resetting the thread
-                        var setCurrent = Desktop.SetCurrent(lastDesktopInput);
-                        if (setCurrent)
+                        var bmp = new Bitmap(bounds.Width, bounds.Height);
+                        using (var gfx = Graphics.FromImage(bmp))
+                        using (var brush = new SolidBrush(Color.FromArgb(67, 75, 99)))
                         {
-                            //if the image is still null, send a frame so we don't break the whole screen share instance. 
-                            image = CopyScreen.CaptureDesktop();
-                            if (image == null)
-                            {
-                                var bmp = new Bitmap(bounds.Width, bounds.Height);
-                                using (var gfx = Graphics.FromImage(bmp))
-                                using (var brush = new SolidBrush(Color.FromArgb(67, 75, 99)))
-                                {
-                                    gfx.FillRectangle(brush, 0, 0, bounds.Width, bounds.Height);
-                                }
-                                image = bmp;
-                            }
+                            gfx.FillRectangle(brush, 0, 0, bounds.Width, bounds.Height);
                         }
+                        image = bmp;
+
                     }
                     var imageBytes = ImageToByte(image, true);
                     writer.Write(imageBytes.Length);
@@ -127,6 +167,7 @@ namespace UlteriusAgent.Networking
 
         public static async Task HandleClientAsync(TcpClient client, CancellationToken cancel)
         {
+            await Task.Yield();
             StreamReader sr = null;
             StreamWriter sw = null;
             try
@@ -226,6 +267,7 @@ namespace UlteriusAgent.Networking
                     }
                     await sw.WriteLineAsync(response);
                     await sw.FlushAsync();
+                    await Task.Yield();
                 }
             }
             catch (Exception aex)
@@ -240,7 +282,6 @@ namespace UlteriusAgent.Networking
                 sw?.Dispose();
             }
         }
-
         private static void HandleRightUp()
         {
             var setCurrent = Desktop.SetCurrent(lastDesktopInput);
@@ -271,7 +312,8 @@ namespace UlteriusAgent.Networking
             var setCurrent = Desktop.SetCurrent(lastDesktopInput);
             if (setCurrent)
             {
-                bool positive = delta > 0;
+
+                var positive = delta > 0;
                 Mouse.Scroll(positive ? Mouse.ScrollDirection.Up : Mouse.ScrollDirection.Down);
             }
         }
@@ -281,7 +323,6 @@ namespace UlteriusAgent.Networking
             var setCurrent = Desktop.SetCurrent(lastDesktopInput);
             if (setCurrent)
             {
-
                 Mouse.PressButton(Mouse.MouseKeys.Right);
             }
         }
@@ -309,7 +350,7 @@ namespace UlteriusAgent.Networking
             var setCurrent = Desktop.SetCurrent(lastDesktopInput);
             if (setCurrent)
             {
-                Mouse.Move(x, y);
+                Cursor.Position = new Point(x, y);
             }
         }
 
@@ -350,6 +391,8 @@ namespace UlteriusAgent.Networking
                 Console.WriteLine(ex.Message);
             }
         }
+
+
 
 
 

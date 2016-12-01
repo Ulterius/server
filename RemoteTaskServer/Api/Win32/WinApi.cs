@@ -4,6 +4,8 @@ using System;
 using System.Linq;
 using System.Management;
 using System.Runtime.InteropServices;
+using System.Windows.Forms;
+using System.Windows.Input;
 using FILETIME = System.Runtime.InteropServices.ComTypes.FILETIME;
 
 #endregion
@@ -559,6 +561,32 @@ namespace UlteriusServer.Api.Win32
                 FileNameOffset = Marshal.ReadInt16(p, FnOffset);
                 FileName = Marshal.PtrToStringUni(new IntPtr(p.ToInt64() + FileNameOffset), FileNameLength / sizeof(char));
             }
+        }
+
+        [DllImport("user32.dll", CharSet = CharSet.Auto, ExactSpelling = true)]
+        private static extern short GetKeyState(int keyCode);
+
+        private static KeyStates GetKeyState(Keys key)
+        {
+            var state = KeyStates.None;
+
+            var retVal = GetKeyState((int)key);
+
+            //If the high-order bit is 1, the key is down
+            //otherwise, it is up.
+            if ((retVal & 0x8000) == 0x8000)
+                state |= KeyStates.Down;
+
+            //If the low-order bit is 1, the key is toggled.
+            if ((retVal & 1) == 1)
+                state |= KeyStates.Toggled;
+
+            return state;
+        }
+
+        public static bool IsKeyDown(Keys key)
+        {
+            return KeyStates.Down == (GetKeyState(key) & KeyStates.Down);
         }
     }
 }

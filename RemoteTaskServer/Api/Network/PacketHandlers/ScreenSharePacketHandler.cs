@@ -16,6 +16,7 @@ using System.Windows.Forms;
 using InputManager;
 using UlteriusServer.Api.Network.Messages;
 using UlteriusServer.Api.Services.ScreenShare;
+using UlteriusServer.Api.Win32;
 using UlteriusServer.Utilities.Settings;
 using UlteriusServer.WebSocketAPI.Authentication;
 using vtortola.WebSockets;
@@ -28,7 +29,6 @@ namespace UlteriusServer.Api.Network.PacketHandlers
 {
     internal class ScreenSharePacketHandler : PacketHandler
     {
-       
         private readonly Screen[] _screens = Screen.AllScreens;
         private readonly ScreenShareService _shareService = UlteriusApiServer.ScreenShareService;
         private AuthClient _authClient;
@@ -81,7 +81,13 @@ namespace UlteriusServer.Api.Network.PacketHandlers
             //release all keys
             foreach (var keyCode in keyCodes)
             {
+                var code = (Keys) keyCode;
+                if (WinApi.IsKeyDown(code))
+                {
+                    Keyboard.KeyUp(code);
+                }
             }
+            Mouse.ButtonUp(Mouse.MouseKeys.Left);
         }
 
         public void CheckServer()
@@ -149,16 +155,18 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                 streamWriter = new StreamWriter(stream, Encoding.UTF8);
                 var targetFps = Config.Load().ScreenShareService.ScreenShareFps;
 
-                 var optimalTime = 1000000000 / targetFps;
+                var optimalTime = 1000000000/targetFps;
+
                 while (_client != null && _client.IsConnected && _authClient != null &&
                        !_authClient.ShutDownScreenShare)
                 {
                     var now = Environment.TickCount;
                     long updateLength = now - lastLoopTime;
                     lastLoopTime = now;
-                    var delta = updateLength/(double)optimalTime;
+                    var delta = updateLength/(double) optimalTime;
                     lastFpsTime += updateLength;
                     fps++;
+
                     try
                     {
                         if (!client.Connected)
@@ -189,14 +197,14 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                                 }
                             }
                         }
-                        var time = (lastLoopTime - Environment.TickCount + optimalTime) / 1000000;
+                        var time = (lastLoopTime - Environment.TickCount + optimalTime)/1000000;
                         Thread.Sleep(TimeSpan.FromMilliseconds(time));
                     }
                     catch (Exception ex)
                     {
                         Console.WriteLine(ex.Message);
+                        Thread.Sleep(250);
                     }
-                   
                 }
                 client?.Dispose();
                 streamWriter?.Dispose();
@@ -246,7 +254,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                 {
                     Console.WriteLine(e.Message + " " + e.StackTrace);
                 }
-               
+
             }
             Console.WriteLine("Screen Share Died");
         }
@@ -382,7 +390,10 @@ namespace UlteriusServer.Api.Network.PacketHandlers
             }
         }
 
-
+        private void HandleCtrlAltDel()
+        {
+            SendSAS(false);
+        }
         private void HandleAgentRightDown()
         {
             if (!ScreenShareService.Streams.ContainsKey(_authClient)) return;
@@ -398,7 +409,6 @@ namespace UlteriusServer.Api.Network.PacketHandlers
             var message = new Message(command, Message.MessageType.Service);
             _authClient?.MessageQueueManagers[22005]?.SendQueue.Add(message);
         }
-
         private void RightUp()
         {
             if (ScreenShareService.Streams.ContainsKey(_authClient))
@@ -416,10 +426,6 @@ namespace UlteriusServer.Api.Network.PacketHandlers
             }
         }
 
-        private void HandleCtrlAltDel()
-        {
-            SendSAS(false);
-        }
 
         private void HandleAgentRightClick()
         {
@@ -546,6 +552,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                     frameFailed = true,
                     message = ex.Message
                 };
+                Console.WriteLine(ex.Message + "Fuck");
                 _builder.WriteMessage(data);
             }
         }
@@ -647,8 +654,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                 {
                     return;
                 }
-                Mouse.Move(x, y);
-                //Cursor.Position = new Point(x, y);
+                Cursor.Position = new Point(x, y);
             }
             catch
             {

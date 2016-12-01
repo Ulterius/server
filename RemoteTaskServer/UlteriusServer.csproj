@@ -90,10 +90,11 @@
     <Compile Include="Api\Services\ScreenShare\ClipboardNotifications.cs" />
     <Compile Include="Api\Services\ScreenShare\ScreenData.cs" />
     <Compile Include="Api\Services\ScreenShare\ScreenModel.cs" />
-    <Compile Include="Api\Services\Update\ClientUpdateService.cs" />
+    <Compile Include="Api\Services\Update\UpdateService.cs" />
     <Compile Include="Api\Win32\Desktop.cs" />
     <Compile Include="Api\Win32\Gdi.cs" />
     <Compile Include="Api\Win32\ProcessStarter.cs" />
+    <Compile Include="Api\Win32\SessionInfo.cs" />
     <Compile Include="Api\Win32\Win32Exception.cs" />
     <Compile Include="Api\Win32\WinApi.cs" />
     <Compile Include="Api\Network\Messages\Message.cs" />
@@ -286,10 +287,6 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.VisualBasic" />
-    <Reference Include="Microsoft.Win32.TaskScheduler, Version=2.5.21.0, Culture=neutral, PublicKeyToken=0d013ddd5178a2ae, processorArchitecture=MSIL">
-      <HintPath>..\packages\TaskScheduler.2.5.21\lib\net452\Microsoft.Win32.TaskScheduler.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="Mono.Cecil, Version=0.10.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
       <HintPath>..\packages\Mono.Cecil.0.10.0-beta1-v2\lib\net40\Mono.Cecil.dll</HintPath>
       <Private>True</Private>

@@ -40,7 +40,7 @@ namespace UlteriusServer.Api
         public static void Start()
         {
             var config = Config.Load();
-            var clientUpdateService = new ClientUpdateService();
+            var clientUpdateService = new UpdateService();
             clientUpdateService.Start();
             FileSearchService = new FileSearchService(Path.Combine(AppEnvironment.DataPath, "fileIndex.db"));
             FileSearchService.Start();

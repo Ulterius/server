@@ -1,18 +1,22 @@
 ﻿#region
 
 using System;
+using System.Diagnostics;
 using System.IO;
+using System.Management.Automation;
 using System.Net.Http;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using UlteriusServer.Api.Win32;
 using UlteriusServer.Utilities;
 
 #endregion
 
 namespace UlteriusServer.Api.Services.Update
 {
-    public class ClientUpdateService
+    public class UpdateService
     {
     
 
@@ -25,13 +29,27 @@ namespace UlteriusServer.Api.Services.Update
         {
             while (true)
             {
-                var updatedNeeded = await CheckForUpdates();
+                var updatedNeeded = await CheckForClientUpdates();
                 if (updatedNeeded)
                 {
                     Console.WriteLine("Client was updated");
                 }
+                if (SessionInfo.GetSessionLockState((uint) System.Diagnostics.Process.GetCurrentProcess().SessionId) == SessionInfo.LockState.Unlocked)
+                {
+                    Console.WriteLine("Checking for Updates");
+                    CheckForServerUpdates();
+                }
+               
                 await Task.Delay(new TimeSpan(0, 30, 0));
             }
+        }
+
+        private void CheckForServerUpdates()
+        {
+            var file = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
+                 "Ulterius Updater.exe /silentall -nofreqcheck");
+            ProcessStarter.PROCESS_INFORMATION procInfo;
+            ProcessStarter.StartProcessAndBypassUAC(file, out procInfo);
         }
 
 
@@ -64,7 +82,7 @@ namespace UlteriusServer.Api.Services.Update
         }
 
 
-        private async Task<bool> CheckForUpdates()
+        private async Task<bool> CheckForClientUpdates()
         {
             try
             {
