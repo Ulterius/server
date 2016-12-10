@@ -15,6 +15,7 @@ using Microsoft.VisualBasic.Devices;
 using OpenHardwareMonitor.Hardware;
 using UlteriusServer.Api.Network.Models;
 using UlteriusServer.Api.Services.Network;
+using UlteriusServer.Api.Win32;
 using Computer = OpenHardwareMonitor.Hardware.Computer;
 
 #endregion
@@ -38,6 +39,7 @@ namespace UlteriusServer.Api.Services.LocalSystem
 
             try
             {
+                SetDisplayInformation();
                 SetNetworkInformation();
                 SetCpuInformation();
                 SetOperatingSystemInformation();
@@ -55,6 +57,11 @@ namespace UlteriusServer.Api.Services.LocalSystem
             }
         }
 
+        private void SetDisplayInformation()
+        {
+            SystemInformation.Displays = Display.DisplayInformation();
+        }
+
 
         // ReSharper disable once UnusedMethodReturnValue.Local
         private  void SetNetworkInformation()
@@ -64,8 +71,8 @@ namespace UlteriusServer.Api.Services.LocalSystem
                 if (string.IsNullOrEmpty(NetworkInformation.PublicIp))
                 {
                     NetworkInformation.PublicIp = NetworkService.GetPublicIp();
-                    NetworkInformation.MacAddress = NetworkService.GetMacAddress().ToString();
-                    NetworkInformation.InternalIp = NetworkService.GetIpAddress().ToString();
+                    NetworkInformation.MacAddress = NetworkService.GetMacAddress();
+                    NetworkInformation.InternalIp = NetworkService.GetDisplayAddress();
                     NetworkInformation.NetworkComputers = NetworkService.ConnectedDevices();
                 }
                

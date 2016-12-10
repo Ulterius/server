@@ -24,19 +24,11 @@ namespace UlteriusServer.Api.Network.PacketHandlers
         private WebSocket _client;
 
 
-        public void RefreshCameras()
-        {
-            WebCamManager.LoadWebcams();
-            var data = new
-            {
-                cameraFresh = true,
-                message = "Camera have been refreshed!"
-            };
-            _builder.WriteMessage(data);
-        }
+     
 
         public void GetCameras()
         {
+            WebCamManager.LoadWebcams();
             var cameras = WebCamManager.GetCameras();
             var data = new
             {

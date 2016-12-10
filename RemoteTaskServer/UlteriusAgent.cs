@@ -53,12 +53,33 @@ namespace UlteriusServer
                 }
                 catch (Exception)
                 {
+                    // ignored
                 }
             }
-            var serverInstanceList = Process.GetProcessesByName("Ulterius Server");
-            if (serverInstanceList.Length > 0)
+            var managerList = Process.GetProcessesByName("DaemonManager");
+            foreach (var manager in managerList)
             {
-                serverInstanceList[0].Kill();
+                try
+                {
+                    manager.Kill();
+                }
+                catch (Exception)
+                {
+                    // ignored
+                }
+            }
+
+            var serverInstanceList = Process.GetProcessesByName("Ulterius Server");
+            foreach (var server in serverInstanceList)
+            {
+                try
+                {
+                    server.Kill();
+                }
+                catch (Exception)
+                {
+                    // ignored
+                }
             }
         }
 

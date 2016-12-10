@@ -30,7 +30,8 @@ namespace UlteriusServer.Utilities
     {
         private static int _LastSession;
         private static int _CurrentSession;
-        private static Process process;
+        private static Process agentProcess;
+        private static Process managerProcess;
 
         public enum Platform
         {
@@ -79,20 +80,36 @@ namespace UlteriusServer.Utilities
             _CurrentSession = _LastSession;
             try
             {
-                process?.Kill();
+                agentProcess?.Kill();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            try
+            {
+                managerProcess?.Kill();
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
             }
             Thread.Sleep(3000);
-            ProcessStarter.PROCESS_INFORMATION procInfo;
+            ProcessStarter.PROCESS_INFORMATION agentInfo;
+            ProcessStarter.PROCESS_INFORMATION managerInfo;
+            var managerPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
+              "DaemonManager.exe");
             var agentPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
                 "UlteriusAgent.exe");
+
+            ProcessStarter.StartProcessAndBypassUAC(managerPath,
+              out managerInfo);
+
             ProcessStarter.StartProcessAndBypassUAC(agentPath,
-                out procInfo);
-            process = Process.GetProcessById((int)procInfo.dwProcessId);
-            if (process != null)
+                out agentInfo);
+            managerProcess = Process.GetProcessById((int)managerInfo.dwProcessId);
+            agentProcess = Process.GetProcessById((int)agentInfo.dwProcessId);
+            if (agentProcess != null)
             {
                 Console.WriteLine("Started Monitor on " + _CurrentSession);
             }

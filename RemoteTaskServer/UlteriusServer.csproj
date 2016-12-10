@@ -82,6 +82,7 @@
   <ItemGroup>
     <Compile Include="Api\Network\Models\FanInformation.cs" />
     <Compile Include="Api\Network\Models\JobModel.cs" />
+    <Compile Include="Api\Network\Models\DisplayInformation.cs" />
     <Compile Include="Api\Network\PacketHandlers\CronJobPacketHandler.cs" />
     <Compile Include="Api\Services\LocalSystem\Daemons\CronDaemon.cs" />
     <Compile Include="Api\Services\LocalSystem\Daemons\CronJob.cs" />
@@ -92,6 +93,7 @@
     <Compile Include="Api\Services\ScreenShare\ScreenModel.cs" />
     <Compile Include="Api\Services\Update\UpdateService.cs" />
     <Compile Include="Api\Win32\Desktop.cs" />
+    <Compile Include="Api\Win32\Display.cs" />
     <Compile Include="Api\Win32\Gdi.cs" />
     <Compile Include="Api\Win32\ProcessStarter.cs" />
     <Compile Include="Api\Win32\SessionInfo.cs" />

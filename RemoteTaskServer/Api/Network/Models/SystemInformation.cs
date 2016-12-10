@@ -24,6 +24,7 @@ namespace UlteriusServer.Api.Network.Models
         public static object NetworkInfo { get; set; }
         public static List<float> CpuTemps { get; set; }
         public static List<FanInformation> FanSpeeds { get; set; }
+        public static List<DisplayInformation> Displays { get; set; }
 
         public static object ToObject()
         {
@@ -42,7 +43,8 @@ namespace UlteriusServer.Api.Network.Models
                 networkInfo = NetworkInfo,
                 motherBoard = MotherBoard,
                 biosInfo = Bios,
-                fanSpeeds = FanSpeeds
+                fanSpeeds = FanSpeeds,
+                displays = Displays
             };
             return data;
         }
