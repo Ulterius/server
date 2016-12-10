@@ -3,12 +3,14 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Management;
 using System.Net.NetworkInformation;
 using System.Runtime.InteropServices;
 using System.Security.Principal;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.VisualBasic.Devices;
@@ -16,6 +18,7 @@ using OpenHardwareMonitor.Hardware;
 using UlteriusServer.Api.Network.Models;
 using UlteriusServer.Api.Services.Network;
 using UlteriusServer.Api.Win32;
+using UlteriusServer.Utilities.Drive;
 using Computer = OpenHardwareMonitor.Hardware.Computer;
 
 #endregion
@@ -396,12 +399,106 @@ namespace UlteriusServer.Api.Services.LocalSystem
                     driveInfo.VolumeLabel = drive.VolumeLabel;
                     driveInfo.RootDirectory = drive.RootDirectory.ToString();
                     driveInfo.IsReady = drive.IsReady;
+                    //just set it for now
+                    driveInfo.SmartData = new List<SmartModel>();
+                    driveInfo.Partitions = new List<PartitionModel>();
                     driveList.Add(driveInfo);
+                    try
+                    {
+                        var mosDisks =
+                                       new ManagementObjectSearcher("SELECT * FROM Win32_DiskDrive WHERE Model = '" +
+                                                                    driveInfo.Model + "'").Get().GetEnumerator();
+                        if (!mosDisks.MoveNext()) continue;
+                        driveInfo.MediaType = mosDisks.Current.GetPropertyValue("MediaType")?.ToString() ?? "Unknown";
+                        driveInfo.Serial = mosDisks.Current.GetPropertyValue("SerialNumber")?.ToString()?.Trim() ?? "Unknown";
+                        driveInfo.Interface = mosDisks.Current.GetPropertyValue("InterfaceType")?.ToString() ?? "Unknown";
+                        driveInfo.TotalPartitions = mosDisks.Current.GetPropertyValue("Partitions")?.ToString() ?? "Unknown";
+                        driveInfo.Signature = mosDisks.Current.GetPropertyValue("Signature")?.ToString() ?? "Unknown";
+                        driveInfo.Firmware = mosDisks.Current.GetPropertyValue("FirmwareRevision")?.ToString() ?? "Unknown";
+                        driveInfo.Cylinders = mosDisks.Current.GetPropertyValue("TotalCylinders")?.ToString() ?? "Unknown";
+                        driveInfo.Sectors = mosDisks.Current.GetPropertyValue("TotalSectors")?.ToString() ?? "Unknown";
+                        driveInfo.Heads = mosDisks.Current.GetPropertyValue("TotalHeads")?.ToString() ?? "Unknown";
+                        driveInfo.Tracks = mosDisks.Current.GetPropertyValue("TotalTracks")?.ToString() ?? "Unknown";
+                        driveInfo.BytesPerSecond = mosDisks.Current.GetPropertyValue("BytesPerSector")?.ToString() ?? "Unknown";
+                        driveInfo.SectorsPerTrack = mosDisks.Current.GetPropertyValue("SectorsPerTrack")?.ToString() ?? "Unknown";
+                        driveInfo.TracksPerCylinder = mosDisks.Current.GetPropertyValue("TracksPerCylinder")?.ToString() ?? "Unknown";
+                    }
+                    catch (Exception)
+                    {
+
+                       //fail
+                    }
+                    
+                    try
+                    {
+                        var mosPartition =
+                                     new ManagementObjectSearcher("SELECT * FROM Win32_DiskPartition WHERE DiskIndex = '" +
+                                                                  index + "'").Get().GetEnumerator();
+                        while (mosPartition.MoveNext())
+                        {
+                            var partion = new PartitionModel
+                            {
+                                Name = mosPartition.Current.GetPropertyValue("Name")?.ToString() ?? "Unknown",
+                                Size = mosPartition.Current.GetPropertyValue("Size")?.ToString() ?? "Unknown",
+                                BlockSize = mosPartition.Current.GetPropertyValue("BlockSize")?.ToString() ?? "Unknown",
+                                StartingOffset =
+                                    mosPartition.Current.GetPropertyValue("StartingOffset")?.ToString() ?? "Unknown",
+                                Index = mosPartition.Current.GetPropertyValue("Index")?.ToString() ?? "Unknown",
+                                DiskIndex = mosPartition.Current.GetPropertyValue("DiskIndex")?.ToString() ?? "Unknown",
+                                BootPartition = mosPartition.Current.GetPropertyValue("BootPartition")?.ToString() ?? "Unknown",
+                                PrimaryPartition =
+                                    mosPartition.Current.GetPropertyValue("PrimaryPartition")?.ToString() ?? "Unknown",
+                                Bootable = mosPartition.Current.GetPropertyValue("Bootable")?.ToString() ?? "Unknown"
+                            };
+                            driveInfo.Partitions.Add(partion);
+                        }
+                    }
+                    catch (Exception)
+                    {
+
+                        //fail
+                    }
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine(ex.Message);
                     Console.WriteLine(ex.StackTrace);
+                }
+            }
+
+            using (var searcher = new ManagementObjectSearcher("root\\WMI", "SELECT * FROM MSStorageDriver_ATAPISmartData"))
+            using (var thresSearcher = new ManagementObjectSearcher("root\\WMI", "SELECT * FROM MSStorageDriver_FailurePredictThresholds"))
+            using (var failureSearch = new ManagementObjectSearcher("root\\WMI", "SELECT * FROM MSStorageDriver_FailurePredictStatus"))
+            {
+
+
+                try
+                {
+                    var searcherEnumerator = searcher.Get().GetEnumerator();
+                    var thresSearcherEnumerator = thresSearcher.Get().GetEnumerator();
+                    var failureSearchEnumerator = failureSearch.Get().GetEnumerator();
+
+                    var index = 0;
+                    while (searcherEnumerator.MoveNext() && thresSearcherEnumerator.MoveNext())
+                    {
+                        var arrVendorSpecific = (byte[])searcherEnumerator.Current.GetPropertyValue("VendorSpecific");
+                        var arrThreshold = (byte[])thresSearcherEnumerator.Current.GetPropertyValue("VendorSpecific");
+
+                        /* Create SMART data from 'vendor specific' array */
+                        var d = new SmartData(arrVendorSpecific, arrThreshold);
+                        var smartRows = (from b in d.Attributes where !Regex.IsMatch(b.AttributeType.ToString(), @"^\d+$") let rawData = BitConverter.ToString(b.VendorData.Reverse().ToArray()).Replace("-", string.Empty) select new SmartModel(b.AttributeType.ToString(), b.Value.ToString(CultureInfo.InvariantCulture), b.Threshold.ToString(CultureInfo.InvariantCulture), rawData, long.Parse(rawData, NumberStyles.HexNumber).ToString(CultureInfo.InvariantCulture))).ToList();
+                        driveList.ElementAt(index).SmartData = smartRows;
+                        if (failureSearchEnumerator.MoveNext())
+                        {
+                            driveList.ElementAt(index).DriveHealth = (bool)failureSearchEnumerator.Current.GetPropertyValue("PredictFailure") ? "WARNING" : "OK";
+                        }
+                        index++;
+                    }
+                }
+                catch (Exception)
+                {
+
+                    //if we fail, do nothing more.
                 }
             }
             return driveList;

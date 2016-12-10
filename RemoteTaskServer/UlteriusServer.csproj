@@ -112,8 +112,10 @@
     <Compile Include="TerminalServer\Infrastructure\Log4NetLogger.cs" />
     <Compile Include="Ulterius.cs" />
     <Compile Include="UlteriusAgent.cs" />
-    <Compile Include="Utilities\Drive\Disk.cs" />
-    <Compile Include="Utilities\Drive\Smart.cs" />
+    <Compile Include="Utilities\Drive\PartitionModel.cs" />
+    <Compile Include="Utilities\Drive\SmartData.cs" />
+    <Compile Include="Utilities\Drive\SmartEnums.cs" />
+    <Compile Include="Utilities\Drive\SmartModel.cs" />
     <Compile Include="Utilities\Extensions\NetworkBrowser.cs" />
     <Compile Include="Utilities\Extensions\TaskExtensions.cs" />
     <Compile Include="Utilities\Files\Database\DatabaseController.cs" />

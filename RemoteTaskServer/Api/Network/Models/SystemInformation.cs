@@ -1,5 +1,6 @@
 ﻿#region
 
+using System;
 using System.Collections.Generic;
 using OpenHardwareMonitor.Hardware;
 
@@ -10,6 +11,7 @@ namespace UlteriusServer.Api.Network.Models
 {
     public static class SystemInformation
     {
+      
         public static List<float> CpuUsage { get; set; }
         public static ulong TotalMemory { get; set; }
         public static ulong AvailableMemory { get; set; }
