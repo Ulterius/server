@@ -29,7 +29,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
 
         public void GetOperatingSystemInformation()
         {
-            _builder.WriteMessage(ServerOperatingSystem.ToObject());
+            _builder.WriteMessage(OperatingSystemInformation.ToObject());
         }
 
         public override void HandlePacket(Packet packet)

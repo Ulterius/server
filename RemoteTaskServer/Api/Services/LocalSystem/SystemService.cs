@@ -92,7 +92,7 @@ namespace UlteriusServer.Api.Services.LocalSystem
         {
             try
             {
-                if (string.IsNullOrEmpty(ServerOperatingSystem.Name))
+                if (string.IsNullOrEmpty(OperatingSystemInformation.Name))
                 {
                     var wmi =
                         new ManagementObjectSearcher("select * from Win32_OperatingSystem")
@@ -100,13 +100,13 @@ namespace UlteriusServer.Api.Services.LocalSystem
                             .Cast<ManagementObject>()
                             .First();
 
-                    ServerOperatingSystem.Name = ((string) wmi["Caption"]).Trim();
-                    ServerOperatingSystem.Version = (string) wmi["Version"];
-                    ServerOperatingSystem.MaxProcessCount = (uint) wmi["MaxNumberOfProcesses"];
-                    ServerOperatingSystem.MaxProcessRam = (ulong) wmi["MaxProcessMemorySize"];
-                    ServerOperatingSystem.Architecture = (string) wmi["OSArchitecture"];
-                    ServerOperatingSystem.SerialNumber = (string) wmi["SerialNumber"];
-                    ServerOperatingSystem.Build = (string) wmi["BuildNumber"];
+                    OperatingSystemInformation.Name = ((string) wmi["Caption"]).Trim();
+                    OperatingSystemInformation.Version = (string) wmi["Version"];
+                    OperatingSystemInformation.MaxProcessCount = (uint) wmi["MaxNumberOfProcesses"];
+                    OperatingSystemInformation.MaxProcessRam = (ulong) wmi["MaxProcessMemorySize"];
+                    OperatingSystemInformation.Architecture = (string) wmi["OSArchitecture"];
+                    OperatingSystemInformation.SerialNumber = (string) wmi["SerialNumber"];
+                    OperatingSystemInformation.Build = (string) wmi["BuildNumber"];
                 }
             }
             catch (Exception ex)

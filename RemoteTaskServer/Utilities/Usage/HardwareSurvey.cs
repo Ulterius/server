@@ -118,7 +118,7 @@ namespace UlteriusServer.Utilities.Usage
             {
                 var data = new
                 {
-                    ServerInfo = ServerOperatingSystem.ToObject(),
+                    ServerInfo = OperatingSystemInformation.ToObject(),
                     SystemInfo = SystemInformation.ToObject(),
                     UlteriusVersion = Assembly.GetExecutingAssembly().GetName().Version,
                     GpuInfo = GetGpuInformation(),

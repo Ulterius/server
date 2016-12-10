@@ -1,7 +1,7 @@
 ﻿namespace UlteriusServer.Api.Network.Models
 
 {
-    public class SystemProcesses
+    public class ProcessInformation
     {
         public int Id { get; set; }
         public string Path { get; set; }

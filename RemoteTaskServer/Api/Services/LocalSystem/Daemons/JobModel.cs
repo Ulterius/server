@@ -10,7 +10,7 @@ using Newtonsoft.Json;
 
 #endregion
 
-namespace UlteriusServer.Api.Network.Models
+namespace UlteriusServer.Api.Services.LocalSystem.Daemons
 {
     public class JobModel
     {

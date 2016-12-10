@@ -119,9 +119,9 @@ namespace UlteriusServer.Api.Network.PacketHandlers
             return sigBase64;
         }
 
-        private List<SystemProcesses> GetProcessInformation()
+        private List<ProcessInformation> GetProcessInformation()
         {
-            var processInformation = new List<SystemProcesses>();
+            var processInformation = new List<ProcessInformation>();
             var processKil = Process.GetProcesses();
             foreach (var process in processKil)
             {
@@ -140,7 +140,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                     if (process.HasExited) wallTime = process.ExitTime - process.StartTime;
                     var procTime = process.TotalProcessorTime;
                     var cpuUsage = 100*procTime.TotalMilliseconds/wallTime.TotalMilliseconds;
-                    var sysP = new SystemProcesses
+                    var sysP = new ProcessInformation
                     {
                         Id = processId,
                         Path = fullPath,
