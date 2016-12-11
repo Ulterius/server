@@ -189,6 +189,37 @@ namespace UlteriusServer.Utilities
             {
                 device = tt.Result;
                 device.GetExternalIPAsync()
+                 .ContinueWith(task =>
+                 {
+                     ;
+                     return device.DeletePortMapAsync(
+                         new Mapping(Protocol.Tcp, webServerPort, webServerPort, 0, "Ulterius Web Server"));
+                 })
+                    .Unwrap()
+                    .ContinueWith(task =>
+                    {
+                        return device.DeletePortMapAsync(
+                            new Mapping(Protocol.Tcp, screenSharePort, screenSharePort, 0, "Ulterius Screen Share"));
+                    })
+                    .Unwrap()
+                    .ContinueWith(task =>
+                    {
+                        return device.DeletePortMapAsync(
+                            new Mapping(Protocol.Tcp, apiPort, apiPort, 0, "Ulterius Api"));
+                    })
+                    .Unwrap()
+                    .ContinueWith(task =>
+                    {
+                        return device.DeletePortMapAsync(
+                            new Mapping(Protocol.Tcp, webCamPort, webCamPort, 0, "Ulterius Webcams"));
+                    })
+                    .Unwrap()
+                    .ContinueWith(task =>
+                    {
+                        return device.DeletePortMapAsync(
+                            new Mapping(Protocol.Tcp, terminalPort, terminalPort, 0, "Ulterius Terminal"));
+                    })
+                    .Unwrap()
                     .ContinueWith(task =>
                     {
                         ;
