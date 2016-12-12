@@ -74,14 +74,14 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                 case Display.DISP_CHANGE.Restart:
                     message = "A restart is required for this resolution to take effect.";
                     break;
-                case Display.DISP_CHANGE.BadDualView:
-                    break;
-                case Display.DISP_CHANGE.BadFlags:
-                    break;
+             
                 case Display.DISP_CHANGE.BadMode:
                     message = $"{width}x{height}x{bbp}x{freq} is not a supported resolution";
                     break;
+                case Display.DISP_CHANGE.BadDualView:
+                case Display.DISP_CHANGE.BadFlags:
                 case Display.DISP_CHANGE.BadParam:
+                    message = "Unknown error description.";
                     break;
                 case Display.DISP_CHANGE.Failed:
                     message = "Resolution failed to update";
