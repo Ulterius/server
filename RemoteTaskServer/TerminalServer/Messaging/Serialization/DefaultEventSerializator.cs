@@ -30,7 +30,6 @@ namespace UlteriusServer.TerminalServer.Messaging.Serialization
                 json.Add("type", new JValue(eventObject.GetType().Name));
                 json.Remove("connectionId");
                 var jsonString = json.ToString().UnicodeUtf8();
-                Console.WriteLine(jsonString);
                 if (user.AesShook)
                 {
                     var keybytes = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(user.AesKey));

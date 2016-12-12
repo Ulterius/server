@@ -17,8 +17,8 @@ using Microsoft.VisualBasic.Devices;
 using OpenHardwareMonitor.Hardware;
 using UlteriusServer.Api.Network.Models;
 using UlteriusServer.Api.Services.Network;
-using UlteriusServer.Api.Win32;
 using UlteriusServer.Utilities.Drive;
+using static UlteriusServer.Api.Win32.Display;
 using Computer = OpenHardwareMonitor.Hardware.Computer;
 
 #endregion
@@ -42,7 +42,7 @@ namespace UlteriusServer.Api.Services.LocalSystem
 
             try
             {
-                SetDisplayInformation();
+          
                 SetNetworkInformation();
                 SetCpuInformation();
                 SetOperatingSystemInformation();
@@ -60,10 +60,7 @@ namespace UlteriusServer.Api.Services.LocalSystem
             }
         }
 
-        private void SetDisplayInformation()
-        {
-            SystemInformation.Displays = Display.DisplayInformation();
-        }
+       
 
 
         // ReSharper disable once UnusedMethodReturnValue.Local
@@ -175,6 +172,7 @@ namespace UlteriusServer.Api.Services.LocalSystem
                     SystemInformation.NetworkInfo = GetNetworkInfo();
                     SystemInformation.CpuUsage = GetPerformanceCounters();
                     SystemInformation.CpuTemps = GetCpuTemps();
+                    SystemInformation.Displays = DisplayInformation();
                 }
                 catch (Exception ex)
                 {

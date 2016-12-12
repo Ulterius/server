@@ -1,15 +1,15 @@
-﻿namespace UlteriusServer.Api.Network.Models
+﻿using System.Collections.Generic;
+
+namespace UlteriusServer.Api.Network.Models
 {
     public class DisplayInformation
     {
         public string FriendlyName { get; set; }
-        public int MonitorHeight { get; set; }
-        public int MonitorWidth { get; set; }
-        public int BitsPerPixel { get; set; }
+    
         /// <summary>The device is part of the desktop.</summary>
         public bool Primary { get; set; }
 
-        public int Frequency { get; set; }
+     
         /// <summary>The device is part of the desktop.</summary> 
         public bool MultiDriver { get; set; }
         public bool Attached { get; set; }
@@ -26,6 +26,9 @@
 
 
 
+        public Dictionary<string, List<ResolutionInformation>> SupportedResolutions { get; set; }
+        public string DeviceName { get; set; }
+        public ResolutionInformation CurrentResolution { get; set; }
 
     }
 }

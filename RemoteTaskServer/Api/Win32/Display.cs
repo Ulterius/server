@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
@@ -13,6 +14,23 @@ namespace UlteriusServer.Api.Win32
 {
     internal class Display
     {
+        [Flags]
+        public enum ChangeDisplaySettingsFlags : uint
+        {
+            CDS_NONE = 0,
+            CDS_UPDATEREGISTRY = 0x00000001,
+            CDS_TEST = 0x00000002,
+            CDS_FULLSCREEN = 0x00000004,
+            CDS_GLOBAL = 0x00000008,
+            CDS_SET_PRIMARY = 0x00000010,
+            CDS_VIDEOPARAMETERS = 0x00000020,
+            CDS_ENABLE_UNSAFE_MODES = 0x00000100,
+            CDS_DISABLE_UNSAFE_MODES = 0x00000200,
+            CDS_RESET = 0x40000000,
+            CDS_RESET_EX = 0x20000000,
+            CDS_NORESET = 0x10000000
+        }
+
         [Flags]
         public enum DisplayDeviceStateFlags
         {
@@ -39,6 +57,13 @@ namespace UlteriusServer.Api.Win32
         }
 
         public const int ErrorSuccess = 0;
+
+        public const int ENUM_CURRENT_SETTINGS = -1;
+        public const int CDS_UPDATEREGISTRY = 0x01;
+        public const int CDS_TEST = 0x02;
+
+
+        private const int ENUM_REGISTRY_SETTINGS = -2;
 
         public static int EnumCurrentSettings { get; } = -1;
 
@@ -88,8 +113,17 @@ namespace UlteriusServer.Api.Win32
         }
 
         [DllImport("user32.dll")]
+        public static extern int ChangeDisplaySettings(
+            ref Devmode devMode, int flags);
+
+        [DllImport("user32.dll")]
+        private static extern DISP_CHANGE ChangeDisplaySettingsEx(string lpszDeviceName, ref Devmode lpDevMode,
+            IntPtr hwnd, ChangeDisplaySettingsFlags dwflags, IntPtr lParam);
+
+        [DllImport("user32.dll")]
         public static extern bool EnumDisplaySettings(
             string deviceName, int modeNum, ref Devmode devMode);
+
 
         public static List<DisplayInformation> DisplayInformation()
         {
@@ -103,8 +137,44 @@ namespace UlteriusServer.Api.Win32
                     if (d.StateFlags.HasFlag(DisplayDeviceStateFlags.AttachedToDesktop))
                     {
                         var device = d.DeviceName;
+
                         var vDevMode = new Devmode();
-                        EnumDisplaySettings(device, -2, ref vDevMode);
+                        var i = 0;
+                        var supportedResolutions = new Dictionary<string, List<ResolutionInformation>>();
+                        while (EnumDisplaySettings(device, i, ref vDevMode))
+                        {
+                            var width = vDevMode.dmPelsWidth;
+                            var height = vDevMode.dmPelsHeight;
+                            var bpp = vDevMode.dmBitsPerPel;
+                            var freq = vDevMode.dmDisplayFrequency;
+                            var resolutionKey = $"{width}x{height}";
+                            var resolution = new ResolutionInformation
+                            {
+                                BitsPerPixel = bpp,
+                                Frequency = freq,
+                                Height = height,
+                                Width = width
+                            };
+                            if (supportedResolutions.ContainsKey(resolutionKey))
+                            {
+                                supportedResolutions[resolutionKey].Add(resolution);
+                            }
+                            else
+                            {
+                                supportedResolutions.Add(resolutionKey, new List<ResolutionInformation>());
+                                supportedResolutions[resolutionKey].Add(resolution);
+                            }
+                            i++;
+                        }
+                        var cDevMode = new Devmode();
+                        EnumDisplaySettings(device, ENUM_CURRENT_SETTINGS, ref cDevMode);
+                        var currentResolution = new ResolutionInformation
+                        {
+                            BitsPerPixel = cDevMode.dmBitsPerPel,
+                            Frequency = cDevMode.dmDisplayFrequency,
+                            Height = cDevMode.dmPelsHeight,
+                            Width = cDevMode.dmPelsWidth
+                        };
                         var monitor = new DisplayInformation
                         {
                             Primary = d.StateFlags.HasFlag(DisplayDeviceStateFlags.PrimaryDevice),
@@ -117,10 +187,9 @@ namespace UlteriusServer.Api.Win32
                             Remote = d.StateFlags.HasFlag(DisplayDeviceStateFlags.Remote),
                             Disconnect = d.StateFlags.HasFlag(DisplayDeviceStateFlags.Disconnect),
                             FriendlyName = $"{GetAllMonitorsFriendlyNames().ElementAt((int) id)} on {d.DeviceString}",
-                            Frequency = vDevMode.dmDisplayFrequency,
-                            MonitorWidth = vDevMode.dmPelsWidth,
-                            MonitorHeight = vDevMode.dmPelsHeight,
-                            BitsPerPixel = vDevMode.dmBitsPerPel
+                            SupportedResolutions = supportedResolutions,
+                            CurrentResolution = currentResolution,
+                            DeviceName = device
                         };
                         monitors.Add(monitor);
                         d.cb = Marshal.SizeOf(d);
@@ -131,14 +200,47 @@ namespace UlteriusServer.Api.Win32
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"{ex}");
+                if (Debugger.IsAttached)
+                {
+                    Console.WriteLine($"{ex}");
+                }
             }
             return monitors;
+        }
+
+
+        public static DISP_CHANGE ChangeResolution(string deviceName, int width, int height, int bbp, int freq)
+        {
+            var originalMode = new Devmode();
+            originalMode.dmSize = (short) Marshal.SizeOf(originalMode);
+            EnumDisplaySettings(deviceName, ENUM_CURRENT_SETTINGS, ref originalMode);
+            var newMode = originalMode;
+            newMode.dmDeviceName = deviceName;
+            newMode.dmPelsWidth = width;
+            newMode.dmPelsHeight = height;
+            newMode.dmBitsPerPel = bbp;
+            newMode.dmDisplayFrequency = freq;
+            var result = ChangeDisplaySettingsEx(deviceName, ref newMode, IntPtr.Zero,
+                ChangeDisplaySettingsFlags.CDS_UPDATEREGISTRY, IntPtr.Zero);
+            return result;
+           
         }
 
         [DllImport("user32.dll")]
         private static extern bool EnumDisplayDevices(string lpDevice, uint iDevNum, ref DisplayDevice lpDisplayDevice,
             uint dwFlags);
+
+        internal enum DISP_CHANGE
+        {
+            Successful = 0,
+            Restart = 1,
+            Failed = -1,
+            BadMode = -2,
+            NotUpdated = -3,
+            BadFlags = -4,
+            BadParam = -5,
+            BadDualView = -6
+        }
 
         [StructLayout(LayoutKind.Sequential)]
         public struct Devmode

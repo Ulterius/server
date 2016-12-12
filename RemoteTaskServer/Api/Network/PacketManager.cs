@@ -95,7 +95,8 @@ namespace UlteriusServer.Api.Network
             GetDescription,
             CtrlAltDel,
             RightDown,
-            RightUp
+            RightUp,
+            ChangeScreenResolution
         }
 
         #endregion
@@ -181,6 +182,8 @@ namespace UlteriusServer.Api.Network
                     return new PacketInfo {Type = PacketTypes.Authenticate, Handler = typeof(ServerPacketHandler)};
                 case "requestgpuinformation":
                     return new PacketInfo {Type = PacketTypes.RequestGpuInformation, Handler = typeof(GpuPacketHandler)};
+                case "changescreenresolution":
+                    return new PacketInfo { Type = PacketTypes.ChangeScreenResolution, Handler = typeof(OperatingSystemPacketHandler) };
                 case "createfiletree":
                     return new PacketInfo {Type = PacketTypes.CreateFileTree, Handler = typeof(FilePacketHandler)};
                 case "requestprocessinformation":

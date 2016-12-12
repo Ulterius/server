@@ -81,6 +81,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Api\Network\Models\FanInformation.cs" />
+    <Compile Include="Api\Network\Models\ResolutionInformation.cs" />
     <Compile Include="Api\Services\LocalSystem\Daemons\JobModel.cs" />
     <Compile Include="Api\Network\Models\DisplayInformation.cs" />
     <Compile Include="Api\Network\PacketHandlers\CronJobPacketHandler.cs" />
