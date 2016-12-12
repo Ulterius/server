@@ -12,5 +12,6 @@ namespace UlteriusServer.Api.Network.Models
         public int Height { get; set; }
         public int BitsPerPixel { get; set; }
         public int Frequency { get; set; }
+        public string Orientation { get; set; }
     }
 }

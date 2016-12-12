@@ -96,7 +96,9 @@ namespace UlteriusServer.Api.Network
             CtrlAltDel,
             RightDown,
             RightUp,
-            ChangeScreenResolution
+            ChangeDisplayResolution,
+            RotateDisplay,
+            SetPrimaryDisplay
         }
 
         #endregion
@@ -183,7 +185,11 @@ namespace UlteriusServer.Api.Network
                 case "requestgpuinformation":
                     return new PacketInfo {Type = PacketTypes.RequestGpuInformation, Handler = typeof(GpuPacketHandler)};
                 case "changescreenresolution":
-                    return new PacketInfo { Type = PacketTypes.ChangeScreenResolution, Handler = typeof(OperatingSystemPacketHandler) };
+                    return new PacketInfo { Type = PacketTypes.ChangeDisplayResolution, Handler = typeof(DisplayPacketHandler) };
+                case "rotatedisplay":
+                    return new PacketInfo { Type = PacketTypes.RotateDisplay, Handler = typeof(DisplayPacketHandler) };
+                case "setprimarydisplay":
+                    return new PacketInfo { Type = PacketTypes.SetPrimaryDisplay, Handler = typeof(DisplayPacketHandler) };
                 case "createfiletree":
                     return new PacketInfo {Type = PacketTypes.CreateFileTree, Handler = typeof(FilePacketHandler)};
                 case "requestprocessinformation":

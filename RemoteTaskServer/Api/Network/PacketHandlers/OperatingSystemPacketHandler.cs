@@ -44,65 +44,12 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                 case PacketManager.PacketTypes.RequestOsInformation:
                     GetOperatingSystemInformation();
                     break;
-                case PacketManager.PacketTypes.ChangeScreenResolution:
-                    ChangeScreenResolution();
-                    break;
+              
                 case PacketManager.PacketTypes.GetEventLogs:
                     // GetEventLogs();
                     break;
             }
         }
 
-        private void ChangeScreenResolution()
-        {
-         
-            var width = int.Parse(_packet.Args[0].ToString());
-            var height = int.Parse(_packet.Args[1].ToString());
-            var bbp = int.Parse(_packet.Args[2].ToString());
-            var freq = int.Parse(_packet.Args[3].ToString());
-            var device = _packet.Args[4].ToString();
-         
-           
-            Console.WriteLine(device);
-            var code = Display.ChangeResolution(device, width, height, bbp, freq);
-            string message = string.Empty;
-            switch (code)
-            {
-                case Display.DISP_CHANGE.Successful:
-                    message = "Resolution updated.";
-                    break;
-                case Display.DISP_CHANGE.Restart:
-                    message = "A restart is required for this resolution to take effect.";
-                    break;
-
-                case Display.DISP_CHANGE.BadMode:
-                    message = $"{width}x{height}x{bbp}x{freq} is not a supported resolution";
-                    break;
-                case Display.DISP_CHANGE.BadDualView:
-                    message = "The settings change was unsuccessful because system is DualView capable.";
-                    break;
-                case Display.DISP_CHANGE.BadFlags:
-                    message = "An invalid set of flags was passed in.";
-                    break;
-                case Display.DISP_CHANGE.BadParam:
-                    message = "An invalid parameter was passed in. This can include an invalid flag or combination of flags.";
-                    break;
-                case Display.DISP_CHANGE.Failed:
-                    message = "Resolution failed to update.";
-                    break;
-                case Display.DISP_CHANGE.NotUpdated:
-                    message = "Unable to write settings to the registry.";
-                    break;
-                default:
-                    message =  "Unknown return value from ChangeDisplaySettings API.";
-                    break;
-            }
-            var formThread = new
-            {
-                message,
-                responseCode = code,
-            };
-            _builder.WriteMessage(formThread);
-        }
     }
 }
