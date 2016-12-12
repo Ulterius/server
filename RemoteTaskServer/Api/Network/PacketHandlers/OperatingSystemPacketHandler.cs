@@ -74,20 +74,27 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                 case Display.DISP_CHANGE.Restart:
                     message = "A restart is required for this resolution to take effect.";
                     break;
-             
+
                 case Display.DISP_CHANGE.BadMode:
                     message = $"{width}x{height}x{bbp}x{freq} is not a supported resolution";
                     break;
                 case Display.DISP_CHANGE.BadDualView:
+                    message = "The settings change was unsuccessful because system is DualView capable.";
+                    break;
                 case Display.DISP_CHANGE.BadFlags:
+                    message = "An invalid set of flags was passed in.";
+                    break;
                 case Display.DISP_CHANGE.BadParam:
-                    message = "Unknown error description.";
+                    message = "An invalid parameter was passed in. This can include an invalid flag or combination of flags.";
                     break;
                 case Display.DISP_CHANGE.Failed:
-                    message = "Resolution failed to update";
+                    message = "Resolution failed to update.";
                     break;
                 case Display.DISP_CHANGE.NotUpdated:
-                    message = "Resolution not updated";
+                    message = "Unable to write settings to the registry.";
+                    break;
+                default:
+                    message =  "Unknown return value from ChangeDisplaySettings API.";
                     break;
             }
             var formThread = new
