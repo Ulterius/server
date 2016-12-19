@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Text;
 using Newtonsoft.Json;
 using UlteriusServer.Api;
 using UlteriusServer.Api.Services.LocalSystem;
@@ -37,12 +38,7 @@ namespace UlteriusServer
             {
                 Directory.CreateDirectory(AppEnvironment.DataPath);
             }
-            if (!Debugger.IsAttached)
-            {
-                ExceptionHandler.AddGlobalHandlers();
-                Console.WriteLine("Exception Handlers Attached");
-            }
-
+           
             //Fix screensize issues for Screen Share
             if (Tools.RunningPlatform() == Tools.Platform.Windows && Environment.OSVersion.Version.Major >= 6)
             {
@@ -78,6 +74,8 @@ namespace UlteriusServer
             Console.WriteLine("Configuring up server");
             Tools.ConfigureServer();
           
+          
+        
             Console.WriteLine(Assembly.GetExecutingAssembly().GetName().Version);
             var useTerminal = settings.Terminal.AllowTerminal;
             var useWebServer = settings.WebServer.ToggleWebServer;

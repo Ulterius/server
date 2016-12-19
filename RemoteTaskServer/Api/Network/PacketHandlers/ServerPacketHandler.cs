@@ -1,19 +1,19 @@
 ﻿#region
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
-using System.DirectoryServices.AccountManagement;
-using System.DirectoryServices.ActiveDirectory;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text;
+using System.Windows.Forms;
 using UlteriusServer.Api.Network.Messages;
 using UlteriusServer.Utilities;
 using UlteriusServer.Utilities.Security;
 using UlteriusServer.Utilities.Settings;
 using UlteriusServer.WebSocketAPI.Authentication;
 using vtortola.WebSockets;
-using Version = System.Version;
 
 #endregion
 
@@ -22,8 +22,8 @@ namespace UlteriusServer.Api.Network.PacketHandlers
     public class ServerPacketHandler : PacketHandler
     {
         private AuthClient _authClient;
-        private WebSocket _client;
         private MessageBuilder _builder;
+        private WebSocket _client;
         private Packet _packet;
 
 
@@ -31,7 +31,6 @@ namespace UlteriusServer.Api.Network.PacketHandlers
         {
             try
             {
-
                 var connectionId = CookieManager.GetConnectionId(_client);
                 AuthClient authClient;
                 UlteriusApiServer.AllClients.TryGetValue(connectionId, out authClient);
@@ -82,23 +81,22 @@ namespace UlteriusServer.Api.Network.PacketHandlers
             var screenSharePort = config.ScreenShareService.ScreenSharePort;
             var portData = new
             {
-              webServerPort,
-              apiPort,
-              webcamPort,
-              terminalPort,
-              screenSharePort
+                webServerPort,
+                apiPort,
+                webcamPort,
+                terminalPort,
+                screenSharePort
             };
             _builder.WriteMessage(portData);
         }
 
         public void Login()
         {
-
             var authenticated = false;
             var connectionId = CookieManager.GetConnectionId(_client);
             var password = _packet.Args[0].ToString();
             authenticated = !string.IsNullOrEmpty(password) && AuthUtils.Authenticate(password);
-           
+
             AuthClient authClient;
             UlteriusApiServer.AllClients.TryGetValue(connectionId, out authClient);
             if (authClient != null)
@@ -123,20 +121,66 @@ namespace UlteriusServer.Api.Network.PacketHandlers
             _builder.WriteMessage(authenticationData);
         }
 
-     
 
         public void CheckForUpdate()
         {
             var versionInfo = new
             {
-                productVersion = new Version(System.Windows.Forms.Application.ProductVersion)
+                productVersion = new Version(Application.ProductVersion)
             };
             _builder.WriteMessage(versionInfo);
         }
 
+
+        public void GetLogs()
+        {
+            string logData;
+            var stringBuilder = new StringBuilder();
+            try
+            {
+                using (
+                    var fs = new FileStream(Path.Combine(AppEnvironment.DataPath, "server.log"), FileMode.Open,
+                        FileAccess.Read, FileShare.ReadWrite))
+                using (var sr = new StreamReader(fs, Encoding.Default))
+                {
+                    while (!sr.EndOfStream)
+                    {
+                        var line = sr.ReadLine();
+                        if (line != null)
+                        {
+                            stringBuilder.AppendLine(line);
+                        }
+                    }
+                    logData = stringBuilder.ToString();
+                }
+            }
+            catch (Exception)
+            {
+                logData = string.Empty;
+            }
+            var logsPath = Path.Combine(AppEnvironment.DataPath, "Logs");
+            var exceptionList = new List<ExceptionModel>();
+            if (Directory.Exists(logsPath))
+            {
+                exceptionList = (from filePath in Directory.GetFiles(logsPath)
+                    let fileName = Path.GetFileName(filePath)?.Split(Convert.ToChar("_"))
+                    select new ExceptionModel
+                    {
+                        Type = fileName[0],
+                        Date = fileName[1].Replace(".json", ""),
+                        Json = File.ReadAllText(filePath)
+                    }).ToList();
+            }
+            var debugInfo = new
+            {
+                serverLog = logData,
+                exceptions = exceptionList
+            };
+            _builder.WriteMessage(debugInfo);
+        }
+
         public void RestartServer()
         {
-          
             if (UlteriusApiServer.RunningAsService)
             {
                 var restartServiceScript = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
@@ -150,7 +194,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
             else
             {
                 var restartServerScript = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
-               "restartulterius.bat");
+                    "restartulterius.bat");
                 var startInfo = new ProcessStartInfo(restartServerScript)
                 {
                     WindowStyle = ProcessWindowStyle.Minimized
@@ -177,12 +221,22 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                     RestartServer();
                     break;
                 case PacketManager.PacketTypes.ListPorts:
-                   ListPorts();
+                    ListPorts();
                     break;
                 case PacketManager.PacketTypes.CheckVersion:
                     CheckForUpdate();
                     break;
+                case PacketManager.PacketTypes.GetLogs:
+                    GetLogs();
+                    break;
             }
+        }
+
+        public class ExceptionModel
+        {
+            public string Type { get; set; }
+            public string Json { get; set; }
+            public string Date { get; set; }
         }
     }
 }

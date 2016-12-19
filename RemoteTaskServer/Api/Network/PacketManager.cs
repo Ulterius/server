@@ -98,7 +98,8 @@ namespace UlteriusServer.Api.Network
             RightUp,
             ChangeDisplayResolution,
             RotateDisplay,
-            SetPrimaryDisplay
+            SetPrimaryDisplay,
+            GetLogs
         }
 
         #endregion
@@ -269,6 +270,8 @@ namespace UlteriusServer.Api.Network
                     return new PacketInfo {Type = PacketTypes.AesHandshake, Handler = typeof(ServerPacketHandler)};
                 case "checkversion":
                     return new PacketInfo { Type = PacketTypes.CheckVersion, Handler = typeof(ServerPacketHandler) };
+                case "getlogs":
+                    return new PacketInfo { Type = PacketTypes.GetLogs, Handler = typeof(ServerPacketHandler) };
                 case "requestfile":
                     return new PacketInfo {Type = PacketTypes.RequestFile, Handler = typeof(FilePacketHandler)};
                 case "approvefile":

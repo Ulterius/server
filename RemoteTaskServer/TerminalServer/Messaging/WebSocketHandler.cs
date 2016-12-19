@@ -95,7 +95,7 @@ namespace UlteriusServer.TerminalServer.Messaging
 
             finally
             {
-                Console.WriteLine("Session '{0}' with connection '{1}' disconnected", sessionId, connectionId);
+               // Console.WriteLine("Session '{0}' with connection '{1}' disconnected", sessionId, connectionId);
 
                 foreach (var unsub in unsubs)
                     unsub();

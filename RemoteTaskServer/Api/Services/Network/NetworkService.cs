@@ -132,12 +132,9 @@ namespace UlteriusServer.Api.Services.Network
 
             foreach (var nic in NetworkInterface.GetAllNetworkInterfaces())
             {
-                Console.WriteLine($"Found MAC Address: {nic.GetPhysicalAddress()} Type: {nic.NetworkInterfaceType}");
-
                 var tempMac = nic.GetPhysicalAddress().ToString();
                 if (nic.Speed <= maxSpeed || string.IsNullOrEmpty(tempMac) || tempMac.Length < minMacAddrLength)
                     continue;
-                Console.WriteLine($"New Max Speed = {nic.Speed}, MAC: {tempMac}");
                 maxSpeed = nic.Speed;
                 macAddress = tempMac;
             }

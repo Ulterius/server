@@ -25,7 +25,7 @@ namespace UlteriusServer.Utilities
                         Directory.CreateDirectory(LogsPath);
 
                     var filePath = Path.Combine(LogsPath,
-                        $"UnhandledException_{DateTime.Now.ToShortDateString().Replace("/", "-")}.json");
+                        $"UnhandledException_{DateTime.Now.ToShortDateString().Replace("/", "-")}_{Guid.NewGuid().ToString("N")}.json");
 
                     File.AppendAllText(filePath,
                         JsonConvert.SerializeObject(args.ExceptionObject, Formatting.Indented) + "\r\n\r\n");

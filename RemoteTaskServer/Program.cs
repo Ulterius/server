@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime;
 using Topshelf;
@@ -22,7 +23,12 @@ namespace UlteriusServer
 
         {
 
+            if (!Debugger.IsAttached)
+            {
 
+                ExceptionHandler.AddGlobalHandlers();
+                Console.WriteLine("Exception Handlers Attached");
+            }
             if (System.Diagnostics.Process.GetProcessesByName(System.IO.Path.GetFileNameWithoutExtension(System.Reflection.Assembly.GetEntryAssembly().Location)).Count() > 1) return;
           
             ProfileOptimization.SetProfileRoot(AppEnvironment.DataPath);
