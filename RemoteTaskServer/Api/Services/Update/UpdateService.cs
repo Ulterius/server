@@ -29,17 +29,26 @@ namespace UlteriusServer.Api.Services.Update
         {
             while (true)
             {
-                var updatedNeeded = await CheckForClientUpdates();
-                if (updatedNeeded)
-                {
-                    Console.WriteLine("Client was updated");
+                try
+
+    {
+                    var updatedNeeded = await CheckForClientUpdates();
+                    if (updatedNeeded)
+                    {
+                        Console.WriteLine("Client was updated");
+                    }
+                    if (SessionInfo.GetSessionLockState((uint)System.Diagnostics.Process.GetCurrentProcess().SessionId) == SessionInfo.LockState.Unlocked)
+                    {
+                        Console.WriteLine("Checking for Updates");
+                        CheckForServerUpdates();
+                    }
                 }
-                if (SessionInfo.GetSessionLockState((uint) System.Diagnostics.Process.GetCurrentProcess().SessionId) == SessionInfo.LockState.Unlocked)
+
+                catch (Exception ex)
                 {
-                    Console.WriteLine("Checking for Updates");
-                    CheckForServerUpdates();
+                    Console.WriteLine(ex.StackTrace);
+                    Console.WriteLine(ex.Message);
                 }
-               
                 await Task.Delay(new TimeSpan(0, 30, 0));
             }
         }

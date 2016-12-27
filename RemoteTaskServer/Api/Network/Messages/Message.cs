@@ -16,7 +16,7 @@ namespace UlteriusServer.Api.Network.Messages
         }
 
         public readonly byte[] Data;
-        public readonly string Json;
+        public readonly string PlainTextData;
         public readonly MessageType Type;
 
 
@@ -27,16 +27,16 @@ namespace UlteriusServer.Api.Network.Messages
             Type = type;
         }
 
-        public Message(WebSocket remoteClient, string json, MessageType type)
+        public Message(WebSocket remoteClient, string plainTextData, MessageType type)
         {
             RemoteClient = remoteClient;
-            Json = json;
+            PlainTextData = plainTextData;
             Type = type;
         }
 
         public Message(string message, MessageType type)
         {
-            Json = message;
+            PlainTextData = message;
             Type = type;
         }
 

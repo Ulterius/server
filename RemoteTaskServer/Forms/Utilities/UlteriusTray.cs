@@ -69,6 +69,10 @@ namespace UlteriusServer.Forms.Utilities
 
         public static void ShowMessage(string message, string title = "")
         {
+            if (Tools.RunningAsService())
+            {
+                return;
+            }
             if (NotificationIcon == null) return;
             NotificationIcon.BalloonTipText = message;
             NotificationIcon.BalloonTipTitle = title;

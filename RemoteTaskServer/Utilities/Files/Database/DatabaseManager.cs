@@ -5,10 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Text;
-using System.Threading;
-using Microsoft.VisualBasic;
-using Microsoft.VisualBasic.CompilerServices;
-
+using UlteriusServer.Utilities.Extensions;
 
 #endregion
 
@@ -65,7 +62,7 @@ namespace UlteriusServer.Utilities.Files.Database
 
                         break;
                     }
-                    if (Operators.LikeString(fileName, $"*{value}*", CompareMethod.Text))
+                    if (fileName.IsLike($"*{value}*"))
                     {
                         yield return Path.Combine(directory, fileName);
                     }

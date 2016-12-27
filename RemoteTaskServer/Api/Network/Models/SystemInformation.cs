@@ -13,9 +13,9 @@ namespace UlteriusServer.Api.Network.Models
     {
       
         public static List<float> CpuUsage { get; set; }
-        public static ulong TotalMemory { get; set; }
-        public static ulong AvailableMemory { get; set; }
-        public static ulong UsedMemory { get; set; }
+        public static long TotalMemory { get; set; }
+        public static long AvailableMemory { get; set; }
+        public static long UsedMemory { get; set; }
         public static int RunningProcesses { get; set; }
         public static double UpTime { get; set; }
         public static bool RunningAsAdmin { get; set; }

@@ -2,7 +2,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
+using System.Threading;
 using UlteriusServer.Utilities.Files.Database;
 
 #endregion
@@ -11,6 +11,20 @@ namespace UlteriusServer.Api.Services.LocalSystem
 {
     public class FileSearchService
     {
+
+        public void FileWorkThread()
+        {
+            try
+            {
+                _databaseController = new DatabaseController(_cachePath);
+                _databaseController.Start();
+            }
+            catch (Exception ex)
+            {
+                // log errors
+            }
+        }
+
         private readonly string _cachePath;
         private DatabaseController _databaseController;
 
@@ -36,11 +50,10 @@ namespace UlteriusServer.Api.Services.LocalSystem
 
         public void Start()
         {
-            Task.Run(() => {
-                _databaseController = new DatabaseController(_cachePath);
-                _databaseController.Start();
-                Console.WriteLine("File Database Ready");
-            });
+
+            Thread thread = new Thread(FileWorkThread);
+            thread.Start();
+
         }
     }
 }

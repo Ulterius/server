@@ -145,14 +145,7 @@ namespace UlteriusServer.Api.Network.Models
                 maxProcessRam = MaxProcessRam,
                 architecture = Architecture,
                 serialNumber = SerialNumber,
-                build = Build,
-                netFrameworks = InstalledNetFrameworks(),
-                uacEnabled = UacOn(),
-                firewallEnabled = FirewallOn(),
-                antiVirusInfo = GetAntiVirusInfo(),
-                services = GetServices(),
-                environmentVariables = GetUserEnvironmentVariables(),
-                machineVariables = GetMachineEnvironmentVariables()
+                build = Build
             };
             return data;
         }

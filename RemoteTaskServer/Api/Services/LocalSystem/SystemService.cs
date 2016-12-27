@@ -13,13 +13,11 @@ using System.Security.Principal;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.VisualBasic.Devices;
 using OpenHardwareMonitor.Hardware;
 using UlteriusServer.Api.Network.Models;
 using UlteriusServer.Api.Services.Network;
 using UlteriusServer.Utilities.Drive;
 using static UlteriusServer.Api.Win32.Display;
-using Computer = OpenHardwareMonitor.Hardware.Computer;
 
 #endregion
 
@@ -33,8 +31,6 @@ namespace UlteriusServer.Api.Services.LocalSystem
         private string _cdRom;
         private string _motherBoard;
 
-        private static ulong AvailablePhysicalMemory => new ComputerInfo().AvailablePhysicalMemory;
-
 
         public void Start()
         {
@@ -42,7 +38,6 @@ namespace UlteriusServer.Api.Services.LocalSystem
 
             try
             {
-          
                 SetNetworkInformation();
                 SetCpuInformation();
                 SetOperatingSystemInformation();
@@ -60,11 +55,9 @@ namespace UlteriusServer.Api.Services.LocalSystem
             }
         }
 
-       
-
 
         // ReSharper disable once UnusedMethodReturnValue.Local
-        private  void SetNetworkInformation()
+        private void SetNetworkInformation()
         {
             try
             {
@@ -75,7 +68,6 @@ namespace UlteriusServer.Api.Services.LocalSystem
                     NetworkInformation.InternalIp = NetworkService.GetDisplayAddress();
                     NetworkInformation.NetworkComputers = NetworkService.ConnectedDevices();
                 }
-               
             }
             catch (Exception ex)
             {
@@ -156,6 +148,23 @@ namespace UlteriusServer.Api.Services.LocalSystem
                 Console.WriteLine(ex.StackTrace);
             }
         }
+        static long ConvertKilobytesToBytes(long kilobytes)
+        {
+            return kilobytes * 1024;
+        }
+
+        private static long GetAvailablePhysicalMemory()
+        {
+            var winQuery = new ObjectQuery("SELECT * FROM CIM_OperatingSystem");
+            var searcher = new ManagementObjectSearcher(winQuery);
+            foreach (var o in searcher.Get())
+            {
+                var item = (ManagementObject) o;
+                return ConvertKilobytesToBytes(long.Parse(item["FreePhysicalMemory"].ToString()));
+            }
+            return -1;
+        }
+      
 
         private async void Updater()
         {
@@ -163,7 +172,7 @@ namespace UlteriusServer.Api.Services.LocalSystem
             {
                 try
                 {
-                    SystemInformation.AvailableMemory = AvailablePhysicalMemory;
+                    SystemInformation.AvailableMemory = GetAvailablePhysicalMemory();
                     SystemInformation.Drives = GetDriveInformation();
                     SystemInformation.UsedMemory = GetUsedMemory();
                     SystemInformation.TotalMemory = GetTotalPhysicalMemory();
@@ -183,7 +192,7 @@ namespace UlteriusServer.Api.Services.LocalSystem
             }
         }
 
-       
+
         public string GetMotherBoard()
         {
             if (!string.IsNullOrEmpty(_motherBoard)) return _motherBoard;
@@ -326,14 +335,21 @@ namespace UlteriusServer.Api.Services.LocalSystem
         }
 
 
-        private static ulong GetUsedMemory()
+        private static long GetUsedMemory()
         {
-            return GetTotalPhysicalMemory() - AvailablePhysicalMemory;
+            return GetTotalPhysicalMemory() - GetAvailablePhysicalMemory();
         }
 
-        private static ulong GetTotalPhysicalMemory()
+        private static long GetTotalPhysicalMemory()
         {
-            return new ComputerInfo().TotalPhysicalMemory;
+            var winQuery = new ObjectQuery("SELECT * FROM CIM_OperatingSystem");
+            var searcher = new ManagementObjectSearcher(winQuery);
+            foreach (var o in searcher.Get())
+            {
+                var item = (ManagementObject)o;
+                return ConvertKilobytesToBytes(long.Parse(item["TotalVisibleMemorySize"].ToString()));
+            }
+            return -1;
         }
 
         private static int GetTotalProcesses()
@@ -404,34 +420,42 @@ namespace UlteriusServer.Api.Services.LocalSystem
                     try
                     {
                         var mosDisks =
-                                       new ManagementObjectSearcher("SELECT * FROM Win32_DiskDrive WHERE Model = '" +
-                                                                    driveInfo.Model + "'").Get().GetEnumerator();
+                            new ManagementObjectSearcher("SELECT * FROM Win32_DiskDrive WHERE Model = '" +
+                                                         driveInfo.Model + "'").Get().GetEnumerator();
                         if (!mosDisks.MoveNext()) continue;
                         driveInfo.MediaType = mosDisks.Current.GetPropertyValue("MediaType")?.ToString() ?? "Unknown";
-                        driveInfo.Serial = mosDisks.Current.GetPropertyValue("SerialNumber")?.ToString()?.Trim() ?? "Unknown";
-                        driveInfo.Interface = mosDisks.Current.GetPropertyValue("InterfaceType")?.ToString() ?? "Unknown";
-                        driveInfo.TotalPartitions = mosDisks.Current.GetPropertyValue("Partitions")?.ToString() ?? "Unknown";
+                        driveInfo.Serial = mosDisks.Current.GetPropertyValue("SerialNumber")?.ToString()?.Trim() ??
+                                           "Unknown";
+                        driveInfo.Interface = mosDisks.Current.GetPropertyValue("InterfaceType")?.ToString() ??
+                                              "Unknown";
+                        driveInfo.TotalPartitions = mosDisks.Current.GetPropertyValue("Partitions")?.ToString() ??
+                                                    "Unknown";
                         driveInfo.Signature = mosDisks.Current.GetPropertyValue("Signature")?.ToString() ?? "Unknown";
-                        driveInfo.Firmware = mosDisks.Current.GetPropertyValue("FirmwareRevision")?.ToString() ?? "Unknown";
-                        driveInfo.Cylinders = mosDisks.Current.GetPropertyValue("TotalCylinders")?.ToString() ?? "Unknown";
+                        driveInfo.Firmware = mosDisks.Current.GetPropertyValue("FirmwareRevision")?.ToString() ??
+                                             "Unknown";
+                        driveInfo.Cylinders = mosDisks.Current.GetPropertyValue("TotalCylinders")?.ToString() ??
+                                              "Unknown";
                         driveInfo.Sectors = mosDisks.Current.GetPropertyValue("TotalSectors")?.ToString() ?? "Unknown";
                         driveInfo.Heads = mosDisks.Current.GetPropertyValue("TotalHeads")?.ToString() ?? "Unknown";
                         driveInfo.Tracks = mosDisks.Current.GetPropertyValue("TotalTracks")?.ToString() ?? "Unknown";
-                        driveInfo.BytesPerSecond = mosDisks.Current.GetPropertyValue("BytesPerSector")?.ToString() ?? "Unknown";
-                        driveInfo.SectorsPerTrack = mosDisks.Current.GetPropertyValue("SectorsPerTrack")?.ToString() ?? "Unknown";
-                        driveInfo.TracksPerCylinder = mosDisks.Current.GetPropertyValue("TracksPerCylinder")?.ToString() ?? "Unknown";
+                        driveInfo.BytesPerSecond = mosDisks.Current.GetPropertyValue("BytesPerSector")?.ToString() ??
+                                                   "Unknown";
+                        driveInfo.SectorsPerTrack = mosDisks.Current.GetPropertyValue("SectorsPerTrack")?.ToString() ??
+                                                    "Unknown";
+                        driveInfo.TracksPerCylinder =
+                            mosDisks.Current.GetPropertyValue("TracksPerCylinder")?.ToString() ?? "Unknown";
                     }
-                    catch (Exception)
+                    catch (Exception ex)
                     {
-
-                       //fail
+                        Console.WriteLine(ex.Message);
+                        Console.WriteLine(ex.StackTrace);
                     }
-                    
+
                     try
                     {
                         var mosPartition =
-                                     new ManagementObjectSearcher("SELECT * FROM Win32_DiskPartition WHERE DiskIndex = '" +
-                                                                  index + "'").Get().GetEnumerator();
+                            new ManagementObjectSearcher("SELECT * FROM Win32_DiskPartition WHERE DiskIndex = '" +
+                                                         index + "'").Get().GetEnumerator();
                         while (mosPartition.MoveNext())
                         {
                             var partion = new PartitionModel
@@ -443,7 +467,8 @@ namespace UlteriusServer.Api.Services.LocalSystem
                                     mosPartition.Current.GetPropertyValue("StartingOffset")?.ToString() ?? "Unknown",
                                 Index = mosPartition.Current.GetPropertyValue("Index")?.ToString() ?? "Unknown",
                                 DiskIndex = mosPartition.Current.GetPropertyValue("DiskIndex")?.ToString() ?? "Unknown",
-                                BootPartition = mosPartition.Current.GetPropertyValue("BootPartition")?.ToString() ?? "Unknown",
+                                BootPartition =
+                                    mosPartition.Current.GetPropertyValue("BootPartition")?.ToString() ?? "Unknown",
                                 PrimaryPartition =
                                     mosPartition.Current.GetPropertyValue("PrimaryPartition")?.ToString() ?? "Unknown",
                                 Bootable = mosPartition.Current.GetPropertyValue("Bootable")?.ToString() ?? "Unknown"
@@ -451,10 +476,10 @@ namespace UlteriusServer.Api.Services.LocalSystem
                             driveInfo.Partitions.Add(partion);
                         }
                     }
-                    catch (Exception)
+                    catch (Exception ex)
                     {
-
-                        //fail
+                        Console.WriteLine(ex.Message);
+                        Console.WriteLine(ex.StackTrace);
                     }
                 }
                 catch (Exception ex)
@@ -464,12 +489,16 @@ namespace UlteriusServer.Api.Services.LocalSystem
                 }
             }
 
-            using (var searcher = new ManagementObjectSearcher("root\\WMI", "SELECT * FROM MSStorageDriver_ATAPISmartData"))
-            using (var thresSearcher = new ManagementObjectSearcher("root\\WMI", "SELECT * FROM MSStorageDriver_FailurePredictThresholds"))
-            using (var failureSearch = new ManagementObjectSearcher("root\\WMI", "SELECT * FROM MSStorageDriver_FailurePredictStatus"))
+            using (
+                var searcher = new ManagementObjectSearcher("root\\WMI", "SELECT * FROM MSStorageDriver_ATAPISmartData")
+                )
+            using (
+                var thresSearcher = new ManagementObjectSearcher("root\\WMI",
+                    "SELECT * FROM MSStorageDriver_FailurePredictThresholds"))
+            using (
+                var failureSearch = new ManagementObjectSearcher("root\\WMI",
+                    "SELECT * FROM MSStorageDriver_FailurePredictStatus"))
             {
-
-
                 try
                 {
                     var searcherEnumerator = searcher.Get().GetEnumerator();
@@ -479,24 +508,36 @@ namespace UlteriusServer.Api.Services.LocalSystem
                     var index = 0;
                     while (searcherEnumerator.MoveNext() && thresSearcherEnumerator.MoveNext())
                     {
-                        var arrVendorSpecific = (byte[])searcherEnumerator.Current.GetPropertyValue("VendorSpecific");
-                        var arrThreshold = (byte[])thresSearcherEnumerator.Current.GetPropertyValue("VendorSpecific");
+                        var arrVendorSpecific = (byte[]) searcherEnumerator.Current.GetPropertyValue("VendorSpecific");
+                        var arrThreshold = (byte[]) thresSearcherEnumerator.Current.GetPropertyValue("VendorSpecific");
 
                         /* Create SMART data from 'vendor specific' array */
                         var d = new SmartData(arrVendorSpecific, arrThreshold);
-                        var smartRows = (from b in d.Attributes where !Regex.IsMatch(b.AttributeType.ToString(), @"^\d+$") let rawData = BitConverter.ToString(b.VendorData.Reverse().ToArray()).Replace("-", string.Empty) select new SmartModel(b.AttributeType.ToString(), b.Value.ToString(CultureInfo.InvariantCulture), b.Threshold.ToString(CultureInfo.InvariantCulture), rawData, long.Parse(rawData, NumberStyles.HexNumber).ToString(CultureInfo.InvariantCulture))).ToList();
+                        var smartRows = (from b in d.Attributes
+                            where !Regex.IsMatch(b.AttributeType.ToString(), @"^\d+$")
+                            let rawData =
+                                BitConverter.ToString(b.VendorData.Reverse().ToArray()).Replace("-", string.Empty)
+                            select
+                                new SmartModel(b.AttributeType.ToString(),
+                                    b.Value.ToString(CultureInfo.InvariantCulture),
+                                    b.Threshold.ToString(CultureInfo.InvariantCulture), rawData,
+                                    long.Parse(rawData, NumberStyles.HexNumber).ToString(CultureInfo.InvariantCulture)))
+                            .ToList();
                         driveList.ElementAt(index).SmartData = smartRows;
                         if (failureSearchEnumerator.MoveNext())
                         {
-                            driveList.ElementAt(index).DriveHealth = (bool)failureSearchEnumerator.Current.GetPropertyValue("PredictFailure") ? "WARNING" : "OK";
+                            driveList.ElementAt(index).DriveHealth =
+                                (bool) failureSearchEnumerator.Current.GetPropertyValue("PredictFailure")
+                                    ? "WARNING"
+                                    : "OK";
                         }
                         index++;
                     }
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
-
-                    //if we fail, do nothing more.
+                    Console.WriteLine(ex.Message);
+                    Console.WriteLine(ex.StackTrace);
                 }
             }
             return driveList;
@@ -536,7 +577,7 @@ namespace UlteriusServer.Api.Services.LocalSystem
             if (temps.Count != 0) return temps;
             var tempTemps = new List<float>();
             var procCount = Environment.ProcessorCount;
-            for (int i = 0; i < procCount; i++)
+            for (var i = 0; i < procCount; i++)
             {
                 tempTemps.Add(-1);
             }

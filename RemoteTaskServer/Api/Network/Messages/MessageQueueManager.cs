@@ -44,7 +44,7 @@ namespace UlteriusServer.Api.Network.Messages
 
         private async Task SendServiceMessage(Message packet)
         {
-            var command = packet.Json;
+            var command = packet.PlainTextData;
             try
             {
                 using (var tcpClient = new TcpClient())
@@ -76,7 +76,7 @@ namespace UlteriusServer.Api.Network.Messages
         /// <returns></returns>
         private async Task SendJsonPacket(Message packet)
         {
-            var json = packet.Json;
+            var json = packet.PlainTextData;
 
             var client = packet.RemoteClient;
             if (client != null && client.IsConnected)

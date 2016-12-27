@@ -23,12 +23,6 @@ namespace UlteriusServer
 
         {
 
-            if (!Debugger.IsAttached)
-            {
-
-                ExceptionHandler.AddGlobalHandlers();
-                Console.WriteLine("Exception Handlers Attached");
-            }
             if (System.Diagnostics.Process.GetProcessesByName(System.IO.Path.GetFileNameWithoutExtension(System.Reflection.Assembly.GetEntryAssembly().Location)).Count() > 1) return;
           
             ProfileOptimization.SetProfileRoot(AppEnvironment.DataPath);

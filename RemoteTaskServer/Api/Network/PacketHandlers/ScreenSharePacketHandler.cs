@@ -81,7 +81,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
             //release all keys
             foreach (var keyCode in keyCodes)
             {
-                var code = (Keys) keyCode;
+                var code = (Keys)keyCode;
                 if (WinApi.IsKeyDown(code))
                 {
                     Keyboard.KeyUp(code);
@@ -110,8 +110,8 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                 }
                 _authClient.ShutDownScreenShare = false;
                 var stream = UlteriusApiServer.RunningAsService
-                    ? new Thread(GetScreenAgentFrame) {IsBackground = true}
-                    : new Thread(GetScreenFrame) {IsBackground = true};
+                    ? new Thread(GetScreenAgentFrame) { IsBackground = true }
+                    : new Thread(GetScreenFrame) { IsBackground = true };
                 ScreenShareService.Streams[_authClient] = stream;
                 var data = new
                 {
@@ -155,7 +155,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                 streamWriter = new StreamWriter(stream, Encoding.UTF8);
                 var targetFps = Config.Load().ScreenShareService.ScreenShareFps;
 
-                var optimalTime = 1000000000/targetFps;
+                var optimalTime = 1000000000 / targetFps;
 
                 while (_client != null && _client.IsConnected && _authClient != null &&
                        !_authClient.ShutDownScreenShare)
@@ -163,7 +163,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                     var now = Environment.TickCount;
                     long updateLength = now - lastLoopTime;
                     lastLoopTime = now;
-                    var delta = updateLength/(double) optimalTime;
+                    var delta = updateLength / (double)optimalTime;
                     lastFpsTime += updateLength;
                     fps++;
 
@@ -197,7 +197,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                                 }
                             }
                         }
-                        var time = (lastLoopTime - Environment.TickCount + optimalTime)/1000000;
+                        var time = (lastLoopTime - Environment.TickCount + optimalTime) / 1000000;
                         Thread.Sleep(TimeSpan.FromMilliseconds(time));
                     }
                     catch (Exception ex)
@@ -474,7 +474,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
         private void HandleAgentKeyDown()
         {
             if (!ScreenShareService.Streams.ContainsKey(_authClient)) return;
-            var keyCodes = ((IEnumerable) _packet.Args[0]).Cast<object>()
+            var keyCodes = ((IEnumerable)_packet.Args[0]).Cast<object>()
                 .Select(x => x.ToString())
                 .ToList();
             var codes =
@@ -490,7 +490,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
         private void HandleAgentKeyUp()
         {
             if (!ScreenShareService.Streams.ContainsKey(_authClient)) return;
-            var keyCodes = ((IEnumerable) _packet.Args[0]).Cast<object>()
+            var keyCodes = ((IEnumerable)_packet.Args[0]).Cast<object>()
                 .Select(x => x.ToString())
                 .ToList();
             var codes =
@@ -538,7 +538,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                             var frameData = new
                             {
                                 screenBounds,
-                                frameData = image.Select(b => (int) b).ToArray()
+                                frameData = image.Select(b => (int)b).ToArray()
                             };
                             _builder.WriteMessage(frameData);
                         }
@@ -584,7 +584,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                     var frameData = new
                     {
                         screenBounds,
-                        frameData = imgData.Select(b => (int) b).ToArray()
+                        frameData = imgData.Select(b => (int)b).ToArray()
                     };
                     _builder.WriteMessage(frameData);
                 }
@@ -594,7 +594,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
         private void HandleKeyUp()
         {
             if (!ScreenShareService.Streams.ContainsKey(_authClient)) return;
-            var keyCodes = ((IEnumerable) _packet.Args[0]).Cast<object>()
+            var keyCodes = ((IEnumerable)_packet.Args[0]).Cast<object>()
                 .Select(x => x.ToString())
                 .ToList();
             var codes =
@@ -605,7 +605,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
 
             foreach (var code in codes)
             {
-                var virtualKey = (Keys) code;
+                var virtualKey = (Keys)code;
                 Keyboard.KeyUp(virtualKey);
             }
         }
@@ -619,7 +619,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
         private void HandleKeyDown()
         {
             if (!ScreenShareService.Streams.ContainsKey(_authClient)) return;
-            var keyCodes = ((IEnumerable) _packet.Args[0]).Cast<object>()
+            var keyCodes = ((IEnumerable)_packet.Args[0]).Cast<object>()
                 .Select(x => x.ToString())
                 .ToList();
             var codes =
@@ -628,7 +628,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                     .ToList();
             foreach (var code in codes)
             {
-                var virtualKey = (Keys) code;
+                var virtualKey = (Keys)code;
                 Keyboard.KeyDown(virtualKey);
             }
         }
