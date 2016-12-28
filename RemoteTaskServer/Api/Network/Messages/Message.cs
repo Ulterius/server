@@ -8,6 +8,12 @@ namespace UlteriusServer.Api.Network.Messages
 {
     public class Message
     {
+        /// <summary>
+        /// This enum contains the three different message types for packets
+        /// Text packets are plain text json
+        /// Binary packets are encrypted, either json or screen share frames
+        /// Service packets are being passed locally to the ulterius agent.
+        /// </summary>
         public enum MessageType
         {
             Text,

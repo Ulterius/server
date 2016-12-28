@@ -42,6 +42,11 @@ namespace UlteriusServer.Api.Network.Messages
             }
         }
 
+        /// <summary>
+        ///    Sends a message to the local ulterius agent
+        /// </summary>
+        /// <param name="packet"></param>
+        /// <returns></returns>
         private async Task SendServiceMessage(Message packet)
         {
             var command = packet.PlainTextData;

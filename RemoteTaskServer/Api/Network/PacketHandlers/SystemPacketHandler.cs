@@ -17,6 +17,9 @@ namespace UlteriusServer.Api.Network.PacketHandlers
         private WebSocket _client;
 
 
+        /// <summary>
+        /// Builds the system information object to json
+        /// </summary>
         public void GetSystemInformation()
         {
             _builder.WriteMessage(SystemInformation.ToObject());

@@ -96,7 +96,9 @@ namespace UlteriusServer.WebCams
             return true;
         }
 
-
+        /// <summary>
+        /// Retrieves all valid usb cameras  
+        /// </summary>
         public static void LoadWebcams()
         {
             try

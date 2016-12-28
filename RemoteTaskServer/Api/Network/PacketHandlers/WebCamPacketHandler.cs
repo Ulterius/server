@@ -24,8 +24,10 @@ namespace UlteriusServer.Api.Network.PacketHandlers
         private WebSocket _client;
 
 
-     
 
+        /// <summary>
+        /// Sends a list of all the currently plugged in cameras
+        /// </summary>
         public void GetCameras()
         {
             WebCamManager.LoadWebcams();
@@ -38,6 +40,9 @@ namespace UlteriusServer.Api.Network.PacketHandlers
         }
 
 
+        /// <summary>
+        /// Starts a camera by its ID
+        /// </summary>
         public void StartCamera()
         {
             var cameraId = _packet.Args[0].ToString();
@@ -66,6 +71,9 @@ namespace UlteriusServer.Api.Network.PacketHandlers
             }
         }
 
+        /// <summary>
+        /// Stops a camera by its ID
+        /// </summary>
         public void StopCamera()
         {
             var cameraId = _packet.Args[0].ToString();
@@ -95,6 +103,9 @@ namespace UlteriusServer.Api.Network.PacketHandlers
             }
         }
 
+        /// <summary>
+        /// Pauses a camera by its ID, however this is not currently used.
+        /// </summary>
         public void PauseCamera()
         {
             var cameraId = _packet.Args[0].ToString();
@@ -109,6 +120,10 @@ namespace UlteriusServer.Api.Network.PacketHandlers
         }
 
 
+        /// <summary>
+        /// Starts a camera stream, once this is called camera frames will be automatically sent to the client at a fixed rate. 
+        /// This should be called after StartCamera
+        /// </summary>
         public void StartStream()
         {
             var cameraId = _packet.Args[0].ToString();
@@ -140,6 +155,9 @@ namespace UlteriusServer.Api.Network.PacketHandlers
         }
 
 
+        /// <summary>
+        /// Stops a camera stream, this should be called after stopping the physical camera using StopCamera.
+        /// </summary>
         public void StopStream()
         {
             var cameraId = _packet.Args[0].ToString();
@@ -179,6 +197,9 @@ namespace UlteriusServer.Api.Network.PacketHandlers
         }
 
 
+        /// <summary>
+        /// This grabs the latest frame from the camera and pushes it to the client as a loop
+        /// </summary>
         public void GetWebCamFrame(string cameraId)
         {
             var camera = WebCamManager.Cameras[cameraId];

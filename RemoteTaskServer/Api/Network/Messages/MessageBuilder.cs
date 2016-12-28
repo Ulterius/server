@@ -33,7 +33,7 @@ namespace UlteriusServer.Api.Network.Messages
        
 
         /// <summary>
-        ///     Writes a message to the queue.
+        ///     Writes a message, either encrypted or plain text to the message queue
         /// </summary>
         /// <param name="data"></param>
         public void WriteMessage(object data)
@@ -92,6 +92,11 @@ namespace UlteriusServer.Api.Network.Messages
             }
         }
 
+        /// <summary>
+        ///    Writes an encrypted screen share frame to the message queue 
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
         public void WriteScreenFrame(byte[] data)
         {
             if (_client == null || data == null) return;

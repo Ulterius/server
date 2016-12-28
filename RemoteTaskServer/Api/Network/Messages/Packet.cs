@@ -44,7 +44,7 @@ namespace UlteriusServer.Api.Network.Messages
             EndPoint = endPoint;
             _packetHandler = packetHandler;
         }
-
+      
         /// <summary>
         ///     Executes a packet based on its handler
         /// </summary>
@@ -52,29 +52,17 @@ namespace UlteriusServer.Api.Network.Messages
         {
             try
             {
-                if (AuthClient == null)
-                {
-                    return;
-                }
-                //Build a handler Workshop
-                //THIS COULD BE BETTER
+                //If no auth client is present we don't need to proceed.
+                if (AuthClient == null) return;
+                //Create an instance of our handler
                 dynamic handler = Activator.CreateInstance(_packetHandler);
-                //no auth needed for these
-                if (AuthClient.Authenticated)
+                //Authentication is needed to run most packets, however some work without being logged in.
+                if (AuthClient.Authenticated || !NeedsAuth(EndPoint))
                 {
                     Task.Run(() => { handler.HandlePacket(this); });
                 }
                 else
                 {
-                    switch (EndPoint)
-                    {
-                        case EndPoints.GetWindowsData:
-                        case EndPoints.ListPorts:
-                        case EndPoints.AesHandshake:
-                        case EndPoints.Authenticate:
-                            handler.HandlePacket(this);
-                            return;
-                    }
                     EndPointName = "noauth";
                     EndPoint = EndPoints.NoAuth;
                     handler = Activator.CreateInstance(typeof(ErrorPacketHandler));
@@ -87,6 +75,20 @@ namespace UlteriusServer.Api.Network.Messages
                 EndPoint = EndPoints.InvalidOrEmptyPacket;
                 dynamic handler = Activator.CreateInstance(typeof(ErrorPacketHandler));
                 handler.HandlePacket(this);
+            }
+        }
+
+        private bool NeedsAuth(EndPoints endPoint)
+        {
+            switch (endPoint)
+            {
+                case EndPoints.GetWindowsData:
+                case EndPoints.ListPorts:
+                case EndPoints.AesHandshake:
+                case EndPoints.Authenticate:
+                    return false;
+                default:
+                    return true;
             }
         }
     }

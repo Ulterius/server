@@ -14,6 +14,9 @@ namespace UlteriusServer.Api.Network.Messages
 {
     public static class PacketLoader
     {
+        /// <summary>
+        /// This dictionary contains all of the valid endpoints
+        /// </summary>
         public static ConcurrentDictionary<string, PacketManager.PacketInfo> Packets =
             new ConcurrentDictionary<string, PacketManager.PacketInfo>();
 
@@ -21,7 +24,9 @@ namespace UlteriusServer.Api.Network.Messages
         {
             return (T) Enum.Parse(typeof(T), value, true);
         }
-
+        /// <summary>
+        /// Load all the endpoints and their handlers from the Packets.json file
+        /// </summary>
         public static void LoadPackets()
         {
             var assembly = Assembly.GetExecutingAssembly();
@@ -47,7 +52,9 @@ namespace UlteriusServer.Api.Network.Messages
             }
             Console.WriteLine($"{Packets.Count} packet handlers loaded!");
         }
-
+        /// <summary>
+        /// Turns a string into a class Type
+        /// </summary>
         private static Type GetType(string v)
         {
             return AppDomain.CurrentDomain.GetAssemblies().SelectMany(x => x.GetTypes()).First(x => x.Name == v);
