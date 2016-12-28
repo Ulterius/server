@@ -31,28 +31,28 @@ namespace UlteriusServer.Api.Network.PacketHandlers
             _client = packet.Client;
             _authClient = packet.AuthClient;
             _packet = packet;
-            _builder = new MessageBuilder(_authClient, _client, _packet.EndPoint, _packet.SyncKey);
-            switch (_packet.PacketType)
+            _builder = new MessageBuilder(_authClient, _client, _packet.EndPointName, _packet.SyncKey);
+            switch (_packet.EndPoint)
             {
-                case PacketManager.PacketTypes.AddOrUpdateJob:
+                case PacketManager.EndPoints.AddOrUpdateJob:
                     AddOrUpdateJob();
                     break;
-                case PacketManager.PacketTypes.RemoveJob:
+                case PacketManager.EndPoints.RemoveJob:
                     RemoveJob();
                     break;
-                case PacketManager.PacketTypes.StopJobDaemon:
+                case PacketManager.EndPoints.StopJobDaemon:
                     StopJobDaemon();
                     break;
-                case PacketManager.PacketTypes.StartJobDaemon:
+                case PacketManager.EndPoints.StartJobDaemon:
                     StartJobDaemon();
                     break;
-                case PacketManager.PacketTypes.GetJobDaemonStatus:
+                case PacketManager.EndPoints.GetJobDaemonStatus:
                     GetJobDaemonStatus();
                     break;
-                case PacketManager.PacketTypes.GetJobContents:
+                case PacketManager.EndPoints.GetJobContents:
                     GetJobContents();
                     break;
-                case PacketManager.PacketTypes.GetAllJobs:
+                case PacketManager.EndPoints.GetAllJobs:
                     GetAllJobs();
                     break;
                

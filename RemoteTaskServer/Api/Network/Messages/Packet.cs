@@ -18,8 +18,8 @@ namespace UlteriusServer.Api.Network.Messages
         public List<object> Args;
         public AuthClient AuthClient;
         public WebSocket Client;
-        public string EndPoint;
-        public PacketTypes PacketType;
+        public string EndPointName;
+        public EndPoints EndPoint;
         public string SyncKey;
 
         /// <summary>
@@ -27,21 +27,21 @@ namespace UlteriusServer.Api.Network.Messages
         /// </summary>
         /// <param name="authClient"></param>
         /// <param name="client"></param>
-        /// <param name="endPoint"></param>
+        /// <param name="endPointName"></param>
         /// <param name="syncKey"></param>
         /// <param name="args"></param>
-        /// <param name="packetType"></param>
+        /// <param name="endPoint"></param>
         /// <param name="packetHandler"></param>
-        public Packet(AuthClient authClient, WebSocket client, string endPoint, string syncKey, List<object> args,
-            PacketTypes packetType,
+        public Packet(AuthClient authClient, WebSocket client, string endPointName, string syncKey, List<object> args,
+            EndPoints endPoint,
             Type packetHandler)
         {
             AuthClient = authClient;
             Client = client;
-            EndPoint = endPoint;
+            EndPointName = endPointName;
             SyncKey = syncKey;
             Args = args;
-            PacketType = packetType;
+            EndPoint = endPoint;
             _packetHandler = packetHandler;
         }
 
@@ -66,25 +66,25 @@ namespace UlteriusServer.Api.Network.Messages
                 }
                 else
                 {
-                    switch (PacketType)
+                    switch (EndPoint)
                     {
-                        case PacketTypes.GetWindowsData:
-                        case PacketTypes.ListPorts:
-                        case PacketTypes.AesHandshake:
-                        case PacketTypes.Authenticate:
+                        case EndPoints.GetWindowsData:
+                        case EndPoints.ListPorts:
+                        case EndPoints.AesHandshake:
+                        case EndPoints.Authenticate:
                             handler.HandlePacket(this);
                             return;
                     }
-                    EndPoint = "noauth";
-                    PacketType = PacketTypes.NoAuth;
+                    EndPointName = "noauth";
+                    EndPoint = EndPoints.NoAuth;
                     handler = Activator.CreateInstance(typeof(ErrorPacketHandler));
                     handler.HandlePacket(this);
                 }
             }
             catch (Exception)
             {
-                EndPoint = "invalidpacket";
-                PacketType = PacketTypes.InvalidOrEmptyPacket;
+                EndPointName = "invalidpacket";
+                EndPoint = EndPoints.InvalidOrEmptyPacket;
                 dynamic handler = Activator.CreateInstance(typeof(ErrorPacketHandler));
                 handler.HandlePacket(this);
             }

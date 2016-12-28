@@ -264,10 +264,10 @@ namespace UlteriusServer.Api.Network.PacketHandlers
             _client = packet.Client;
             _authClient = packet.AuthClient;
             _packet = packet;
-            _builder = new MessageBuilder(_authClient, _client, _packet.EndPoint, _packet.SyncKey);
-            switch (_packet.PacketType)
+            _builder = new MessageBuilder(_authClient, _client, _packet.EndPointName, _packet.SyncKey);
+            switch (_packet.EndPoint)
             {
-                case PacketManager.PacketTypes.MouseDown:
+                case PacketManager.EndPoints.MouseDown:
                     if (UlteriusApiServer.RunningAsService)
                     {
                         HandleAgentMouseDown();
@@ -277,7 +277,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                         HandleMouseDown();
                     }
                     break;
-                case PacketManager.PacketTypes.MouseUp:
+                case PacketManager.EndPoints.MouseUp:
                     if (UlteriusApiServer.RunningAsService)
                     {
                         HandleAgentMouseUp();
@@ -287,12 +287,12 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                         HandleMouseUp();
                     }
                     break;
-                case PacketManager.PacketTypes.CtrlAltDel:
+                case PacketManager.EndPoints.CtrlAltDel:
 
                     HandleCtrlAltDel();
 
                     break;
-                case PacketManager.PacketTypes.MouseScroll:
+                case PacketManager.EndPoints.MouseScroll:
                     if (UlteriusApiServer.RunningAsService)
                     {
                         HandleAgentMouseScroll();
@@ -303,9 +303,9 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                     }
 
                     break;
-                case PacketManager.PacketTypes.LeftDblClick:
+                case PacketManager.EndPoints.LeftDblClick:
                     break;
-                case PacketManager.PacketTypes.KeyDown:
+                case PacketManager.EndPoints.KeyDown:
                     if (UlteriusApiServer.RunningAsService)
                     {
                         HandleAgentKeyDown();
@@ -316,7 +316,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                     }
 
                     break;
-                case PacketManager.PacketTypes.RightDown:
+                case PacketManager.EndPoints.RightDown:
                     if (UlteriusApiServer.RunningAsService)
                     {
                         HandleAgentRightDown();
@@ -326,7 +326,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                         RightDown();
                     }
                     break;
-                case PacketManager.PacketTypes.RightUp:
+                case PacketManager.EndPoints.RightUp:
                     if (UlteriusApiServer.RunningAsService)
                     {
                         HandleAgentRightUp();
@@ -337,7 +337,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                     }
 
                     break;
-                case PacketManager.PacketTypes.KeyUp:
+                case PacketManager.EndPoints.KeyUp:
                     if (UlteriusApiServer.RunningAsService)
                     {
                         HandleAgentKeyUp();
@@ -347,7 +347,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                         HandleKeyUp();
                     }
                     break;
-                case PacketManager.PacketTypes.FullFrame:
+                case PacketManager.EndPoints.FullFrame:
                     if (UlteriusApiServer.RunningAsService)
                     {
                         HandleAgentFullFrame();
@@ -357,7 +357,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                         HandleFullFrame();
                     }
                     break;
-                case PacketManager.PacketTypes.RightClick:
+                case PacketManager.EndPoints.RightClick:
                     if (UlteriusApiServer.RunningAsService)
                     {
                         HandleAgentRightClick();
@@ -368,7 +368,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                     }
 
                     break;
-                case PacketManager.PacketTypes.MouseMove:
+                case PacketManager.EndPoints.MouseMove:
                     if (UlteriusApiServer.RunningAsService)
                     {
                         HandleAgentMouseMove();
@@ -378,13 +378,13 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                         HandleMoveMouse();
                     }
                     break;
-                case PacketManager.PacketTypes.CheckScreenShare:
+                case PacketManager.EndPoints.CheckScreenShare:
                     CheckServer();
                     break;
-                case PacketManager.PacketTypes.StartScreenShare:
+                case PacketManager.EndPoints.StartScreenShare:
                     StartScreenShare();
                     break;
-                case PacketManager.PacketTypes.StopScreenShare:
+                case PacketManager.EndPoints.StopScreenShare:
                     StopScreenShare();
                     break;
             }

@@ -273,22 +273,22 @@ namespace UlteriusServer.Api.Network.PacketHandlers
             _client = packet.Client;
             _authClient = packet.AuthClient;
             _packet = packet;
-            _builder = new MessageBuilder(_authClient, _client, _packet.EndPoint, _packet.SyncKey);
-            switch (_packet.PacketType)
+            _builder = new MessageBuilder(_authClient, _client, _packet.EndPointName, _packet.SyncKey);
+            switch (_packet.EndPoint)
             {
-                case PacketTypes.SearchFiles:
+                case EndPoints.SearchFiles:
                     SearchFile();
                     break;
-                case PacketTypes.ApproveFile:
+                case EndPoints.ApproveFile:
                     ApproveFile();
                     break;
-                case PacketTypes.RequestFile:
+                case EndPoints.RequestFile:
                     RequestFile();
                     break;
-                case PacketTypes.RemoveFile:
+                case EndPoints.RemoveFile:
                     RemoveFile();
                     break;
-                case PacketTypes.CreateFileTree:
+                case EndPoints.CreateFileTree:
                     CreateFileTree();
                     break;
             }

@@ -39,6 +39,7 @@ namespace UlteriusServer.Api
         /// </summary>
         public static void Start()
         {
+            PacketLoader.LoadPackets();
             var config = Config.Load();
             var clientUpdateService = new UpdateService();
             clientUpdateService.Start();

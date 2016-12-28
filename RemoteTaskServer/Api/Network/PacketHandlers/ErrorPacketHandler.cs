@@ -20,13 +20,13 @@ namespace UlteriusServer.Api.Network.PacketHandlers
             _client = packet.Client;
             _authClient = packet.AuthClient;
             _packet = packet;
-            _builder = new MessageBuilder(_authClient, _client, _packet.EndPoint, _packet.SyncKey);
-            switch (_packet.PacketType)
+            _builder = new MessageBuilder(_authClient, _client, _packet.EndPointName, _packet.SyncKey);
+            switch (_packet.EndPoint)
             {
-                case PacketManager.PacketTypes.InvalidOrEmptyPacket:
+                case PacketManager.EndPoints.InvalidOrEmptyPacket:
                     InvalidPacket();
                     break;
-                case PacketManager.PacketTypes.NoAuth:
+                case PacketManager.EndPoints.NoAuth:
                     NoAuth();
                     break;
             }
@@ -38,7 +38,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
             {
                 invalidPacket = true,
                 message = "This packet is invalid or empty",
-                invalidEndpoint = _packet.EndPoint
+                invalidEndpoint = _packet.EndPointName
             };
             _builder.WriteMessage(invalidPacketData);
         }

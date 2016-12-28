@@ -6,9 +6,7 @@ using System.Text;
 using Newtonsoft.Json.Linq;
 using UlteriusServer.Api.Network.Messages;
 using UlteriusServer.Api.Network.PacketHandlers;
-using UlteriusServer.Utilities;
 using UlteriusServer.Utilities.Security;
-using UlteriusServer.Utilities.Settings;
 using UlteriusServer.WebSocketAPI.Authentication;
 using vtortola.WebSockets;
 
@@ -20,7 +18,10 @@ namespace UlteriusServer.Api.Network
     {
         #region types
 
-        public enum PacketTypes
+        /// <summary>
+        ///     This is an enum containing all the endpoints the server can understand. Not every endpoint is in use.
+        /// </summary>
+        public enum EndPoints
         {
             RequestProcessInformation,
             RequestCpuInformation,
@@ -108,13 +109,13 @@ namespace UlteriusServer.Api.Network
         private readonly AuthClient _authClient;
         private readonly WebSocket _client;
         private readonly string _plainText = string.Empty;
-        private string _endPoint;
+        private string _endPointName;
+        private EndPoints _endPoints;
         private Type _packetHandler;
-        private PacketTypes _packetType;
         private string _syncKey;
 
         /// <summary>
-        /// Decrypt a packet
+        ///     Decrypt a packet
         /// </summary>
         /// <param name="authClient"></param>
         /// <param name="data"></param>
@@ -131,36 +132,33 @@ namespace UlteriusServer.Api.Network
             catch (Exception e)
             {
                 Console.WriteLine($"Packet failed to decrypt: {e.Message}");
-                _packetType = PacketTypes.InvalidOrEmptyPacket;
+                _endPoints = EndPoints.InvalidOrEmptyPacket;
             }
         }
 
         /// <summary>
-        /// Handle a plain text packet
+        ///     Handle a plain text packet
         /// </summary>
         /// <param name="authClient"></param>
         /// <param name="packetData"></param>
         public PacketManager(AuthClient authClient, WebSocket client, string packetData)
         {
-      
             _authClient = authClient;
             _client = client;
             try
             {
-              
-                    var validHandshake = JObject.Parse(packetData);
-                    var endpoint = validHandshake["endpoint"].ToString().Trim().ToLower();
-                    if (!endpoint.Equals("aeshandshake") || authClient.AesShook)
-                    {
-                        Console.WriteLine("Invalid handshake protocol");
-                        _packetType = PacketTypes.InvalidOrEmptyPacket;
-                        return;
-                    }
-                
+                var validHandshake = JObject.Parse(packetData);
+                var endpoint = validHandshake["endpoint"].ToString().Trim().ToLower();
+                if (!endpoint.Equals("aeshandshake") || authClient.AesShook)
+                {
+                    Console.WriteLine("Invalid handshake protocol");
+                    _endPoints = EndPoints.InvalidOrEmptyPacket;
+                    return;
+                }
             }
             catch (Exception e)
             {
-                _packetType = PacketTypes.InvalidOrEmptyPacket;
+                _endPoints = EndPoints.InvalidOrEmptyPacket;
                 Console.WriteLine($"Packet failed: {e.Message}");
                 return;
             }
@@ -171,174 +169,27 @@ namespace UlteriusServer.Api.Network
         #region packets
 
         /// <summary>
-        /// Create a PacketInfo based on the packet type.
+        ///     Create a PacketInfo based on the packet type.
         /// </summary>
         /// <param name="endpoint"></param>
         /// <returns>packetInfo</returns>
         public PacketInfo GetPacketInfo(string endpoint)
         {
-            switch (endpoint)
+            if (PacketLoader.Packets.ContainsKey(endpoint))
             {
-                case "listports":
-                    return new PacketInfo { Type = PacketTypes.ListPorts, Handler = typeof(ServerPacketHandler) };
-                case "authenticate":
-                    return new PacketInfo {Type = PacketTypes.Authenticate, Handler = typeof(ServerPacketHandler)};
-                case "requestgpuinformation":
-                    return new PacketInfo {Type = PacketTypes.RequestGpuInformation, Handler = typeof(GpuPacketHandler)};
-                case "changescreenresolution":
-                    return new PacketInfo { Type = PacketTypes.ChangeDisplayResolution, Handler = typeof(DisplayPacketHandler) };
-                case "rotatedisplay":
-                    return new PacketInfo { Type = PacketTypes.RotateDisplay, Handler = typeof(DisplayPacketHandler) };
-                case "setprimarydisplay":
-                    return new PacketInfo { Type = PacketTypes.SetPrimaryDisplay, Handler = typeof(DisplayPacketHandler) };
-                case "createfiletree":
-                    return new PacketInfo {Type = PacketTypes.CreateFileTree, Handler = typeof(FilePacketHandler)};
-                case "requestprocessinformation":
-                    return new PacketInfo
-                    {
-                        Type = PacketTypes.RequestProcessInformation,
-                        Handler = typeof(ProcessPacketHandler)
-                    };
-                case "requestcpuinformation":
-                    return new PacketInfo {Type = PacketTypes.RequestCpuInformation, Handler = typeof(CpuPacketHandler)};
-                case "requestosinformation":
-                    return new PacketInfo
-                    {
-                        Type = PacketTypes.RequestOsInformation,
-                        Handler = typeof(OperatingSystemPacketHandler)
-                    };
-                case "requestnetworkinformation":
-                    return new PacketInfo
-                    {
-                        Type = PacketTypes.RequestNetworkInformation,
-                        Handler = typeof(NetworkPacketHandler)
-                    };
-                case "requestsysteminformation":
-                    return new PacketInfo
-                    {
-                        Type = PacketTypes.RequestSystemInformation,
-                        Handler = typeof(SystemPacketHandler)
-                    };
-                case "rightdown":
-                    return new PacketInfo { Type = PacketTypes.RightDown, Handler = typeof(ScreenSharePacketHandler) };
-                case "rightup":
-                    return new PacketInfo { Type = PacketTypes.RightUp, Handler = typeof(ScreenSharePacketHandler) };
-                case "startprocess":
-                    return new PacketInfo {Type = PacketTypes.StartProcess, Handler = typeof(ProcessPacketHandler)};
-                case "ctrlaltdel":
-                    return new PacketInfo { Type = PacketTypes.CtrlAltDel, Handler = typeof(ScreenSharePacketHandler) };
-                case "killprocess":
-                    return new PacketInfo {Type = PacketTypes.KillProcess, Handler = typeof(ProcessPacketHandler)};
-                case "savesettings":
-                    return new PacketInfo { Type = PacketTypes.SaveSettings, Handler = typeof(SettingsPacketHandler) };
-                case "startscreenshare":
-                    return new PacketInfo
-                    {
-                        Type = PacketTypes.StartScreenShare,
-                        Handler = typeof(ScreenSharePacketHandler)
-                    };
-                case "stopscreenshare":
-                    return new PacketInfo
-                    {
-                        Type = PacketTypes.StopScreenShare,
-                        Handler = typeof(ScreenSharePacketHandler)
-                    };
-                
-                case "getcurrentsettings":
-                    return new PacketInfo
-                    {
-                        Type = PacketTypes.GetCurrentSettings,
-                        Handler = typeof(SettingsPacketHandler)
-                    };
-                case "geteventlogs":
-                    return new PacketInfo
-                    {
-                        Type = PacketTypes.GetEventLogs,
-                        Handler = typeof(OperatingSystemPacketHandler)
-                    };
-                case "checkforupdate":
-                    return new PacketInfo {Type = PacketTypes.GetEventLogs, Handler = typeof(ServerPacketHandler)};
-                case "restartserver":
-                    return new PacketInfo {Type = PacketTypes.RestartServer, Handler = typeof(ServerPacketHandler)};
-                case "getwindowsdata":
-                    return new PacketInfo {Type = PacketTypes.GetWindowsData, Handler = typeof(AccountPacketHandler)};
-                case "removefile":
-                    return new PacketInfo {Type = PacketTypes.RemoveFile, Handler = typeof(FilePacketHandler)};
-                case "searchfiles":
-                    return new PacketInfo {Type = PacketTypes.SearchFiles, Handler = typeof(FilePacketHandler)};
-                case "aeshandshake":
-                    return new PacketInfo {Type = PacketTypes.AesHandshake, Handler = typeof(ServerPacketHandler)};
-                case "checkversion":
-                    return new PacketInfo { Type = PacketTypes.CheckVersion, Handler = typeof(ServerPacketHandler) };
-                case "getlogs":
-                    return new PacketInfo { Type = PacketTypes.GetLogs, Handler = typeof(ServerPacketHandler) };
-                case "requestfile":
-                    return new PacketInfo {Type = PacketTypes.RequestFile, Handler = typeof(FilePacketHandler)};
-                case "approvefile":
-                    return new PacketInfo {Type = PacketTypes.ApproveFile, Handler = typeof(FilePacketHandler)};
-                case "refreshcameras":
-                    return new PacketInfo {Type = PacketTypes.RefreshCameras, Handler = typeof(WebCamPacketHandler)};
-                case "stopcamerastream":
-                    return new PacketInfo {Type = PacketTypes.StopCameraStream, Handler = typeof(WebCamPacketHandler)};
-                case "startcamerastream":
-                    return new PacketInfo {Type = PacketTypes.StartCameraStream, Handler = typeof(WebCamPacketHandler)};
-                case "getcameraframe":
-                    return new PacketInfo {Type = PacketTypes.GetCameraFrame, Handler = typeof(WebCamPacketHandler)};
-                case "getcameras":
-                    return new PacketInfo {Type = PacketTypes.GetCameras, Handler = typeof(WebCamPacketHandler)};
-                case "pausecamera":
-                    return new PacketInfo {Type = PacketTypes.PauseCamera, Handler = typeof(WebCamPacketHandler)};
-                case "stopcamera":
-                    return new PacketInfo {Type = PacketTypes.StopCamera, Handler = typeof(WebCamPacketHandler)};
-                case "startcamera":
-                    return new PacketInfo {Type = PacketTypes.StartCamera, Handler = typeof(WebCamPacketHandler)};
-                case "mousemove":
-                    return new PacketInfo { Type = PacketTypes.MouseMove, Handler = typeof(ScreenSharePacketHandler) };
-                case "mousedown":
-                    return new PacketInfo { Type = PacketTypes.MouseDown, Handler = typeof(ScreenSharePacketHandler) };
-                case "mousescroll":
-                    return new PacketInfo { Type = PacketTypes.MouseScroll, Handler = typeof(ScreenSharePacketHandler) };
-                case "mouseup":
-                    return new PacketInfo { Type = PacketTypes.MouseUp, Handler = typeof(ScreenSharePacketHandler) };
-                case "leftclick":
-                    return new PacketInfo { Type = PacketTypes.LeftClick, Handler = typeof(ScreenSharePacketHandler) };
-                case "rightclick":
-                    return new PacketInfo { Type = PacketTypes.RightClick, Handler = typeof(ScreenSharePacketHandler) };
-                case "keydown":
-                    return new PacketInfo { Type = PacketTypes.KeyDown, Handler = typeof(ScreenSharePacketHandler) };
-                case "keyup":
-                    return new PacketInfo { Type = PacketTypes.KeyUp, Handler = typeof(ScreenSharePacketHandler) };
-                case "fullframe":
-                    return new PacketInfo { Type = PacketTypes.FullFrame, Handler = typeof(ScreenSharePacketHandler) };
-                case "addorupdatejob":
-                    return new PacketInfo { Type = PacketTypes.AddOrUpdateJob, Handler = typeof(CronJobPacketHandler) };
-                case "stopjobdaemon":
-                    return new PacketInfo { Type = PacketTypes.StopJobDaemon, Handler = typeof(CronJobPacketHandler) };
-                case "startjobdaemon":
-                    return new PacketInfo { Type = PacketTypes.StartJobDaemon, Handler = typeof(CronJobPacketHandler) };
-                case "getjobdaemonstatus":
-                    return new PacketInfo { Type = PacketTypes.GetJobDaemonStatus, Handler = typeof(CronJobPacketHandler) };
-                case "removejob":
-                    return new PacketInfo { Type = PacketTypes.RemoveJob, Handler = typeof(CronJobPacketHandler) };
-                case "getjobcontents":
-                    return new PacketInfo { Type = PacketTypes.GetJobContents, Handler = typeof(CronJobPacketHandler) };
-                case "getalljobs":
-                    return new PacketInfo { Type = PacketTypes.GetAllJobs, Handler = typeof(CronJobPacketHandler) };
-                case "getdescription":
-                    return new PacketInfo { Type = PacketTypes.GetDescription, Handler = typeof(CronJobPacketHandler) };
-                default:
-                    return new PacketInfo
-                    {
-                        Type = PacketTypes.InvalidOrEmptyPacket,
-                        Handler = typeof(ErrorPacketHandler)
-                    };
+                return PacketLoader.Packets[endpoint];
             }
+            return new PacketInfo
+            {
+                EndPoint = EndPoints.InvalidOrEmptyPacket,
+                Handler = typeof(ErrorPacketHandler)
+            };
         }
 
         #endregion
 
         /// <summary>
-        /// Create and return a new packet 
+        ///     Create and return a new packet
         /// </summary>
         /// <returns>Packet</returns>
         public Packet GetPacket()
@@ -349,34 +200,33 @@ namespace UlteriusServer.Api.Network
             }
             try
             {
-             
                 var deserializedPacket = JObject.Parse(_plainText);
                 if (deserializedPacket != null)
                 {
-                    _endPoint = deserializedPacket["endpoint"]?.ToString().Trim().ToLower();
+                    _endPointName = deserializedPacket["endpoint"]?.ToString().Trim().ToLower();
                     _syncKey = deserializedPacket["synckey"]?.ToString().Trim();
                     if (deserializedPacket["args"] != null)
                     {
                         _args.AddRange(JArray.Parse(deserializedPacket["args"]?.ToString()));
                     }
-                    var packetInfo = GetPacketInfo(_endPoint);
+                    var packetInfo = GetPacketInfo(_endPointName);
                     _packetHandler = packetInfo.Handler;
-                    _packetType = packetInfo.Type;
-                    return new Packet(_authClient, _client, _endPoint, _syncKey, _args, _packetType, _packetHandler);
+                    _endPoints = packetInfo.EndPoint;
+                    return new Packet(_authClient, _client, _endPointName, _syncKey, _args, _endPoints, _packetHandler);
                 }
             }
             catch (Exception e)
             {
                 Console.WriteLine($"Packet failed to deserialize: {e.StackTrace}{e.Message}");
-                _packetType = PacketTypes.InvalidOrEmptyPacket;
+                _endPoints = EndPoints.InvalidOrEmptyPacket;
             }
             return null;
         }
 
         public class PacketInfo
         {
+            public EndPoints EndPoint;
             public Type Handler;
-            public PacketTypes Type;
         }
     }
 }

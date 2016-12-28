@@ -166,17 +166,17 @@ namespace UlteriusServer.Api.Network.PacketHandlers
             _client = packet.Client;
             _authClient = packet.AuthClient;
             _packet = packet;
-            _builder = new MessageBuilder(_authClient, _client, _packet.EndPoint, _packet.SyncKey);
-            switch (_packet.PacketType)
+            _builder = new MessageBuilder(_authClient, _client, _packet.EndPointName, _packet.SyncKey);
+            switch (_packet.EndPoint)
             {
-                case PacketManager.PacketTypes.RequestProcessInformation:
+                case PacketManager.EndPoints.RequestProcessInformation:
                     RequestProcessInformation();
                     break;
-                case PacketManager.PacketTypes.StartProcess:
+                case PacketManager.EndPoints.StartProcess:
 
                     StartProcess();
                     break;
-                case PacketManager.PacketTypes.KillProcess:
+                case PacketManager.EndPoints.KillProcess:
                     KillProcess();
                     break;
             }

@@ -228,28 +228,28 @@ namespace UlteriusServer.Api.Network.PacketHandlers
             _client = packet.Client;
             _authClient = packet.AuthClient;
             _packet = packet;
-            _builder = new MessageBuilder(_authClient, _client, _packet.EndPoint, _packet.SyncKey);
-            switch (_packet.PacketType)
+            _builder = new MessageBuilder(_authClient, _client, _packet.EndPointName, _packet.SyncKey);
+            switch (_packet.EndPoint)
             {
-                case PacketManager.PacketTypes.StartCamera:
+                case PacketManager.EndPoints.StartCamera:
                     StartCamera();
                     break;
-                case PacketManager.PacketTypes.StopCamera:
+                case PacketManager.EndPoints.StopCamera:
                     StopCamera();
                     break;
-                case PacketManager.PacketTypes.PauseCamera:
+                case PacketManager.EndPoints.PauseCamera:
                     PauseCamera();
                     break;
-                case PacketManager.PacketTypes.StopCameraStream:
+                case PacketManager.EndPoints.StopCameraStream:
                     StopStream();
                     break;
-                case PacketManager.PacketTypes.StartCameraStream:
+                case PacketManager.EndPoints.StartCameraStream:
                     StartStream();
                     break;
-                case PacketManager.PacketTypes.GetCameras:
+                case PacketManager.EndPoints.GetCameras:
                     GetCameras();
                     break;
-                case PacketManager.PacketTypes.GetCameraFrame:
+                case PacketManager.EndPoints.GetCameraFrame:
 
                     break;
             }

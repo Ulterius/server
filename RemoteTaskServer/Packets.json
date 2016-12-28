@@ -1,0 +1,220 @@
+﻿{
+	"endPoints": {
+		"getdescription": {
+			"endPoint": "GetDescription",
+			"packetHandler": "CronJobPacketHandler"
+		},
+		"getalljobs": {
+			"endPoint": "GetAllJobs",
+			"packetHandler": "CronJobPacketHandler"
+		},
+		"getjobcontents": {
+			"endPoint": "GetJobContents",
+			"packetHandler": "CronJobPacketHandler"
+		},
+		"removejob": {
+			"endPoint": "RemoveJob",
+			"packetHandler": "CronJobPacketHandler"
+		},
+		"getjobdaemonstatus": {
+			"endPoint": "GetJobDaemonStatus",
+			"packetHandler": "CronJobPacketHandler"
+		},
+		"startjobdaemon": {
+			"endPoint": "StartJobDaemon",
+			"packetHandler": "CronJobPacketHandler"
+		},
+		"stopjobdaemon": {
+			"endPoint": "StopJobDaemon",
+			"packetHandler": "CronJobPacketHandler"
+		},
+		"addorupdatejob": {
+			"endPoint": "AddOrUpdateJob",
+			"packetHandler": "CronJobPacketHandler"
+		},
+		"fullframe": {
+			"endPoint": "FullFrame",
+			"packetHandler": "ScreenSharePacketHandler"
+		},
+		"keyup": {
+			"endPoint": "KeyUp",
+			"packetHandler": "ScreenSharePacketHandler"
+		},
+		"keydown": {
+			"endPoint": "KeyDown",
+			"packetHandler": "ScreenSharePacketHandler"
+		},
+		"rightclick": {
+			"endPoint": "RightClick",
+			"packetHandler": "ScreenSharePacketHandler"
+		},
+		"leftclick": {
+			"endPoint": "LeftClick",
+			"packetHandler": "ScreenSharePacketHandler"
+		},
+		"mouseup": {
+			"endPoint": "MouseUp",
+			"packetHandler": "ScreenSharePacketHandler"
+		},
+		"mousescroll": {
+			"endPoint": "MouseScroll",
+			"packetHandler": "ScreenSharePacketHandler"
+		},
+		"mousedown": {
+			"endPoint": "MouseDown",
+			"packetHandler": "ScreenSharePacketHandler"
+		},
+		"mousemove": {
+			"endPoint": "MouseMove",
+			"packetHandler": "ScreenSharePacketHandler"
+		},
+		"startcamera": {
+			"endPoint": "StartCamera",
+			"packetHandler": "WebCamPacketHandler"
+		},
+		"stopcamera": {
+			"endPoint": "StopCamera",
+			"packetHandler": "WebCamPacketHandler"
+		},
+		"pausecamera": {
+			"endPoint": "PauseCamera",
+			"packetHandler": "WebCamPacketHandler"
+		},
+		"getcameras": {
+			"endPoint": "GetCameras",
+			"packetHandler": "WebCamPacketHandler"
+		},
+		"getcameraframe": {
+			"endPoint": "GetCameraFrame",
+			"packetHandler": "WebCamPacketHandler"
+		},
+		"startcamerastream": {
+			"endPoint": "StartCameraStream",
+			"packetHandler": "WebCamPacketHandler"
+		},
+		"stopcamerastream": {
+			"endPoint": "StopCameraStream",
+			"packetHandler": "WebCamPacketHandler"
+		},
+		"refreshcameras": {
+			"endPoint": "RefreshCameras",
+			"packetHandler": "WebCamPacketHandler"
+		},
+		"approvefile": {
+			"endPoint": "ApproveFile",
+			"packetHandler": "FilePacketHandler"
+		},
+		"requestfile": {
+			"endPoint": "RequestFile",
+			"packetHandler": "FilePacketHandler"
+		},
+		"getlogs": {
+			"endPoint": "GetLogs",
+			"packetHandler": "ServerPacketHandler"
+		},
+		"checkversion": {
+			"endPoint": "CheckVersion",
+			"packetHandler": "ServerPacketHandler"
+		},
+		"aeshandshake": {
+			"endPoint": "AesHandshake",
+			"packetHandler": "ServerPacketHandler"
+		},
+		"searchfiles": {
+			"endPoint": "SearchFiles",
+			"packetHandler": "FilePacketHandler"
+		},
+		"removefile": {
+			"endPoint": "RemoveFile",
+			"packetHandler": "FilePacketHandler"
+		},
+		"getwindowsdata": {
+			"endPoint": "GetWindowsData",
+			"packetHandler": "AccountPacketHandler"
+		},
+		"getcurrentsettings": {
+			"endPoint": "GetCurrentSettings",
+			"packetHandler": "SettingsPacketHandler"
+		},
+		"stopscreenshare": {
+			"endPoint": "StopScreenShare",
+			"packetHandler": "ScreenSharePacketHandler"
+		},
+		"startscreenshare": {
+			"endPoint": "StartScreenShare",
+			"packetHandler": "ScreenSharePacketHandler"
+		},
+		"savesettings": {
+			"endPoint": "SaveSettings",
+			"packetHandler": "SettingsPacketHandler"
+		},
+		"killprocess": {
+			"endPoint": "KillProcess",
+			"packetHandler": "ProcessPacketHandler"
+		},
+		"restartserver": {
+			"endPoint": "RestartServer",
+			"packetHandler": "ServerPacketHandler"
+		},
+		"requestgpuinformation": {
+			"endPoint": "RequestGpuInformation",
+			"packetHandler": "GpuPacketHandler"
+		},
+		"authenticate": {
+			"endPoint": "Authenticate",
+			"packetHandler": "ServerPacketHandler"
+		},
+		"changescreenresolution": {
+			"endPoint": "ChangeDisplayResolution",
+			"packetHandler": "DisplayPacketHandler"
+		},
+		"rotatedisplay": {
+			"endPoint": "RotateDisplay",
+			"packetHandler": "DisplayPacketHandler"
+		},
+		"setprimarydisplay": {
+			"endPoint": "SetPrimaryDisplay",
+			"packetHandler": "DisplayPacketHandler"
+		},
+		"createfiletree": {
+			"endPoint": "CreateFileTree",
+			"packetHandler": "FilePacketHandler"
+		},
+		"requestprocessinformation": {
+			"endPoint": "RequestProcessInformation",
+			"packetHandler": "ProcessPacketHandler"
+		},
+		"requestcpuinformation": {
+			"endPoint": "RequestCpuInformation",
+			"packetHandler": "CpuPacketHandler"
+		},
+		"requestosinformation": {
+			"endPoint": "RequestOsInformation",
+			"packetHandler": "OperatingSystemPacketHandler"
+		},
+		"requestnetworkinformation": {
+			"endPoint": "RequestNetworkInformation",
+			"packetHandler": "NetworkPacketHandler"
+		},
+		"requestsysteminformation": {
+			"endPoint": "RequestSystemInformation",
+			"packetHandler": "SystemPacketHandler"
+		},
+		"rightdown": {
+			"endPoint": "RightDown",
+			"packetHandler": "ScreenSharePacketHandler"
+		},
+		"rightup": {
+			"endPoint": "RightUp",
+			"packetHandler": "ScreenSharePacketHandler"
+		},
+		"startprocess": {
+			"endPoint": "StartProcess",
+			"packetHandler": "ProcessPacketHandler"
+		},
+		"listports": {
+			"endPoint": "ListPorts",
+			"packetHandler": "ServerPacketHandler"
+		}
+	}
+}

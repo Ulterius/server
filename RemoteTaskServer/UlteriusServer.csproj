@@ -80,6 +80,7 @@
     <SignManifests>false</SignManifests>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Api\Network\Messages\PacketLoader.cs" />
     <Compile Include="Api\Network\Models\FanInformation.cs" />
     <Compile Include="Api\Network\Models\ResolutionInformation.cs" />
     <Compile Include="Api\Network\PacketHandlers\DisplayPacketHandler.cs" />
@@ -240,14 +241,12 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="256.ico" />
-    <Content Include="favicon %281%29.ico" />
+    <EmbeddedResource Include="Packets.json" />
     <None Include="Resources\ApplicationIcon.ico" />
     <None Include="FodyWeavers.xml">
       <SubType>Designer</SubType>
     </None>
     <Content Include="twitter-profile.ico" />
-    <Content Include="Ulterius_Icon.ico" />
-    <Content Include="Ulterius_Logo.ico" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />
