@@ -26,6 +26,9 @@ namespace UlteriusServer.Api.Network.PacketHandlers
             _builder.WriteMessage(Config.GetRaw());
         }
 
+        /// <summary>
+        /// Saves the Ulterius settings 
+        /// </summary>
         public void SaveSettings()
         {
             try

@@ -42,6 +42,9 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="AgentInterface">
+      <HintPath>..\AgentInterface\bin\Release\AgentInterface.dll</HintPath>
+    </Reference>
     <Reference Include="AsyncIO, Version=0.1.25.0, Culture=neutral, PublicKeyToken=44a94435bd6f33f8, processorArchitecture=MSIL">
       <HintPath>..\packages\AsyncIO.0.1.26.0\lib\net40\AsyncIO.dll</HintPath>
       <Private>True</Private>
@@ -69,6 +72,9 @@
       <HintPath>..\packages\Newtonsoft.Json.9.0.2-beta1\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="OpenHardwareMonitorLib">
+      <HintPath>..\references\OpenHardwareMonitorLib.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
@@ -79,8 +85,8 @@
     <Compile Include="AppEnvironment.cs" />
     <Compile Include="Gdi.cs" />
     <Compile Include="Api\WinApi.cs" />
-    <Compile Include="Desktop.cs" />
-    <Compile Include="Networking\AgentServer.cs" />
+    <Compile Include="Api\Desktop.cs" />
+    <Compile Include="Networking\ServerAgent.cs" />
     <Compile Include="Networking\Tools.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

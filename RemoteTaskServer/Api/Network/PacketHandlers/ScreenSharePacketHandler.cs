@@ -7,10 +7,7 @@ using System.Drawing.Imaging;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Net;
-using System.Net.Sockets;
 using System.Runtime.InteropServices;
-using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 using InputManager;
@@ -20,6 +17,7 @@ using UlteriusServer.Api.Win32;
 using UlteriusServer.Utilities.Settings;
 using UlteriusServer.WebSocketAPI.Authentication;
 using vtortola.WebSockets;
+using static UlteriusServer.Api.UlteriusApiServer;
 using Message = UlteriusServer.Api.Network.Messages.Message;
 using ScreenShareService = UlteriusServer.Api.Services.LocalSystem.ScreenShareService;
 
@@ -50,7 +48,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                 _authClient.ShutDownScreenShare = true;
                 Thread outtemp;
                 if (!ScreenShareService.Streams.TryRemove(_authClient, out outtemp)) return;
-                if (!UlteriusApiServer.RunningAsService)
+                if (!RunningAsService)
                 {
                     CleanUp();
                 }
@@ -81,7 +79,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
             //release all keys
             foreach (var keyCode in keyCodes)
             {
-                var code = (Keys)keyCode;
+                var code = (Keys) keyCode;
                 if (WinApi.IsKeyDown(code))
                 {
                     Keyboard.KeyUp(code);
@@ -109,9 +107,9 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                     return;
                 }
                 _authClient.ShutDownScreenShare = false;
-                var stream = UlteriusApiServer.RunningAsService
-                    ? new Thread(GetScreenAgentFrame) { IsBackground = true }
-                    : new Thread(GetScreenFrame) { IsBackground = true };
+                var stream = RunningAsService
+                    ? new Thread(GetScreenAgentFrame) {IsBackground = true}
+                    : new Thread(GetScreenFrame) {IsBackground = true};
                 ScreenShareService.Streams[_authClient] = stream;
                 var data = new
                 {
@@ -142,20 +140,13 @@ namespace UlteriusServer.Api.Network.PacketHandlers
             return newBitmap;
         }
 
-        private async void GetScreenAgentFrame()
+        private void GetScreenAgentFrame()
         {
             try
             {
-                var client = new TcpClient();
-                StreamReader streamReader = null;
-                StreamWriter streamWriter = null;
-                await client.ConnectAsync(IPAddress.Loopback, 22005);
-                var stream = client.GetStream();
-                streamReader = new StreamReader(stream, Encoding.UTF8);
-                streamWriter = new StreamWriter(stream, Encoding.UTF8);
                 var targetFps = Config.Load().ScreenShareService.ScreenShareFps;
 
-                var optimalTime = 1000000000 / targetFps;
+                var optimalTime = 1000000000/targetFps;
 
                 while (_client != null && _client.IsConnected && _authClient != null &&
                        !_authClient.ShutDownScreenShare)
@@ -163,26 +154,15 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                     var now = Environment.TickCount;
                     long updateLength = now - lastLoopTime;
                     lastLoopTime = now;
-                    var delta = updateLength / (double)optimalTime;
+                    var delta = updateLength/(double) optimalTime;
                     lastFpsTime += updateLength;
                     fps++;
-
                     try
                     {
-                        if (!client.Connected)
+                        var cleanFrame = AgentClient.GetCleanFrame();
+                        if (cleanFrame != null && cleanFrame.Length > 1)
                         {
-                            client = new TcpClient();
-                            await client.ConnectAsync(IPAddress.Loopback, 22005);
-                            stream = client.GetStream();
-                            streamReader = new StreamReader(stream, Encoding.UTF8);
-                            streamWriter = new StreamWriter(stream, Encoding.UTF8);
-                        }
-                        await streamWriter.WriteLineAsync("cleanframe");
-                        await streamWriter.FlushAsync();
-                        var base64 = await streamReader.ReadLineAsync();
-                        if (base64 != null && base64.Length > 1)
-                        {
-                            var image = GetImageFromByteArray(Convert.FromBase64String(base64));
+                            var image = GetImageFromByteArray(cleanFrame);
                             using (var screenData = ScreenData.LocalAgentScreen(image))
                             {
                                 if (screenData.ScreenBitmap != null && screenData.Rectangle != Rectangle.Empty)
@@ -197,7 +177,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                                 }
                             }
                         }
-                        var time = (lastLoopTime - Environment.TickCount + optimalTime) / 1000000;
+                        var time = (lastLoopTime - Environment.TickCount + optimalTime)/1000000;
                         Thread.Sleep(TimeSpan.FromMilliseconds(time));
                     }
                     catch (Exception ex)
@@ -206,9 +186,6 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                         Thread.Sleep(250);
                     }
                 }
-                client?.Dispose();
-                streamWriter?.Dispose();
-                streamReader?.Dispose();
                 Console.WriteLine("Screen Share Died");
             }
             catch (Exception)
@@ -220,14 +197,14 @@ namespace UlteriusServer.Api.Network.PacketHandlers
         {
             var targetFps = Config.Load().ScreenShareService.ScreenShareFps;
 
-            var optimalTime = 1000000000 / targetFps;
+            var optimalTime = 1000000000/targetFps;
             while (_client != null && _client.IsConnected && _authClient != null &&
                    !_authClient.ShutDownScreenShare)
             {
                 var now = Environment.TickCount;
                 long updateLength = now - lastLoopTime;
                 lastLoopTime = now;
-                var delta = updateLength / (double)optimalTime;
+                var delta = updateLength/(double) optimalTime;
                 lastFpsTime += updateLength;
                 fps++;
                 try
@@ -247,14 +224,13 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                             }
                         }
                     }
-                    var time = (lastLoopTime - Environment.TickCount + optimalTime) / 1000000;
+                    var time = (lastLoopTime - Environment.TickCount + optimalTime)/1000000;
                     Thread.Sleep(TimeSpan.FromMilliseconds(time));
                 }
                 catch (Exception e)
                 {
                     Console.WriteLine(e.Message + " " + e.StackTrace);
                 }
-
             }
             Console.WriteLine("Screen Share Died");
         }
@@ -268,87 +244,33 @@ namespace UlteriusServer.Api.Network.PacketHandlers
             switch (_packet.EndPoint)
             {
                 case PacketManager.EndPoints.MouseDown:
-                    if (UlteriusApiServer.RunningAsService)
-                    {
-                        HandleAgentMouseDown();
-                    }
-                    else
-                    {
-                        HandleMouseDown();
-                    }
+                    HandleMouseDown();
                     break;
                 case PacketManager.EndPoints.MouseUp:
-                    if (UlteriusApiServer.RunningAsService)
-                    {
-                        HandleAgentMouseUp();
-                    }
-                    else
-                    {
-                        HandleMouseUp();
-                    }
+                    HandleMouseUp();
                     break;
                 case PacketManager.EndPoints.CtrlAltDel:
-
                     HandleCtrlAltDel();
-
                     break;
-                case PacketManager.EndPoints.MouseScroll:
-                    if (UlteriusApiServer.RunningAsService)
-                    {
-                        HandleAgentMouseScroll();
-                    }
-                    else
-                    {
-                        HandleScroll();
-                    }
-
+                case PacketManager.EndPoints.MouseScroll:             
+                    HandleScroll();
                     break;
                 case PacketManager.EndPoints.LeftDblClick:
                     break;
                 case PacketManager.EndPoints.KeyDown:
-                    if (UlteriusApiServer.RunningAsService)
-                    {
-                        HandleAgentKeyDown();
-                    }
-                    else
-                    {
-                        HandleKeyDown();
-                    }
-
+                    HandleKeyDown();
                     break;
                 case PacketManager.EndPoints.RightDown:
-                    if (UlteriusApiServer.RunningAsService)
-                    {
-                        HandleAgentRightDown();
-                    }
-                    else
-                    {
-                        RightDown();
-                    }
+                    RightDown();
                     break;
                 case PacketManager.EndPoints.RightUp:
-                    if (UlteriusApiServer.RunningAsService)
-                    {
-                        HandleAgentRightUp();
-                    }
-                    else
-                    {
-                        RightUp();
-                    }
-
+                    RightUp();
                     break;
                 case PacketManager.EndPoints.KeyUp:
-                    if (UlteriusApiServer.RunningAsService)
-                    {
-                        HandleAgentKeyUp();
-                    }
-                    else
-                    {
-                        HandleKeyUp();
-                    }
+                    HandleKeyUp();
                     break;
                 case PacketManager.EndPoints.FullFrame:
-                    if (UlteriusApiServer.RunningAsService)
+                    if (RunningAsService)
                     {
                         HandleAgentFullFrame();
                     }
@@ -358,25 +280,10 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                     }
                     break;
                 case PacketManager.EndPoints.RightClick:
-                    if (UlteriusApiServer.RunningAsService)
-                    {
-                        HandleAgentRightClick();
-                    }
-                    else
-                    {
-                        HandleRightClick();
-                    }
-
+                    HandleRightClick();
                     break;
                 case PacketManager.EndPoints.MouseMove:
-                    if (UlteriusApiServer.RunningAsService)
-                    {
-                        HandleAgentMouseMove();
-                    }
-                    else
-                    {
-                        HandleMoveMouse();
-                    }
+                    HandleMoveMouse();
                     break;
                 case PacketManager.EndPoints.CheckScreenShare:
                     CheckServer();
@@ -394,155 +301,60 @@ namespace UlteriusServer.Api.Network.PacketHandlers
         {
             SendSAS(false);
         }
-        private void HandleAgentRightDown()
-        {
-            if (!ScreenShareService.Streams.ContainsKey(_authClient)) return;
-            var command = "rightdown";
-            var message = new Message(command, Message.MessageType.Service);
-            _authClient?.MessageQueueManagers[22005]?.SendQueue.Add(message);
-        }
 
-        private void HandleAgentRightUp()
-        {
-            if (!ScreenShareService.Streams.ContainsKey(_authClient)) return;
-            var command = "rightup";
-            var message = new Message(command, Message.MessageType.Service);
-            _authClient?.MessageQueueManagers[22005]?.SendQueue.Add(message);
-        }
+       
+
         private void RightUp()
         {
-            if (ScreenShareService.Streams.ContainsKey(_authClient))
+            if (!ScreenShareService.Streams.ContainsKey(_authClient)) return;
+            if (RunningAsService)
             {
-                Console.WriteLine("Right up");
+                AgentClient.HandleRightMouseUp();
+            }
+            else
+            {
                 Mouse.ButtonUp(Mouse.MouseKeys.Right);
             }
         }
 
         private void RightDown()
         {
-            if (ScreenShareService.Streams.ContainsKey(_authClient))
+            if (!ScreenShareService.Streams.ContainsKey(_authClient)) return;
+            if (RunningAsService)
+            {
+                AgentClient.HandleRightMouseDown();
+            }
+            else
             {
                 Mouse.ButtonDown(Mouse.MouseKeys.Right);
             }
         }
 
-
-        private void HandleAgentRightClick()
-        {
-            if (!ScreenShareService.Streams.ContainsKey(_authClient)) return;
-            var command = "rightclick";
-            var message = new Message(command, Message.MessageType.Service);
-            _authClient?.MessageQueueManagers[22005]?.SendQueue.Add(message);
-        }
-
-        private void HandleAgentMouseScroll()
-        {
-            if (!ScreenShareService.Streams.ContainsKey(_authClient)) return;
-            var delta = Convert.ToInt32(_packet.Args[0], CultureInfo.InvariantCulture);
-            var arguments = delta + "," + "0";
-            var command = "mousescroll|" + arguments;
-            var message = new Message(command, Message.MessageType.Service);
-            _authClient?.MessageQueueManagers[22005]?.SendQueue.Add(message);
-        }
-
-        private void HandleAgentMouseDown()
-        {
-            if (!ScreenShareService.Streams.ContainsKey(_authClient)) return;
-            var command = "mousedown";
-            var message = new Message(command, Message.MessageType.Service);
-            _authClient?.MessageQueueManagers[22005]?.SendQueue.Add(message);
-        }
-
-        private void HandleAgentMouseUp()
-        {
-            if (!ScreenShareService.Streams.ContainsKey(_authClient)) return;
-            var command = "mouseup";
-            var message = new Message(command, Message.MessageType.Service);
-            _authClient?.MessageQueueManagers[22005]?.SendQueue.Add(message);
-        }
-
-        private void HandleAgentMouseMove()
-        {
-            if (!ScreenShareService.Streams.ContainsKey(_authClient)) return;
-            int y = Convert.ToInt16(_packet.Args[0], CultureInfo.InvariantCulture);
-            int x = Convert.ToInt16(_packet.Args[1], CultureInfo.InvariantCulture);
-            var command = "mousemove|" + $"{x},{y}";
-            var message = new Message(command, Message.MessageType.Service);
-            _authClient?.MessageQueueManagers[22005]?.SendQueue.Add(message);
-        }
-
-        private void HandleAgentKeyDown()
-        {
-            if (!ScreenShareService.Streams.ContainsKey(_authClient)) return;
-            var keyCodes = ((IEnumerable)_packet.Args[0]).Cast<object>()
-                .Select(x => x.ToString())
-                .ToList();
-            var codes =
-                keyCodes.Select(code => ToHex(int.Parse(code.ToString())))
-                    .Select(hexString => Convert.ToInt32(hexString, 16))
-                    .ToList();
-            var result = string.Join(",", codes);
-            var command = "keydown|" + result;
-            var message = new Message(command, Message.MessageType.Service);
-            _authClient?.MessageQueueManagers[22005]?.SendQueue.Add(message);
-        }
-
-        private void HandleAgentKeyUp()
-        {
-            if (!ScreenShareService.Streams.ContainsKey(_authClient)) return;
-            var keyCodes = ((IEnumerable)_packet.Args[0]).Cast<object>()
-                .Select(x => x.ToString())
-                .ToList();
-            var codes =
-                keyCodes.Select(code => ToHex(int.Parse(code.ToString())))
-                    .Select(hexString => Convert.ToInt32(hexString, 16))
-                    .ToList();
-            var result = string.Join(",", codes);
-            var command = "keyup|" + result;
-            var message = new Message(command, Message.MessageType.Service);
-            _authClient?.MessageQueueManagers[22005]?.SendQueue.Add(message);
-        }
-
-
-        private async void HandleAgentFullFrame()
+        private void HandleAgentFullFrame()
         {
             try
             {
-                using (var client = new TcpClient())
+                var fullFrameData = AgentClient.GetFullFrame();
+                if (fullFrameData == null || fullFrameData.Length <= 1)
+                    throw new InvalidOperationException("Frame was null");
+                using (var ms = new MemoryStream(fullFrameData))
+                using (var memoryReader = new BinaryReader(ms))
                 {
-                    await client.ConnectAsync(IPAddress.Loopback, 22005);
-                    using (var stream = client.GetStream())
-                    using (var sr = new StreamReader(stream, Encoding.UTF8))
-                    using (var sw = new StreamWriter(stream, Encoding.UTF8))
+                    var bottom = memoryReader.ReadInt32();
+                    var right = memoryReader.ReadInt32();
+                    var imageLength = memoryReader.ReadInt32();
+                    var image = memoryReader.ReadBytes(imageLength);
+                    var screenBounds = new
                     {
-                        if (!client.Connected)
-                            throw new InvalidOperationException("Screen share agent is not connected");
-                        await sw.WriteLineAsync("fullframe");
-                        await sw.FlushAsync();
-                        var base64 = await sr.ReadLineAsync();
-
-                        if (base64 == null || base64.Length <= 1) throw new InvalidOperationException("Frame was null");
-                        var data = Convert.FromBase64String(base64);
-                        using (var ms = new MemoryStream(data))
-                        using (var memoryReader = new BinaryReader(ms))
-                        {
-                            var bottom = memoryReader.ReadInt32();
-                            var right = memoryReader.ReadInt32();
-                            var imageLength = memoryReader.ReadInt32();
-                            var image = memoryReader.ReadBytes(imageLength);
-                            var screenBounds = new
-                            {
-                                bottom,
-                                right
-                            };
-                            var frameData = new
-                            {
-                                screenBounds,
-                                frameData = image.Select(b => (int)b).ToArray()
-                            };
-                            _builder.WriteMessage(frameData);
-                        }
-                    }
+                        bottom,
+                        right
+                    };
+                    var frameData = new
+                    {
+                        screenBounds,
+                        frameData = image.Select(b => (int) b).ToArray()
+                    };
+                    _builder.WriteMessage(frameData);
                 }
             }
             catch (Exception ex)
@@ -584,7 +396,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                     var frameData = new
                     {
                         screenBounds,
-                        frameData = imgData.Select(b => (int)b).ToArray()
+                        frameData = imgData.Select(b => (int) b).ToArray()
                     };
                     _builder.WriteMessage(frameData);
                 }
@@ -594,7 +406,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
         private void HandleKeyUp()
         {
             if (!ScreenShareService.Streams.ContainsKey(_authClient)) return;
-            var keyCodes = ((IEnumerable)_packet.Args[0]).Cast<object>()
+            var keyCodes = ((IEnumerable) _packet.Args[0]).Cast<object>()
                 .Select(x => x.ToString())
                 .ToList();
             var codes =
@@ -602,12 +414,19 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                     .Select(hexString => Convert.ToInt32(hexString, 16))
                     .ToList();
 
-
-            foreach (var code in codes)
+            if (RunningAsService)
             {
-                var virtualKey = (Keys)code;
-                Keyboard.KeyUp(virtualKey);
+                AgentClient.HandleKeyUp(codes);
             }
+            else
+            {
+                foreach (var code in codes)
+                {
+                    var virtualKey = (Keys)code;
+                    Keyboard.KeyUp(virtualKey);
+                }
+            }
+            
         }
 
 
@@ -619,17 +438,24 @@ namespace UlteriusServer.Api.Network.PacketHandlers
         private void HandleKeyDown()
         {
             if (!ScreenShareService.Streams.ContainsKey(_authClient)) return;
-            var keyCodes = ((IEnumerable)_packet.Args[0]).Cast<object>()
+            var keyCodes = ((IEnumerable) _packet.Args[0]).Cast<object>()
                 .Select(x => x.ToString())
                 .ToList();
             var codes =
                 keyCodes.Select(code => ToHex(int.Parse(code.ToString())))
                     .Select(hexString => Convert.ToInt32(hexString, 16))
                     .ToList();
-            foreach (var code in codes)
+            if (RunningAsService)
             {
-                var virtualKey = (Keys)code;
-                Keyboard.KeyDown(virtualKey);
+                AgentClient.HandleKeyDown(codes);
+            }
+            else
+            {
+                foreach (var code in codes)
+                {
+                    var virtualKey = (Keys)code;
+                    Keyboard.KeyDown(virtualKey);
+                }
             }
         }
 
@@ -639,7 +465,16 @@ namespace UlteriusServer.Api.Network.PacketHandlers
             var delta = Convert.ToInt32(_packet.Args[0], CultureInfo.InvariantCulture);
             delta = ~delta;
             var positive = delta > 0;
-            Mouse.Scroll(positive ? Mouse.ScrollDirection.Up : Mouse.ScrollDirection.Down);
+            var direction = positive ? Mouse.ScrollDirection.Up : Mouse.ScrollDirection.Down;
+            if (RunningAsService)
+            {
+                AgentClient.ScrollMouse(positive);
+            }
+            else
+            {
+                Mouse.Scroll(direction);
+            }
+           
         }
 
         private void HandleMoveMouse()
@@ -649,12 +484,14 @@ namespace UlteriusServer.Api.Network.PacketHandlers
             {
                 int y = Convert.ToInt16(_packet.Args[0], CultureInfo.InvariantCulture);
                 int x = Convert.ToInt16(_packet.Args[1], CultureInfo.InvariantCulture);
-                var device = _screens[0];
-                if (x < 0 || x >= device.Bounds.Width || y < 0 || y >= device.Bounds.Height)
+                if (RunningAsService)
                 {
-                    return;
+                    AgentClient.MoveMouse(x, y);
                 }
-                Cursor.Position = new Point(x, y);
+                else
+                {
+                    Cursor.Position = new Point(x, y);
+                }
             }
             catch
             {
@@ -666,7 +503,16 @@ namespace UlteriusServer.Api.Network.PacketHandlers
         {
             if (ScreenShareService.Streams.ContainsKey(_authClient))
             {
-                Mouse.PressButton(Mouse.MouseKeys.Right);
+                if (RunningAsService)
+                {
+                    AgentClient.HandleRightClick();
+                }
+                else
+                {
+                    Mouse.PressButton(Mouse.MouseKeys.Right);
+                }
+
+               
             }
         }
 
@@ -674,7 +520,15 @@ namespace UlteriusServer.Api.Network.PacketHandlers
         {
             if (ScreenShareService.Streams.ContainsKey(_authClient))
             {
-                Mouse.ButtonUp(Mouse.MouseKeys.Left);
+                if (RunningAsService)
+                {
+                    AgentClient.HandleLeftMouseUp();
+                }
+                else
+                {
+                    Mouse.ButtonUp(Mouse.MouseKeys.Left);
+                }
+               
             }
         }
 
@@ -682,7 +536,14 @@ namespace UlteriusServer.Api.Network.PacketHandlers
         {
             if (ScreenShareService.Streams.ContainsKey(_authClient))
             {
-                Mouse.ButtonDown(Mouse.MouseKeys.Left);
+                if (RunningAsService)
+                {
+                    AgentClient.HandleLeftMouseDown();
+                }
+                else
+                {
+                    Mouse.ButtonDown(Mouse.MouseKeys.Left);
+                }
             }
         }
     }

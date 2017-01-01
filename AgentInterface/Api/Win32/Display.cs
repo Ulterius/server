@@ -2,18 +2,17 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
-using UlteriusServer.Api.Network.Models;
+using AgentInterface.Api.Models;
 
 #endregion
 
-namespace UlteriusServer.Api.Win32
+namespace AgentInterface.Api.Win32
 {
-    internal class Display
+    public class Display
     {
         [Flags]
         public enum ChangeDisplaySettingsFlags : uint
@@ -211,14 +210,14 @@ namespace UlteriusServer.Api.Win32
                     }
                     d.cb = Marshal.SizeOf(d);
                 }
+                return monitors;
             }
-            catch (Exception ex)
+            catch 
             {
-                if (Debugger.IsAttached)
-                {
-                    Console.WriteLine($"{ex}");
-                }
+              
             }
+            string errorMessage = new Win32Exception(Marshal.GetLastWin32Error()).Message;
+            Console.WriteLine(errorMessage);
             return monitors;
         }
 
@@ -268,6 +267,8 @@ namespace UlteriusServer.Api.Win32
                 GetMessageForCode(ChangeDisplaySettingsEx(null, IntPtr.Zero, (IntPtr) null,
                     ChangeDisplaySettingsFlags.CDS_NONE, (IntPtr) null));
         }
+        [DllImport("kernel32.dll")]
+        public static extern uint GetLastError();
 
         public static string Rotate(int angle, int width, int height, string deviceName)
         {
@@ -357,7 +358,7 @@ namespace UlteriusServer.Api.Win32
         private static extern bool EnumDisplayDevices(string lpDevice, uint iDevNum, ref DisplayDevice lpDisplayDevice,
             uint dwFlags);
 
-        internal enum DISP_CHANGE
+        public enum DISP_CHANGE
         {
             Successful = 0,
             Restart = 1,

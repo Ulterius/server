@@ -3,6 +3,7 @@
 using System;
 using System.Linq;
 using System.Management;
+using AgentInterface.Api.Win32;
 using UlteriusServer.Api.Network.Messages;
 using UlteriusServer.Api.Network.Models;
 using UlteriusServer.Api.Services.LocalSystem;

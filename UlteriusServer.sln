@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UlteriusServer", "RemoteTas
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UlteriusAgent", "UlteriusAgent\UlteriusAgent.csproj", "{686AE4C4-791F-45EB-9414-029D6115905D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AgentInterface", "AgentInterface\AgentInterface.csproj", "{5C3B0B17-CBB7-4B4B-B527-1FAB2BB96466}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{686AE4C4-791F-45EB-9414-029D6115905D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{686AE4C4-791F-45EB-9414-029D6115905D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{686AE4C4-791F-45EB-9414-029D6115905D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5C3B0B17-CBB7-4B4B-B527-1FAB2BB96466}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5C3B0B17-CBB7-4B4B-B527-1FAB2BB96466}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5C3B0B17-CBB7-4B4B-B527-1FAB2BB96466}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5C3B0B17-CBB7-4B4B-B527-1FAB2BB96466}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

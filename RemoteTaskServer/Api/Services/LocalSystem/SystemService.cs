@@ -13,11 +13,13 @@ using System.Security.Principal;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using AgentInterface.Api.Models;
+using Newtonsoft.Json;
 using OpenHardwareMonitor.Hardware;
 using UlteriusServer.Api.Network.Models;
 using UlteriusServer.Api.Services.Network;
 using UlteriusServer.Utilities.Drive;
-using static UlteriusServer.Api.Win32.Display;
+using static AgentInterface.Api.Win32.Display;
 
 #endregion
 
@@ -148,9 +150,10 @@ namespace UlteriusServer.Api.Services.LocalSystem
                 Console.WriteLine(ex.StackTrace);
             }
         }
-        static long ConvertKilobytesToBytes(long kilobytes)
+
+        private static long ConvertKilobytesToBytes(long kilobytes)
         {
-            return kilobytes * 1024;
+            return kilobytes*1024;
         }
 
         private static long GetAvailablePhysicalMemory()
@@ -164,7 +167,7 @@ namespace UlteriusServer.Api.Services.LocalSystem
             }
             return -1;
         }
-      
+
 
         private async void Updater()
         {
@@ -181,7 +184,7 @@ namespace UlteriusServer.Api.Services.LocalSystem
                     SystemInformation.NetworkInfo = GetNetworkInfo();
                     SystemInformation.CpuUsage = GetPerformanceCounters();
                     SystemInformation.CpuTemps = GetCpuTemps();
-                    SystemInformation.Displays = DisplayInformation();
+                    SystemInformation.Displays = GetDisplayInformation();
                 }
                 catch (Exception ex)
                 {
@@ -190,6 +193,14 @@ namespace UlteriusServer.Api.Services.LocalSystem
                 }
                 await Task.Delay(new TimeSpan(0, 0, 10));
             }
+        }
+
+        private List<DisplayInformation> GetDisplayInformation()
+        {
+            var displayList = DisplayInformation();
+            if (!UlteriusApiServer.RunningAsService) return displayList;
+            var displayInfo = UlteriusApiServer.AgentClient.GetDisplayInformation();
+            return displayInfo ?? displayList;
         }
 
 
@@ -346,7 +357,7 @@ namespace UlteriusServer.Api.Services.LocalSystem
             var searcher = new ManagementObjectSearcher(winQuery);
             foreach (var o in searcher.Get())
             {
-                var item = (ManagementObject)o;
+                var item = (ManagementObject) o;
                 return ConvertKilobytesToBytes(long.Parse(item["TotalVisibleMemorySize"].ToString()));
             }
             return -1;
@@ -566,22 +577,31 @@ namespace UlteriusServer.Api.Services.LocalSystem
             var myComputer = new Computer();
             myComputer.Open();
             myComputer.CPUEnabled = true;
-            var temps = (from hardwareItem in myComputer.Hardware
-                where hardwareItem.HardwareType == HardwareType.CPU
-                from sensor in hardwareItem.Sensors
-                where sensor.SensorType == SensorType.Temperature
-                let value = sensor.Value
-                where value != null
-                where value != null
-                select (float) value).ToList();
-            if (temps.Count != 0) return temps;
             var tempTemps = new List<float>();
             var procCount = Environment.ProcessorCount;
             for (var i = 0; i < procCount; i++)
             {
                 tempTemps.Add(-1);
             }
-            return tempTemps;
+            try
+            {
+                var temps = (from hardwareItem in myComputer.Hardware
+                    where hardwareItem.HardwareType == HardwareType.CPU
+                    from sensor in hardwareItem.Sensors
+                    where sensor.SensorType == SensorType.Temperature
+                    let value = sensor.Value
+                    where value != null
+                    where value != null
+                    select (float) value).ToList();
+                if (temps.Count != 0) return temps;
+                myComputer.Close();
+                return tempTemps;
+            }
+            catch (Exception)
+            {
+                myComputer.Close();
+                return tempTemps;
+            }
         }
 
 

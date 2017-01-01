@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace UlteriusServer.Api.Network.Models
+namespace AgentInterface.Api.Models
 {
     public class DisplayInformation
     {

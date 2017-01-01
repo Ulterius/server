@@ -9,7 +9,7 @@ using System.Text;
 
 #endregion
 
-namespace UlteriusServer.Api.Win32
+namespace AgentInterface.Api.Win32
 {
     [SuppressUnmanagedCodeSecurity]
     [HostProtection(SecurityAction.LinkDemand, SharedState = true)]

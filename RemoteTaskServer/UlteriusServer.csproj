@@ -82,10 +82,9 @@
   <ItemGroup>
     <Compile Include="Api\Network\Messages\PacketLoader.cs" />
     <Compile Include="Api\Network\Models\FanInformation.cs" />
-    <Compile Include="Api\Network\Models\ResolutionInformation.cs" />
     <Compile Include="Api\Network\PacketHandlers\DisplayPacketHandler.cs" />
+    <Compile Include="Api\Network\UlteriusAgentClient.cs" />
     <Compile Include="Api\Services\LocalSystem\Daemons\JobModel.cs" />
-    <Compile Include="Api\Network\Models\DisplayInformation.cs" />
     <Compile Include="Api\Network\PacketHandlers\CronJobPacketHandler.cs" />
     <Compile Include="Api\Services\LocalSystem\Daemons\CronDaemon.cs" />
     <Compile Include="Api\Services\LocalSystem\Daemons\CronJob.cs" />
@@ -96,11 +95,9 @@
     <Compile Include="Api\Services\ScreenShare\ScreenModel.cs" />
     <Compile Include="Api\Services\Update\UpdateService.cs" />
     <Compile Include="Api\Win32\Desktop.cs" />
-    <Compile Include="Api\Win32\Display.cs" />
     <Compile Include="Api\Win32\Gdi.cs" />
     <Compile Include="Api\Win32\ProcessStarter.cs" />
     <Compile Include="Api\Win32\SessionInfo.cs" />
-    <Compile Include="Api\Win32\Win32Exception.cs" />
     <Compile Include="Api\Win32\WinApi.cs" />
     <Compile Include="Api\Network\Messages\Message.cs" />
     <Compile Include="Api\Network\Messages\MessageQueueManager.cs" />
@@ -264,6 +261,9 @@
       <HintPath>..\packages\AForge.Video.DirectShow.2.2.5\lib\AForge.Video.DirectShow.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="AgentInterface">
+      <HintPath>..\AgentInterface\bin\Release\AgentInterface.dll</HintPath>
+    </Reference>
     <Reference Include="AsyncIO, Version=0.1.25.0, Culture=neutral, PublicKeyToken=44a94435bd6f33f8, processorArchitecture=MSIL">
       <HintPath>..\packages\AsyncIO.0.1.26.0\lib\net40\AsyncIO.dll</HintPath>
       <Private>True</Private>
@@ -343,9 +343,8 @@
       <HintPath>..\packages\Open.NAT.2.1.0.0\lib\net45\Open.Nat.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="OpenHardwareMonitorLib, Version=0.7.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\OpenHardwareMonitor.0.7.1\lib\net40\OpenHardwareMonitorLib.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="OpenHardwareMonitorLib">
+      <HintPath>..\references\OpenHardwareMonitorLib.dll</HintPath>
     </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="System" />

@@ -34,6 +34,8 @@ namespace UlteriusServer.Api
         public static FileSearchService FileSearchService { get; set; }
         public static CronJobService CronJobService { get; set; }
 
+        public static UlteriusAgentClient AgentClient { get; set; }
+
         /// <summary>
         ///     Start the API Server
         /// </summary>
@@ -82,6 +84,11 @@ namespace UlteriusServer.Api
             server.OnError += HandleError;
             server.Start();
             Log("Api Server started at " + address);
+            if (RunningAsService)
+            {
+                AgentClient = new UlteriusAgentClient();
+                AgentClient.Start();
+            }
         }
 
         

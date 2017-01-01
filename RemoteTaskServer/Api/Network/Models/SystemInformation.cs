@@ -2,7 +2,7 @@
 
 using System;
 using System.Collections.Generic;
-using OpenHardwareMonitor.Hardware;
+using AgentInterface.Api.Models;
 
 #endregion
 

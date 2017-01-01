@@ -2,8 +2,11 @@
 
 using System;
 using System.IO;
+using System.Net.Security;
 using System.Runtime.InteropServices;
+using System.ServiceModel;
 using System.Text;
+using AgentInterface;
 using UlteriusAgent.Networking;
 
 #endregion
@@ -41,7 +44,7 @@ namespace UlteriusAgent
 
         private static void Main(string[] args)
         {
-            SetLogging();
+             SetLogging();
             if (Environment.OSVersion.Version.Major >= 6)
             {
                 SetProcessDPIAware();
@@ -54,12 +57,26 @@ namespace UlteriusAgent
             Tools.KillAllButMe();
             try
             {
-                AgentServer.Start();
+                string address = "net.pipe://localhost/ulterius/Agent";
+                ServiceHost serviceHost = new ServiceHost(typeof(ServerAgent));
+                NetNamedPipeBinding binding = new NetNamedPipeBinding
+                {
+                    Security = new NetNamedPipeSecurity
+                    {
+                        Transport = {ProtectionLevel = ProtectionLevel.EncryptAndSign},
+                        Mode = NetNamedPipeSecurityMode.Transport
+                    },
+                    MaxReceivedMessageSize = int.MaxValue
+                };
+                serviceHost.AddServiceEndpoint(typeof(ITUlteriusContract), binding, address);
+                serviceHost.Open();
+                Console.Read();
             }
             catch (Exception ex)
             {
-                File.WriteAllText("Exception-" + Path.GetRandomFileName() + ".txt", ex.Message + " \n " + ex.StackTrace);
+                Console.WriteLine(ex.Message + " \n " + ex.StackTrace);
             }
+            Console.Read();
         }
     }
 }

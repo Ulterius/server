@@ -1,9 +1,6 @@
 ﻿#region
 
-using System;
-using System.Linq;
-using System.Management;
-using OpenHardwareMonitor.Hardware;
+
 using UlteriusServer.Api.Network.Messages;
 using UlteriusServer.Api.Network.Models;
 using UlteriusServer.WebSocketAPI.Authentication;

@@ -38,11 +38,14 @@ namespace UlteriusServer
             {
                 Directory.CreateDirectory(AppEnvironment.DataPath);
             }
+
             if (!Debugger.IsAttached)
             {
+
                 ExceptionHandler.AddGlobalHandlers();
                 Console.WriteLine("Exception Handlers Attached");
             }
+           
             //Fix screensize issues for Screen Share
             if (Tools.RunningPlatform() == Tools.Platform.Windows && Environment.OSVersion.Version.Major >= 6)
             {

@@ -7,9 +7,10 @@ using System.Diagnostics;
 using System.Linq;
 using System.Runtime.ConstrainedExecution;
 using System.Runtime.InteropServices;
+
 #endregion
 
-namespace UlteriusAgent
+namespace UlteriusAgent.Api
 {
     /// <summary>
     ///     Encapsulates the Desktop API.
