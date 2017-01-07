@@ -2,11 +2,14 @@
 
 using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Globalization;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using AgentInterface.Api.Models;
+using AgentInterface.Api.ScreenShare;
 
 #endregion
 
@@ -14,6 +17,9 @@ namespace AgentInterface.Api.Win32
 {
     public class Display
     {
+       
+        public static List<DisplayInformation> Current = new   List<DisplayInformation>();
+        private static DateTime? lastCurrentUpdate;
         [Flags]
         public enum ChangeDisplaySettingsFlags : uint
         {
@@ -133,8 +139,7 @@ namespace AgentInterface.Api.Win32
         public static extern bool EnumDisplaySettings(
             string deviceName, int modeNum, ref Devmode devMode);
 
-
-        public static List<DisplayInformation> DisplayInformation()
+        private static List<DisplayInformation> UpdateDisplays()
         {
             var monitors = new List<DisplayInformation>();
             var d = new DisplayDevice();
@@ -186,7 +191,9 @@ namespace AgentInterface.Api.Win32
                             Frequency = cDevMode.dmDisplayFrequency,
                             Height = cDevMode.dmPelsHeight,
                             Width = cDevMode.dmPelsWidth,
-                            Orientation = cDevMode.dmDisplayOrientation.ToString()
+                            Orientation = cDevMode.dmDisplayOrientation.ToString(),
+                            X = cDevMode.dmPositionX,
+                            Y = cDevMode.dmPositionY
                         };
                         var monitor = new DisplayInformation
                         {
@@ -199,7 +206,7 @@ namespace AgentInterface.Api.Win32
                             ModesPruned = d.StateFlags.HasFlag(DisplayDeviceStateFlags.ModesPruned),
                             Remote = d.StateFlags.HasFlag(DisplayDeviceStateFlags.Remote),
                             Disconnect = d.StateFlags.HasFlag(DisplayDeviceStateFlags.Disconnect),
-                            FriendlyName = $"{GetAllMonitorsFriendlyNames().ElementAt((int) id)} on {d.DeviceString}",
+                            FriendlyName = $"{GetAllMonitorsFriendlyNames().ElementAt((int)id)} on {d.DeviceString}",
                             SupportedResolutions = supportedResolutions,
                             CurrentResolution = currentResolution,
                             DeviceName = device
@@ -212,13 +219,29 @@ namespace AgentInterface.Api.Win32
                 }
                 return monitors;
             }
-            catch 
+            catch
             {
-              
+
             }
             string errorMessage = new Win32Exception(Marshal.GetLastWin32Error()).Message;
             Console.WriteLine(errorMessage);
             return monitors;
+        }
+
+        public static List<DisplayInformation> DisplayInformation()
+        {
+            DateTime now = DateTime.UtcNow;
+            if (!lastCurrentUpdate.HasValue)
+            {
+                lastCurrentUpdate = now;
+                Current = UpdateDisplays();
+                return Current;
+            }
+           
+            TimeSpan difference = now.Subtract(lastCurrentUpdate.Value);
+            if (!(difference.TotalSeconds > 5)) return Current;
+            Current = UpdateDisplays();
+            return Current;
         }
 
         public static string SetPrimary(string deviceName)
@@ -478,6 +501,19 @@ namespace AgentInterface.Api.Win32
             DisplayconfigScalingPreferred = 128,
             DisplayconfigScalingForceUint32 = 0xFFFFFFFF
         }
+        [DllImport("user32")]
+        private static extern bool EnumDisplayMonitors(IntPtr hdc, IntPtr lpRect, MonitorEnumProc callback, int dwData);
+
+        private delegate bool MonitorEnumProc(IntPtr hDesktop, IntPtr hdc, ref Rect pRect, int dwData);
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct Rect
+        {
+            public int left;
+            public int top;
+            public int right;
+            public int bottom;
+        }
 
         public enum DisplayconfigPixelformat : uint
         {
@@ -644,6 +680,101 @@ namespace AgentInterface.Api.Win32
 
             [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 128)] public string monitorDevicePath;
         }
+        [StructLayout(LayoutKind.Sequential)]
+        public struct RECT
+        {
+            public int Left, Top, Right, Bottom;
+
+            public RECT(int left, int top, int right, int bottom)
+            {
+                Left = left;
+                Top = top;
+                Right = right;
+                Bottom = bottom;
+            }
+
+            public RECT(Rectangle r) : this(r.Left, r.Top, r.Right, r.Bottom) { }
+
+            public int X
+            {
+                get { return Left; }
+                set { Right -= (Left - value); Left = value; }
+            }
+
+            public int Y
+            {
+                get { return Top; }
+                set { Bottom -= (Top - value); Top = value; }
+            }
+
+            public int Height
+            {
+                get { return Bottom - Top; }
+                set { Bottom = value + Top; }
+            }
+
+            public int Width
+            {
+                get { return Right - Left; }
+                set { Right = value + Left; }
+            }
+
+            public Point Location
+            {
+                get { return new Point(Left, Top); }
+                set { X = value.X; Y = value.Y; }
+            }
+
+            public Size Size
+            {
+                get { return new Size(Width, Height); }
+                set { Width = value.Width; Height = value.Height; }
+            }
+
+            public static implicit operator Rectangle(RECT r)
+            {
+                return new Rectangle(r.Left, r.Top, r.Width, r.Height);
+            }
+
+            public static implicit operator RECT(Rectangle r)
+            {
+                return new RECT(r);
+            }
+
+            public static bool operator ==(RECT r1, RECT r2)
+            {
+                return r1.Equals(r2);
+            }
+
+            public static bool operator !=(RECT r1, RECT r2)
+            {
+                return !r1.Equals(r2);
+            }
+
+            public bool Equals(RECT r)
+            {
+                return r.Left == Left && r.Top == Top && r.Right == Right && r.Bottom == Bottom;
+            }
+
+            public override bool Equals(object obj)
+            {
+                if (obj is RECT)
+                    return Equals((RECT)obj);
+                else if (obj is Rectangle)
+                    return Equals(new RECT((Rectangle)obj));
+                return false;
+            }
+
+            public override int GetHashCode()
+            {
+                return ((Rectangle)this).GetHashCode();
+            }
+
+            public override string ToString()
+            {
+                return string.Format(CultureInfo.CurrentCulture, "{{Left={0},Top={1},Right={2},Bottom={3}}}", Left, Top, Right, Bottom);
+            }
+        }
 
         #endregion
 
@@ -663,6 +794,21 @@ namespace AgentInterface.Api.Win32
 
         [DllImport("user32.dll")]
         public static extern int DisplayConfigGetDeviceInfo(ref DisplayconfigTargetDeviceName deviceName);
+
+        [DllImport("user32.dll", SetLastError = false)]
+       public static extern IntPtr GetDesktopWindow();
+
+        [DllImport("user32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+       public static extern bool GetWindowRect(IntPtr hWnd, ref RECT lpRect);
+
+       public static Rectangle GetWindowRectangle()
+        {
+            RECT scBounds = new RECT();
+            GetWindowRect(GetDesktopWindow(), ref scBounds);
+            return scBounds;
+        }
+
 
         #endregion
     }

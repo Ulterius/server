@@ -107,8 +107,13 @@ namespace UlteriusServer.Api.Network.PacketHandlers
             }
         }
 
-        private string GetUsername()
-        {
+        private string GetUsername() { 
+        
+            var registryName = AppEnvironment.Setting("LastUsername");
+            if (!string.IsNullOrEmpty(registryName))
+            {
+                return registryName;
+            }
             var envName = Environment.UserName;
             //cheap work around
             if (envName.Equals("SYSTEM") && Tools.RunningPlatform() == Tools.Platform.Windows)
@@ -127,6 +132,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
             };
             _builder.WriteMessage(data);
         }
+
 
         #region
 

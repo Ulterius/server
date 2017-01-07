@@ -7,5 +7,8 @@
         public int BitsPerPixel { get; set; }
         public int Frequency { get; set; }
         public string Orientation { get; set; }
+        public int X { get; set; }
+
+        public int Y { get; set; }
     }
 }

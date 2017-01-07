@@ -80,8 +80,11 @@
     <SignManifests>false</SignManifests>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Api\Network\Messages\MessageResolver.cs" />
     <Compile Include="Api\Network\Messages\PacketLoader.cs" />
+    <Compile Include="Api\Network\Messages\RectangleConverter.cs" />
     <Compile Include="Api\Network\Models\FanInformation.cs" />
+    <Compile Include="Api\Network\Models\LoginInformation.cs" />
     <Compile Include="Api\Network\PacketHandlers\DisplayPacketHandler.cs" />
     <Compile Include="Api\Network\UlteriusAgentClient.cs" />
     <Compile Include="Api\Services\LocalSystem\Daemons\JobModel.cs" />
@@ -90,9 +93,6 @@
     <Compile Include="Api\Services\LocalSystem\Daemons\CronJob.cs" />
     <Compile Include="Api\Services\LocalSystem\Daemons\CronSchedule.cs" />
     <Compile Include="Api\Services\LocalSystem\CronJobService.cs" />
-    <Compile Include="Api\Services\ScreenShare\ClipboardNotifications.cs" />
-    <Compile Include="Api\Services\ScreenShare\ScreenData.cs" />
-    <Compile Include="Api\Services\ScreenShare\ScreenModel.cs" />
     <Compile Include="Api\Services\Update\UpdateService.cs" />
     <Compile Include="Api\Win32\Desktop.cs" />
     <Compile Include="Api\Win32\Gdi.cs" />
@@ -102,6 +102,7 @@
     <Compile Include="Api\Network\Messages\Message.cs" />
     <Compile Include="Api\Network\Messages\MessageQueueManager.cs" />
     <Compile Include="Api\Services\LocalSystem\FileSearchService.cs" />
+    <Compile Include="Api\Win32\WindowsIdentityImpersonator.cs" />
     <Compile Include="Forms\Utilities\AboutBox.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -342,9 +343,6 @@
     <Reference Include="Open.Nat, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f22a6a4582336c76, processorArchitecture=MSIL">
       <HintPath>..\packages\Open.NAT.2.1.0.0\lib\net45\Open.Nat.dll</HintPath>
       <Private>True</Private>
-    </Reference>
-    <Reference Include="OpenHardwareMonitorLib">
-      <HintPath>..\references\OpenHardwareMonitorLib.dll</HintPath>
     </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="System" />

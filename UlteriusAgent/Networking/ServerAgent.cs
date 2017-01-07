@@ -1,4 +1,6 @@
-﻿using System;
+﻿#region
+
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -9,43 +11,22 @@ using System.ServiceModel;
 using System.Windows.Forms;
 using AgentInterface;
 using AgentInterface.Api.Models;
+using AgentInterface.Api.ScreenShare;
+using AgentInterface.Api.System;
 using AgentInterface.Api.Win32;
 using InputManager;
-using OpenHardwareMonitor.Hardware;
 using UlteriusAgent.Api;
+
+#endregion
 
 namespace UlteriusAgent.Networking
 {
     [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single)]
     public class ServerAgent : ITUlteriusContract
     {
+        private string _lastDesktop;
+        private Desktop _lastDesktopInput;
 
-
-        private  byte[] ImageToByte(Image img, bool convertToJpeg = false)
-        {
-            using (var stream = new MemoryStream())
-            {
-                img.Save(stream, convertToJpeg ? ImageFormat.Jpeg : ImageFormat.Bmp);
-                return stream.ToArray();
-            }
-        }
-
-
-        private  Bitmap CaptureDesktop()
-        {
-            var desktopBmp = new Bitmap(
-                Screen.PrimaryScreen.Bounds.Width,
-                Screen.PrimaryScreen.Bounds.Height);
-
-            var g = Graphics.FromImage(desktopBmp);
-
-            g.CopyFromScreen(0, 0, 0, 0,
-                new Size(
-                    Screen.PrimaryScreen.Bounds.Width,
-                    Screen.PrimaryScreen.Bounds.Height));
-            g.Dispose();
-            return desktopBmp;
-        }
 
         public ServerAgent()
         {
@@ -67,47 +48,174 @@ namespace UlteriusAgent.Networking
                 _lastDesktopInput.Close();
             }
         }
-        private string _lastDesktop;
-        private Desktop _lastDesktopInput;
 
-        public byte[] GetCleanFrame()
+        public FrameInformation GetCleanFrame()
         {
             HandleDesktop();
             var setCurrent = Desktop.SetCurrent(_lastDesktopInput);
-            if (!setCurrent) return null;
-            var image = CaptureDesktop();
-            return image == null ? new byte[0] : ImageToByte(image, true);
+            return !setCurrent ? null : new FrameInformation {ScreenImage = ScreenData.CaptureScreen()};
         }
 
-        public byte[] GetFullFrame()
+        public FrameInformation GetFullFrame()
         {
             HandleDesktop();
-            using (var memoryStream = new MemoryStream())
-            {
-                using (var writer = new BinaryWriter(memoryStream))
-                {
-                    var bounds = Screen.PrimaryScreen.Bounds;
-                    writer.Write(bounds.Bottom);
-                    writer.Write(bounds.Right);
-                    var setCurrent = Desktop.SetCurrent(_lastDesktopInput);
-                    if (!setCurrent) return null;
-                    var image = CaptureDesktop();
-                    if (image == null)
-                    {
-                        var bmp = new Bitmap(bounds.Width, bounds.Height);
-                        using (var gfx = Graphics.FromImage(bmp))
-                        using (var brush = new SolidBrush(Color.FromArgb(67, 75, 99)))
-                        {
-                            gfx.FillRectangle(brush, 0, 0, bounds.Width, bounds.Height);
-                        }
-                        image = bmp;
 
-                    }
-                    var imageBytes = ImageToByte(image, true);
-                    writer.Write(imageBytes.Length);
-                    writer.Write(imageBytes);
-                    return memoryStream.ToArray();
+            var monitors = Display.DisplayInformation();
+            Rectangle tempBounds;
+            if (monitors.Count > 0 && monitors.ElementAt(ScreenData.ActiveDisplay) != null)
+            {
+                var activeDisplay = monitors[ScreenData.ActiveDisplay];
+                tempBounds = new Rectangle
+                {
+                    X = activeDisplay.CurrentResolution.X,
+                    Y = activeDisplay.CurrentResolution.Y,
+                    Width = activeDisplay.CurrentResolution.Width,
+                    Height = activeDisplay.CurrentResolution.Height
+                };
+            }
+            else
+            {
+                tempBounds = Display.GetWindowRectangle();
+            }
+            var frameInfo = new FrameInformation
+            {
+                Bounds = tempBounds
+            };
+            var setCurrent = Desktop.SetCurrent(_lastDesktopInput);
+            if (!setCurrent) return null;
+            frameInfo.ScreenImage = ScreenData.CaptureScreen();
+            if (frameInfo.ScreenImage == null)
+            {
+                var bmp = new Bitmap(frameInfo.Bounds.Width, frameInfo.Bounds.Height);
+                using (var gfx = Graphics.FromImage(bmp))
+                using (var brush = new SolidBrush(Color.FromArgb(67, 75, 99)))
+                {
+                    gfx.FillRectangle(brush, 0, 0, frameInfo.Bounds.Width, frameInfo.Bounds.Height);
                 }
+                frameInfo.ScreenImage = bmp;
+            }
+            return frameInfo;
+        }
+
+        public bool KeepAlive()
+        {
+            return true;
+        }
+
+
+        public void HandleRightMouseDown()
+        {
+            var setCurrent = Desktop.SetCurrent(_lastDesktopInput);
+            if (setCurrent)
+            {
+                Mouse.ButtonDown(Mouse.MouseKeys.Right);
+            }
+        }
+
+        public void HandleRightMouseUp()
+        {
+            var setCurrent = Desktop.SetCurrent(_lastDesktopInput);
+            if (setCurrent)
+            {
+                Mouse.ButtonUp(Mouse.MouseKeys.Right);
+            }
+        }
+
+
+        public void MoveMouse(int x, int y)
+        {
+            var setCurrent = Desktop.SetCurrent(_lastDesktopInput);
+            if (setCurrent)
+            {
+              Cursor.Position = new Point(x, y);
+            }
+        }
+
+        public void MouseScroll(bool positive)
+        {
+            var direction = positive ? Mouse.ScrollDirection.Up : Mouse.ScrollDirection.Down;
+            Mouse.Scroll(direction);
+        }
+
+
+        public void HandleLeftMouseDown()
+        {
+            var setCurrent = Desktop.SetCurrent(_lastDesktopInput);
+            if (setCurrent)
+            {
+                Mouse.ButtonDown(Mouse.MouseKeys.Left);
+            }
+        }
+
+        public void HandleLeftMouseUp()
+        {
+            var setCurrent = Desktop.SetCurrent(_lastDesktopInput);
+            if (setCurrent)
+            {
+                Mouse.ButtonUp(Mouse.MouseKeys.Left);
+            }
+        }
+
+        public void HandleKeyDown(List<int> keyCodes)
+        {
+            foreach (var code in keyCodes)
+            {
+                var virtualKey = (Keys) code;
+                Keyboard.KeyDown(virtualKey);
+            }
+        }
+
+        public void HandleKeyUp(List<int> keyCodes)
+        {
+            foreach (var code in keyCodes)
+            {
+                var virtualKey = (Keys) code;
+                Keyboard.KeyUp(virtualKey);
+            }
+        }
+
+        public void SetActiveMonitor(int index)
+        {
+        }
+
+        public void HandleRightClick()
+        {
+            var setCurrent = Desktop.SetCurrent(_lastDesktopInput);
+            if (setCurrent)
+            {
+                Mouse.PressButton(Mouse.MouseKeys.Right);
+            }
+        }
+
+        [HandleProcessCorruptedStateExceptions]
+        public float GetGpuTemp(string gpuName)
+        {
+            return SystemData.GetGpuTemp(gpuName);
+        }
+
+        public List<DisplayInformation> GetDisplayInformation()
+        {
+            return Display.DisplayInformation();
+        }
+
+
+        public List<float> GetCpuTemps()
+        {
+            return SystemData.GetCpuTemps();
+        }
+
+        private Point Translate(Point point, Size from, Size to)
+        {
+            return new Point(point.X*to.Width/from.Width, point.Y*to.Height/from.Height);
+        }
+
+
+        private byte[] ImageToByte(Image img, bool convertToJpeg = false)
+        {
+            using (var stream = new MemoryStream())
+            {
+                img.Save(stream, convertToJpeg ? ImageFormat.Jpeg : ImageFormat.Bmp);
+                return stream.ToArray();
             }
         }
 
@@ -139,151 +247,6 @@ namespace UlteriusAgent.Networking
             {
                 inputDesktop.Close();
             }
-        }
-
-        public bool KeepAlive()
-        {
-            return true;
-        }
-
-      
-
-        public void HandleRightMouseDown()
-        {
-            var setCurrent = Desktop.SetCurrent(_lastDesktopInput);
-            if (setCurrent)
-            {
-                Mouse.ButtonDown(Mouse.MouseKeys.Right);
-            }
-        }
-
-        public void HandleRightMouseUp()
-        {
-            var setCurrent = Desktop.SetCurrent(_lastDesktopInput);
-            if (setCurrent)
-            {
-                Mouse.ButtonUp(Mouse.MouseKeys.Right);
-            }
-        }
-
-        public void MoveMouse(int x, int y)
-        {
-            var setCurrent = Desktop.SetCurrent(_lastDesktopInput);
-            if (setCurrent)
-            {
-                Cursor.Position = new Point(x, y);
-            }
-        }
-
-        public void MouseScroll(bool positive)
-        {
-            var direction = positive ? Mouse.ScrollDirection.Up : Mouse.ScrollDirection.Down;
-            Mouse.Scroll(direction);
-        }
-
-      
-
-        public void HandleLeftMouseDown()
-        {
-            var setCurrent = Desktop.SetCurrent(_lastDesktopInput);
-            if (setCurrent)
-            {
-                Mouse.ButtonDown(Mouse.MouseKeys.Left);
-            }
-        }
-
-        public void HandleLeftMouseUp()
-        {
-            var setCurrent = Desktop.SetCurrent(_lastDesktopInput);
-            if (setCurrent)
-            {
-                Mouse.ButtonUp(Mouse.MouseKeys.Left);
-            }
-        }
-
-        public void HandleKeyDown(List<int> keyCodes)
-        {
-            foreach (var code in keyCodes)
-            {
-                var virtualKey = (Keys)code;
-                Keyboard.KeyDown(virtualKey);
-            }
-        }
-
-        public void HandleKeyUp(List<int> keyCodes)
-        {
-            foreach (var code in keyCodes)
-            {
-                var virtualKey = (Keys)code;
-                Keyboard.KeyUp(virtualKey);
-            }
-        }
-
-        public void HandleRightClick()
-        {
-            var setCurrent = Desktop.SetCurrent(_lastDesktopInput);
-            if (setCurrent)
-            {
-                Mouse.PressButton(Mouse.MouseKeys.Right);
-            }
-        }
-        [HandleProcessCorruptedStateExceptions]
-        public float GetGpuTemp(string gpuName)
-        {
-            try
-            {
-                var myComputer = new Computer();
-                myComputer.Open();
-                //possible fix for gpu temps on laptops
-                myComputer.GPUEnabled = true;
-                float temp = -1;
-                foreach (var hardwareItem in myComputer.Hardware)
-                {
-                    hardwareItem.Update();
-                    switch (hardwareItem.HardwareType)
-                    {
-                        case HardwareType.GpuNvidia:
-                            foreach (
-                                var sensor in
-                                    hardwareItem.Sensors.Where(
-                                        sensor =>
-                                            sensor.SensorType == SensorType.Temperature &&
-                                            hardwareItem.Name.Contains(gpuName)))
-                            {
-                                if (sensor.Value != null)
-                                {
-                                    temp = (float)sensor.Value;
-                                }
-                            }
-                            break;
-                        case HardwareType.GpuAti:
-                            foreach (
-                                var sensor in
-                                    hardwareItem.Sensors.Where(
-                                        sensor =>
-                                            sensor.SensorType == SensorType.Temperature &&
-                                            hardwareItem.Name.Contains(gpuName)))
-                            {
-                                if (sensor.Value != null)
-                                {
-                                    temp = (float)sensor.Value;
-                                }
-                            }
-                            break;
-                    }
-                }
-                myComputer.Close();
-                return temp;
-            }
-            catch (System.AccessViolationException)
-            {
-                return -1;
-            }
-        }
-
-        public List<DisplayInformation> GetDisplayInformation()
-        {
-            return Display.DisplayInformation();
         }
     }
 }

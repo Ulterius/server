@@ -14,8 +14,9 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using AgentInterface.Api.Models;
-using Newtonsoft.Json;
-using OpenHardwareMonitor.Hardware;
+using AgentInterface.Api.ScreenShare;
+using AgentInterface.Api.System;
+using AgentInterface.Api.Win32;
 using UlteriusServer.Api.Network.Models;
 using UlteriusServer.Api.Services.Network;
 using UlteriusServer.Utilities.Drive;
@@ -40,6 +41,7 @@ namespace UlteriusServer.Api.Services.LocalSystem
 
             try
             {
+
                 SetNetworkInformation();
                 SetCpuInformation();
                 SetOperatingSystemInformation();
@@ -201,6 +203,14 @@ namespace UlteriusServer.Api.Services.LocalSystem
             if (!UlteriusApiServer.RunningAsService) return displayList;
             var displayInfo = UlteriusApiServer.AgentClient.GetDisplayInformation();
             return displayInfo ?? displayList;
+        }
+
+      
+        private List<float> GetCpuTemps()
+        {
+            return UlteriusApiServer.RunningAsService
+                ? UlteriusApiServer.AgentClient.GetCpuTemps()
+                : SystemData.GetCpuTemps();
         }
 
 
@@ -572,37 +582,7 @@ namespace UlteriusServer.Api.Services.LocalSystem
         }
 
 
-        public List<float> GetCpuTemps()
-        {
-            var myComputer = new Computer();
-            myComputer.Open();
-            myComputer.CPUEnabled = true;
-            var tempTemps = new List<float>();
-            var procCount = Environment.ProcessorCount;
-            for (var i = 0; i < procCount; i++)
-            {
-                tempTemps.Add(-1);
-            }
-            try
-            {
-                var temps = (from hardwareItem in myComputer.Hardware
-                    where hardwareItem.HardwareType == HardwareType.CPU
-                    from sensor in hardwareItem.Sensors
-                    where sensor.SensorType == SensorType.Temperature
-                    let value = sensor.Value
-                    where value != null
-                    where value != null
-                    select (float) value).ToList();
-                if (temps.Count != 0) return temps;
-                myComputer.Close();
-                return tempTemps;
-            }
-            catch (Exception)
-            {
-                myComputer.Close();
-                return tempTemps;
-            }
-        }
+      
 
 
         [DllImport("kernel32")]

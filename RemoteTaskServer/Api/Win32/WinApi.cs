@@ -4,6 +4,7 @@ using System;
 using System.Linq;
 using System.Management;
 using System.Runtime.InteropServices;
+using System.Security.Principal;
 using System.Windows.Forms;
 using System.Windows.Input;
 using FILETIME = System.Runtime.InteropServices.ComTypes.FILETIME;
@@ -28,6 +29,90 @@ namespace UlteriusServer.Api.Win32
         static extern bool GlobalUnlock(IntPtr hMem);
 
         const uint CF_UNICODETEXT = 13;
+        private static KeyStates GetKeyState(Keys key)
+        {
+            var state = KeyStates.None;
+
+            var retVal = GetKeyState((int)key);
+
+            //If the high-order bit is 1, the key is down
+            //otherwise, it is up.
+            if ((retVal & 0x8000) == 0x8000)
+                state |= KeyStates.Down;
+
+            //If the low-order bit is 1, the key is toggled.
+            if ((retVal & 1) == 1)
+                state |= KeyStates.Toggled;
+
+            return state;
+        }
+
+        public static bool IsAdministratorByToken(WindowsIdentity identity)
+        {
+            WindowsPrincipal principal = new WindowsPrincipal(identity);
+
+            // Check if this user has the Administrator role. If they do, return immediately.
+            // If UAC is on, and the process is not elevated, then this will actually return false.
+            if (principal.IsInRole(WindowsBuiltInRole.Administrator))
+            {
+                return true;
+            }
+
+            // If we're not running in Vista onwards, we don't have to worry about checking for UAC.
+            if (Environment.OSVersion.Platform != PlatformID.Win32NT || Environment.OSVersion.Version.Major < 6)
+            {
+                // Operating system does not support UAC; skipping elevation check.
+                return false;
+            }
+
+            int tokenInfLength = Marshal.SizeOf(typeof(int));
+            IntPtr tokenInformation = Marshal.AllocHGlobal(tokenInfLength);
+
+            try
+            {
+                IntPtr token = identity.Token;
+                Boolean result = WinApi.GetTokenInformation(token, WinApi.TokenInformationClass.TokenElevationType, tokenInformation, tokenInfLength, out tokenInfLength);
+
+                if (!result)
+                {
+                    Exception exception = Marshal.GetExceptionForHR(Marshal.GetHRForLastWin32Error());
+                    throw new InvalidOperationException("Couldn't get token information", exception);
+                }
+
+                WinApi.TokenElevationType elevationType = (WinApi.TokenElevationType)Marshal.ReadInt32(tokenInformation);
+
+                switch (elevationType)
+                {
+                    case WinApi.TokenElevationType.TokenElevationTypeDefault:
+                        // TokenElevationTypeDefault - User is not using a split token, so they cannot elevate.
+                        return false;
+
+                    case WinApi.TokenElevationType.TokenElevationTypeFull:
+                        // TokenElevationTypeFull - User has a split token, and the process is running elevated. Assuming they're an administrator.
+                        return true;
+
+                    case WinApi.TokenElevationType.TokenElevationTypeLimited:
+                        // TokenElevationTypeLimited - User has a split token, but the process is not running elevated. Assuming they're an administrator.
+                        return true;
+
+                    default:
+                        // Unknown token elevation type.
+                        return false;
+                }
+            }
+            finally
+            {
+                if (tokenInformation != IntPtr.Zero)
+                {
+                    Marshal.FreeHGlobal(tokenInformation);
+                }
+            }
+        }
+
+        public static bool IsKeyDown(Keys key)
+        {
+            return KeyStates.Down == (GetKeyState(key) & KeyStates.Down);
+        }
 
         public static string GetText()
         {
@@ -535,8 +620,8 @@ namespace UlteriusServer.Api.Win32
             public uint Time;
             public IntPtr DwExtraInfo;
         }
-    
-    public class UsnRecord
+
+        public class UsnRecord
         {
             private const int FrOffset = 8;
             private const int PfrOffset = 16;
@@ -566,27 +651,55 @@ namespace UlteriusServer.Api.Win32
         [DllImport("user32.dll", CharSet = CharSet.Auto, ExactSpelling = true)]
         private static extern short GetKeyState(int keyCode);
 
-        private static KeyStates GetKeyState(Keys key)
+        [DllImport("advapi32.dll", SetLastError = true)]
+        public static extern bool GetTokenInformation(IntPtr tokenHandle, TokenInformationClass tokenInformationClass, IntPtr tokenInformation, int tokenInformationLength, out int returnLength);
+
+        /// <summary>
+        /// Passed to <see cref="GetTokenInformation"/> to specify what
+        /// information about the token to return.
+        /// </summary>
+        public enum TokenInformationClass
         {
-            var state = KeyStates.None;
-
-            var retVal = GetKeyState((int)key);
-
-            //If the high-order bit is 1, the key is down
-            //otherwise, it is up.
-            if ((retVal & 0x8000) == 0x8000)
-                state |= KeyStates.Down;
-
-            //If the low-order bit is 1, the key is toggled.
-            if ((retVal & 1) == 1)
-                state |= KeyStates.Toggled;
-
-            return state;
+            TokenUser = 1,
+            TokenGroups,
+            TokenPrivileges,
+            TokenOwner,
+            TokenPrimaryGroup,
+            TokenDefaultDacl,
+            TokenSource,
+            TokenType,
+            TokenImpersonationLevel,
+            TokenStatistics,
+            TokenRestrictedSids,
+            TokenSessionId,
+            TokenGroupsAndPrivileges,
+            TokenSessionReference,
+            TokenSandBoxInert,
+            TokenAuditPolicy,
+            TokenOrigin,
+            TokenElevationType,
+            TokenLinkedToken,
+            TokenElevation,
+            TokenHasRestrictions,
+            TokenAccessInformation,
+            TokenVirtualizationAllowed,
+            TokenVirtualizationEnabled,
+            TokenIntegrityLevel,
+            TokenUiAccess,
+            TokenMandatoryPolicy,
+            TokenLogonSid,
+            MaxTokenInfoClass
         }
 
-        public static bool IsKeyDown(Keys key)
+        /// <summary>
+        /// The elevation type for a user token.
+        /// </summary>
+        public enum TokenElevationType
         {
-            return KeyStates.Down == (GetKeyState(key) & KeyStates.Down);
+            TokenElevationTypeDefault = 1,
+            TokenElevationTypeFull,
+            TokenElevationTypeLimited
         }
+
     }
 }

@@ -100,7 +100,9 @@ namespace UlteriusServer.Api.Network
             ChangeDisplayResolution,
             RotateDisplay,
             SetPrimaryDisplay,
-            GetLogs
+            GetLogs,
+            GetAvailableMonitors,
+            SetActiveMonitor
         }
 
         #endregion

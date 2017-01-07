@@ -93,33 +93,53 @@ namespace UlteriusServer.Api.Network.PacketHandlers
 
         public void Login()
         {
-            var authenticated = false;
-            var connectionId = CookieManager.GetConnectionId(_client);
-            var password = _packet.Args[0].ToString();
-            authenticated = !string.IsNullOrEmpty(password) && AuthUtils.Authenticate(password);
-
-            AuthClient authClient;
-            UlteriusApiServer.AllClients.TryGetValue(connectionId, out authClient);
-            if (authClient != null)
+            try
             {
-                if (authClient.Authenticated)
+                var authenticated = false;
+                var connectionId = CookieManager.GetConnectionId(_client);
+                var username = _packet.Args[0].ToString();
+                var password = _packet.Args[1].ToString();
+                var loginInfo = AuthUtils.AuthWindows(username, password);
+                if (!loginInfo.LoggedIn)
                 {
-                    _builder.WriteMessage(new
-                    {
-                        authenticated,
-                        message = "Already logged in."
-                    });
-                    return;
+                    throw new Exception(loginInfo.Message);
                 }
-                authClient.Authenticated = authenticated;
-                UlteriusApiServer.AllClients[connectionId] = authClient;
+                if (loginInfo.LoggedIn && !loginInfo.IsAdmin)
+                {
+                    throw new Exception($"The account {username} is not a Windows administrator.");
+                }
+                authenticated = loginInfo.LoggedIn && loginInfo.IsAdmin;
+                AuthClient authClient;
+                UlteriusApiServer.AllClients.TryGetValue(connectionId, out authClient);
+                if (authClient != null)
+                {
+                    if (authClient.Authenticated)
+                    {
+                        throw new Exception("A login session is already active for this Ulterius ID");
+                    }
+                    authClient.Authenticated = authenticated;
+                    UlteriusApiServer.AllClients[connectionId] = authClient;
+                }
+                if (authenticated)
+                {
+                    AppEnvironment.Setting("LastUsername", username);
+                }
+                var authenticationData = new
+                {
+                    authenticated,
+                    message = authenticated ? "Login was successful" : "Login was unsuccessful"
+                };
+                _builder.WriteMessage(authenticationData);
             }
-            var authenticationData = new
+            catch (Exception ex)
             {
-                authenticated,
-                message = authenticated ? "Login was successful" : "Login was unsuccessful"
-            };
-            _builder.WriteMessage(authenticationData);
+                var authenticationData = new
+                {
+                    authenticated = false,
+                    message = ex.Message
+                };
+                _builder.WriteMessage(authenticationData);
+            }
         }
 
 
@@ -163,7 +183,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
             var exceptionList = new List<ExceptionModel>();
             if (Directory.Exists(logsPath))
             {
-                exceptionList = (from filePath in Directory.GetFiles(logsPath)
+                exceptionList = (from filePath in Directory.GetFiles(logsPath, "*.json")
                     let fileName = Path.GetFileName(filePath)?.Split(Convert.ToChar("_"))
                     select new ExceptionModel
                     {

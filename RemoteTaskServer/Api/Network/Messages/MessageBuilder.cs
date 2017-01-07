@@ -41,12 +41,14 @@ namespace UlteriusServer.Api.Network.Messages
  
             if (_client != null && data != null)
             {
+                JsonSerializerSettings settings = new JsonSerializerSettings {ContractResolver = new MessageResolver()};
+
                 var json = JsonConvert.SerializeObject(new
                 {
                     endpoint = Endpoint,
                     synckey,
                     results = data
-                });
+                }, settings);
                
 
                 try

@@ -112,9 +112,17 @@
 			"endPoint": "GetLogs",
 			"packetHandler": "ServerPacketHandler"
 		},
-		"checkversion": {
-			"endPoint": "CheckVersion",
-			"packetHandler": "ServerPacketHandler"
+    "checkversion": {
+      "endPoint": "CheckVersion",
+      "packetHandler": "ServerPacketHandler"
+    },
+    "getavailablemonitors": {
+      "endPoint": "GetAvailableMonitors",
+      "packetHandler": "ScreenSharePacketHandler"
+    },
+    	"setactivemonitor": {
+			"endPoint": "SetActiveMonitor",
+			"packetHandler": "ScreenSharePacketHandler"
 		},
 		"aeshandshake": {
 			"endPoint": "AesHandshake",

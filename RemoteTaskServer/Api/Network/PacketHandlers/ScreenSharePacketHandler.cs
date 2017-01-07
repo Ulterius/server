@@ -3,22 +3,22 @@
 using System;
 using System.Collections;
 using System.Drawing;
-using System.Drawing.Imaging;
 using System.Globalization;
-using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
+using AgentInterface.Api.Models;
+using AgentInterface.Api.ScreenShare;
+using AgentInterface.Api.Win32;
 using InputManager;
+using Newtonsoft.Json;
 using UlteriusServer.Api.Network.Messages;
-using UlteriusServer.Api.Services.ScreenShare;
 using UlteriusServer.Api.Win32;
 using UlteriusServer.Utilities.Settings;
 using UlteriusServer.WebSocketAPI.Authentication;
 using vtortola.WebSockets;
 using static UlteriusServer.Api.UlteriusApiServer;
-using Message = UlteriusServer.Api.Network.Messages.Message;
 using ScreenShareService = UlteriusServer.Api.Services.LocalSystem.ScreenShareService;
 
 #endregion
@@ -27,8 +27,6 @@ namespace UlteriusServer.Api.Network.PacketHandlers
 {
     internal class ScreenSharePacketHandler : PacketHandler
     {
-        private readonly Screen[] _screens = Screen.AllScreens;
-        private readonly ScreenShareService _shareService = UlteriusApiServer.ScreenShareService;
         private AuthClient _authClient;
         private MessageBuilder _builder;
         private WebSocket _client;
@@ -92,6 +90,38 @@ namespace UlteriusServer.Api.Network.PacketHandlers
         {
         }
 
+        public void GetAvailableMonitors()
+        {
+            var activeDisplays = RunningAsService ? AgentClient.GetDisplayInformation() : Display.DisplayInformation();
+            var selectedDisplay = ScreenData.ActiveDisplay;
+            var data = new
+            {
+                activeDisplays,
+                selectedDisplay
+            };
+            _builder.WriteMessage(data);
+        }
+
+        public void SetActiveMonitor()
+        {
+            if (_packet.Args.ElementAt(0) == null)
+            {
+                ScreenData.ActiveDisplay = 0;
+            }
+            ScreenData.ActiveDisplay = Convert.ToInt32(_packet.Args[0]);
+            var activeDisplays = RunningAsService ? AgentClient.GetDisplayInformation() : Display.DisplayInformation();
+            if (RunningAsService)
+            {
+                AgentClient.SetActiveMonitor(ScreenData.ActiveDisplay);
+            }
+            var data = new
+            {
+                selectedDisplay = ScreenData.ActiveDisplay,
+                resolutionInformation = activeDisplays[ScreenData.ActiveDisplay].CurrentResolution
+            };
+            _builder.WriteMessage(data);
+        }
+
         public void StartScreenShare()
         {
             try
@@ -131,15 +161,6 @@ namespace UlteriusServer.Api.Network.PacketHandlers
         }
 
 
-        public Bitmap GetImageFromByteArray(byte[] byteArray)
-        {
-            Bitmap newBitmap;
-            using (var memoryStream = new MemoryStream(byteArray))
-            using (var newImage = Image.FromStream(memoryStream))
-                newBitmap = new Bitmap(newImage);
-            return newBitmap;
-        }
-
         private void GetScreenAgentFrame()
         {
             try
@@ -160,10 +181,9 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                     try
                     {
                         var cleanFrame = AgentClient.GetCleanFrame();
-                        if (cleanFrame != null && cleanFrame.Length > 1)
+                        if (cleanFrame?.ScreenImage != null)
                         {
-                            var image = GetImageFromByteArray(cleanFrame);
-                            using (var screenData = ScreenData.LocalAgentScreen(image))
+                            using (var screenData = ScreenData.LocalAgentScreen(cleanFrame.ScreenImage))
                             {
                                 if (screenData.ScreenBitmap != null && screenData.Rectangle != Rectangle.Empty)
                                 {
@@ -209,7 +229,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                 fps++;
                 try
                 {
-                    using (var image = ScreenData.LocalScreen())
+                    using (var image = ScreenData.LocalAgentScreen(ScreenData.CaptureScreen()))
                     {
                         if (image != null && image.Rectangle != Rectangle.Empty)
                         {
@@ -252,7 +272,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                 case PacketManager.EndPoints.CtrlAltDel:
                     HandleCtrlAltDel();
                     break;
-                case PacketManager.EndPoints.MouseScroll:             
+                case PacketManager.EndPoints.MouseScroll:
                     HandleScroll();
                     break;
                 case PacketManager.EndPoints.LeftDblClick:
@@ -282,6 +302,9 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                 case PacketManager.EndPoints.RightClick:
                     HandleRightClick();
                     break;
+                case PacketManager.EndPoints.SetActiveMonitor:
+                    SetActiveMonitor();
+                    break;
                 case PacketManager.EndPoints.MouseMove:
                     HandleMoveMouse();
                     break;
@@ -290,6 +313,9 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                     break;
                 case PacketManager.EndPoints.StartScreenShare:
                     StartScreenShare();
+                    break;
+                case PacketManager.EndPoints.GetAvailableMonitors:
+                    GetAvailableMonitors();
                     break;
                 case PacketManager.EndPoints.StopScreenShare:
                     StopScreenShare();
@@ -301,8 +327,6 @@ namespace UlteriusServer.Api.Network.PacketHandlers
         {
             SendSAS(false);
         }
-
-       
 
         private void RightUp()
         {
@@ -335,27 +359,28 @@ namespace UlteriusServer.Api.Network.PacketHandlers
             try
             {
                 var fullFrameData = AgentClient.GetFullFrame();
-                if (fullFrameData == null || fullFrameData.Length <= 1)
-                    throw new InvalidOperationException("Frame was null");
-                using (var ms = new MemoryStream(fullFrameData))
-                using (var memoryReader = new BinaryReader(ms))
+                if (fullFrameData?.ScreenImage == null) throw new InvalidOperationException("Frame was null");
+                var bounds = fullFrameData.Bounds;
+                var image = ScreenData.ImageToByteArray(fullFrameData.ScreenImage);
+                var frameData = new
                 {
-                    var bottom = memoryReader.ReadInt32();
-                    var right = memoryReader.ReadInt32();
-                    var imageLength = memoryReader.ReadInt32();
-                    var image = memoryReader.ReadBytes(imageLength);
-                    var screenBounds = new
+                    screenBounds = new
                     {
-                        bottom,
-                        right
-                    };
-                    var frameData = new
-                    {
-                        screenBounds,
-                        frameData = image.Select(b => (int) b).ToArray()
-                    };
-                    _builder.WriteMessage(frameData);
-                }
+                        top = bounds.Top,
+                        bottom = bounds.Bottom,
+                        left = bounds.Left,
+                        right = bounds.Right,
+                        height = bounds.Height,
+                        width = bounds.Width,
+                        x = bounds.X,
+                        y = bounds.Y,
+                        empty = bounds.IsEmpty,
+                        location = bounds.Location,
+                        size = bounds.Size
+                    },
+                    frameData = image.Select(b => (int) b).ToArray()
+                };
+                _builder.WriteMessage(frameData);
             }
             catch (Exception ex)
             {
@@ -371,35 +396,46 @@ namespace UlteriusServer.Api.Network.PacketHandlers
 
         private void HandleFullFrame()
         {
-            using (var ms = new MemoryStream())
+            using (var grab = ScreenData.CaptureScreen())
             {
-                using (var grab = ScreenData.CaptureDesktop())
+                var imgData = ScreenData.ImageToByteArray(grab);
+                var monitors = Display.DisplayInformation();
+                Rectangle bounds;
+                if (monitors.Count > 0 && monitors.ElementAt(ScreenData.ActiveDisplay) != null)
                 {
-                    grab.Save(ms, ImageFormat.Jpeg);
-                    var imgData = ms.ToArray();
-
-                    var bounds = Screen.PrimaryScreen.Bounds;
-                    var screenBounds = new
+                    var activeDisplay = monitors[ScreenData.ActiveDisplay];
+                    bounds = new Rectangle
                     {
-                        top = bounds.Top,
-                        bottom = bounds.Bottom,
-                        left = bounds.Left,
-                        right = bounds.Right,
-                        height = bounds.Height,
-                        width = bounds.Width,
-                        x = bounds.X,
-                        y = bounds.Y,
-                        empty = bounds.IsEmpty,
-                        location = bounds.Location,
-                        size = bounds.Size
+                        X = activeDisplay.CurrentResolution.X,
+                        Y = activeDisplay.CurrentResolution.Y,
+                        Width = activeDisplay.CurrentResolution.Width,
+                        Height = activeDisplay.CurrentResolution.Height
                     };
-                    var frameData = new
-                    {
-                        screenBounds,
-                        frameData = imgData.Select(b => (int) b).ToArray()
-                    };
-                    _builder.WriteMessage(frameData);
                 }
+                else
+                {
+                    bounds = Display.GetWindowRectangle();
+                }
+                var screenBounds = new
+                {
+                    top = bounds.Top,
+                    bottom = bounds.Bottom,
+                    left = bounds.Left,
+                    right = bounds.Right,
+                    height = bounds.Height,
+                    width = bounds.Width,
+                    x = bounds.X,
+                    y = bounds.Y,
+                    empty = bounds.IsEmpty,
+                    location = bounds.Location,
+                    size = bounds.Size
+                };
+                var frameData = new
+                {
+                    screenBounds,
+                    frameData = imgData.Select(b => (int) b).ToArray()
+                };
+                _builder.WriteMessage(frameData);
             }
         }
 
@@ -422,11 +458,10 @@ namespace UlteriusServer.Api.Network.PacketHandlers
             {
                 foreach (var code in codes)
                 {
-                    var virtualKey = (Keys)code;
+                    var virtualKey = (Keys) code;
                     Keyboard.KeyUp(virtualKey);
                 }
             }
-            
         }
 
 
@@ -453,7 +488,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
             {
                 foreach (var code in codes)
                 {
-                    var virtualKey = (Keys)code;
+                    var virtualKey = (Keys) code;
                     Keyboard.KeyDown(virtualKey);
                 }
             }
@@ -474,7 +509,10 @@ namespace UlteriusServer.Api.Network.PacketHandlers
             {
                 Mouse.Scroll(direction);
             }
-           
+        }
+        private static Point Translate(Point point, Size from, Size to)
+        {
+            return new Point((point.X * to.Width) / from.Width, (point.Y * to.Height) / from.Height);
         }
 
         private void HandleMoveMouse()
@@ -493,6 +531,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                     Cursor.Position = new Point(x, y);
                 }
             }
+            
             catch
             {
                 Console.WriteLine("Error moving mouse");
@@ -511,8 +550,6 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                 {
                     Mouse.PressButton(Mouse.MouseKeys.Right);
                 }
-
-               
             }
         }
 
@@ -528,7 +565,6 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                 {
                     Mouse.ButtonUp(Mouse.MouseKeys.Left);
                 }
-               
             }
         }
 
@@ -547,4 +583,6 @@ namespace UlteriusServer.Api.Network.PacketHandlers
             }
         }
     }
+
+  
 }

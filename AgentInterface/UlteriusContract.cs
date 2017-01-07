@@ -13,10 +13,10 @@ namespace AgentInterface
     {
 
         [OperationContract]
-        byte[] GetCleanFrame();
+        FrameInformation GetCleanFrame();
 
         [OperationContract]
-        byte[] GetFullFrame();
+        FrameInformation GetFullFrame();
 
         [OperationContract]
         bool KeepAlive();
@@ -47,6 +47,10 @@ namespace AgentInterface
         [OperationContract(IsOneWay = true)]
         void HandleKeyUp(List<int> keyCodes);
 
+
+        [OperationContract(IsOneWay = true)]
+        void SetActiveMonitor(int index);
+
         [OperationContract(IsOneWay = true)]
         void HandleRightClick();
 
@@ -55,5 +59,12 @@ namespace AgentInterface
 
         [OperationContract]
         List<DisplayInformation> GetDisplayInformation();
+
+
+     
+
+        [OperationContract]
+        List<float> GetCpuTemps();
+      
     }
 }

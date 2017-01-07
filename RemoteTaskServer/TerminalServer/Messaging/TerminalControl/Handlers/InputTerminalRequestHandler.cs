@@ -4,6 +4,7 @@ using System;
 using UlteriusServer.TerminalServer.Infrastructure;
 using UlteriusServer.TerminalServer.Messaging.TerminalControl.Requests;
 using UlteriusServer.TerminalServer.Session;
+using UlteriusServer.Utilities;
 using UlteriusServer.Utilities.Security;
 
 #endregion
@@ -67,16 +68,16 @@ namespace UlteriusServer.TerminalServer.Messaging.TerminalControl.Handlers
 
         private bool Login(string password)
         {
-            var code = 3;
             if (string.IsNullOrEmpty(password))
             {
-                code = INVALID_PASSWORD;
+                return false;
             }
-
-            code = AuthUtils.Authenticate(password) ? 2 : 3;
-
-            var authenticated = code == AUTHENTICATED;
-            return authenticated;
+            if (string.IsNullOrEmpty(AppEnvironment.Setting("LastUsername")))
+            {
+                return false;
+            }
+            var response = AuthUtils.AuthWindows(AppEnvironment.Setting("LastUsername"), password);
+            return response.IsAdmin && response.LoggedIn;
         }
     }
 }

@@ -2,10 +2,14 @@
 
 using System;
 using System.Diagnostics;
+using System.DirectoryServices;
 using System.DirectoryServices.AccountManagement;
 using System.DirectoryServices.ActiveDirectory;
 using System.IO;
 using System.Management;
+using System.Security.Principal;
+using System.Text;
+using UlteriusServer.Api.Network.Models;
 using UlteriusServer.Api.Win32;
 
 #endregion
@@ -15,20 +19,7 @@ namespace UlteriusServer.Utilities.Security
     public static class AuthUtils
     {
 
-        public static bool Authenticate(string password)
-        {
-            switch (Tools.RunningPlatform())
-            {
-                case Tools.Platform.Linux:
-                    return false;
-                case Tools.Platform.Mac:
-                    return AuthMacOs(password);
-                case Tools.Platform.Windows:
-                    return AuthWindows(password);
-                default:
-                    return false;
-            }
-        }
+      
         private static bool AuthMacOs(string password)
         {
             try
@@ -64,40 +55,38 @@ namespace UlteriusServer.Utilities.Security
             }
         }
 
-
-        
-        private static bool AuthWindows(string password)
+        public static LoginInformation AuthWindows(string username, string password)
         {
-            var authenticated = false;
-            var envName = Tools.GetUsernameAsService();
-           
-            var username = Environment.UserDomainName + "\\" + envName;
-            //this will fix most domain logins, try first
-
-            using (var context = new PrincipalContext(ContextType.Machine))
+            var info = new LoginInformation();
+            try
             {
-                authenticated = context.ValidateCredentials(username, password);
-            }
-            //lets try a controller 
-            if (!authenticated)
-            {
-                try
+                
+                var domainName = Environment.UserDomainName;
+                if (username.Contains("\\"))
                 {
-                  
-                    var domainContext = new DirectoryContext(DirectoryContextType.Domain, Environment.UserDomainName,
-                        username, password);
-
-                    var domain = Domain.GetDomain(domainContext);
-                    var controller = domain.FindDomainController();
-                    //controller logged in if we didn't throw.
-                    authenticated = true;
+                    var splitName = username.Split('\\');
+                    domainName = splitName[0];
+                    username = splitName[1];
                 }
-                catch (Exception)
+                using (var wim = new WindowsIdentityImpersonator(domainName, username, password))
                 {
-                    authenticated = false;
+                    wim.BeginImpersonate();
+                    {
+                        info.IsAdmin = WinApi.IsAdministratorByToken(WindowsIdentity.GetCurrent());
+                        info.LoggedIn = true;
+                        info.Message = $"Logged in successfully as {username}";
+                    }
+                    wim.EndImpersonate();
                 }
             }
-            return authenticated;
+            catch (Exception ex)
+            {
+                info.IsAdmin = false;
+                info.LoggedIn = false;
+                info.Message = ex.Message;
+               
+            }
+            return info;
         }
     }
 }

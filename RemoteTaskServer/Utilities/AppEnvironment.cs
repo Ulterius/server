@@ -78,12 +78,10 @@ namespace UlteriusServer.Utilities
                 catch
                 {
                     var key = Application.UserAppDataRegistry;
-                    if (key != null)
-                    {
-                        var sKeyToUse = key.ToString().Replace("HKEY_CURRENT_USER\\", "");
-                        sKeyToUse = sKeyToUse.Substring(0, sKeyToUse.LastIndexOf("\\", StringComparison.Ordinal));
-                        key = Registry.CurrentUser.OpenSubKey(sKeyToUse, true);
-                    }
+                    if (key == null) return key;
+                    var sKeyToUse = key.ToString().Replace("HKEY_CURRENT_USER\\", "");
+                    sKeyToUse = sKeyToUse.Substring(0, sKeyToUse.LastIndexOf("\\", StringComparison.Ordinal));
+                    key = Registry.CurrentUser.OpenSubKey(sKeyToUse, true);
                     return key;
                 }
             }
@@ -122,23 +120,6 @@ namespace UlteriusServer.Utilities
                 // ignored
             }
         }
-
-        // Code commented (but not removed) by psouza4 2015/01/02: there were no references to this method, so no need to compile it and bloat the software.
-        //public static string SettingValue(string sAppKey, string sDefault)
-        //{
-        //    try
-        //    {
-        //        string s = AppEnvironment.Setting(sAppKey);
-        //
-        //        if (string.IsNullOrEmpty(s))
-        //            return sDefault;
-        //
-        //        return s;
-        //    }
-        //    catch { }
-        //
-        //    return sDefault;
-        //}
 
         public static bool SettingValue(string sAppKey, bool bDefault)
         {

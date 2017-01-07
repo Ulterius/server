@@ -4,7 +4,7 @@ using System;
 using System.Linq;
 using System.Management;
 using System.Runtime.ExceptionServices;
-using OpenHardwareMonitor.Hardware;
+using AgentInterface.Api.System;
 using UlteriusServer.Api.Network.Messages;
 using UlteriusServer.Api.Network.Models;
 using UlteriusServer.WebSocketAPI.Authentication;
@@ -55,68 +55,11 @@ namespace UlteriusServer.Api.Network.PacketHandlers
         private float? GetGpuTemp(string gpuName)
         {
 
-            return UlteriusApiServer.RunningAsService ? GetServiceTemp(gpuName) : GetLocalTemp(gpuName);
-        
-        }
-        [HandleProcessCorruptedStateExceptions]
-        private float? GetLocalTemp(string gpuName)
-        {
-            try
-            {
-                var myComputer = new Computer();
-                myComputer.Open();
-                //possible fix for gpu temps on laptops
-                myComputer.GPUEnabled = true;
-                float temp = -1;
-                foreach (var hardwareItem in myComputer.Hardware)
-                {
-                    hardwareItem.Update();
-                    switch (hardwareItem.HardwareType)
-                    {
-                        case HardwareType.GpuNvidia:
-                            foreach (
-                                var sensor in
-                                    hardwareItem.Sensors.Where(
-                                        sensor =>
-                                            sensor.SensorType == SensorType.Temperature &&
-                                            hardwareItem.Name.Contains(gpuName)))
-                            {
-                                if (sensor.Value != null)
-                                {
-                                    temp = (float)sensor.Value;
-                                }
-                            }
-                            break;
-
-                        case HardwareType.GpuAti:
-                            foreach (
-                                var sensor in
-                                    hardwareItem.Sensors.Where(
-                                        sensor =>
-                                            sensor.SensorType == SensorType.Temperature &&
-                                            hardwareItem.Name.Contains(gpuName)))
-                            {
-                                if (sensor.Value != null)
-                                {
-                                    temp = (float)sensor.Value;
-                                }
-                            }
-                            break;
-                    }
-                }
-                myComputer.Close();
-                return temp;
-            }
-            catch (System.AccessViolationException)
-            {
-                return -1;
-            }
+            return UlteriusApiServer.RunningAsService
+                ? UlteriusApiServer.AgentClient.GetGpuTemp(gpuName)
+                : SystemData.GetGpuTemp(gpuName);
         }
 
-        private float? GetServiceTemp(string gpuName)
-        {
-            return UlteriusApiServer.AgentClient.GetGpuTemp(gpuName);
-        }
 
         public override void HandlePacket(Packet packet)
         {

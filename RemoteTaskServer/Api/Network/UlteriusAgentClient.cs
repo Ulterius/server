@@ -1,6 +1,5 @@
 ﻿#region
 
-using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net.Security;
@@ -26,7 +25,7 @@ namespace UlteriusServer.Api.Network
             {
                 Security = new NetNamedPipeSecurity
                 {
-                    Transport = { ProtectionLevel = ProtectionLevel.EncryptAndSign },
+                    Transport = {ProtectionLevel = ProtectionLevel.EncryptAndSign},
                     Mode = NetNamedPipeSecurityMode.Transport
                 },
                 MaxReceivedMessageSize = int.MaxValue
@@ -65,13 +64,14 @@ namespace UlteriusServer.Api.Network
             }
             catch (EndpointNotFoundException)
             {
-                Console.WriteLine("Agent is not found");
+                //
             }
             catch (CommunicationException)
             {
-                Console.WriteLine("Agent died");
+                //
             }
         }
+
         public bool ChannelActive()
         {
             try
@@ -80,17 +80,15 @@ namespace UlteriusServer.Api.Network
             }
             catch (EndpointNotFoundException)
             {
-                Console.WriteLine("Agent is not found");
                 return false;
             }
             catch (CommunicationException)
             {
-                Console.WriteLine("Agent died");
                 return false;
             }
         }
 
-        public byte[] GetCleanFrame()
+        public FrameInformation GetCleanFrame()
         {
             try
             {
@@ -98,17 +96,15 @@ namespace UlteriusServer.Api.Network
             }
             catch (EndpointNotFoundException)
             {
-                Console.WriteLine("Agent is not found");
                 return null;
             }
             catch (CommunicationException)
             {
-                Console.WriteLine("Agent died");
                 return null;
             }
         }
 
-        public byte[] GetFullFrame()
+        public FrameInformation GetFullFrame()
         {
             try
             {
@@ -116,12 +112,10 @@ namespace UlteriusServer.Api.Network
             }
             catch (EndpointNotFoundException)
             {
-                Console.WriteLine("Agent is not found");
                 return null;
             }
             catch (CommunicationException)
             {
-                Console.WriteLine("Agent died");
                 return null;
             }
         }
@@ -134,11 +128,9 @@ namespace UlteriusServer.Api.Network
             }
             catch (EndpointNotFoundException)
             {
-                Console.WriteLine("Agent is not found");
             }
             catch (CommunicationException)
             {
-                Console.WriteLine("Agent died");
             }
         }
 
@@ -150,11 +142,9 @@ namespace UlteriusServer.Api.Network
             }
             catch (EndpointNotFoundException)
             {
-                Console.WriteLine("Agent is not found");
             }
             catch (CommunicationException)
             {
-                Console.WriteLine("Agent died");
             }
         }
 
@@ -166,11 +156,9 @@ namespace UlteriusServer.Api.Network
             }
             catch (EndpointNotFoundException)
             {
-                Console.WriteLine("Agent is not found");
             }
             catch (CommunicationException)
             {
-                Console.WriteLine("Agent died");
             }
         }
 
@@ -182,11 +170,9 @@ namespace UlteriusServer.Api.Network
             }
             catch (EndpointNotFoundException)
             {
-                Console.WriteLine("Agent is not found");
             }
             catch (CommunicationException)
             {
-                Console.WriteLine("Agent died");
             }
         }
 
@@ -198,11 +184,9 @@ namespace UlteriusServer.Api.Network
             }
             catch (EndpointNotFoundException)
             {
-                Console.WriteLine("Agent is not found");
             }
             catch (CommunicationException)
             {
-                Console.WriteLine("Agent died");
             }
         }
 
@@ -214,11 +198,9 @@ namespace UlteriusServer.Api.Network
             }
             catch (EndpointNotFoundException)
             {
-                Console.WriteLine("Agent is not found");
             }
             catch (CommunicationException)
             {
-                Console.WriteLine("Agent died");
             }
         }
 
@@ -230,11 +212,9 @@ namespace UlteriusServer.Api.Network
             }
             catch (EndpointNotFoundException)
             {
-                Console.WriteLine("Agent is not found");
             }
             catch (CommunicationException)
             {
-                Console.WriteLine("Agent died");
             }
         }
 
@@ -246,11 +226,9 @@ namespace UlteriusServer.Api.Network
             }
             catch (EndpointNotFoundException)
             {
-                Console.WriteLine("Agent is not found");
             }
             catch (CommunicationException)
             {
-                Console.WriteLine("Agent died");
             }
         }
 
@@ -286,5 +264,39 @@ namespace UlteriusServer.Api.Network
                 return null;
             }
         }
+
+        public void SetActiveMonitor(int index)
+        {
+            try
+            {
+                Channel?.SetActiveMonitor(index);
+            }
+            catch (EndpointNotFoundException)
+            {
+                
+            }
+            catch (CommunicationException)
+            {
+               
+            }
+        }
+       
+        public List<float> GetCpuTemps()
+        {
+            try
+            {
+                return Channel?.GetCpuTemps();
+            }
+            catch (EndpointNotFoundException)
+            {
+                return null;
+            }
+            catch (CommunicationException)
+            {
+                return null;
+            }
+        }
+
+     
     }
 }
