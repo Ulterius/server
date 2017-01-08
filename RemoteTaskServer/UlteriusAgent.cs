@@ -2,12 +2,7 @@
 
 using System;
 using System.Diagnostics;
-using System.IO;
-using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
 using Topshelf;
-using UlteriusServer.Api.Win32;
 using UlteriusServer.Utilities;
 using UlteriusServer.Utilities.Usage;
 
@@ -17,12 +12,8 @@ namespace UlteriusServer
 {
     public class UlteriusAgent
     {
-        private static string lastDesktop = "";
-        private static Process process;
-        private long _CurrentSession;
 
-        private DateTime _lastDeskSwitch = DateTime.Now.AddDays(-10);
-        private int _LastSession;
+
         private Ulterius _ulterius;
 
         public void Start()

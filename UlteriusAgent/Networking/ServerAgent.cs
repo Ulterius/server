@@ -8,6 +8,8 @@ using System.IO;
 using System.Linq;
 using System.Runtime.ExceptionServices;
 using System.ServiceModel;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using AgentInterface;
 using AgentInterface.Api.Models;
@@ -59,7 +61,6 @@ namespace UlteriusAgent.Networking
         public FrameInformation GetFullFrame()
         {
             HandleDesktop();
-
             var monitors = Display.DisplayInformation();
             Rectangle tempBounds;
             if (monitors.Count > 0 && monitors.ElementAt(ScreenData.ActiveDisplay) != null)
@@ -127,7 +128,8 @@ namespace UlteriusAgent.Networking
             var setCurrent = Desktop.SetCurrent(_lastDesktopInput);
             if (setCurrent)
             {
-              Cursor.Position = new Point(x, y);
+              
+                Cursor.Position = new Point(x, y);
             }
         }
 
@@ -204,20 +206,9 @@ namespace UlteriusAgent.Networking
             return SystemData.GetCpuTemps();
         }
 
-        private Point Translate(Point point, Size from, Size to)
-        {
-            return new Point(point.X*to.Width/from.Width, point.Y*to.Height/from.Height);
-        }
+      
 
-
-        private byte[] ImageToByte(Image img, bool convertToJpeg = false)
-        {
-            using (var stream = new MemoryStream())
-            {
-                img.Save(stream, convertToJpeg ? ImageFormat.Jpeg : ImageFormat.Bmp);
-                return stream.ToArray();
-            }
-        }
+       
 
         private void HandleDesktop()
         {

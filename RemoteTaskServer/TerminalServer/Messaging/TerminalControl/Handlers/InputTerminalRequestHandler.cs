@@ -13,8 +13,7 @@ namespace UlteriusServer.TerminalServer.Messaging.TerminalControl.Handlers
 {
     public class InputTerminalRequestHandler : IRequestHandler<TerminalInputRequest>
     {
-        private static readonly byte INVALID_PASSWORD = 3;
-        private static readonly byte AUTHENTICATED = 2;
+
         private readonly ConnectionManager _connections;
         private readonly ILogger _log;
 

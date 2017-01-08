@@ -7,11 +7,13 @@ using System.Globalization;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using AgentInterface.Api.Models;
 using AgentInterface.Api.ScreenShare;
 using AgentInterface.Api.Win32;
 using InputManager;
+using Magnum;
 using Newtonsoft.Json;
 using UlteriusServer.Api.Network.Messages;
 using UlteriusServer.Api.Win32;
@@ -20,6 +22,7 @@ using UlteriusServer.WebSocketAPI.Authentication;
 using vtortola.WebSockets;
 using static UlteriusServer.Api.UlteriusApiServer;
 using ScreenShareService = UlteriusServer.Api.Services.LocalSystem.ScreenShareService;
+using SystemInformation = UlteriusServer.Api.Network.Models.SystemInformation;
 
 #endregion
 
@@ -92,7 +95,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
 
         public void GetAvailableMonitors()
         {
-            var activeDisplays = RunningAsService ? AgentClient.GetDisplayInformation() : Display.DisplayInformation();
+            var activeDisplays = SystemInformation.Displays;
             var selectedDisplay = ScreenData.ActiveDisplay;
             var data = new
             {
@@ -109,7 +112,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                 ScreenData.ActiveDisplay = 0;
             }
             ScreenData.ActiveDisplay = Convert.ToInt32(_packet.Args[0]);
-            var activeDisplays = RunningAsService ? AgentClient.GetDisplayInformation() : Display.DisplayInformation();
+            var activeDisplays = SystemInformation.Displays;
             if (RunningAsService)
             {
                 AgentClient.SetActiveMonitor(ScreenData.ActiveDisplay);
@@ -399,7 +402,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
             using (var grab = ScreenData.CaptureScreen())
             {
                 var imgData = ScreenData.ImageToByteArray(grab);
-                var monitors = Display.DisplayInformation();
+                var monitors = SystemInformation.Displays;
                 Rectangle bounds;
                 if (monitors.Count > 0 && monitors.ElementAt(ScreenData.ActiveDisplay) != null)
                 {
@@ -515,8 +518,9 @@ namespace UlteriusServer.Api.Network.PacketHandlers
             return new Point((point.X * to.Width) / from.Width, (point.Y * to.Height) / from.Height);
         }
 
-        private void HandleMoveMouse()
+        private  void HandleMoveMouse()
         {
+            
             if (!ScreenShareService.Streams.ContainsKey(_authClient)) return;
             try
             {

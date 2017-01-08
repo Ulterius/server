@@ -18,8 +18,7 @@ namespace AgentInterface.Api.Win32
     public class Display
     {
        
-        public static List<DisplayInformation> Current = new   List<DisplayInformation>();
-        private static DateTime? lastCurrentUpdate;
+       
         [Flags]
         public enum ChangeDisplaySettingsFlags : uint
         {
@@ -229,19 +228,8 @@ namespace AgentInterface.Api.Win32
         }
 
         public static List<DisplayInformation> DisplayInformation()
-        {
-            DateTime now = DateTime.UtcNow;
-            if (!lastCurrentUpdate.HasValue)
-            {
-                lastCurrentUpdate = now;
-                Current = UpdateDisplays();
-                return Current;
-            }
-           
-            TimeSpan difference = now.Subtract(lastCurrentUpdate.Value);
-            if (!(difference.TotalSeconds > 5)) return Current;
-            Current = UpdateDisplays();
-            return Current;
+        { 
+            return UpdateDisplays();
         }
 
         public static string SetPrimary(string deviceName)
@@ -719,11 +707,7 @@ namespace AgentInterface.Api.Win32
                 set { Right = value + Left; }
             }
 
-            public Point Location
-            {
-                get { return new Point(Left, Top); }
-                set { X = value.X; Y = value.Y; }
-            }
+            
 
             public Size Size
             {
@@ -776,7 +760,92 @@ namespace AgentInterface.Api.Win32
             }
         }
 
+        [StructLayout(LayoutKind.Sequential)]
+        public struct CURSORINFO
+        {
+            public Int32 cbSize;        // Specifies the size, in bytes, of the structure. 
+            public Int32 flags;         // Specifies the cursor state. This parameter can be one of the following values:
+            public IntPtr hCursor;          // Handle to the cursor. 
+            public POINT ptScreenPos;       // A POINT structure that receives the screen coordinates of the cursor. 
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct ICONINFO
+        {
+            public bool fIcon;         // Specifies whether this structure defines an icon or a cursor. A value of TRUE specifies 
+            public Int32 xHotspot;     // Specifies the x-coordinate of a cursor's hot spot. If this structure defines an icon, the hot 
+            public Int32 yHotspot;     // Specifies the y-coordinate of the cursor's hot spot. If this structure defines an icon, the hot 
+            public IntPtr hbmMask;     // (HBITMAP) Specifies the icon bitmask bitmap. If this structure defines a black and white icon, 
+            public IntPtr hbmColor;    // (HBITMAP) Handle to the icon color bitmap. This member can be optional if this 
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct POINT
+        {
+            public Int32 x;
+            public Int32 y;
+        }
+        public const int Width = 0;
+        public const int Height = 1;
+        public struct ScreenSize
+        {
+            public int Width;
+            public int Height;
+        }
+        public const Int32 CURSOR_SHOWING = 0x00000001;
+
+        [DllImport("user32.dll", EntryPoint = "GetDesktopWindow")]
+        public static extern IntPtr GetDesktopWindow();
+
+        [DllImport("user32.dll", EntryPoint = "GetDC")]
+        public static extern IntPtr GetDesktopContext(IntPtr ptr);
+
+        [DllImport("user32.dll", EntryPoint = "GetSystemMetrics")]
+        public static extern int GetSystemMetrics(int abc);
+
+        [DllImport("user32.dll", EntryPoint = "GetWindowDC")]
+        public static extern IntPtr GetWindowDesktopContext(Int32 ptr);
+
+        [DllImport("user32.dll", EntryPoint = "ReleaseDC")]
+        public static extern IntPtr ReleaseDesktopContext(IntPtr hWnd, IntPtr hDc);
+
+        [DllImport("user32.dll", EntryPoint = "GetCursorInfo")]
+        public static extern bool GetCursorInfo(out CursorInfo pci);
+
+        [DllImport("user32.dll", EntryPoint = "CopyIcon")]
+        public static extern IntPtr CopyIcon(IntPtr hIcon);
+
+        [DllImport("user32.dll", EntryPoint = "GetIconInfo")]
+        public static extern bool GetIconInfo(IntPtr hIcon, out IconInfo piconinfo);
+
+        [DllImport("user32.dll", EntryPoint = "DestroyIcon")]
+        public static extern bool DestroyIcon(IntPtr hIcon);
         #endregion
+        [StructLayout(LayoutKind.Sequential)]
+        public struct IconInfo
+        {
+            public bool IsIcon;         // Specifies whether this structure defines an icon or a cursor. A value of TRUE specifies 
+            public Int32 Xcoord;     // Specifies the x-coordinate of a cursor's hot spot. If this structure defines an icon, the hot 
+            public Int32 Ycoord;     // Specifies the y-coordinate of the cursor's hot spot. If this structure defines an icon, the hot 
+            public IntPtr Bitmask;     // (HBITMAP) Specifies the icon bitmask bitmap. If this structure defines a black and white icon, 
+            public IntPtr Color;    // (HBITMAP) Handle to the icon color bitmap. This member can be optional if this 
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct Point
+        {
+            public Int32 X;
+            public Int32 Y;
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct CursorInfo
+        {
+            public Int32 Size;        // Specifies the size, in bytes, of the structure. 
+            public Int32 State;         // Specifies the cursor state. This parameter can be one of the following values:
+            public IntPtr Handle;          // Handle to the cursor. 
+            public Point Coordinates;       // A POINT structure that receives the screen coordinates of the cursor. 
+        }
 
         #region DLL-Imports
 
@@ -795,9 +864,7 @@ namespace AgentInterface.Api.Win32
         [DllImport("user32.dll")]
         public static extern int DisplayConfigGetDeviceInfo(ref DisplayconfigTargetDeviceName deviceName);
 
-        [DllImport("user32.dll", SetLastError = false)]
-       public static extern IntPtr GetDesktopWindow();
-
+      
         [DllImport("user32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
        public static extern bool GetWindowRect(IntPtr hWnd, ref RECT lpRect);
@@ -809,7 +876,35 @@ namespace AgentInterface.Api.Win32
             return scBounds;
         }
 
+        public const int SRCCOPY = 13369376;
+
+        [DllImport("gdi32.dll", EntryPoint = "CreateDC")]
+        public static extern IntPtr CreateDesktopContext(IntPtr lpszDriver, string lpszDevice, IntPtr lpszOutput, IntPtr lpInitData);
+
+        [DllImport("gdi32.dll", EntryPoint = "DeleteDC")]
+        public static extern IntPtr DeleteDesktopContext(IntPtr hDc);
+
+        [DllImport("gdi32.dll", EntryPoint = "DeleteObject")]
+        public static extern IntPtr DeleteObject(IntPtr hDc);
+
+        [DllImport("gdi32.dll", EntryPoint = "BitBlt")]
+        public static extern bool BitBlt(IntPtr hdcDest, int xDest,
+                                         int yDest, int wDest,
+                                         int hDest, IntPtr hdcSource,
+                                         int xSrc, int ySrc, int rasterOp);
+
+        [DllImport("gdi32.dll", EntryPoint = "CreateCompatibleBitmap")]
+        public static extern IntPtr CreateCompatibleBitmap
+                                    (IntPtr hdc, int nWidth, int nHeight);
+
+        [DllImport("gdi32.dll", EntryPoint = "CreateCompatibleDC")]
+        public static extern IntPtr CreateCompatibleDesktopContext(IntPtr hdc);
+
+        [DllImport("gdi32.dll", EntryPoint = "SelectObject")]
+        public static extern IntPtr SelectObject(IntPtr hdc, IntPtr bmp);
 
         #endregion
     }
+
+    
 }

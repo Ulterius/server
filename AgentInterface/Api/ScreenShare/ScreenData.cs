@@ -9,19 +9,26 @@ using System.Linq;
 using System.Threading;
 using AgentInterface.Api.Models;
 using AgentInterface.Api.Win32;
+using Size = System.Drawing.Size;
 
 #endregion
 
 namespace AgentInterface.Api.ScreenShare
 {
-    public class ScreenData
+    public static class ScreenData
     {
         public static int ActiveDisplay = 0;
         public static Bitmap NewBitmap = new Bitmap(1, 1);
         public static Bitmap PrevBitmap;
+      
+    
+        static ScreenData()
+        {
+         
+        }
 
-
-        public int NumByteFullScreen { get; set; } = 1;
+      
+        public static int NumByteFullScreen { get; set; } = 1;
 
         public static byte[] PackScreenCaptureData(Bitmap image, Rectangle bounds)
         {
@@ -272,37 +279,14 @@ namespace AgentInterface.Api.ScreenShare
             {
                 if (PrevBitmap != null)
                 {
-                    if (PrevBitmap.Width != NewBitmap.Width ||
-                        PrevBitmap.Height != NewBitmap.Height ||
-                        PrevBitmap.PixelFormat != NewBitmap.PixelFormat)
-                    {
-                        // Not the same shape...can't do the search.
-                        //
-                        PrevBitmap = null;
-                        // Create a bounding rectangle.
-                        //
-                        screenModel.Rectangle = new Rectangle(0, 0, NewBitmap.Width, NewBitmap.Height);
-
-                        // Set the previous bitmap to the current to prepare
-                        //	for the next screen capture.
-                        //
-
-                        screenModel.ScreenBitmap = NewBitmap.Clone(screenModel.Rectangle,
-                            NewBitmap.PixelFormat);
-                        PrevBitmap = NewBitmap;
-                    }
-
                     screenModel.Rectangle = GetBoundingBoxForChanges(ref PrevBitmap, ref NewBitmap);
-
-                    if (screenModel.Rectangle != Rectangle.Empty)
-                    {
-                        // Get the minimum rectangular area
-                        //
-                        //diff = new Bitmap(bounds.Width, bounds.Height);
-                        screenModel.ScreenBitmap = NewBitmap.Clone(screenModel.Rectangle,
-                            NewBitmap.PixelFormat);
-                        PrevBitmap = NewBitmap;
-                    }
+                    if (screenModel.Rectangle == Rectangle.Empty) return screenModel;
+                    // Get the minimum rectangular area
+                    //
+                    //diff = new Bitmap(bounds.Width, bounds.Height);
+                    screenModel.ScreenBitmap = NewBitmap.Clone(screenModel.Rectangle,
+                        NewBitmap.PixelFormat);
+                    PrevBitmap = NewBitmap;
                 }
                 else
                 {
@@ -319,21 +303,21 @@ namespace AgentInterface.Api.ScreenShare
                     PrevBitmap = NewBitmap;
                 }
             }
-            GC.Collect();
-            GC.WaitForFullGCComplete();
             return screenModel;
         }
 
-     
 
-        public static bool ResolutionWatcherStarted = false;
+      
+
 
         public static Bitmap CaptureScreen()
         {
-            return CaptureScreen(ActiveDisplay);
+            
+            return CaptureActiveScreen(ActiveDisplay);
         }
+    
 
-        private static Bitmap CaptureScreen(int screenIndex)
+        private static Bitmap CaptureActiveScreen(int screenIndex)
         {
             var screens = Display.DisplayInformation();
             if (screens.Count == 0 || screens.ElementAtOrDefault(screenIndex) == null)
