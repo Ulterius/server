@@ -134,6 +134,8 @@ namespace UlteriusServer.Api.Services.LocalSystem
                     CpuInformation.L3Cache = (uint?) cpu["L3CacheSize"]*(ulong) 1024 ?? 0;
                     CpuInformation.Cores = (uint?) cpu["NumberOfCores"] ?? 0;
                     CpuInformation.Threads = (uint?) cpu["NumberOfLogicalProcessors"] ?? 0;
+                    CpuInformation.CurrentVoltage = (uint?)cpu["VoltageCaps"] ?? 0;
+                    CpuInformation.CurrentClockSpeed = (uint?)cpu["CurrentClockSpeed"] ?? 0;
                     CpuInformation.Name =
                         CpuInformation.Name
                             .Replace("(TM)", "™")

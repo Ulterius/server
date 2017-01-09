@@ -55,8 +55,13 @@
     <Compile Include="Api\Models\ResolutionInformation.cs" />
     <Compile Include="Api\ScreenShare\ScreenData.cs" />
     <Compile Include="Api\System\SystemData.cs" />
+    <Compile Include="Api\Win32\Desktop.cs" />
     <Compile Include="Api\Win32\Display.cs" />
+    <Compile Include="Api\Win32\ProcessStarter.cs" />
+    <Compile Include="Api\Win32\SessionInfo.cs" />
     <Compile Include="Api\Win32\Win32Exception.cs" />
+    <Compile Include="Api\Win32\WinApi.cs" />
+    <Compile Include="Api\Win32\WindowsIdentityImpersonator.cs" />
     <Compile Include="UlteriusContract.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -85,8 +90,7 @@
       <Using xmlns="http://schemas.microsoft.com/developer/msbuild/2003" Namespace="System" />
       <Using xmlns="http://schemas.microsoft.com/developer/msbuild/2003" Namespace="System.IO" />
       <Using xmlns="http://schemas.microsoft.com/developer/msbuild/2003" Namespace="System.Xml.Linq" />
-      <Code xmlns="http://schemas.microsoft.com/developer/msbuild/2003" Type="Fragment" Language="cs">
-<![CDATA[
+      <Code xmlns="http://schemas.microsoft.com/developer/msbuild/2003" Type="Fragment" Language="cs"><![CDATA[
 var config = XElement.Load(Config.ItemSpec).Elements("Costura").FirstOrDefault();
 
 if (config == null) return true;
@@ -105,8 +109,8 @@ var filesToCleanup = Files.Select(f => f.ItemSpec).Where(f => !excludedAssemblie
 
 foreach (var item in filesToCleanup)
   File.Delete(item);
-]]>
-      </Code></Task>
+]]></Code>
+    </Task>
   </UsingTask>
   <Target Name="CleanReferenceCopyLocalPaths" AfterTargets="AfterBuild;NonWinFodyTarget">
     <CosturaCleanup Config="FodyWeavers.xml" Files="@(ReferenceCopyLocalPaths->'$(OutDir)%(DestinationSubDirectory)%(Filename)%(Extension)')" />

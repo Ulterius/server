@@ -90,7 +90,7 @@ namespace UlteriusServer
             if (useWebCams)
             {
                 Console.WriteLine("Loading Webcams");
-                WebCamManager.LoadWebcams();
+                WebCamManager.LoadCameras();
             }
             if (useWebServer)
             {

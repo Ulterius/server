@@ -7,7 +7,7 @@ using System.Security;
 
 #endregion
 
-namespace UlteriusServer.Api.Win32
+namespace AgentInterface.Api.Win32
 {
     /// <summary>
     ///     Class that allows running applications with full admin rights. In

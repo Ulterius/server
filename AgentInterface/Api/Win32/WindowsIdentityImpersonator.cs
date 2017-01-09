@@ -1,16 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.ConstrainedExecution;
 using System.Runtime.InteropServices;
 using System.Security;
 using System.Security.Permissions;
 using System.Security.Principal;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Win32.SafeHandles;
 
-namespace UlteriusServer.Api.Win32
+namespace AgentInterface.Api.Win32
 {
     /// Impersonates a windows identity.
     /// Based on: http://msdn.microsoft.com/en-us/library/w070t6ka.aspx
@@ -29,7 +25,7 @@ namespace UlteriusServer.Api.Win32
             if (returnValue == false)
             {
                 throw new UnauthorizedAccessException("Could not login as " + domain + "\\" + username + ".",
-                    new System.ComponentModel.Win32Exception(Marshal.GetLastWin32Error()));
+                    new global::System.ComponentModel.Win32Exception(Marshal.GetLastWin32Error()));
             }
         }
 

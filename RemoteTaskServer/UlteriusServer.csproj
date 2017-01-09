@@ -94,15 +94,9 @@
     <Compile Include="Api\Services\LocalSystem\Daemons\CronSchedule.cs" />
     <Compile Include="Api\Services\LocalSystem\CronJobService.cs" />
     <Compile Include="Api\Services\Update\UpdateService.cs" />
-    <Compile Include="Api\Win32\Desktop.cs" />
-    <Compile Include="Api\Win32\Gdi.cs" />
-    <Compile Include="Api\Win32\ProcessStarter.cs" />
-    <Compile Include="Api\Win32\SessionInfo.cs" />
-    <Compile Include="Api\Win32\WinApi.cs" />
     <Compile Include="Api\Network\Messages\Message.cs" />
     <Compile Include="Api\Network\Messages\MessageQueueManager.cs" />
     <Compile Include="Api\Services\LocalSystem\FileSearchService.cs" />
-    <Compile Include="Api\Win32\WindowsIdentityImpersonator.cs" />
     <Compile Include="Forms\Utilities\AboutBox.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -126,6 +120,7 @@
     <Compile Include="Utilities\Security\AuthUtils.cs" />
     <Compile Include="Utilities\Settings\Config.cs" />
     <Compile Include="Utilities\Usage\HardwareSurvey.cs" />
+    <Compile Include="WebCams\WebCamManager.cs" />
     <Compile Include="WebSocketAPI\Authentication\AuthClient.cs" />
     <Compile Include="Forms\Utilities\UlteriusTray.cs" />
     <Compile Include="Api\Network\Messages\Packet.cs" />
@@ -191,7 +186,6 @@
     <Compile Include="Utilities\Security\Rsa.cs" />
     <Compile Include="Utilities\Files\FileTree.cs" />
     <Compile Include="Utilities\Trace.cs" />
-    <Compile Include="WebCams\WebCamManager.cs" />
     <Compile Include="WebServer\MultipartParser.cs" />
     <Compile Include="WebSocketAPI\Authentication\CookieManager.cs" />
     <Compile Include="WebSocketAPI\WebSocketEventListener.cs" />
@@ -254,12 +248,28 @@
     <Folder Include="Utilities\Files\Models\" />
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="AForge, Version=2.2.5.0, Culture=neutral, PublicKeyToken=c1db6ff4eaa06aeb, processorArchitecture=MSIL">
+      <HintPath>..\packages\AForge.2.2.5\lib\AForge.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="AForge.Imaging, Version=2.2.5.0, Culture=neutral, PublicKeyToken=ba8ddea9676ca48b, processorArchitecture=MSIL">
+      <HintPath>..\packages\AForge.Imaging.2.2.5\lib\AForge.Imaging.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="AForge.Math, Version=2.2.5.0, Culture=neutral, PublicKeyToken=abba2e25397ee8c9, processorArchitecture=MSIL">
+      <HintPath>..\packages\AForge.Math.2.2.5\lib\AForge.Math.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="AForge.Video, Version=2.2.5.0, Culture=neutral, PublicKeyToken=cbfb6e07d173c401, processorArchitecture=MSIL">
       <HintPath>..\packages\AForge.Video.2.2.5\lib\AForge.Video.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="AForge.Video.DirectShow, Version=2.2.5.0, Culture=neutral, PublicKeyToken=61ea4348d43881b7, processorArchitecture=MSIL">
       <HintPath>..\packages\AForge.Video.DirectShow.2.2.5\lib\AForge.Video.DirectShow.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="AForge.Vision, Version=2.2.5.0, Culture=neutral, PublicKeyToken=b612fa915eefaa06, processorArchitecture=MSIL">
+      <HintPath>..\packages\AForge.Vision.2.2.5\lib\AForge.Vision.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="AgentInterface">
@@ -276,8 +286,8 @@
     <Reference Include="InputManager">
       <HintPath>..\InputManager.dll</HintPath>
     </Reference>
-    <Reference Include="log4net, Version=1.2.15.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
-      <HintPath>..\packages\log4net.2.0.5\lib\net45-full\log4net.dll</HintPath>
+    <Reference Include="log4net, Version=2.0.7.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
+      <HintPath>..\packages\log4net.2.0.7\lib\net45-full\log4net.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Magnum, Version=2.1.3.0, Culture=neutral, PublicKeyToken=b800c4cfcdeea87b, processorArchitecture=MSIL">
@@ -309,7 +319,7 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\packages\Newtonsoft.Json.9.0.2-beta1\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Open.Nat, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f22a6a4582336c76, processorArchitecture=MSIL">

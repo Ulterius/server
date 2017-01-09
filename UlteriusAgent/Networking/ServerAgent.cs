@@ -17,7 +17,6 @@ using AgentInterface.Api.ScreenShare;
 using AgentInterface.Api.System;
 using AgentInterface.Api.Win32;
 using InputManager;
-using UlteriusAgent.Api;
 
 #endregion
 

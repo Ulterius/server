@@ -6,7 +6,6 @@ using System.Management;
 using UlteriusServer.Api.Network.Messages;
 using UlteriusServer.Api.Network.Models;
 using UlteriusServer.Api.Services.LocalSystem;
-using UlteriusServer.Api.Win32;
 using UlteriusServer.WebSocketAPI.Authentication;
 using vtortola.WebSockets;
 

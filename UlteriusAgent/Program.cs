@@ -26,25 +26,11 @@ namespace UlteriusAgent
 
         [DllImport("user32.dll")]
         private static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
-        private static bool SetLogging()
-        {
-            try
-            {
-                var filestream = new FileStream(Path.Combine(AppEnvironment.DataPath, "agent.log"), FileMode.Create);
-                var streamwriter = new StreamWriter(filestream, Encoding.UTF8) { AutoFlush = true };
-                Console.SetOut(streamwriter);
-                Console.SetError(streamwriter);
-                return true;
-            }
-            catch (Exception)
-            {
-                return false;
-            }
-        }
+     
 
         private static void Main(string[] args)
         {
-             SetLogging();
+           
             if (Environment.OSVersion.Version.Major >= 6)
             {
                 SetProcessDPIAware();

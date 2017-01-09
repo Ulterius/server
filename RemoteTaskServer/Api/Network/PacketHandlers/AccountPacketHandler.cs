@@ -8,7 +8,6 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
 using UlteriusServer.Api.Network.Messages;
-using UlteriusServer.Api.Win32;
 using UlteriusServer.Utilities;
 using UlteriusServer.WebSocketAPI.Authentication;
 using vtortola.WebSockets;
@@ -57,54 +56,11 @@ namespace UlteriusServer.Api.Network.PacketHandlers
             return strBase64;
         }
 
-        private string GetMacOsAvatar()
-        {
-            try
-            {
-                var username = Environment.UserName;
-                var process = new Process
-                {
-                    StartInfo = new ProcessStartInfo
-                    {
-                        WorkingDirectory = "/home",
-                        FileName = "dscl",
-                        Arguments = $". -read /Users/{username} Picture",
-                        UseShellExecute = false,
-                        RedirectStandardOutput = true
-                    }
-                };
-                process.Start();
-                while (!process.StandardOutput.EndOfStream)
-                {
-                    var line = process.StandardOutput.ReadLine();
-                    if (line == null) continue;
-                    var imagePath = line.Replace("Picture:", "").Trim();
-                    if (Path.HasExtension(imagePath))
-                    {
-                        return ImagetoBase64(Image.FromFile(imagePath));
-                    }
-                }
-            }
-            catch (Exception)
-            {
-                return null;
-            }
-            return null;
-        }
+    
 
         private string GetUserAvatar()
         {
-            switch (Tools.RunningPlatform())
-            {
-                case Tools.Platform.Linux:
-                    return null;
-                case Tools.Platform.Mac:
-                    return GetMacOsAvatar();
-                case Tools.Platform.Windows:
-                    return GetWindowsAvatar();
-                default:
-                    return null;
-            }
+           return  GetWindowsAvatar();
         }
 
         private string GetUsername() { 

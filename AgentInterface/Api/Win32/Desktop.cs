@@ -9,7 +9,7 @@ using System.Runtime.InteropServices;
 
 #endregion
 
-namespace UlteriusServer.Api.Win32
+namespace AgentInterface.Api.Win32
 {
     /// <summary>
     ///     Encapsulates the Desktop API.

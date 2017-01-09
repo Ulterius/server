@@ -16,7 +16,6 @@ using InputManager;
 using Magnum;
 using Newtonsoft.Json;
 using UlteriusServer.Api.Network.Messages;
-using UlteriusServer.Api.Win32;
 using UlteriusServer.Utilities.Settings;
 using UlteriusServer.WebSocketAPI.Authentication;
 using vtortola.WebSockets;

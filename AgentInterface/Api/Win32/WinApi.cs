@@ -1,8 +1,6 @@
 ﻿#region
 
 using System;
-using System.Linq;
-using System.Management;
 using System.Runtime.InteropServices;
 using System.Security.Principal;
 using System.Windows.Forms;
@@ -11,9 +9,9 @@ using FILETIME = System.Runtime.InteropServices.ComTypes.FILETIME;
 
 #endregion
 
-namespace UlteriusServer.Api.Win32
+namespace AgentInterface.Api.Win32
 {
-    internal class WinApi
+    public class WinApi
     {
         [DllImport("user32.dll")]
         static extern IntPtr GetClipboardData(uint uFormat);
@@ -137,30 +135,7 @@ namespace UlteriusServer.Api.Win32
             return data;
         }
 
-        public static string GetProcessOwner(int processId)
-        {
-            var query = "Select * From Win32_Process Where ProcessID = " + processId;
-            ManagementObjectCollection processList;
-
-            using (var searcher = new ManagementObjectSearcher(query))
-            {
-                processList = searcher.Get();
-            }
-
-            foreach (var mo in processList.OfType<ManagementObject>())
-            {
-                object[] argList = { string.Empty, string.Empty };
-                var returnVal = Convert.ToInt32(mo.InvokeMethod("GetOwner", argList));
-
-                if (returnVal == 0)
-                {
-                    // return DOMAIN\user
-                    return argList[1] + "\\" + argList[0];
-                }
-            }
-
-            return "NO OWNER";
-        }
+      
 
         // See http://msdn.microsoft.com/en-us/library/ms649021%28v=vs.85%29.aspx
         public const int WM_CLIPBOARDUPDATE = 0x031D;

@@ -3,12 +3,13 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 using AForge.Video;
 using AForge.Video.DirectShow;
+using AForge.Vision.Motion;
 
 #endregion
 
@@ -16,11 +17,37 @@ namespace UlteriusServer.WebCams
 {
     public class WebCamManager
     {
-        //TODO TURN INTO AN MJPEG STREAMING SERVER
-        public static Dictionary<string, VideoCaptureDevice> Cameras;
-        public static ConcurrentDictionary<string, byte[]> Frames { get; set; }
-        public static ConcurrentDictionary<string, Task> Streams { get; set; }
-     
+
+
+        public static ConcurrentDictionary<string, byte[]> CameraFrames { get; set; }
+
+        public static ConcurrentDictionary<string, Camera> Cameras { get; set; }
+
+        public static void LoadCameras()
+        {
+            Cameras = new ConcurrentDictionary<string, Camera>();
+            CameraFrames = new ConcurrentDictionary<string, byte[]>();
+            var videoDevices = new FilterInfoCollection(FilterCategory.VideoInputDevice);
+            if (videoDevices.Count == 0)
+            {
+                return;
+            }
+            foreach (FilterInfo device in videoDevices)
+            {
+                var cameraId = Guid.NewGuid().ToString("N").ToUpper();
+                var camera = new Camera
+                {
+                    Id = cameraId,
+                    Name = device.Name,
+                    Moniker = device.MonikerString,
+                    Physical = new VideoCaptureDevice(device.MonikerString)
+                };
+                camera.Physical.NewFrame += (sender, e) => HandleFrame(sender, e, cameraId);
+                Cameras.TryAdd(cameraId, camera);
+            }
+            Console.WriteLine($"{Cameras.Count} cameras loaded");
+        }
+
 
         public static bool StartCamera(string cameraId)
         {
@@ -28,59 +55,35 @@ namespace UlteriusServer.WebCams
             {
                 var camera = Cameras[cameraId];
                 if (camera == null) return false;
-                if (camera.IsRunning) return false;
-                camera.Start();
+                if (camera.Physical.IsRunning) return true;
+                camera.Physical.Start();
+                Cameras[cameraId] = camera;
                 return true;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                Console.WriteLine(ex.Message);
                 return false;
             }
         }
 
-        public static void StopAllCameras()
-        {
-            foreach (var camera in Cameras)
-            {
-                StopCamera(camera.Key);
-            }
-        }
-
-        public static void StartAllCameras()
-        {
-            foreach (var camera in Cameras)
-            {
-                StartCamera(camera.Key);
-            }
-        }
 
         public static List<Camera> GetCameras()
         {
-            var cameras = Cameras;
-            int[] index = {0};
-            var cameraInfo = new List<Camera>();
-            foreach (var camera in cameras.Select(currentCamera => new Camera
-            {
-                Id = currentCamera.Key,
-                Name = new FilterInfoCollection(FilterCategory.VideoInputDevice)[index[0]].Name,
-                CameraStatus = currentCamera.Value.IsRunning
-            }))
-            {
-                cameraInfo.Add(camera);
-                index[0]++;
-            }
-            return cameraInfo;
+            return Cameras.Values.ToList();
         }
 
         public static bool StopCamera(string cameraId)
         {
             try
             {
+
                 var camera = Cameras[cameraId];
                 if (camera == null) return false;
-                if (camera.IsRunning == false) return false;
-                camera.SignalToStop();
-                camera.WaitForStop();
+                if (!camera.Physical.IsRunning) return true;
+                camera.Physical.SignalToStop();
+                camera.Physical.WaitForStop();
+                Cameras[cameraId] = camera;
                 return true;
             }
             catch (Exception e)
@@ -91,60 +94,38 @@ namespace UlteriusServer.WebCams
             }
         }
 
-        public static bool PauseCamera(string cameraId)
-        {
-            return true;
-        }
 
-        /// <summary>
-        /// Retrieves all valid usb cameras  
-        /// </summary>
-        public static void LoadWebcams()
+    
+
+        public static byte[] ImageToByte2(Image img)
         {
-            try
+            using (var stream = new MemoryStream())
             {
-                Cameras = new Dictionary<string, VideoCaptureDevice>();
-                Streams = new ConcurrentDictionary<string, Task>();
-                Frames = new ConcurrentDictionary<string, byte[]>();
-                var videoDevices = new FilterInfoCollection(FilterCategory.VideoInputDevice);
-                for (var i = 0; i < videoDevices.Count; i++)
-                {
-                    var camera = new VideoCaptureDevice(videoDevices[i].MonikerString);
-                    var cameraId = Guid.NewGuid().ToString("N").ToUpper();
-                    camera.NewFrame +=
-                        (sender, e) =>
-                            HandleFrame(sender, e, cameraId);
-                    Cameras.Add(cameraId, camera);
-                }
-                Console.WriteLine($"{Cameras.Count} cameras loaded");
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message);
+                img.Save(stream, ImageFormat.Jpeg);
+                return stream.ToArray();
             }
         }
 
-        private static void HandleFrame(object sender, NewFrameEventArgs camera, string webcamIdHash)
+        private static void HandleFrame(object sender, NewFrameEventArgs camera, string cameraId)
         {
- 
             if (sender == null) throw new ArgumentNullException(nameof(sender));
             if (camera?.Frame == null) return;
-            using (var ms = new MemoryStream())
-            {
-                camera.Frame.Save(ms, ImageFormat.Jpeg);
-                var imageBytes = ms.ToArray();
-                Frames[webcamIdHash] = imageBytes;
-            }
+            
+            //set a frame if we dont have one yet
+            CameraFrames[cameraId] = ImageToByte2(camera.Frame);
+
+
         }
 
 
         public class Camera
         {
+            public object Name { get; set; }
+            public VideoCaptureDevice Physical { get; set; }
             public string Id { get; set; }
-            public string Name { get; set; }
-            public string DisplayName { get; set; }
-            public string DevicePath { get; set; }
             public bool CameraStatus { get; set; }
+            public bool StreamActive { get; set; }
+            public string Moniker { get; set; }
         }
     }
 }
