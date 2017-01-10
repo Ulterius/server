@@ -10,6 +10,8 @@ using System.Linq;
 using AForge.Video;
 using AForge.Video.DirectShow;
 using AForge.Vision.Motion;
+using UlteriusServer.Api;
+using UlteriusServer.Utilities.Settings;
 
 #endregion
 
@@ -18,7 +20,8 @@ namespace UlteriusServer.WebCams
     public class WebCamManager
     {
         private static MotionDetector detector;
-        
+      
+        private static bool UseMotionDetection;
 
         public static ConcurrentDictionary<string, byte[]> CameraFrames { get; set; }
 
@@ -26,6 +29,7 @@ namespace UlteriusServer.WebCams
 
         public static void LoadCameras()
         {
+          UseMotionDetection = Config.Load().Webcams.UseMotionDetection;
             BlobCountingObjectsProcessing motionProcessor = new BlobCountingObjectsProcessing();
 
              detector = new MotionDetector(
@@ -124,7 +128,10 @@ namespace UlteriusServer.WebCams
             }
             else
             {
-                detector.ProcessFrame(camera.Frame);
+                if (UseMotionDetection)
+                {
+                    detector.ProcessFrame(camera.Frame);
+                }
                 CameraFrames[cameraId] = ImageToByte2(camera.Frame);
                
             }

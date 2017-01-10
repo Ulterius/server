@@ -96,38 +96,69 @@ namespace UlteriusServer.Utilities
         [HandleProcessCorruptedStateExceptions]
         private static void DispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
         {
-            var method = MethodBase.GetCurrentMethod();
-            var type = method.Name;
-            var information = JsonConvert.SerializeObject(e.Exception, Formatting.Indented);
-            WriteLogs(type, information);
+            try
+            {
+                
+                var type = "DispatcherUnhandledException";
+                var information = JsonConvert.SerializeObject(e.Exception, Formatting.Indented);
+                WriteLogs(type, information);
+            }
+            catch (Exception)
+            {
+
+                
+            }
         }
 
         [HandleProcessCorruptedStateExceptions]
         private static void ThreadException(object sender, ThreadExceptionEventArgs e)
         {
-            var method = MethodBase.GetCurrentMethod();
-            var type = method.Name;
-            var information = JsonConvert.SerializeObject(e.Exception, Formatting.Indented);
-            WriteLogs(type, information);
+            try
+            {
+               
+                var type = "ThreadException";
+                var information = JsonConvert.SerializeObject(e.Exception, Formatting.Indented);
+                WriteLogs(type, information);
+            }
+            catch (Exception)
+            {
+
+               
+            }
         }
 
         [HandleProcessCorruptedStateExceptions]
         private static void UnobservedTaskException(object sender, UnobservedTaskExceptionEventArgs e)
         {
-            var method = MethodBase.GetCurrentMethod();
-            var type = method.Name;
-            var information = JsonConvert.SerializeObject(e.Exception, Formatting.Indented);
-            WriteLogs(type, information);
+            try
+            {
+                var type = "UnobservedTaskException";
+                var information = JsonConvert.SerializeObject(e.Exception, Formatting.Indented);
+                WriteLogs(type, information);
+            }
+            catch (Exception)
+            {
+
+                
+            }
         }
 
         [HandleProcessCorruptedStateExceptions]
         private static void UnhandledException(object sender, UnhandledExceptionEventArgs args)
         {
-            var e = (Exception) args.ExceptionObject;
-            var method = MethodBase.GetCurrentMethod();
-            var type = method.Name;
-            var information = JsonConvert.SerializeObject(e, Formatting.Indented);
-            WriteLogs(type, information);
+            try
+            {
+                var e = (Exception)args.ExceptionObject;
+               
+                var type = "UnhandledException";
+                var information = JsonConvert.SerializeObject(e, Formatting.Indented);
+                WriteLogs(type, information);
+            }
+            catch (Exception)
+            {
+
+               
+            }
         }
 
         /// <summary>

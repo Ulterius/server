@@ -86,28 +86,19 @@ namespace UlteriusServer.Utilities
             {
                 Console.WriteLine(ex.Message);
             }
-            try
-            {
-                managerProcess?.Kill();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
+         
             Thread.Sleep(3000);
             ProcessStarter.PROCESS_INFORMATION agentInfo;
-            ProcessStarter.PROCESS_INFORMATION managerInfo;
-            var managerPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
-              "DaemonManager.exe");
+        
+         
             var agentPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
                 "UlteriusAgent.exe");
 
-            ProcessStarter.StartProcessAndBypassUAC(managerPath,
-              out managerInfo);
+            
 
             ProcessStarter.StartProcessAndBypassUAC(agentPath,
                 out agentInfo);
-            managerProcess = Process.GetProcessById((int)managerInfo.dwProcessId);
+            
             agentProcess = Process.GetProcessById((int)agentInfo.dwProcessId);
             if (agentProcess != null)
             {

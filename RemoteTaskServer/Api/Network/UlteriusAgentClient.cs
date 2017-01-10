@@ -40,8 +40,12 @@ namespace UlteriusServer.Api.Network
 
         private void KeepAlive()
         {
+            //let this sleep after launch so we dont get spammed
+            Thread.Sleep(10000);
             while (true)
             {
+              
+                
                 var alive = ChannelActive();
                 if (!alive)
                 {

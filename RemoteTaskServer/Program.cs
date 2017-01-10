@@ -1,9 +1,10 @@
 ﻿#region
 
 using System;
-using System.Collections;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Runtime;
 using Topshelf;
 using UlteriusServer.Forms.Utilities;
@@ -22,32 +23,33 @@ namespace UlteriusServer
         private static void Main(string[] args)
 
         {
-
             try
             {
-                if (System.Diagnostics.Process.GetProcessesByName(System.IO.Path.GetFileNameWithoutExtension(System.Reflection.Assembly.GetEntryAssembly().Location)).Count() > 1) return;
+                if (
+                    Process.GetProcessesByName(Path.GetFileNameWithoutExtension(Assembly.GetEntryAssembly().Location))
+                        .Count() > 1) return;
 
                 ProfileOptimization.SetProfileRoot(AppEnvironment.DataPath);
                 ProfileOptimization.StartProfile("Startup.Profile");
 
                 if (args.Length > 0)
                 {
-
                     HostFactory.Run(x => //1
                     {
                         x.Service<UlteriusAgent>(s => //2
                         {
                             s.ConstructUsing(name => new UlteriusAgent()); //3
-                        s.WhenStarted(tc => tc.Start()); //4
-                        s.WhenStopped(tc => tc.Stop());
+                            s.WhenStarted(tc => tc.Start()); //4
+                            s.WhenStopped(tc => tc.Stop());
                             s.WhenSessionChanged((se, e, id) => { se.HandleEvent(e, id); }); //5
-                    });
+                        });
                         x.RunAsLocalSystem(); //6
-                    x.EnableSessionChanged();
+                        x.EnableSessionChanged();
+                        x.EnableServiceRecovery(r => { r.RestartService(1); });
                         x.SetDescription("The server that powers Ulterius"); //7
-                    x.SetDisplayName("Ulterius Server"); //8
-                    x.SetServiceName("UlteriusServer"); //9
-                });
+                        x.SetDisplayName("Ulterius Server"); //8
+                        x.SetServiceName("UlteriusServer"); //9
+                    });
                 }
                 else
                 {
@@ -65,9 +67,8 @@ namespace UlteriusServer
                     }
                 }
             }
-            catch 
+            catch
             {
-
                 Console.WriteLine("Something unexpected occured");
             }
         }

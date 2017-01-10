@@ -470,8 +470,8 @@ namespace UlteriusServer.Api.Services.LocalSystem
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine(ex.Message);
-                        Console.WriteLine(ex.StackTrace);
+                       // Console.WriteLine(ex.Message);
+                        //Console.WriteLine(ex.StackTrace);
                     }
 
                     try
@@ -501,14 +501,14 @@ namespace UlteriusServer.Api.Services.LocalSystem
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine(ex.Message);
-                        Console.WriteLine(ex.StackTrace);
+                       // Console.WriteLine(ex.Message);
+                        //Console.WriteLine(ex.StackTrace);
                     }
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine(ex.Message);
-                    Console.WriteLine(ex.StackTrace);
+                   // Console.WriteLine(ex.Message);
+                   // Console.WriteLine(ex.StackTrace);
                 }
             }
 
@@ -559,8 +559,8 @@ namespace UlteriusServer.Api.Services.LocalSystem
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine(ex.Message);
-                    Console.WriteLine(ex.StackTrace);
+                  //  Console.WriteLine(ex.Message);
+                  //  Console.WriteLine(ex.StackTrace);
                 }
             }
             return driveList;

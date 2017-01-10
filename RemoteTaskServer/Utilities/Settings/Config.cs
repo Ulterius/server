@@ -2,8 +2,6 @@
 
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Reflection;
 using Newtonsoft.Json;
 using UlteriusServer.WebServer;
 
@@ -52,11 +50,9 @@ namespace UlteriusServer.Utilities.Settings
             }
         }
 
-      
 
         private static void GenerateDefault()
         {
-         
             var fileName = "Config.json";
             var filePath = Path.Combine(AppEnvironment.DataPath, fileName);
             File.WriteAllText(filePath, JsonConvert.SerializeObject(new Config(), Formatting.Indented));
@@ -72,7 +68,6 @@ namespace UlteriusServer.Utilities.Settings
         }
     }
 
-    
 
     internal class General
     {
@@ -122,6 +117,7 @@ namespace UlteriusServer.Utilities.Settings
     internal class Webcams
     {
         public bool UseWebcams { get; set; } = true;
+        public bool UseMotionDetection { get; set; } = false;
         public int WebcamPort { get; set; } = 22010;
     }
 
