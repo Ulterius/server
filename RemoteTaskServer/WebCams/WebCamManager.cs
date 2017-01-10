@@ -17,7 +17,8 @@ namespace UlteriusServer.WebCams
 {
     public class WebCamManager
     {
-
+        private static MotionDetector detector;
+        
 
         public static ConcurrentDictionary<string, byte[]> CameraFrames { get; set; }
 
@@ -25,6 +26,12 @@ namespace UlteriusServer.WebCams
 
         public static void LoadCameras()
         {
+            BlobCountingObjectsProcessing motionProcessor = new BlobCountingObjectsProcessing();
+
+             detector = new MotionDetector(
+                new SimpleBackgroundModelingDetector(),
+                motionProcessor);
+
             Cameras = new ConcurrentDictionary<string, Camera>();
             CameraFrames = new ConcurrentDictionary<string, byte[]>();
             var videoDevices = new FilterInfoCollection(FilterCategory.VideoInputDevice);
@@ -110,11 +117,18 @@ namespace UlteriusServer.WebCams
         {
             if (sender == null) throw new ArgumentNullException(nameof(sender));
             if (camera?.Frame == null) return;
+            byte[] bytes;
+            if (!CameraFrames.TryGetValue(cameraId, out bytes))
+            {
+                CameraFrames[cameraId] = ImageToByte2(camera.Frame);
+            }
+            else
+            {
+                detector.ProcessFrame(camera.Frame);
+                CameraFrames[cameraId] = ImageToByte2(camera.Frame);
+               
+            }
             
-            //set a frame if we dont have one yet
-            CameraFrames[cameraId] = ImageToByte2(camera.Frame);
-
-
         }
 
 

@@ -4,8 +4,15 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UlteriusServer", "RemoteTaskServer\UlteriusServer.csproj", "{E9A365D5-AEBE-4AF3-86C5-D17BC65ADE46}"
+	ProjectSection(ProjectDependencies) = postProject
+		{5C3B0B17-CBB7-4B4B-B527-1FAB2BB96466} = {5C3B0B17-CBB7-4B4B-B527-1FAB2BB96466}
+		{686AE4C4-791F-45EB-9414-029D6115905D} = {686AE4C4-791F-45EB-9414-029D6115905D}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UlteriusAgent", "UlteriusAgent\UlteriusAgent.csproj", "{686AE4C4-791F-45EB-9414-029D6115905D}"
+	ProjectSection(ProjectDependencies) = postProject
+		{5C3B0B17-CBB7-4B4B-B527-1FAB2BB96466} = {5C3B0B17-CBB7-4B4B-B527-1FAB2BB96466}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AgentInterface", "AgentInterface\AgentInterface.csproj", "{5C3B0B17-CBB7-4B4B-B527-1FAB2BB96466}"
 EndProject
