@@ -44,8 +44,7 @@ namespace UlteriusServer.Api.Network
             Thread.Sleep(10000);
             while (true)
             {
-              
-                
+                Tools.RestartDaemon();
                 var alive = ChannelActive();
                 if (!alive)
                 {

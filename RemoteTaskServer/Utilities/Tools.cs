@@ -74,8 +74,29 @@ namespace UlteriusServer.Utilities
             }
         }
 
+        public static void RestartDaemon()
+        {
+
+            try
+            {
+                if (Process.GetProcessesByName("DaemonManager").Length != 0) return;
+                ProcessStarter.PROCESS_INFORMATION managerInfo;
+                var managerPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
+                "DaemonManager.exe");
+                ProcessStarter.StartProcessAndBypassUAC(managerPath,
+                out managerInfo);
+                managerProcess = Process.GetProcessById((int)managerInfo.dwProcessId);
+            }
+            catch (Exception)
+            {
+
+               
+            }
+        }
+
         public static void RestartAgent()
         {
+            
             _LastSession = Desktop.WTSGetActiveConsoleSessionId();
             _CurrentSession = _LastSession;
             try

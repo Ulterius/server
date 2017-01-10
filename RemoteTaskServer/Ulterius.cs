@@ -45,12 +45,7 @@ namespace UlteriusServer
                 ExceptionHandler.AddGlobalHandlers();
                 Console.WriteLine("Exception Handlers Attached");
             }
-           
-            //Fix screensize issues for Screen Share
-            if (Tools.RunningPlatform() == Tools.Platform.Windows && Environment.OSVersion.Version.Major >= 6)
-            {
-                SetProcessDPIAware();
-            }
+
             Setup();
         }
 
@@ -59,17 +54,7 @@ namespace UlteriusServer
         /// </summary>
         private void Setup()
         {
-            if (Tools.RunningPlatform() == Tools.Platform.Windows)
-            {
-                try
-                {
-                    HideWindow();
-                }
-                catch
-                {
-                    //Failed to hide window, probably in service mode.
-                }
-            }
+            
 
 
              Console.WriteLine("Creating settings");
@@ -124,29 +109,5 @@ namespace UlteriusServer
         }
 
 
-        /// <summary>
-        ///     Hide the console window from the user
-        /// </summary>
-        private void HideWindow()
-        {
-            var handle = GetConsoleWindow();
-            ShowWindow(handle, Hide);
-        }
-
-        #region win32
-
-        private const int Hide = 0;
-
-        [DllImport("user32.dll")]
-        private static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
-
-        [DllImport("kernel32.dll")]
-        private static extern IntPtr GetConsoleWindow();
-
-
-        [DllImport("user32.dll")]
-        private static extern bool SetProcessDPIAware();
-
-        #endregion
     }
 }
