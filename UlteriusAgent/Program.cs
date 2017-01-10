@@ -38,7 +38,7 @@ namespace UlteriusAgent
             var handle = GetConsoleWindow();
 
             // Hide
-        //   ShowWindow(handle, SW_HIDE);
+           ShowWindow(handle, SW_HIDE);
 
             Tools.KillAllButMe();
             try
