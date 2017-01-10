@@ -54,7 +54,7 @@ namespace UlteriusAgent.Networking
         {
             HandleDesktop();
             var setCurrent = Desktop.SetCurrent(_lastDesktopInput);
-            return !setCurrent ? null : new FrameInformation {ScreenImage = ScreenData.CaptureScreen()};
+            return !setCurrent ? null : new FrameInformation { ScreenImage = ScreenData.CaptureScreen() };
         }
 
         public FrameInformation GetFullFrame()
@@ -127,7 +127,7 @@ namespace UlteriusAgent.Networking
             var setCurrent = Desktop.SetCurrent(_lastDesktopInput);
             if (setCurrent)
             {
-              
+
                 Cursor.Position = new Point(x, y);
             }
         }
@@ -161,7 +161,7 @@ namespace UlteriusAgent.Networking
         {
             foreach (var code in keyCodes)
             {
-                var virtualKey = (Keys) code;
+                var virtualKey = (Keys)code;
                 Keyboard.KeyDown(virtualKey);
             }
         }
@@ -170,7 +170,7 @@ namespace UlteriusAgent.Networking
         {
             foreach (var code in keyCodes)
             {
-                var virtualKey = (Keys) code;
+                var virtualKey = (Keys)code;
                 Keyboard.KeyUp(virtualKey);
             }
         }
@@ -205,9 +205,9 @@ namespace UlteriusAgent.Networking
             return SystemData.GetCpuTemps();
         }
 
-      
 
-       
+
+
 
         private void HandleDesktop()
         {
