@@ -42,9 +42,6 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="AgentInterface">
-      <HintPath>..\AgentInterface\bin\Release\AgentInterface.dll</HintPath>
-    </Reference>
     <Reference Include="InputManager">
       <HintPath>..\InputManager.dll</HintPath>
     </Reference>
@@ -69,7 +66,12 @@
   <ItemGroup>
     <None Include="FodyWeavers.xml" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\AgentInterface\AgentInterface.csproj">
+      <Project>{5c3b0b17-cbb7-4b4b-b527-1fab2bb96466}</Project>
+      <Name>AgentInterface</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <UsingTask TaskName="CosturaCleanup" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v4.0.dll" TaskFactory="CodeTaskFactory">
     <ParameterGroup>
