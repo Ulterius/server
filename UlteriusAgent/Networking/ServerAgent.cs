@@ -3,13 +3,9 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Drawing.Imaging;
-using System.IO;
 using System.Linq;
 using System.Runtime.ExceptionServices;
 using System.ServiceModel;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using AgentInterface;
 using AgentInterface.Api.Models;
@@ -29,32 +25,11 @@ namespace UlteriusAgent.Networking
         private Desktop _lastDesktopInput;
 
 
-        public ServerAgent()
-        {
-            var inputDesktop = new Desktop();
-            inputDesktop.OpenInput();
-            if (inputDesktop.DesktopName.Equals(_lastDesktop)) return;
-            var switched = inputDesktop.Show();
-            if (!switched) return;
-            var setCurrent = Desktop.SetCurrent(inputDesktop);
-            if (setCurrent)
-            {
-                Console.WriteLine(
-                    $"Desktop switched from {_lastDesktop} to {inputDesktop.DesktopName}");
-                _lastDesktop = inputDesktop.DesktopName;
-                _lastDesktopInput = inputDesktop;
-            }
-            else
-            {
-                _lastDesktopInput.Close();
-            }
-        }
-
         public FrameInformation GetCleanFrame()
         {
             HandleDesktop();
             var setCurrent = Desktop.SetCurrent(_lastDesktopInput);
-            return !setCurrent ? null : new FrameInformation { ScreenImage = ScreenData.CaptureScreen() };
+            return !setCurrent ? null : ScreenData.DesktopCapture();
         }
 
         public FrameInformation GetFullFrame()
@@ -83,7 +58,7 @@ namespace UlteriusAgent.Networking
             };
             var setCurrent = Desktop.SetCurrent(_lastDesktopInput);
             if (!setCurrent) return null;
-            frameInfo.ScreenImage = ScreenData.CaptureScreen();
+            frameInfo.ScreenImage = ScreenData.CaptureActiveScreen(ScreenData.ActiveDisplay);
             if (frameInfo.ScreenImage == null)
             {
                 var bmp = new Bitmap(frameInfo.Bounds.Width, frameInfo.Bounds.Height);
@@ -105,31 +80,18 @@ namespace UlteriusAgent.Networking
 
         public void HandleRightMouseDown()
         {
-            var setCurrent = Desktop.SetCurrent(_lastDesktopInput);
-            if (setCurrent)
-            {
-                Mouse.ButtonDown(Mouse.MouseKeys.Right);
-            }
+            Mouse.ButtonDown(Mouse.MouseKeys.Right);
         }
 
         public void HandleRightMouseUp()
         {
-            var setCurrent = Desktop.SetCurrent(_lastDesktopInput);
-            if (setCurrent)
-            {
-                Mouse.ButtonUp(Mouse.MouseKeys.Right);
-            }
+            Mouse.ButtonUp(Mouse.MouseKeys.Right);
         }
 
 
         public void MoveMouse(int x, int y)
         {
-            var setCurrent = Desktop.SetCurrent(_lastDesktopInput);
-            if (setCurrent)
-            {
-
-                Cursor.Position = new Point(x, y);
-            }
+            Cursor.Position = new Point(x, y);
         }
 
         public void MouseScroll(bool positive)
@@ -141,20 +103,12 @@ namespace UlteriusAgent.Networking
 
         public void HandleLeftMouseDown()
         {
-            var setCurrent = Desktop.SetCurrent(_lastDesktopInput);
-            if (setCurrent)
-            {
-                Mouse.ButtonDown(Mouse.MouseKeys.Left);
-            }
+            Mouse.ButtonDown(Mouse.MouseKeys.Left);
         }
 
         public void HandleLeftMouseUp()
         {
-            var setCurrent = Desktop.SetCurrent(_lastDesktopInput);
-            if (setCurrent)
-            {
-                Mouse.ButtonUp(Mouse.MouseKeys.Left);
-            }
+            Mouse.ButtonUp(Mouse.MouseKeys.Left);
         }
 
         public void HandleKeyDown(List<int> keyCodes)
@@ -181,11 +135,7 @@ namespace UlteriusAgent.Networking
 
         public void HandleRightClick()
         {
-            var setCurrent = Desktop.SetCurrent(_lastDesktopInput);
-            if (setCurrent)
-            {
-                Mouse.PressButton(Mouse.MouseKeys.Right);
-            }
+            Mouse.PressButton(Mouse.MouseKeys.Right);
         }
 
         [HandleProcessCorruptedStateExceptions]
@@ -205,10 +155,6 @@ namespace UlteriusAgent.Networking
             return SystemData.GetCpuTemps();
         }
 
-
-
-
-
         private void HandleDesktop()
         {
             var inputDesktop = new Desktop();
@@ -222,8 +168,7 @@ namespace UlteriusAgent.Networking
                     var setCurrent = Desktop.SetCurrent(inputDesktop);
                     if (setCurrent)
                     {
-                        Console.WriteLine(
-                            $"Desktop switched from {_lastDesktop} to {inputDesktop.DesktopName}");
+                        Console.WriteLine($"Desktop switched from {_lastDesktop} to {inputDesktop.DesktopName}");
                         _lastDesktop = inputDesktop.DesktopName;
                         _lastDesktopInput = inputDesktop;
                     }

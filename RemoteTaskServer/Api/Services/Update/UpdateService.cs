@@ -58,7 +58,7 @@ namespace UlteriusServer.Api.Services.Update
             var file = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
                  "Ulterius Updater.exe /silentall -nofreqcheck");
             ProcessStarter.PROCESS_INFORMATION procInfo;
-            ProcessStarter.StartProcessAndBypassUAC(file, out procInfo);
+            ProcessStarter.StartProcessAndBypassUAC(file,  out procInfo);
         }
 
 

@@ -1,12 +1,11 @@
 ﻿#region
 
 using System;
-using System.IO;
 using System.Net.Security;
 using System.Runtime.InteropServices;
 using System.ServiceModel;
-using System.Text;
 using AgentInterface;
+using AgentInterface.Api.ScreenShare;
 using UlteriusAgent.Networking;
 
 #endregion
@@ -26,11 +25,10 @@ namespace UlteriusAgent
 
         [DllImport("user32.dll")]
         private static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
-     
+
 
         private static void Main(string[] args)
         {
-           
             if (Environment.OSVersion.Version.Major >= 6)
             {
                 SetProcessDPIAware();
@@ -38,24 +36,38 @@ namespace UlteriusAgent
             var handle = GetConsoleWindow();
 
             // Hide
-           ShowWindow(handle, SW_HIDE);
+            ShowWindow(handle, SW_HIDE);
 
             Tools.KillAllButMe();
             try
             {
-                string address = "net.pipe://localhost/ulterius/Agent";
-                ServiceHost serviceHost = new ServiceHost(typeof(ServerAgent));
-                NetNamedPipeBinding binding = new NetNamedPipeBinding
+                ScreenData.SetupDuplication();
+                var inputAddress = "net.pipe://localhost/ulterius/agent/input/";
+                var frameAddress = "net.pipe://localhost/ulterius/agent/frames/";
+                var frameService = new ServiceHost(typeof(ServerAgent));
+                var inputService = new ServiceHost(typeof(ServerAgent));
+                var inputBinding = new NetNamedPipeBinding
                 {
                     Security = new NetNamedPipeSecurity
                     {
-                        Transport = {ProtectionLevel = ProtectionLevel.EncryptAndSign},
-                        Mode = NetNamedPipeSecurityMode.Transport
+                        Transport = {ProtectionLevel = ProtectionLevel.None},
+                        Mode = NetNamedPipeSecurityMode.None
                     },
                     MaxReceivedMessageSize = int.MaxValue
                 };
-                serviceHost.AddServiceEndpoint(typeof(ITUlteriusContract), binding, address);
-                serviceHost.Open();
+                var frameBinding = new NetNamedPipeBinding
+                {
+                    Security = new NetNamedPipeSecurity
+                    {
+                        Transport = { ProtectionLevel = ProtectionLevel.None },
+                        Mode = NetNamedPipeSecurityMode.None
+                    },
+                    MaxReceivedMessageSize = int.MaxValue
+                };
+                inputService.AddServiceEndpoint(typeof(ITUlteriusContract), inputBinding, inputAddress);
+                frameService.AddServiceEndpoint(typeof(ITUlteriusContract), frameBinding, frameAddress);
+                frameService.Open();
+                inputService.Open();
                 Console.Read();
             }
             catch (Exception ex)

@@ -4,6 +4,8 @@ using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Security;
+using System.Security.Principal;
+using Cassia;
 
 #endregion
 
@@ -15,6 +17,36 @@ namespace AgentInterface.Api.Win32
     /// </summary>
     public class ProcessStarter
     {
+
+
+
+        private static int GetUserSessionId(string username)
+        {
+            try
+            {
+                ITerminalServicesManager manager = new TerminalServicesManager();
+                using (ITerminalServer server = manager.GetLocalServer())
+                {
+                    server.Open();
+                    foreach (ITerminalServicesSession session in server.GetSessions())
+                    {
+
+                        NTAccount account = session.UserAccount;
+                        if (account == null) continue;
+                        var userName = account.Value.Split('\\')[1];
+                        if (userName.ToLower().Equals(username.ToLower())) return session.SessionId;
+                    }
+                }
+                return -1;
+            }
+            catch (Exception)
+            {
+
+                return -1;
+            }
+        }
+
+
         /// <summary>
         ///     Launches the given application with full admin rights, and in addition bypasses the Vista UAC prompt
         /// </summary>
@@ -27,9 +59,12 @@ namespace AgentInterface.Api.Win32
             IntPtr hUserTokenDup = IntPtr.Zero, hPToken = IntPtr.Zero, hProcess = IntPtr.Zero;
             procInfo = new PROCESS_INFORMATION();
 
-            // obtain the currently active session id; every logged on user in the system has a unique session id
-            var dwSessionId = WTSGetActiveConsoleSessionId();
 
+            // obtain the currently active session id; every logged on user in the system has a unique session id
+            var dwSessionId = -1;
+
+                dwSessionId = (int) WTSGetActiveConsoleSessionId();
+            
             // obtain the process id of the winlogon process that is running within the currently active session
             var processes = Process.GetProcessesByName("winlogon");
             foreach (var p in processes)

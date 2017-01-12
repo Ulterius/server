@@ -7,14 +7,11 @@ using System.Globalization;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using AgentInterface.Api.Models;
 using AgentInterface.Api.ScreenShare;
+using AgentInterface.Api.ScreenShare.DesktopDuplication;
 using AgentInterface.Api.Win32;
 using InputManager;
-using Magnum;
-using Newtonsoft.Json;
 using UlteriusServer.Api.Network.Messages;
 using UlteriusServer.Utilities.Settings;
 using UlteriusServer.WebSocketAPI.Authentication;
@@ -163,50 +160,34 @@ namespace UlteriusServer.Api.Network.PacketHandlers
         }
 
 
-        private void GetScreenAgentFrame()
+        private  void GetScreenAgentFrame()
         {
             try
             {
-                var targetFps = Config.Load().ScreenShareService.ScreenShareFps;
-
-                var optimalTime = 1000000000/targetFps;
 
                 while (_client != null && _client.IsConnected && _authClient != null &&
                        !_authClient.ShutDownScreenShare)
                 {
-                    var now = Environment.TickCount;
-                    long updateLength = now - lastLoopTime;
-                    lastLoopTime = now;
-                    var delta = updateLength/(double) optimalTime;
-                    lastFpsTime += updateLength;
-                    fps++;
                     try
                     {
-                        var cleanFrame = AgentClient.GetCleanFrame();
-                        if (cleanFrame?.ScreenImage != null)
+                        var image =  AgentClient.GetCleanFrame();
+                        if (image != null)
                         {
-                            using (var screenData = ScreenData.LocalAgentScreen(cleanFrame.ScreenImage))
+                            if (image.UsingGpu)
                             {
-                                if (screenData.ScreenBitmap != null && screenData.Rectangle != Rectangle.Empty)
-                                {
-                                    var data = ScreenData.PackScreenCaptureData(screenData.ScreenBitmap,
-                                        screenData.Rectangle);
-                                    if (data != null && data.Length > 0)
-                                    {
-                                        _builder.Endpoint = "screensharedata";
-                                        _builder.WriteScreenFrame(data);
-                                    }
-                                }
+                                SendGpuFrame(image.FinishedRegions);
+                            }
+                            else
+                            {
+                                SendPolledFrame(image.ScreenImage, image.Bounds);
                             }
                         }
-                        var time = (lastLoopTime - Environment.TickCount + optimalTime)/1000000;
-                        Thread.Sleep(TimeSpan.FromMilliseconds(time));
                     }
-                    catch (Exception ex)
+                    catch (Exception e)
                     {
-                        Console.WriteLine(ex.Message);
-                        Thread.Sleep(250);
+                      //  Console.WriteLine(e.Message + " " + e.StackTrace);
                     }
+
                 }
                 Console.WriteLine("Screen Share Died");
             }
@@ -215,47 +196,62 @@ namespace UlteriusServer.Api.Network.PacketHandlers
             }
         }
 
+        private void SendGpuFrame(FinishedRegions[] gpuFrame)
+        {
+            if (gpuFrame == null)
+            {
+                return;
+            }
+            if (gpuFrame.Length == 0)
+            {
+                return;
+            }
+            foreach (var region in gpuFrame)
+            {
+                var data = ScreenData.PackScreenCaptureData(region.Frame, region.Destination);
+                if (data == null || data.Length <= 0) continue;
+                _builder.Endpoint = "screensharedata";
+                _builder.WriteScreenFrame(data);
+                region?.Dispose();
+            }
+        }
+
         private void GetScreenFrame()
         {
-            var targetFps = Config.Load().ScreenShareService.ScreenShareFps;
-
-            var optimalTime = 1000000000/targetFps;
             while (_client != null && _client.IsConnected && _authClient != null &&
                    !_authClient.ShutDownScreenShare)
             {
-                var now = Environment.TickCount;
-                long updateLength = now - lastLoopTime;
-                lastLoopTime = now;
-                var delta = updateLength/(double) optimalTime;
-                lastFpsTime += updateLength;
-                fps++;
                 try
                 {
-                    using (var image = ScreenData.LocalAgentScreen(ScreenData.CaptureScreen()))
+                    var image = ScreenData.DesktopCapture();
+                    if (image == null) continue;
+                    if (image.UsingGpu)
                     {
-                        if (image != null && image.Rectangle != Rectangle.Empty)
-                        {
-                            var data = ScreenData.PackScreenCaptureData(image.ScreenBitmap, image.Rectangle);
-                            if (data != null && data.Length > 0)
-                            {
-                                _builder.Endpoint = "screensharedata";
-                                _builder.WriteScreenFrame(data);
-                                data = null;
-                                GC.Collect();
-                                GC.WaitForPendingFinalizers();
-                            }
-                        }
+                        SendGpuFrame(image.FinishedRegions);
                     }
-                    var time = (lastLoopTime - Environment.TickCount + optimalTime)/1000000;
-                    Thread.Sleep(TimeSpan.FromMilliseconds(time));
+                    else
+                    {
+                        SendPolledFrame(image.ScreenImage, image.Bounds);
+                    }
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine(e.Message + " " + e.StackTrace);
+                   // Console.WriteLine(e.Message + " " + e.StackTrace);
                 }
             }
             Console.WriteLine("Screen Share Died");
         }
+
+        private void SendPolledFrame(Bitmap screenImage, Rectangle bounds)
+        {
+            if (screenImage == null || bounds == Rectangle.Empty) return;
+            var data = ScreenData.PackScreenCaptureData(screenImage, bounds);
+            if (data == null || data.Length <= 0) return;
+            _builder.Endpoint = "screensharedata";
+            _builder.WriteScreenFrame(data);
+            data = null;
+        }
+
 
         public override void HandlePacket(Packet packet)
         {
@@ -398,7 +394,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
 
         private void HandleFullFrame()
         {
-            using (var grab = ScreenData.CaptureScreen())
+            using (var grab = ScreenData.CaptureActiveScreen(ScreenData.ActiveDisplay))
             {
                 var imgData = ScreenData.ImageToByteArray(grab);
                 var monitors = SystemInformation.Displays;
@@ -512,14 +508,14 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                 Mouse.Scroll(direction);
             }
         }
+
         private static Point Translate(Point point, Size from, Size to)
         {
-            return new Point((point.X * to.Width) / from.Width, (point.Y * to.Height) / from.Height);
+            return new Point(point.X*to.Width/from.Width, point.Y*to.Height/from.Height);
         }
 
-        private  void HandleMoveMouse()
+        private void HandleMoveMouse()
         {
-            
             if (!ScreenShareService.Streams.ContainsKey(_authClient)) return;
             try
             {
@@ -534,7 +530,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                     Cursor.Position = new Point(x, y);
                 }
             }
-            
+
             catch
             {
                 Console.WriteLine("Error moving mouse");
@@ -586,6 +582,4 @@ namespace UlteriusServer.Api.Network.PacketHandlers
             }
         }
     }
-
-  
 }

@@ -40,7 +40,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                         try
                         {
                             ProcessStarter.PROCESS_INFORMATION procInfo;
-                            ProcessStarter.StartProcessAndBypassUAC(path, out procInfo);
+                            ProcessStarter.StartProcessAndBypassUAC(path,  out procInfo);
                         }
                         catch (Exception)
                         {

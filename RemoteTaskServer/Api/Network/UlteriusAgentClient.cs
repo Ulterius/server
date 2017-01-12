@@ -1,5 +1,6 @@
 ﻿#region
 
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net.Security;
@@ -8,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using AgentInterface;
 using AgentInterface.Api.Models;
+using AgentInterface.Api.ScreenShare.DesktopDuplication;
 using UlteriusServer.Utilities;
 
 #endregion
@@ -16,23 +18,40 @@ namespace UlteriusServer.Api.Network
 {
     public class UlteriusAgentClient
     {
-        private ITUlteriusContract Channel { get; set; }
+        private ITUlteriusContract InputChannel { get; set; }
+
+        private ITUlteriusContract FrameChannel { get; set; }
 
         public void Start(bool keepAlive = true)
         {
-            var address = "net.pipe://localhost/ulterius/Agent";
-            var binding = new NetNamedPipeBinding
+            var inputAddress = "net.pipe://localhost/ulterius/agent/input/";
+            var frameAddress = "net.pipe://localhost/ulterius/agent/frames/";
+
+            var inputBinding = new NetNamedPipeBinding
             {
                 Security = new NetNamedPipeSecurity
                 {
-                    Transport = {ProtectionLevel = ProtectionLevel.EncryptAndSign},
-                    Mode = NetNamedPipeSecurityMode.Transport
+                    Transport = {ProtectionLevel = ProtectionLevel.None},
+                    Mode = NetNamedPipeSecurityMode.None
                 },
                 MaxReceivedMessageSize = int.MaxValue
             };
+            var ep = new EndpointAddress(inputAddress);
+            InputChannel = ChannelFactory<ITUlteriusContract>.CreateChannel(inputBinding, ep);
 
-            var ep = new EndpointAddress(address);
-            Channel = ChannelFactory<ITUlteriusContract>.CreateChannel(binding, ep);
+            var frameBinding = new NetNamedPipeBinding
+            {
+                Security = new NetNamedPipeSecurity
+                {
+                    Transport = { ProtectionLevel = ProtectionLevel.None },
+                    Mode = NetNamedPipeSecurityMode.None
+                },
+                MaxReceivedMessageSize = int.MaxValue
+            };
+            var epf = new EndpointAddress(frameAddress);
+            FrameChannel = ChannelFactory<ITUlteriusContract>.CreateChannel(frameBinding, epf);
+
+
             if (!keepAlive) return;
             var task = new Task(KeepAlive);
             task.Start();
@@ -63,7 +82,7 @@ namespace UlteriusServer.Api.Network
         {
             try
             {
-                Channel?.MouseScroll(positive);
+                InputChannel?.MouseScroll(positive);
             }
             catch (EndpointNotFoundException)
             {
@@ -79,7 +98,7 @@ namespace UlteriusServer.Api.Network
         {
             try
             {
-                return Channel != null && Channel.KeepAlive();
+                return FrameChannel != null && FrameChannel.KeepAlive();
             }
             catch (EndpointNotFoundException)
             {
@@ -95,9 +114,13 @@ namespace UlteriusServer.Api.Network
         {
             try
             {
-                return Channel?.GetCleanFrame();
+                return FrameChannel.GetCleanFrame();
             }
             catch (EndpointNotFoundException)
+            {
+                return null;
+            }
+            catch (TimeoutException)
             {
                 return null;
             }
@@ -111,7 +134,7 @@ namespace UlteriusServer.Api.Network
         {
             try
             {
-                return Channel?.GetFullFrame();
+                return FrameChannel.GetFullFrame();
             }
             catch (EndpointNotFoundException)
             {
@@ -127,7 +150,7 @@ namespace UlteriusServer.Api.Network
         {
             try
             {
-                Channel?.HandleRightMouseDown();
+                InputChannel.HandleRightMouseDown();
             }
             catch (EndpointNotFoundException)
             {
@@ -141,7 +164,7 @@ namespace UlteriusServer.Api.Network
         {
             try
             {
-                Channel?.HandleRightMouseUp();
+                InputChannel.HandleRightMouseUp();
             }
             catch (EndpointNotFoundException)
             {
@@ -155,7 +178,7 @@ namespace UlteriusServer.Api.Network
         {
             try
             {
-                Channel?.MoveMouse(x, y);
+                InputChannel.MoveMouse(x, y);
             }
             catch (EndpointNotFoundException)
             {
@@ -169,7 +192,7 @@ namespace UlteriusServer.Api.Network
         {
             try
             {
-                Channel?.HandleLeftMouseDown();
+                InputChannel.HandleLeftMouseDown();
             }
             catch (EndpointNotFoundException)
             {
@@ -183,7 +206,7 @@ namespace UlteriusServer.Api.Network
         {
             try
             {
-                Channel?.HandleLeftMouseUp();
+                InputChannel.HandleLeftMouseUp();
             }
             catch (EndpointNotFoundException)
             {
@@ -197,7 +220,7 @@ namespace UlteriusServer.Api.Network
         {
             try
             {
-                Channel?.HandleKeyDown(keyCodes);
+                InputChannel.HandleKeyDown(keyCodes);
             }
             catch (EndpointNotFoundException)
             {
@@ -211,7 +234,7 @@ namespace UlteriusServer.Api.Network
         {
             try
             {
-                Channel?.HandleKeyUp(keyCodes);
+                InputChannel.HandleKeyUp(keyCodes);
             }
             catch (EndpointNotFoundException)
             {
@@ -225,7 +248,7 @@ namespace UlteriusServer.Api.Network
         {
             try
             {
-                Channel?.HandleRightClick();
+                InputChannel.HandleRightClick();
             }
             catch (EndpointNotFoundException)
             {
@@ -239,8 +262,8 @@ namespace UlteriusServer.Api.Network
         {
             try
             {
-                var temp = Channel?.GetGpuTemp(gpuName);
-                return temp ?? -1;
+                var temp = InputChannel.GetGpuTemp(gpuName);
+                return temp;
             }
             catch (EndpointNotFoundException)
             {
@@ -256,7 +279,7 @@ namespace UlteriusServer.Api.Network
         {
             try
             {
-                return Channel?.GetDisplayInformation();
+                return InputChannel.GetDisplayInformation();
             }
             catch (EndpointNotFoundException)
             {
@@ -272,7 +295,7 @@ namespace UlteriusServer.Api.Network
         {
             try
             {
-                Channel?.SetActiveMonitor(index);
+                InputChannel.SetActiveMonitor(index);
             }
             catch (EndpointNotFoundException)
             {
@@ -288,7 +311,7 @@ namespace UlteriusServer.Api.Network
         {
             try
             {
-                return Channel?.GetCpuTemps();
+                return InputChannel.GetCpuTemps();
             }
             catch (EndpointNotFoundException)
             {

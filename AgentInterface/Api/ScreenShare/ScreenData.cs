@@ -1,15 +1,13 @@
 ﻿#region
 
 using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using AgentInterface.Api.Models;
+using AgentInterface.Api.ScreenShare.DesktopDuplication;
 using AgentInterface.Api.Win32;
-using Size = System.Drawing.Size;
 
 #endregion
 
@@ -20,14 +18,16 @@ namespace AgentInterface.Api.ScreenShare
         public static int ActiveDisplay = 0;
         public static Bitmap NewBitmap = new Bitmap(1, 1);
         public static Bitmap PrevBitmap;
-      
-    
+        private static DesktopDuplicator _desktopDuplicator;
+        private static bool _nullFrame;
+        private static bool _canUseGpuAcceleration;
+
+
         static ScreenData()
         {
-         
         }
 
-      
+
         public static int NumByteFullScreen { get; set; } = 1;
 
         public static byte[] PackScreenCaptureData(Bitmap image, Rectangle bounds)
@@ -261,8 +261,22 @@ namespace AgentInterface.Api.ScreenShare
             return newBitmap;
         }
 
+        private static DesktopFrame GetScreenPicDxgi()
+        {
+            DesktopFrame frame = null;
+            try
+            {
+                frame = _desktopDuplicator.GetLatestFrame();
+            }
+            catch (Exception)
+            {
+                _desktopDuplicator = new DesktopDuplicator(0);
+            }
+            return frame;
+        }
 
-        public static ScreenModel LocalAgentScreen(Bitmap image)
+
+        public static ScreenModel GetImageChange(Bitmap image)
         {
             var screenModel = new ScreenModel
             {
@@ -306,18 +320,39 @@ namespace AgentInterface.Api.ScreenShare
             return screenModel;
         }
 
-
-      
-
-
-        public static Bitmap CaptureScreen()
+        public static FrameInformation DesktopCapture()
         {
-            
-            return CaptureActiveScreen(ActiveDisplay);
+            var frameInfo  = new FrameInformation();
+            if (_canUseGpuAcceleration)
+            {
+                frameInfo.UsingGpu = true;
+                var desktopFrame = GpuCapture();
+                if (desktopFrame != null)
+                {
+                    frameInfo.FinishedRegions = desktopFrame.FinishedRegions;
+                }
+            }
+            else
+            {
+                    var screenData = GetImageChange(CaptureActiveScreen(ActiveDisplay));
+                    if (screenData.ScreenBitmap == null || screenData.Rectangle == Rectangle.Empty) return null;
+                    frameInfo.Bounds = screenData.Rectangle;
+                    frameInfo.ScreenImage = screenData.ScreenBitmap;
+                
+            }
+            return frameInfo;
         }
-    
+        private static DesktopFrame GpuCapture()
+        {
+            var frame = GetScreenPicDxgi();
+            if (frame == null) return null;
+            if (!_nullFrame) return frame;
+            _nullFrame = false;
+            return null;
+        }
 
-        private static Bitmap CaptureActiveScreen(int screenIndex)
+
+        public static Bitmap CaptureActiveScreen(int screenIndex)
         {
             var screens = Display.DisplayInformation();
             if (screens.Count == 0 || screens.ElementAtOrDefault(screenIndex) == null)
@@ -365,6 +400,24 @@ namespace AgentInterface.Api.ScreenShare
             return desktopBmp;
         }
 
+        public static void SetupDuplication()
+        {
+            _canUseGpuAcceleration = false;
+            var win8Version = new Version(6, 2, 9200, 0);
+            if (Environment.OSVersion.Platform != PlatformID.Win32NT || Environment.OSVersion.Version < win8Version)
+                return;
+            try
+            {
+                _desktopDuplicator = new DesktopDuplicator(0);
+                _nullFrame = true;
+                _canUseGpuAcceleration = true;
+                Console.WriteLine("desktop duplication setup");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+        }
 
         public class ScreenModel : IDisposable
         {

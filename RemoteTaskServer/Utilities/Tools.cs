@@ -14,6 +14,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
+using AgentInterface.Api.ScreenShare;
 using AgentInterface.Api.Win32;
 using Ionic.Zip;
 using NetFwTypeLib;
@@ -83,7 +84,7 @@ namespace UlteriusServer.Utilities
                 ProcessStarter.PROCESS_INFORMATION managerInfo;
                 var managerPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
                 "DaemonManager.exe");
-                ProcessStarter.StartProcessAndBypassUAC(managerPath,
+                ProcessStarter.StartProcessAndBypassUAC(managerPath, 
                 out managerInfo);
                 managerProcess = Process.GetProcessById((int)managerInfo.dwProcessId);
             }
@@ -112,12 +113,11 @@ namespace UlteriusServer.Utilities
             ProcessStarter.PROCESS_INFORMATION agentInfo;
         
          
-            var agentPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
-                "UlteriusAgent.exe");
+            var agentPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),"UlteriusAgent.exe");
 
             
 
-            ProcessStarter.StartProcessAndBypassUAC(agentPath,
+            ProcessStarter.StartProcessAndBypassUAC(agentPath, 
                 out agentInfo);
             
             agentProcess = Process.GetProcessById((int)agentInfo.dwProcessId);
@@ -342,6 +342,10 @@ namespace UlteriusServer.Utilities
             {
                 Console.WriteLine("Logs Ready");
             }
+            if (!RunningAsService())
+            {
+              ScreenData.SetupDuplication();  
+            }
             if (Config.Empty)
             {
                 if (RunningPlatform() == Platform.Windows)
@@ -359,14 +363,12 @@ namespace UlteriusServer.Utilities
                     if (RunningAsService())
                     {
                         ProcessStarter.PROCESS_INFORMATION procInfo;
-                        ProcessStarter.StartProcessAndBypassUAC("CMD.exe " + command,
-                            out procInfo);
+                        ProcessStarter.StartProcessAndBypassUAC("CMD.exe " + command,  out procInfo);
                     }
                     else
                     {
                         Process.Start("CMD.exe", command);
                     }
-
                     OpenFirewallPort(webcamPort, "Ulterius Web Cams");
                     OpenFirewallPort(webServerPort, "Ulterius Web Server");
                     OpenFirewallPort(apiPort, "Ulterius Task Server");

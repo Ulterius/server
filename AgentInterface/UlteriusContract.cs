@@ -5,6 +5,7 @@ using System.ServiceModel;
 using System.Text;
 using System.Threading.Tasks;
 using AgentInterface.Api.Models;
+using AgentInterface.Api.ScreenShare.DesktopDuplication;
 
 namespace AgentInterface
 {

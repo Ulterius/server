@@ -5,6 +5,11 @@
       AgentInterface
       OpenHardwareMonitorLib
       InputManager
+      Cassia
+      SharpDX
+      SharpDX.Direct3D11
+      SharpDX.DXGI
+      SharpDX.Mathematics
     </ExcludeAssemblies>
   </Costura>
   
