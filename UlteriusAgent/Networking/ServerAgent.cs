@@ -35,40 +35,20 @@ namespace UlteriusAgent.Networking
         public FrameInformation GetFullFrame()
         {
             HandleDesktop();
-            var monitors = Display.DisplayInformation();
-            Rectangle tempBounds;
-            if (monitors.Count > 0 && monitors.ElementAt(ScreenData.ActiveDisplay) != null)
-            {
-                var activeDisplay = monitors[ScreenData.ActiveDisplay];
-                tempBounds = new Rectangle
-                {
-                    X = activeDisplay.CurrentResolution.X,
-                    Y = activeDisplay.CurrentResolution.Y,
-                    Width = activeDisplay.CurrentResolution.Width,
-                    Height = activeDisplay.CurrentResolution.Height
-                };
-            }
-            else
-            {
-                tempBounds = Display.GetWindowRectangle();
-            }
+            var tempBounds = Display.GetWindowRectangle();
             var frameInfo = new FrameInformation
             {
-                Bounds = tempBounds
+                Bounds = tempBounds,
+                ScreenImage = ScreenData.CaptureDesktop()
             };
-            var setCurrent = Desktop.SetCurrent(_lastDesktopInput);
-            if (!setCurrent) return null;
-            frameInfo.ScreenImage = ScreenData.CaptureActiveScreen(ScreenData.ActiveDisplay);
-            if (frameInfo.ScreenImage == null)
+            if (frameInfo.ScreenImage != null) return frameInfo;
+            var bmp = new Bitmap(frameInfo.Bounds.Width, frameInfo.Bounds.Height);
+            using (var gfx = Graphics.FromImage(bmp))
+            using (var brush = new SolidBrush(Color.FromArgb(67, 75, 99)))
             {
-                var bmp = new Bitmap(frameInfo.Bounds.Width, frameInfo.Bounds.Height);
-                using (var gfx = Graphics.FromImage(bmp))
-                using (var brush = new SolidBrush(Color.FromArgb(67, 75, 99)))
-                {
-                    gfx.FillRectangle(brush, 0, 0, frameInfo.Bounds.Width, frameInfo.Bounds.Height);
-                }
-                frameInfo.ScreenImage = bmp;
+                gfx.FillRectangle(brush, 0, 0, frameInfo.Bounds.Width, frameInfo.Bounds.Height);
             }
+            frameInfo.ScreenImage = bmp;
             return frameInfo;
         }
 

@@ -188,6 +188,7 @@ namespace AgentInterface.Api.ScreenShare.DesktopDuplication
             desktopResource?.Dispose();
             return false;
         }
+
         private void RetrieveFrameMetadata(DesktopFrame frame)
         {
             if (_frameInfo.TotalMetadataBufferSize > 0)
@@ -197,14 +198,15 @@ namespace AgentInterface.Api.ScreenShare.DesktopDuplication
                 var movedRectangles = new OutputDuplicateMoveRectangle[_frameInfo.TotalMetadataBufferSize];
                 _mDeskDupl.GetFrameMoveRects(movedRectangles.Length, movedRectangles, out movedRegionsLength);
                 frame.MovedRegions =
-                    new MovedRegion[movedRegionsLength / Marshal.SizeOf(typeof(OutputDuplicateMoveRectangle))];
+                    new MovedRegion[movedRegionsLength/Marshal.SizeOf(typeof(OutputDuplicateMoveRectangle))];
                 for (var i = 0; i < frame.MovedRegions.Length; i++)
                 {
-                    var destRect = (Rectangle)movedRectangles[i].DestinationRect;
+                    var destRect = (Rectangle) movedRectangles[i].DestinationRect;
                     frame.MovedRegions[i] = new MovedRegion
                     {
                         Source = new Point(movedRectangles[i].SourcePoint.X, movedRectangles[i].SourcePoint.Y),
-                        Destination = new global::System.Drawing.Rectangle(destRect.X, destRect.Y, destRect.Width, destRect.Height)
+                        Destination =
+                            new global::System.Drawing.Rectangle(destRect.X, destRect.Y, destRect.Width, destRect.Height)
                     };
                 }
 
@@ -212,14 +214,15 @@ namespace AgentInterface.Api.ScreenShare.DesktopDuplication
                 var dirtyRegionsLength = 0;
                 var dirtyRectangles = new RawRectangle[_frameInfo.TotalMetadataBufferSize];
                 _mDeskDupl.GetFrameDirtyRects(dirtyRectangles.Length, dirtyRectangles, out dirtyRegionsLength);
-                frame.UpdatedRegions = new global::System.Drawing.Rectangle[dirtyRegionsLength / Marshal.SizeOf(typeof(Rectangle))];
+                frame.UpdatedRegions =
+                    new global::System.Drawing.Rectangle[dirtyRegionsLength/Marshal.SizeOf(typeof(Rectangle))];
                 frame.FinishedRegions = new FinishedRegions[frame.UpdatedRegions.Length];
                 for (var i = 0; i < frame.UpdatedRegions.Length; i++)
                 {
-                    var dirtyRect = (Rectangle)dirtyRectangles[i];
+                    var dirtyRect = (Rectangle) dirtyRectangles[i];
                     var rect = new global::System.Drawing.Rectangle(dirtyRect.X, dirtyRect.Y, dirtyRect.Width,
                         dirtyRect.Height);
-    
+
 
                     frame.FinishedRegions[i] = new FinishedRegions
                     {
@@ -234,12 +237,12 @@ namespace AgentInterface.Api.ScreenShare.DesktopDuplication
                 frame.UpdatedRegions = new global::System.Drawing.Rectangle[0];
             }
         }
-      
+
 
         private Bitmap ExtractRect(int originX, int originY, int width, int height)
         {
             // Get the desktop capture screenTexture
-            DataBox mapSource = _mDevice.ImmediateContext.MapSubresource(_desktopImageTexture, 0, MapMode.Read,
+            var mapSource = _mDevice.ImmediateContext.MapSubresource(_desktopImageTexture, 0, MapMode.Read,
                 MapFlags.None);
 
             // Create Drawing.Bitmap
@@ -248,16 +251,16 @@ namespace AgentInterface.Api.ScreenShare.DesktopDuplication
             var boundsRect = new global::System.Drawing.Rectangle(0, 0, width, height);
 
             // Copy pixels from screen capture Texture to GDI bitmap
-            BitmapData mapDest = bitmap.LockBits(boundsRect, ImageLockMode.WriteOnly, bitmap.PixelFormat);
-            IntPtr sourcePtr = mapSource.DataPointer;
-            IntPtr destPtr = mapDest.Scan0;
+            var mapDest = bitmap.LockBits(boundsRect, ImageLockMode.WriteOnly, bitmap.PixelFormat);
+            var sourcePtr = mapSource.DataPointer;
+            var destPtr = mapDest.Scan0;
 
-            sourcePtr = IntPtr.Add(sourcePtr, originY * mapSource.RowPitch + originX * 4);
-            for (int y = 0; y < height; y++)
+            sourcePtr = IntPtr.Add(sourcePtr, originY*mapSource.RowPitch + originX*4);
+            for (var y = 0; y < height; y++)
             {
                 // Copy a single line 
 
-                Utilities.CopyMemory(destPtr, sourcePtr, width * 4);
+                Utilities.CopyMemory(destPtr, sourcePtr, width*4);
 
                 // Advance pointers
                 if (y != height - 1)

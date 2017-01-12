@@ -394,7 +394,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
 
         private void HandleFullFrame()
         {
-            using (var grab = ScreenData.CaptureActiveScreen(ScreenData.ActiveDisplay))
+            using (var grab = ScreenData.CaptureDesktop())
             {
                 var imgData = ScreenData.ImageToByteArray(grab);
                 var monitors = SystemInformation.Displays;

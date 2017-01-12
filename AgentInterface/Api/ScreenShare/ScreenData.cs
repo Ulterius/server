@@ -334,7 +334,7 @@ namespace AgentInterface.Api.ScreenShare
             }
             else
             {
-                    var screenData = GetImageChange(CaptureActiveScreen(ActiveDisplay));
+                    var screenData = GetImageChange(CaptureDesktop());
                     if (screenData.ScreenBitmap == null || screenData.Rectangle == Rectangle.Empty) return null;
                     frameInfo.Bounds = screenData.Rectangle;
                     frameInfo.ScreenImage = screenData.ScreenBitmap;
@@ -352,7 +352,7 @@ namespace AgentInterface.Api.ScreenShare
         }
 
 
-        public static Bitmap CaptureActiveScreen(int screenIndex)
+        private static Bitmap CaptureActiveScreen(int screenIndex)
         {
             var screens = Display.DisplayInformation();
             if (screens.Count == 0 || screens.ElementAtOrDefault(screenIndex) == null)
@@ -383,7 +383,7 @@ namespace AgentInterface.Api.ScreenShare
             }
         }
 
-        private static Bitmap CaptureDesktop()
+        public static Bitmap CaptureDesktop()
         {
             var desktopBounds = Display.GetWindowRectangle();
             var desktopBmp = new Bitmap(
@@ -405,7 +405,10 @@ namespace AgentInterface.Api.ScreenShare
             _canUseGpuAcceleration = false;
             var win8Version = new Version(6, 2, 9200, 0);
             if (Environment.OSVersion.Platform != PlatformID.Win32NT || Environment.OSVersion.Version < win8Version)
+            {
+                Console.WriteLine("Cannot use GPU for Screen Share");
                 return;
+            }
             try
             {
                 _desktopDuplicator = new DesktopDuplicator(0);
