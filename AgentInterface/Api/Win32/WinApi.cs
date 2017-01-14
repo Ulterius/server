@@ -13,6 +13,8 @@ namespace AgentInterface.Api.Win32
 {
     public class WinApi
     {
+
+
         [DllImport("user32.dll")]
         static extern IntPtr GetClipboardData(uint uFormat);
         [DllImport("user32.dll")]

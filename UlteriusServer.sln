@@ -6,15 +6,19 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UlteriusServer", "RemoteTaskServer\UlteriusServer.csproj", "{E9A365D5-AEBE-4AF3-86C5-D17BC65ADE46}"
 	ProjectSection(ProjectDependencies) = postProject
 		{5C3B0B17-CBB7-4B4B-B527-1FAB2BB96466} = {5C3B0B17-CBB7-4B4B-B527-1FAB2BB96466}
+		{3549CD6F-80F8-450F-B99E-CF0A736B1F2A} = {3549CD6F-80F8-450F-B99E-CF0A736B1F2A}
 		{686AE4C4-791F-45EB-9414-029D6115905D} = {686AE4C4-791F-45EB-9414-029D6115905D}
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UlteriusAgent", "UlteriusAgent\UlteriusAgent.csproj", "{686AE4C4-791F-45EB-9414-029D6115905D}"
 	ProjectSection(ProjectDependencies) = postProject
 		{5C3B0B17-CBB7-4B4B-B527-1FAB2BB96466} = {5C3B0B17-CBB7-4B4B-B527-1FAB2BB96466}
+		{3549CD6F-80F8-450F-B99E-CF0A736B1F2A} = {3549CD6F-80F8-450F-B99E-CF0A736B1F2A}
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AgentInterface", "AgentInterface\AgentInterface.csproj", "{5C3B0B17-CBB7-4B4B-B527-1FAB2BB96466}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WindowsInput", "..\inputsimulator2\WindowsInput\WindowsInput.csproj", "{3549CD6F-80F8-450F-B99E-CF0A736B1F2A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -34,6 +38,10 @@ Global
 		{5C3B0B17-CBB7-4B4B-B527-1FAB2BB96466}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5C3B0B17-CBB7-4B4B-B527-1FAB2BB96466}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5C3B0B17-CBB7-4B4B-B527-1FAB2BB96466}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3549CD6F-80F8-450F-B99E-CF0A736B1F2A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3549CD6F-80F8-450F-B99E-CF0A736B1F2A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3549CD6F-80F8-450F-B99E-CF0A736B1F2A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3549CD6F-80F8-450F-B99E-CF0A736B1F2A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.DirectoryServices;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Management;
@@ -33,7 +34,7 @@ namespace UlteriusServer.Utilities
         private static int _CurrentSession;
         private static Process agentProcess;
         private static Process managerProcess;
-
+        public static Point LastLocation { get; set; }
         public enum Platform
         {
             Windows,

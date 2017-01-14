@@ -4,7 +4,7 @@
     <ExcludeAssemblies>
       AgentInterface
       OpenHardwareMonitorLib
-      InputManager
+      WindowsInput
       Cassia
       SharpDX
       SharpDX.Direct3D11

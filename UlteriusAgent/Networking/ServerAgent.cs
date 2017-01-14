@@ -7,12 +7,14 @@ using System.Linq;
 using System.Runtime.ExceptionServices;
 using System.ServiceModel;
 using System.Windows.Forms;
+using WindowsInput;
+using WindowsInput.Native;
 using AgentInterface;
 using AgentInterface.Api.Models;
 using AgentInterface.Api.ScreenShare;
 using AgentInterface.Api.System;
 using AgentInterface.Api.Win32;
-using InputManager;
+
 
 #endregion
 
@@ -60,53 +62,115 @@ namespace UlteriusAgent.Networking
 
         public void HandleRightMouseDown()
         {
-            Mouse.ButtonDown(Mouse.MouseKeys.Right);
+            var inputDesktop = new Desktop();
+            inputDesktop.OpenInput();
+            var setCurrent = Desktop.SetCurrent(inputDesktop);
+            if (setCurrent)
+            {
+                new InputSimulator().Mouse.RightButtonDown();
+            }
+           
+            
         }
 
         public void HandleRightMouseUp()
         {
-            Mouse.ButtonUp(Mouse.MouseKeys.Right);
+            var inputDesktop = new Desktop();
+            inputDesktop.OpenInput();
+            var setCurrent = Desktop.SetCurrent(inputDesktop);
+            if (setCurrent)
+            {
+                new InputSimulator().Mouse.RightButtonUp();
+            }
+            
         }
 
 
         public void MoveMouse(int x, int y)
         {
-            Cursor.Position = new Point(x, y);
+            var inputDesktop = new Desktop();
+            inputDesktop.OpenInput();
+            var setCurrent = Desktop.SetCurrent(inputDesktop);
+            if (setCurrent)
+            {
+                var bounds = Display.GetWindowRectangle();
+                x = checked((int)Math.Round(x * (65535 / (double)bounds.Width)));
+                y = checked((int)Math.Round(y * (65535 / (double)bounds.Height)));
+                new InputSimulator().Mouse.MoveMouseTo(x, y);
+            }
         }
 
         public void MouseScroll(bool positive)
         {
-            var direction = positive ? Mouse.ScrollDirection.Up : Mouse.ScrollDirection.Down;
-            Mouse.Scroll(direction);
+            var inputDesktop = new Desktop();
+            inputDesktop.OpenInput();
+            var setCurrent = Desktop.SetCurrent(inputDesktop);
+            if (setCurrent)
+            {
+                var direction = positive ? 10 : -10;
+                new InputSimulator().Mouse.VerticalScroll(direction);
+            }
+            
         }
 
 
         public void HandleLeftMouseDown()
         {
-            Mouse.ButtonDown(Mouse.MouseKeys.Left);
+            var inputDesktop = new Desktop();
+            inputDesktop.OpenInput();
+            var setCurrent = Desktop.SetCurrent(inputDesktop);
+            if (setCurrent)
+            {
+                new InputSimulator().Mouse.LeftButtonDown();
+            }
+           
+       
         }
 
         public void HandleLeftMouseUp()
         {
-            Mouse.ButtonUp(Mouse.MouseKeys.Left);
+            var inputDesktop = new Desktop();
+            inputDesktop.OpenInput();
+            var setCurrent = Desktop.SetCurrent(inputDesktop);
+            if (setCurrent)
+            {
+                new InputSimulator().Mouse.LeftButtonUp();
+            }
+
+            
         }
 
         public void HandleKeyDown(List<int> keyCodes)
         {
-            foreach (var code in keyCodes)
+            var inputDesktop = new Desktop();
+            inputDesktop.OpenInput();
+            var setCurrent = Desktop.SetCurrent(inputDesktop);
+            if (setCurrent)
             {
-                var virtualKey = (Keys)code;
-                Keyboard.KeyDown(virtualKey);
+                foreach (var code in keyCodes)
+                {
+                    var virtualKey = (VirtualKeyCode)code;
+                    new InputSimulator().Keyboard.KeyDown(virtualKey);
+
+                }
             }
+            
         }
 
         public void HandleKeyUp(List<int> keyCodes)
         {
-            foreach (var code in keyCodes)
+            var inputDesktop = new Desktop();
+            inputDesktop.OpenInput();
+            var setCurrent = Desktop.SetCurrent(inputDesktop);
+            if (setCurrent)
             {
-                var virtualKey = (Keys)code;
-                Keyboard.KeyUp(virtualKey);
+                foreach (var code in keyCodes)
+                {
+                    var virtualKey = (VirtualKeyCode)code;
+                    new InputSimulator().Keyboard.KeyUp(virtualKey);
+                }
             }
+            
         }
 
         public void SetActiveMonitor(int index)
@@ -115,7 +179,15 @@ namespace UlteriusAgent.Networking
 
         public void HandleRightClick()
         {
-            Mouse.PressButton(Mouse.MouseKeys.Right);
+            var inputDesktop = new Desktop();
+            inputDesktop.OpenInput();
+            var setCurrent = Desktop.SetCurrent(inputDesktop);
+            if (setCurrent)
+            {
+                new InputSimulator().Mouse.RightButtonClick();
+            }
+            
+ 
         }
 
         [HandleProcessCorruptedStateExceptions]
