@@ -5,7 +5,7 @@ using System.Runtime.Serialization;
 namespace AgentInterface.Api.ScreenShare.DesktopDuplication
 {
     [DataContract]
-    public class FinishedRegions
+    public class FinishedRegions 
     {
         [DataMember]
         public Bitmap Frame { get; internal set; }

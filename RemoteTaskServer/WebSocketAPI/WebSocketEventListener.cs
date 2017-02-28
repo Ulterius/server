@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using UlteriusServer.Utilities;
 using UlteriusServer.Utilities.Security;
 using vtortola.WebSockets;
+using vtortola.WebSockets.Deflate;
 using vtortola.WebSockets.Rfc6455;
 
 #endregion

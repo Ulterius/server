@@ -18,26 +18,28 @@ namespace UlteriusServer.Api.Network
 {
     public class UlteriusAgentClient
     {
-        private ITUlteriusContract InputChannel { get; set; }
+        private IInputContract InputChannel { get; set; }
 
-        private ITUlteriusContract FrameChannel { get; set; }
+        private IFrameContract FrameChannel { get; set; }
 
         public void Start(bool keepAlive = true)
         {
-            var inputAddress = "net.pipe://localhost/ulterius/agent/input/";
+            var inputAddress = "net.tcp://localhost/ulterius/agent/input/";
             var frameAddress = "net.pipe://localhost/ulterius/agent/frames/";
 
-            var inputBinding = new NetNamedPipeBinding
+            var inputBinding = new NetTcpBinding
             {
-                Security = new NetNamedPipeSecurity
+                Security = new NetTcpSecurity
                 {
-                    Transport = {ProtectionLevel = ProtectionLevel.None},
-                    Mode = NetNamedPipeSecurityMode.None
+                    Transport = { ProtectionLevel = ProtectionLevel.None },
+                    Mode = SecurityMode.None
                 },
                 MaxReceivedMessageSize = int.MaxValue
             };
             var ep = new EndpointAddress(inputAddress);
-            InputChannel = ChannelFactory<ITUlteriusContract>.CreateChannel(inputBinding, ep);
+            
+            InputChannel = ChannelFactory<IInputContract>.CreateChannel(inputBinding, ep);
+         
 
             var frameBinding = new NetNamedPipeBinding
             {
@@ -49,7 +51,7 @@ namespace UlteriusServer.Api.Network
                 MaxReceivedMessageSize = int.MaxValue
             };
             var epf = new EndpointAddress(frameAddress);
-            FrameChannel = ChannelFactory<ITUlteriusContract>.CreateChannel(frameBinding, epf);
+            FrameChannel = ChannelFactory<IFrameContract>.CreateChannel(frameBinding, epf);
 
 
             if (!keepAlive) return;
@@ -183,8 +185,10 @@ namespace UlteriusServer.Api.Network
             catch (EndpointNotFoundException)
             {
             }
-            catch (CommunicationException)
+            catch (CommunicationException ex)
             {
+                Console.WriteLine(ex.Message);
+                Console.Write(ex.StackTrace);
             }
         }
 
@@ -299,14 +303,14 @@ namespace UlteriusServer.Api.Network
             }
             catch (EndpointNotFoundException)
             {
-                
+
             }
             catch (CommunicationException)
             {
-               
+
             }
         }
-       
+
         public List<float> GetCpuTemps()
         {
             try
@@ -323,6 +327,6 @@ namespace UlteriusServer.Api.Network
             }
         }
 
-     
+
     }
 }

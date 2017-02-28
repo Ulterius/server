@@ -49,7 +49,8 @@
     <Reference Include="System.Windows.Forms" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Networking\ServerAgent.cs" />
+    <Compile Include="Networking\InputAgent.cs" />
+    <Compile Include="Networking\FrameAgent.cs" />
     <Compile Include="Networking\Tools.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

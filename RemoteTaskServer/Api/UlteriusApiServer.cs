@@ -63,10 +63,10 @@ namespace UlteriusServer.Api
             };
             var server = new WebSocketEventListener(endPoints, new WebSocketListenerOptions
             {
-                PingTimeout = TimeSpan.FromSeconds(15),
-                NegotiationTimeout = TimeSpan.FromSeconds(15),
-                WebSocketSendTimeout = TimeSpan.FromSeconds(15),
-                WebSocketReceiveTimeout = TimeSpan.FromSeconds(15),
+                PingTimeout = TimeSpan.FromSeconds(2),
+                NegotiationTimeout = TimeSpan.FromSeconds(2),
+                WebSocketSendTimeout = TimeSpan.FromSeconds(2),
+                WebSocketReceiveTimeout = TimeSpan.FromSeconds(2),
                 ParallelNegotiations = Environment.ProcessorCount*2,
                 NegotiationQueueCapacity = 256,
                 TcpBacklog = 1000,
@@ -76,7 +76,6 @@ namespace UlteriusServer.Api
                         response.Cookies.Add(new Cookie("ConnectionId", Guid.NewGuid().ToString()));
                 }
             });
-
             server.OnConnect += HandleConnect;
             server.OnDisconnect += HandleDisconnect;
             server.OnPlainTextMessage += HandlePlainTextMessage;

@@ -1,9 +1,13 @@
 ﻿#region
 
 using System;
+using System.Collections.ObjectModel;
 using System.Net.Security;
 using System.Runtime.InteropServices;
 using System.ServiceModel;
+using System.ServiceModel.Channels;
+using System.ServiceModel.Description;
+using System.ServiceModel.Dispatcher;
 using AgentInterface;
 using AgentInterface.Api.ScreenShare;
 using UlteriusAgent.Networking;
@@ -12,6 +16,8 @@ using UlteriusAgent.Networking;
 
 namespace UlteriusAgent
 {
+  
+
     internal class Program
     {
         private const int SW_HIDE = 0;
@@ -42,16 +48,17 @@ namespace UlteriusAgent
             try
             {
                 ScreenData.SetupDuplication();
-                var inputAddress = "net.pipe://localhost/ulterius/agent/input/";
+                var inputAddress = "net.tcp://localhost/ulterius/agent/input/";
                 var frameAddress = "net.pipe://localhost/ulterius/agent/frames/";
-                var frameService = new ServiceHost(typeof(ServerAgent));
-                var inputService = new ServiceHost(typeof(ServerAgent));
-                var inputBinding = new NetNamedPipeBinding
+               
+                var inputService = new ServiceHost(typeof(InputAgent));
+                var frameService = new ServiceHost(typeof(FrameAgent));
+                var inputBinding = new NetTcpBinding
                 {
-                    Security = new NetNamedPipeSecurity
+                    Security = new NetTcpSecurity
                     {
                         Transport = {ProtectionLevel = ProtectionLevel.None},
-                        Mode = NetNamedPipeSecurityMode.None
+                        Mode = SecurityMode.None
                     },
                     MaxReceivedMessageSize = int.MaxValue
                 };
@@ -64,10 +71,19 @@ namespace UlteriusAgent
                     },
                     MaxReceivedMessageSize = int.MaxValue
                 };
-                inputService.AddServiceEndpoint(typeof(ITUlteriusContract), inputBinding, inputAddress);
-                frameService.AddServiceEndpoint(typeof(ITUlteriusContract), frameBinding, frameAddress);
-                frameService.Open();
+                inputService.AddServiceEndpoint(typeof(IInputContract), inputBinding, inputAddress);
+                frameService.AddServiceEndpoint(typeof(IFrameContract), frameBinding, frameAddress);
+                inputService.Opened += delegate(object sender, EventArgs eventArgs)
+                 {
+                     Console.WriteLine("Input started");
+                 };
+                frameService.Opened += delegate (object sender, EventArgs eventArgs)
+                {
+                    Console.WriteLine("Frame started");
+                };
                 inputService.Open();
+                frameService.Open();
+                Console.WriteLine("Test");
                 Console.Read();
             }
             catch (Exception ex)
@@ -75,6 +91,11 @@ namespace UlteriusAgent
                 Console.WriteLine(ex.Message + " \n " + ex.StackTrace);
             }
             Console.Read();
+        }
+
+        private static void host_faulted(object sender, EventArgs e)
+        {
+            
         }
     }
 }

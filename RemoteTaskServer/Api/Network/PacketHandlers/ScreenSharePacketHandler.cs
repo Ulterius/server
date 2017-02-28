@@ -126,8 +126,8 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                 }
                 _authClient.ShutDownScreenShare = false;
                 var stream = RunningAsService
-                    ? new Thread(GetScreenAgentFrame) {IsBackground = true}
-                    : new Thread(GetScreenFrame) {IsBackground = true};
+                    ? new Thread(GetScreenAgentFrame) { IsBackground = true }
+                    : new Thread(GetScreenFrame) { IsBackground = true };
                 ScreenShareService.Streams[_authClient] = stream;
                 var data = new
                 {
@@ -363,7 +363,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                         location = bounds.Location,
                         size = bounds.Size
                     },
-                    frameData = image.Select(b => (int) b).ToArray()
+                    frameData = image.Select(b => (int)b).ToArray()
                 };
                 _builder.WriteMessage(frameData);
             }
@@ -418,7 +418,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                 var frameData = new
                 {
                     screenBounds,
-                    frameData = imgData.Select(b => (int) b).ToArray()
+                    frameData = imgData.Select(b => (int)b).ToArray()
                 };
                 _builder.WriteMessage(frameData);
             }
@@ -427,7 +427,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
         private void HandleKeyUp()
         {
             if (!ScreenShareService.Streams.ContainsKey(_authClient)) return;
-            var keyCodes = ((IEnumerable) _packet.Args[0]).Cast<object>()
+            var keyCodes = ((IEnumerable)_packet.Args[0]).Cast<object>()
                 .Select(x => x.ToString())
                 .ToList();
             var codes =
@@ -443,7 +443,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
             {
                 foreach (var code in codes)
                 {
-                    var virtualKey = (VirtualKeyCode) code;
+                    var virtualKey = (VirtualKeyCode)code;
                     new InputSimulator().Keyboard.KeyUp(virtualKey);
                 }
             }
@@ -458,7 +458,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
         private void HandleKeyDown()
         {
             if (!ScreenShareService.Streams.ContainsKey(_authClient)) return;
-            var keyCodes = ((IEnumerable) _packet.Args[0]).Cast<object>()
+            var keyCodes = ((IEnumerable)_packet.Args[0]).Cast<object>()
                 .Select(x => x.ToString())
                 .ToList();
             var codes =
@@ -473,7 +473,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
             {
                 foreach (var code in codes)
                 {
-                    var virtualKey = (VirtualKeyCode) code;
+                    var virtualKey = (VirtualKeyCode)code;
                     new InputSimulator().Keyboard.KeyDown(virtualKey);
                 }
             }
@@ -498,7 +498,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
 
         private static Point Translate(Point point, Size from, Size to)
         {
-            return new Point(point.X*to.Width/from.Width, point.Y*to.Height/from.Height);
+            return new Point(point.X * to.Width / from.Width, point.Y * to.Height / from.Height);
         }
 
         private static Point GetRelativeCoordinates(Point absoluteCoordinates)
@@ -512,12 +512,13 @@ namespace UlteriusServer.Api.Network.PacketHandlers
             if (!ScreenShareService.Streams.ContainsKey(_authClient)) return;
             try
             {
-              
+
                 int y = Convert.ToInt16(_packet.Args[0], CultureInfo.InvariantCulture);
                 int x = Convert.ToInt16(_packet.Args[1], CultureInfo.InvariantCulture);
-               
+
                 if (RunningAsService)
                 {
+
                     AgentClient.MoveMouse(x, y);
                 }
                 else

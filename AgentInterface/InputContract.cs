@@ -5,22 +5,12 @@ using System.ServiceModel;
 using System.Text;
 using System.Threading.Tasks;
 using AgentInterface.Api.Models;
-using AgentInterface.Api.ScreenShare.DesktopDuplication;
 
 namespace AgentInterface
 {
     [ServiceContract(Namespace = "https://ulterius.io/")]
-    public interface ITUlteriusContract
+    public interface IInputContract
     {
-
-        [OperationContract]
-        FrameInformation GetCleanFrame();
-
-        [OperationContract]
-        FrameInformation GetFullFrame();
-
-        [OperationContract]
-        bool KeepAlive();
 
         [OperationContract(IsOneWay = true)]
         void HandleRightMouseDown();
@@ -31,10 +21,8 @@ namespace AgentInterface
         [OperationContract(IsOneWay = true)]
         void MoveMouse(int x, int y);
 
-
         [OperationContract(IsOneWay = true)]
         void MouseScroll(bool positive);
-
 
         [OperationContract(IsOneWay = true)]
         void HandleLeftMouseDown();
@@ -48,7 +36,6 @@ namespace AgentInterface
         [OperationContract(IsOneWay = true)]
         void HandleKeyUp(List<int> keyCodes);
 
-
         [OperationContract(IsOneWay = true)]
         void SetActiveMonitor(int index);
 
@@ -61,11 +48,8 @@ namespace AgentInterface
         [OperationContract]
         List<DisplayInformation> GetDisplayInformation();
 
-
-     
-
         [OperationContract]
         List<float> GetCpuTemps();
-      
+
     }
 }

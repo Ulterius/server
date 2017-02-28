@@ -88,7 +88,8 @@
     <Compile Include="Api\Win32\Win32Exception.cs" />
     <Compile Include="Api\Win32\WinApi.cs" />
     <Compile Include="Api\Win32\WindowsIdentityImpersonator.cs" />
-    <Compile Include="UlteriusContract.cs" />
+    <Compile Include="FrameContract.cs" />
+    <Compile Include="InputContract.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

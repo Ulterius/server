@@ -168,7 +168,7 @@ namespace AgentInterface.Api.ScreenShare.DesktopDuplication
             _frameInfo = new OutputDuplicateFrameInformation();
             try
             {
-                _mDeskDupl.AcquireNextFrame(5000, out _frameInfo, out desktopResource);
+                _mDeskDupl.AcquireNextFrame(500, out _frameInfo, out desktopResource);
             }
             catch (SharpDXException ex)
             {
@@ -214,16 +214,12 @@ namespace AgentInterface.Api.ScreenShare.DesktopDuplication
                 var dirtyRegionsLength = 0;
                 var dirtyRectangles = new RawRectangle[_frameInfo.TotalMetadataBufferSize];
                 _mDeskDupl.GetFrameDirtyRects(dirtyRectangles.Length, dirtyRectangles, out dirtyRegionsLength);
-                frame.UpdatedRegions =
-                    new global::System.Drawing.Rectangle[dirtyRegionsLength/Marshal.SizeOf(typeof(Rectangle))];
+                frame.UpdatedRegions = new global::System.Drawing.Rectangle[dirtyRegionsLength/Marshal.SizeOf(typeof(Rectangle))];
                 frame.FinishedRegions = new FinishedRegions[frame.UpdatedRegions.Length];
                 for (var i = 0; i < frame.UpdatedRegions.Length; i++)
                 {
                     var dirtyRect = (Rectangle) dirtyRectangles[i];
-                    var rect = new global::System.Drawing.Rectangle(dirtyRect.X, dirtyRect.Y, dirtyRect.Width,
-                        dirtyRect.Height);
-
-
+                    var rect = new global::System.Drawing.Rectangle(dirtyRect.X, dirtyRect.Y, dirtyRect.Width, dirtyRect.Height);
                     frame.FinishedRegions[i] = new FinishedRegions
                     {
                         Destination = rect,
@@ -241,6 +237,7 @@ namespace AgentInterface.Api.ScreenShare.DesktopDuplication
 
         private Bitmap ExtractRect(int originX, int originY, int width, int height)
         {
+           
             // Get the desktop capture screenTexture
             var mapSource = _mDevice.ImmediateContext.MapSubresource(_desktopImageTexture, 0, MapMode.Read,
                 MapFlags.None);

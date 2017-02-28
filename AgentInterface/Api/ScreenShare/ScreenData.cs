@@ -124,8 +124,8 @@ namespace AgentInterface.Api.ScreenShare
                 // Get the number of integers (4 bytes) in each row
                 //	of the image.
                 //
-                var strideNew = bmNewData.Stride/numBytesPerPixel;
-                var stridePrev = bmPrevData.Stride/numBytesPerPixel;
+                var strideNew = bmNewData.Stride / numBytesPerPixel;
+                var stridePrev = bmPrevData.Stride / numBytesPerPixel;
 
                 // Get a pointer to the first pixel.
                 //
@@ -144,8 +144,8 @@ namespace AgentInterface.Api.ScreenShare
                     // Cast the safe pointers into unsafe pointers.
                     //
 
-                    var pNew = (int*) scanNew0.ToPointer();
-                    var pPrev = (int*) scanPrev0.ToPointer();
+                    var pNew = (int*)scanNew0.ToPointer();
+                    var pPrev = (int*)scanPrev0.ToPointer();
                     for (var y = 0; y < newBitmap.Height; ++y)
                     {
                         // For pixels up to the current bound (left to right)
@@ -181,10 +181,10 @@ namespace AgentInterface.Api.ScreenShare
                         pPrev += stridePrev;
                     }
 
-                    pNew = (int*) scanNew0.ToPointer();
-                    pPrev = (int*) scanPrev0.ToPointer();
-                    pNew += (newBitmap.Height - 1)*strideNew;
-                    pPrev += (prevBitmap.Height - 1)*stridePrev;
+                    pNew = (int*)scanNew0.ToPointer();
+                    pPrev = (int*)scanPrev0.ToPointer();
+                    pNew += (newBitmap.Height - 1) * strideNew;
+                    pPrev += (prevBitmap.Height - 1) * stridePrev;
 
                     for (var y = newBitmap.Height - 1; y > top; y--)
                     {
@@ -322,7 +322,7 @@ namespace AgentInterface.Api.ScreenShare
 
         public static FrameInformation DesktopCapture()
         {
-            var frameInfo  = new FrameInformation();
+            var frameInfo = new FrameInformation();
             if (_canUseGpuAcceleration)
             {
                 frameInfo.UsingGpu = true;
@@ -334,11 +334,11 @@ namespace AgentInterface.Api.ScreenShare
             }
             else
             {
-                    var screenData = GetImageChange(CaptureDesktop());
-                    if (screenData.ScreenBitmap == null || screenData.Rectangle == Rectangle.Empty) return null;
-                    frameInfo.Bounds = screenData.Rectangle;
-                    frameInfo.ScreenImage = screenData.ScreenBitmap;
-                
+                var screenData = GetImageChange(CaptureDesktop());
+                if (screenData.ScreenBitmap == null || screenData.Rectangle == Rectangle.Empty) return null;
+                frameInfo.Bounds = screenData.Rectangle;
+                frameInfo.ScreenImage = screenData.ScreenBitmap;
+
             }
             return frameInfo;
         }
