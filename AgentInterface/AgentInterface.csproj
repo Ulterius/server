@@ -68,6 +68,9 @@
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.Windows.Forms" />
+    <Reference Include="TurboJpegWrapper, Version=1.4.2.19498, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\TurboJpegWrapper.1.4.2.6\lib\net35\TurboJpegWrapper.dll</HintPath>
+    </Reference>
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
@@ -137,6 +140,13 @@ foreach (var item in filesToCleanup)
   </UsingTask>
   <Target Name="CleanReferenceCopyLocalPaths" AfterTargets="AfterBuild;NonWinFodyTarget">
     <CosturaCleanup Config="FodyWeavers.xml" Files="@(ReferenceCopyLocalPaths->'$(OutDir)%(DestinationSubDirectory)%(Filename)%(Extension)')" />
+  </Target>
+  <Import Project="..\packages\TurboJpegWrapper.1.4.2.6\build\TurboJpegWrapper.targets" Condition="Exists('..\packages\TurboJpegWrapper.1.4.2.6\build\TurboJpegWrapper.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\TurboJpegWrapper.1.4.2.6\build\TurboJpegWrapper.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\TurboJpegWrapper.1.4.2.6\build\TurboJpegWrapper.targets'))" />
   </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

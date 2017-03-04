@@ -3,6 +3,7 @@
   <Costura>
     <ExcludeAssemblies>
       WindowsInput
+      AgentInterface
     </ExcludeAssemblies>
   </Costura>
 </Weavers>

@@ -244,7 +244,7 @@ namespace AgentInterface.Api.ScreenShare.DesktopDuplication
 
             // Create Drawing.Bitmap
 
-            var bitmap = new Bitmap(width, height, PixelFormat.Format32bppRgb); //不能是ARGB
+            var bitmap = new Bitmap(width, height, PixelFormat.Format32bppArgb); //不能是ARGB
             var boundsRect = new global::System.Drawing.Rectangle(0, 0, width, height);
 
             // Copy pixels from screen capture Texture to GDI bitmap
@@ -277,7 +277,7 @@ namespace AgentInterface.Api.ScreenShare.DesktopDuplication
             var mapSource = _mDevice.ImmediateContext.MapSubresource(_desktopImageTexture, 0, MapMode.Read,
                 MapFlags.None);
             var bounds = (Rectangle) _mOutputDesc.DesktopBounds;
-            FinalImage = new Bitmap(bounds.Width, bounds.Height, PixelFormat.Format32bppRgb);
+            FinalImage = new Bitmap(bounds.Width, bounds.Height, PixelFormat.Format32bppArgb);
             var boundsRect = new global::System.Drawing.Rectangle(0, 0, bounds.Width, bounds.Height);
             // Copy pixels from screen capture Texture to GDI bitmap
             var mapDest = FinalImage.LockBits(boundsRect, ImageLockMode.WriteOnly, FinalImage.PixelFormat);

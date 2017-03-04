@@ -8,6 +8,7 @@ using System.Linq;
 using AgentInterface.Api.Models;
 using AgentInterface.Api.ScreenShare.DesktopDuplication;
 using AgentInterface.Api.Win32;
+using TurboJpegWrapper;
 
 #endregion
 
@@ -33,6 +34,7 @@ namespace AgentInterface.Api.ScreenShare
         public static byte[] PackScreenCaptureData(Bitmap image, Rectangle bounds)
         {
             byte[] results;
+            using (var compressor = new TJCompressor())
             using (var screenStream = new MemoryStream())
             {
                 using (var binaryWriter = new BinaryWriter(screenStream))
@@ -47,15 +49,8 @@ namespace AgentInterface.Api.ScreenShare
                     binaryWriter.Write(bounds.Bottom);
                     binaryWriter.Write(bounds.Left);
                     binaryWriter.Write(bounds.Right);
-                    using (var ms = new MemoryStream())
-                    {
-                        image.Save(ms, ImageFormat.Jpeg);
-
-                        var imgData = ms.ToArray();
-
-                        //write the image
-                        binaryWriter.Write(imgData);
-                    }
+                    var imageData = compressor.Compress(image, TJSubsamplingOptions.TJSAMP_420, 50, TJFlags.FASTDCT);
+                    binaryWriter.Write(imageData);
                 }
                 results = screenStream.ToArray();
             }
