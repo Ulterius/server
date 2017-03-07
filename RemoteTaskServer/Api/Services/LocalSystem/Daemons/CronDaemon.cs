@@ -3,7 +3,6 @@
 using System;
 using System.Collections.Concurrent;
 using System.Timers;
-using UlteriusServer.Api.Network.Models;
 
 #endregion
 

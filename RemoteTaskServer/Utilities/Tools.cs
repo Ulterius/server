@@ -17,10 +17,10 @@ using System.Threading.Tasks;
 using System.Web;
 using AgentInterface.Api.ScreenShare;
 using AgentInterface.Api.Win32;
+using AgentInterface.Settings;
 using Ionic.Zip;
 using NetFwTypeLib;
 using Open.Nat;
-using UlteriusServer.Utilities.Settings;
 using static System.Security.Principal.WindowsIdentity;
 using Task = System.Threading.Tasks.Task;
 

@@ -1,8 +1,6 @@
 ﻿#region
 
 using System;
-using System.Linq;
-using System.Management;
 using UlteriusServer.Api.Network.Messages;
 using UlteriusServer.Api.Network.Models;
 using UlteriusServer.Api.Services.LocalSystem;

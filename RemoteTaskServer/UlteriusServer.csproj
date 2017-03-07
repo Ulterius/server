@@ -118,7 +118,6 @@
     <Compile Include="Utilities\Security\Streams\OfbStream.cs" />
     <Compile Include="Utilities\Security\Streams\ZeroStream.cs" />
     <Compile Include="Utilities\Security\AuthUtils.cs" />
-    <Compile Include="Utilities\Settings\Config.cs" />
     <Compile Include="Utilities\Usage\HardwareSurvey.cs" />
     <Compile Include="WebCams\WebCamManager.cs" />
     <Compile Include="WebSocketAPI\Authentication\AuthClient.cs" />
@@ -177,7 +176,6 @@
   <ItemGroup>
     <Compile Include="Api\UlteriusApiServer.cs" />
     <Compile Include="TerminalServer\TerminalManagerServer.cs" />
-    <Compile Include="Utilities\AppEnvironment.cs" />
     <Compile Include="Utilities\DynamicMap.cs" />
     <Compile Include="Utilities\Extensions\StringExtensions.cs" />
     <Compile Include="Utilities\Files\FileManager.cs" />
@@ -312,9 +310,8 @@
       <HintPath>..\packages\Mono.Cecil.0.9.6.4\lib\net45\Mono.Cecil.Rocks.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.9.0.2-beta1\lib\net45\Newtonsoft.Json.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.10.0.1-beta1\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="Open.Nat, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f22a6a4582336c76, processorArchitecture=MSIL">
       <HintPath>..\packages\Open.NAT.2.1.0.0\lib\net45\Open.Nat.dll</HintPath>

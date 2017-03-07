@@ -9,7 +9,6 @@ using UlteriusServer.TerminalServer.Infrastructure;
 using UlteriusServer.TerminalServer.Messaging.Connection;
 using UlteriusServer.TerminalServer.Messaging.Serialization;
 using UlteriusServer.TerminalServer.Session;
-using UlteriusServer.WebSocketAPI.Authentication;
 using vtortola.WebSockets;
 
 #endregion

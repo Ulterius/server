@@ -7,6 +7,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime;
 using System.Runtime.InteropServices;
+using AgentInterface.Settings;
 using Topshelf;
 using UlteriusServer.Forms.Utilities;
 using UlteriusServer.Utilities;
@@ -28,29 +29,12 @@ namespace UlteriusServer
             ShowWindow(handle, Hide);
         }
 
-        #region win32
-
-        private const int Hide = 0;
-
-        [DllImport("user32.dll")]
-        private static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
-
-        [DllImport("kernel32.dll")]
-        private static extern IntPtr GetConsoleWindow();
-
-
-        [DllImport("user32.dll")]
-        private static extern bool SetProcessDPIAware();
-#endregion
-
         private static void Main(string[] args)
 
         {
             //Fix screensize issues for Screen Share
             if (Environment.OSVersion.Version.Major >= 6)
-            {
                 SetProcessDPIAware();
-            }
             HideWindow();
             try
             {
@@ -87,19 +71,34 @@ namespace UlteriusServer
                     var hardware = new HardwareSurvey();
                     hardware.Setup();
                     if (Tools.RunningPlatform() == Tools.Platform.Windows)
-                    {
                         UlteriusTray.ShowTray();
-                    }
                     else
-                    {
                         Console.ReadKey(true);
-                    }
                 }
             }
-            catch
+            catch (Exception ex)
             {
                 Console.WriteLine("Something unexpected occured");
+                Console.WriteLine(ex.Message);
+                Console.WriteLine(ex.StackTrace);
+                Console.Read();
             }
         }
+
+        #region win32
+
+        private const int Hide = 0;
+
+        [DllImport("user32.dll")]
+        private static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+
+        [DllImport("kernel32.dll")]
+        private static extern IntPtr GetConsoleWindow();
+
+
+        [DllImport("user32.dll")]
+        private static extern bool SetProcessDPIAware();
+
+        #endregion
     }
 }

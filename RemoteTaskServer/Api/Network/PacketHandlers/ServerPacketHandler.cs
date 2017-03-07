@@ -8,10 +8,9 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Windows.Forms;
+using AgentInterface.Settings;
 using UlteriusServer.Api.Network.Messages;
-using UlteriusServer.Utilities;
 using UlteriusServer.Utilities.Security;
-using UlteriusServer.Utilities.Settings;
 using UlteriusServer.WebSocketAPI.Authentication;
 using vtortola.WebSockets;
 

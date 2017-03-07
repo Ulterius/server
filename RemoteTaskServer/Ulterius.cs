@@ -4,14 +4,11 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
-using System.Runtime.InteropServices;
-using System.Text;
-using Newtonsoft.Json;
+using AgentInterface.Settings;
 using UlteriusServer.Api;
 using UlteriusServer.Api.Services.LocalSystem;
 using UlteriusServer.TerminalServer;
 using UlteriusServer.Utilities;
-using UlteriusServer.Utilities.Settings;
 using UlteriusServer.WebCams;
 using UlteriusServer.WebServer;
 

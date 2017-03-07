@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
+using AgentInterface.Settings;
 using UlteriusServer.Api.Services.Network;
 using UlteriusServer.Properties;
 using UlteriusServer.Utilities;

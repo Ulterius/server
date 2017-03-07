@@ -6,7 +6,6 @@ using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
-using UlteriusServer.Api.Network.Messages;
 using UlteriusServer.TerminalServer.Messaging.Connection;
 using UlteriusServer.TerminalServer.Messaging.TerminalControl.Requests;
 using UlteriusServer.TerminalServer.Session;

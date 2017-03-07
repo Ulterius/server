@@ -3,10 +3,9 @@
 using System;
 using System.IO;
 using System.Text;
+using AgentInterface.Settings;
 using Newtonsoft.Json;
 using UlteriusServer.Api.Network.Messages;
-using UlteriusServer.Utilities;
-using UlteriusServer.Utilities.Settings;
 using UlteriusServer.WebSocketAPI.Authentication;
 using vtortola.WebSockets;
 

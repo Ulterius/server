@@ -3,13 +3,12 @@
 using System.Collections.Generic;
 using System.IO;
 using Newtonsoft.Json;
-using UlteriusServer.WebServer;
 
 #endregion
 
-namespace UlteriusServer.Utilities.Settings
+namespace AgentInterface.Settings
 {
-    internal class Config
+    public class Config
     {
         public static bool Empty;
 
@@ -69,7 +68,7 @@ namespace UlteriusServer.Utilities.Settings
     }
 
 
-    internal class General
+    public class General
     {
         public bool RunStartup { get; set; } = true;
         public bool UploadLogs { get; set; } = true;
@@ -78,50 +77,54 @@ namespace UlteriusServer.Utilities.Settings
         public string ClientIssues { get; set; } = "https://github.com/Ulterius/client/issues";
     }
 
-    internal class WebServer
+    public class WebServer
     {
-        public string WebFilePath { get; set; } = HttpServer.DefaultPath;
+        public static string DefaultPath = AppEnvironment.DataPath +
+                                         @"\client\";
+
+        public string WebFilePath { get; set; } = DefaultPath;
         public int WebServerPort { get; set; } = 22006;
         public bool ToggleWebServer { get; set; } = true;
     }
 
-    internal class TaskServer
+    public class TaskServer
     {
         public int TaskServerPort { get; set; } = 22007;
     }
 
-    internal class Network
+    public class Network
     {
         public bool SkipHostNameResolve { get; set; }
         public bool UpnpEnabled { get; set; } = true;
         public bool BindLocal { get; set; }
     }
 
-    internal class Plugins
+    public class Plugins
     {
         public bool LoadPlugins { get; set; } = true;
     }
 
-    internal class ScreenShareService
+    public class ScreenShareService
     {
         public int ScreenSharePort { get; set; } = 22009;
         public int ScreenShareFps { get; set; } = 60;
+        public bool UseGpu { get; set; } = true;
     }
 
-    internal class Terminal
+    public class Terminal
     {
         public bool AllowTerminal { get; set; } = true;
         public int TerminalPort { get; set; } = 22008;
     }
 
-    internal class Webcams
+    public class Webcams
     {
         public bool UseWebcams { get; set; } = true;
         public bool UseMotionDetection { get; set; } = false;
         public int WebcamPort { get; set; } = 22010;
     }
 
-    internal class Debug
+    public class Debug
     {
         public bool TraceDebug { get; set; }
     }

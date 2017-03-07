@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.ExceptionServices;
+using System.ServiceModel;
 using System.Text;
 using System.Threading.Tasks;
 using WindowsInput;
@@ -13,7 +14,8 @@ using AgentInterface.Api.Win32;
 
 namespace UlteriusAgent.Networking
 {
-    class InputAgent : IInputContract
+    [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single)]
+    public class InputAgent : IInputContract
     {
 
         public void HandleRightMouseDown()
@@ -38,7 +40,6 @@ namespace UlteriusAgent.Networking
             }
 
         }
-
 
         public void MoveMouse(int x, int y)
         {
@@ -127,10 +128,6 @@ namespace UlteriusAgent.Networking
 
         }
 
-        public void SetActiveMonitor(int index)
-        {
-        }
-
         public void HandleRightClick()
         {
             var inputDesktop = new Desktop();
@@ -140,8 +137,6 @@ namespace UlteriusAgent.Networking
             {
                 new InputSimulator().Mouse.RightButtonClick();
             }
-
-
         }
 
         [HandleProcessCorruptedStateExceptions]

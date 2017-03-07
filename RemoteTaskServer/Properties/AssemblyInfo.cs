@@ -12,8 +12,8 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("Ulterius™ Server")]
 [assembly: AssemblyDescription("Ulterius is currently in beta, follow updates at blog.ulterius.io")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Ulterius")]
-[assembly: AssemblyProduct("Ulterius Server")]
+[assembly: AssemblyCompany("Octopodal Solutions")]
+[assembly: AssemblyProduct("Ulterius")]
 [assembly: AssemblyCopyright("Copyright © Octopodal Solutions 2016")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -39,5 +39,5 @@ using System.Runtime.InteropServices;
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
 
-[assembly: AssemblyVersion("1.9.0.0")]
-[assembly: AssemblyFileVersion("1.9.0.0")]
+[assembly: AssemblyVersion("1.9.2.0")]
+[assembly: AssemblyFileVersion("1.9.2.0")]

@@ -54,31 +54,34 @@ namespace UlteriusAgent.Networking
 
         private void HandleDesktop()
         {
-            var inputDesktop = new Desktop();
-            inputDesktop.OpenInput();
-            if (!inputDesktop.DesktopName.Equals(_lastDesktop))
+            using (var inputDesktop = new Desktop())
             {
-                var switched = inputDesktop.Show();
-
-                if (switched)
+                inputDesktop.OpenInput();
+                if (!inputDesktop.DesktopName.Equals(_lastDesktop))
                 {
-                    var setCurrent = Desktop.SetCurrent(inputDesktop);
-                    if (setCurrent)
+                    var switched = inputDesktop.Show();
+
+                    if (switched)
                     {
-                        Console.WriteLine($"Desktop switched from {_lastDesktop} to {inputDesktop.DesktopName}");
-                        _lastDesktop = inputDesktop.DesktopName;
-                        _lastDesktopInput = inputDesktop;
-                    }
-                    else
-                    {
-                        _lastDesktopInput.Close();
+                        var setCurrent = Desktop.SetCurrent(inputDesktop);
+                        if (setCurrent)
+                        {
+                            Console.WriteLine($"Desktop switched from {_lastDesktop} to {inputDesktop.DesktopName}");
+                            _lastDesktop = inputDesktop.DesktopName;
+                            _lastDesktopInput = inputDesktop;
+                        }
+                        else
+                        {
+                            _lastDesktopInput.Close();
+                        }
                     }
                 }
+                else
+                {
+                    inputDesktop.Close();
+                }
             }
-            else
-            {
-                inputDesktop.Close();
-            }
+           
         }
     }
 }

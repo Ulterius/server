@@ -4,6 +4,7 @@
     <ExcludeAssemblies>
       WindowsInput
       AgentInterface
+      Newtonsoft.Json
     </ExcludeAssemblies>
   </Costura>
 </Weavers>

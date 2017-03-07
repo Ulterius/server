@@ -37,9 +37,6 @@ namespace AgentInterface
         void HandleKeyUp(List<int> keyCodes);
 
         [OperationContract(IsOneWay = true)]
-        void SetActiveMonitor(int index);
-
-        [OperationContract(IsOneWay = true)]
         void HandleRightClick();
 
         [OperationContract]

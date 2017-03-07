@@ -1,10 +1,10 @@
 ﻿#region
 
 using System;
+using AgentInterface.Settings;
 using UlteriusServer.TerminalServer.Infrastructure;
 using UlteriusServer.TerminalServer.Messaging.TerminalControl.Requests;
 using UlteriusServer.TerminalServer.Session;
-using UlteriusServer.Utilities;
 using UlteriusServer.Utilities.Security;
 
 #endregion

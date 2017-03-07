@@ -4,10 +4,10 @@ using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
-using System.Linq;
 using AgentInterface.Api.Models;
 using AgentInterface.Api.ScreenShare.DesktopDuplication;
 using AgentInterface.Api.Win32;
+using AgentInterface.Settings;
 using TurboJpegWrapper;
 
 #endregion
@@ -21,26 +21,27 @@ namespace AgentInterface.Api.ScreenShare
         public static Bitmap PrevBitmap;
         private static DesktopDuplicator _desktopDuplicator;
         private static bool _nullFrame;
-        private static bool _canUseGpuAcceleration;
+        public static bool CanUseGpuAcceleration;
+
+        private static readonly byte[] Id = Guid.NewGuid().ToByteArray();
 
 
         static ScreenData()
         {
         }
 
-
         public static int NumByteFullScreen { get; set; } = 1;
 
         public static byte[] PackScreenCaptureData(Bitmap image, Rectangle bounds)
         {
-            byte[] results;
-            using (var compressor = new TJCompressor())
-            using (var screenStream = new MemoryStream())
+            byte[] results = {};
+            try
             {
+                using (var compressor = new TJCompressor())
+                using (var screenStream = new MemoryStream())
                 using (var binaryWriter = new BinaryWriter(screenStream))
                 {
-                    //write the id of the frame
-                    binaryWriter.Write(Guid.NewGuid().ToByteArray());
+                    binaryWriter.Write(Id);
                     //write the x and y coords of the 
                     binaryWriter.Write(bounds.X);
                     binaryWriter.Write(bounds.Y);
@@ -51,8 +52,12 @@ namespace AgentInterface.Api.ScreenShare
                     binaryWriter.Write(bounds.Right);
                     var imageData = compressor.Compress(image, TJSubsamplingOptions.TJSAMP_420, 50, TJFlags.FASTDCT);
                     binaryWriter.Write(imageData);
+                    results = screenStream.ToArray();
                 }
-                results = screenStream.ToArray();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
             }
             return results;
         }
@@ -83,11 +88,7 @@ namespace AgentInterface.Api.ScreenShare
             if (prevBitmap.Width != newBitmap.Width ||
                 prevBitmap.Height != newBitmap.Height ||
                 prevBitmap.PixelFormat != newBitmap.PixelFormat)
-            {
-                // Not the same shape...can't do the search.
-                //
                 return Rectangle.Empty;
-            }
 
             // Init the search parameters.
             //
@@ -139,8 +140,8 @@ namespace AgentInterface.Api.ScreenShare
                     // Cast the safe pointers into unsafe pointers.
                     //
 
-                    var pNew = (int*)scanNew0.ToPointer();
-                    var pPrev = (int*)scanPrev0.ToPointer();
+                    var pNew = (int*) scanNew0.ToPointer();
+                    var pPrev = (int*) scanPrev0.ToPointer();
                     for (var y = 0; y < newBitmap.Height; ++y)
                     {
                         // For pixels up to the current bound (left to right)
@@ -176,8 +177,8 @@ namespace AgentInterface.Api.ScreenShare
                         pPrev += stridePrev;
                     }
 
-                    pNew = (int*)scanNew0.ToPointer();
-                    pPrev = (int*)scanPrev0.ToPointer();
+                    pNew = (int*) scanNew0.ToPointer();
+                    pPrev = (int*) scanPrev0.ToPointer();
                     pNew += (newBitmap.Height - 1) * strideNew;
                     pPrev += (prevBitmap.Height - 1) * stridePrev;
 
@@ -198,13 +199,9 @@ namespace AgentInterface.Api.ScreenShare
                             var a2 = (test2 & 0xff000000) >> 24;
                             if (b1 == b2 && g1 == g2 && r1 == r2 && a1 == a2) continue;
                             if (x > right)
-                            {
                                 right = x;
-                            }
                             if (y > bottom)
-                            {
                                 bottom = y;
-                            }
                         }
                         pNew -= strideNew;
                         pPrev -= stridePrev;
@@ -220,13 +217,9 @@ namespace AgentInterface.Api.ScreenShare
                 // Unlock the bits of the image.
                 //
                 if (bmNewData != null)
-                {
                     newBitmap.UnlockBits(bmNewData);
-                }
                 if (bmPrevData != null)
-                {
                     prevBitmap.UnlockBits(bmPrevData);
-                }
             }
 
             // Validate we found a bounding box. If not
@@ -235,10 +228,7 @@ namespace AgentInterface.Api.ScreenShare
             var diffImgWidth = right - left + 1;
             var diffImgHeight = bottom - top + 1;
             if (diffImgHeight < 0 || diffImgWidth < 0)
-            {
-                // Nothing changed
                 return Rectangle.Empty;
-            }
 
             // Return the bounding box.
             //
@@ -252,7 +242,9 @@ namespace AgentInterface.Api.ScreenShare
             Bitmap newBitmap;
             using (var memoryStream = new MemoryStream(byteArray))
             using (var newImage = Image.FromStream(memoryStream))
+            {
                 newBitmap = new Bitmap(newImage);
+            }
             return newBitmap;
         }
 
@@ -265,7 +257,7 @@ namespace AgentInterface.Api.ScreenShare
             }
             catch (Exception)
             {
-                _desktopDuplicator = new DesktopDuplicator(0);
+                _desktopDuplicator = new DesktopDuplicator();
             }
             return frame;
         }
@@ -281,9 +273,7 @@ namespace AgentInterface.Api.ScreenShare
 
             NewBitmap = image;
             if (NewBitmap == null)
-            {
                 return screenModel;
-            }
             lock (NewBitmap)
             {
                 if (PrevBitmap != null)
@@ -293,9 +283,12 @@ namespace AgentInterface.Api.ScreenShare
                     // Get the minimum rectangular area
                     //
                     //diff = new Bitmap(bounds.Width, bounds.Height);
-                    screenModel.ScreenBitmap = NewBitmap.Clone(screenModel.Rectangle,
-                        NewBitmap.PixelFormat);
                     PrevBitmap = NewBitmap;
+                    Bitmap diff = new Bitmap(screenModel.Rectangle.Width, screenModel.Rectangle.Height);
+                    Graphics g = Graphics.FromImage(diff);
+                    g.DrawImage(NewBitmap, 0, 0, screenModel.Rectangle, GraphicsUnit.Pixel);
+                    g.Dispose();
+                    screenModel.ScreenBitmap = diff;
                 }
                 else
                 {
@@ -312,20 +305,20 @@ namespace AgentInterface.Api.ScreenShare
                     PrevBitmap = NewBitmap;
                 }
             }
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
             return screenModel;
         }
 
         public static FrameInformation DesktopCapture()
         {
             var frameInfo = new FrameInformation();
-            if (_canUseGpuAcceleration)
+            if (CanUseGpuAcceleration)
             {
                 frameInfo.UsingGpu = true;
                 var desktopFrame = GpuCapture();
                 if (desktopFrame != null)
-                {
                     frameInfo.FinishedRegions = desktopFrame.FinishedRegions;
-                }
             }
             else
             {
@@ -333,10 +326,10 @@ namespace AgentInterface.Api.ScreenShare
                 if (screenData.ScreenBitmap == null || screenData.Rectangle == Rectangle.Empty) return null;
                 frameInfo.Bounds = screenData.Rectangle;
                 frameInfo.ScreenImage = screenData.ScreenBitmap;
-
             }
             return frameInfo;
         }
+
         private static DesktopFrame GpuCapture()
         {
             var frame = GetScreenPicDxgi();
@@ -344,28 +337,6 @@ namespace AgentInterface.Api.ScreenShare
             if (!_nullFrame) return frame;
             _nullFrame = false;
             return null;
-        }
-
-
-        private static Bitmap CaptureActiveScreen(int screenIndex)
-        {
-            var screens = Display.DisplayInformation();
-            if (screens.Count == 0 || screens.ElementAtOrDefault(screenIndex) == null)
-            {
-                return CaptureDesktop();
-            }
-            var screen = screens[screenIndex];
-            return CaptureDesktopScreen(screen.CurrentResolution);
-        }
-
-        private static Bitmap CaptureDesktopScreen(ResolutionInformation bounds)
-        {
-            var desktopBmp = new Bitmap(bounds.Width, bounds.Height);
-            var g = Graphics.FromImage(desktopBmp);
-            g.CopyFromScreen(bounds.X, bounds.Y, 0, 0, new Size(bounds.Width, bounds.Height),
-                CopyPixelOperation.SourceCopy);
-            g.Dispose();
-            return desktopBmp;
         }
 
 
@@ -381,23 +352,21 @@ namespace AgentInterface.Api.ScreenShare
         public static Bitmap CaptureDesktop()
         {
             var desktopBounds = Display.GetWindowRectangle();
-            var desktopBmp = new Bitmap(
-                desktopBounds.Width,
-                desktopBounds.Height);
-
+            var desktopBmp = new Bitmap(desktopBounds.Width, desktopBounds.Height, PixelFormat.Format32bppArgb);
             var g = Graphics.FromImage(desktopBmp);
-
-            g.CopyFromScreen(0, 0, 0, 0,
-                new Size(
-                    desktopBounds.Width,
-                    desktopBounds.Height));
+            g.CopyFromScreen(0, 0, 0, 0, new Size(desktopBounds.Width, desktopBounds.Height));
             g.Dispose();
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
             return desktopBmp;
         }
 
         public static void SetupDuplication()
         {
-            _canUseGpuAcceleration = false;
+            CanUseGpuAcceleration = false;
+            var config = Config.Load();
+            if (config.ScreenShareService.UseGpu == false)
+                return;
             var win8Version = new Version(6, 2, 9200, 0);
             if (Environment.OSVersion.Platform != PlatformID.Win32NT || Environment.OSVersion.Version < win8Version)
             {
@@ -406,13 +375,14 @@ namespace AgentInterface.Api.ScreenShare
             }
             try
             {
-                _desktopDuplicator = new DesktopDuplicator(0);
+                _desktopDuplicator = new DesktopDuplicator();
                 _nullFrame = true;
-                _canUseGpuAcceleration = true;
+                CanUseGpuAcceleration = true;
                 Console.WriteLine("desktop duplication setup");
             }
             catch (Exception ex)
             {
+                CanUseGpuAcceleration = false;
                 Console.WriteLine(ex.Message);
             }
         }

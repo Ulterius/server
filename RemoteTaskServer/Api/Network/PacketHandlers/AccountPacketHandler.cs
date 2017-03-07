@@ -1,12 +1,12 @@
 ﻿#region
 
 using System;
-using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
+using AgentInterface.Settings;
 using UlteriusServer.Api.Network.Messages;
 using UlteriusServer.Utilities;
 using UlteriusServer.WebSocketAPI.Authentication;

@@ -2,13 +2,13 @@
 
 using System;
 using System.IO;
-using System.Reflection;
 using System.Runtime.ExceptionServices;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Threading;
+using AgentInterface.Settings;
 using Newtonsoft.Json;
 
 #endregion

@@ -100,7 +100,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
             var activeDisplays = SystemInformation.Displays;
             if (RunningAsService)
             {
-                AgentClient.SetActiveMonitor(ScreenData.ActiveDisplay);
+              //  AgentClient.SetActiveMonitor(ScreenData.ActiveDisplay);
             }
             var data = new
             {
@@ -236,6 +236,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
             if (data == null || data.Length <= 0) return;
             _builder.Endpoint = "screensharedata";
             _builder.WriteScreenFrame(data);
+            screenImage?.Dispose();
             data = null;
         }
 

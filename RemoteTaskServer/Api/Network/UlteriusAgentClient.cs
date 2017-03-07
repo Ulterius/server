@@ -9,7 +9,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using AgentInterface;
 using AgentInterface.Api.Models;
-using AgentInterface.Api.ScreenShare.DesktopDuplication;
 using UlteriusServer.Utilities;
 
 #endregion
@@ -61,8 +60,6 @@ namespace UlteriusServer.Api.Network
 
         private void KeepAlive()
         {
-            //let this sleep after launch so we dont get spammed
-            Thread.Sleep(10000);
             while (true)
             {
                 Tools.RestartDaemon();
@@ -292,22 +289,6 @@ namespace UlteriusServer.Api.Network
             catch (CommunicationException)
             {
                 return null;
-            }
-        }
-
-        public void SetActiveMonitor(int index)
-        {
-            try
-            {
-                InputChannel.SetActiveMonitor(index);
-            }
-            catch (EndpointNotFoundException)
-            {
-
-            }
-            catch (CommunicationException)
-            {
-
             }
         }
 

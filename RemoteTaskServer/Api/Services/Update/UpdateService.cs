@@ -1,13 +1,10 @@
 ﻿#region
 
 using System;
-using System.Diagnostics;
 using System.IO;
-using System.Management.Automation;
 using System.Net.Http;
 using System.Reflection;
 using System.Text.RegularExpressions;
-using System.Threading;
 using System.Threading.Tasks;
 using AgentInterface.Api.Win32;
 using UlteriusServer.Utilities;

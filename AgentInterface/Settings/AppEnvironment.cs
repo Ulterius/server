@@ -6,7 +6,7 @@ using Microsoft.Win32;
 
 #endregion
 
-namespace UlteriusServer.Utilities
+namespace AgentInterface.Settings
 {
     public class AppEnvironment
     {
@@ -17,8 +17,7 @@ namespace UlteriusServer.Utilities
                 try
                 {
                     // No version!
-                    return Environment.GetEnvironmentVariable("AppData").Trim() + "\\" + Application.CompanyName + "\\" +
-                           Application.ProductName;
+                    return Environment.GetEnvironmentVariable("AppData").Trim() + "\\" + Application.CompanyName + "\\" + Application.ProductName;
                 }
                 catch
                 {
@@ -28,8 +27,7 @@ namespace UlteriusServer.Utilities
                 try
                 {
                     // Version, but chopped out
-                    return Application.UserAppDataPath.Substring(0,
-                        Application.UserAppDataPath.LastIndexOf("\\", StringComparison.Ordinal));
+                    return Application.UserAppDataPath.Substring(0, Application.UserAppDataPath.LastIndexOf("\\", StringComparison.Ordinal));
                 }
                 catch
                 {

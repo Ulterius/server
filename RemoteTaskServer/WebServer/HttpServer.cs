@@ -8,15 +8,12 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Web;
-using MassTransit.Transports;
+using AgentInterface.Settings;
 using Newtonsoft.Json;
 using UlteriusServer.Api.Services.Network;
 using UlteriusServer.Properties;
-using UlteriusServer.Utilities;
 using UlteriusServer.Utilities.Files;
-using UlteriusServer.Utilities.Settings;
 using UlteriusServer.WebServer.RemoteTaskServer.WebServer;
 using File = System.IO.File;
 
@@ -26,8 +23,7 @@ namespace UlteriusServer.WebServer
 {
     internal class HttpServer
     {
-        public static string DefaultPath = AppEnvironment.DataPath +
-                                           @"\client\";
+      
 
         private static readonly IDictionary<string, string> MimeTypeMappings =
             new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase)

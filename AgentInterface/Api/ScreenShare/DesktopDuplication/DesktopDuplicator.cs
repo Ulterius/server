@@ -5,6 +5,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
 using SharpDX;
+using SharpDX.Direct3D;
 using SharpDX.Direct3D11;
 using SharpDX.DXGI;
 using SharpDX.Mathematics.Interop;
@@ -36,18 +37,7 @@ namespace AgentInterface.Api.ScreenShare.DesktopDuplication
         private bool _isFinalImage1;
         private OutputDescription _mOutputDesc;
 
-        /// <summary>
-        ///     Duplicates the output of the specified monitor.
-        /// </summary>
-        /// <param name="whichMonitor">
-        ///     The output device to duplicate (i.e. monitor). Begins with zero, which seems to correspond
-        ///     to the primary monitor.
-        /// </param>
-        public DesktopDuplicator(int whichMonitor)
-            : this(0, whichMonitor)
-        {
-        }
-
+      
         /// <summary>
         ///     Duplicates the output of the specified monitor on the specified graphics adapter.
         /// </summary>
@@ -56,26 +46,32 @@ namespace AgentInterface.Api.ScreenShare.DesktopDuplication
         ///     The output device to duplicate (i.e. monitor). Begins with zero, which seems to
         ///     correspond to the primary monitor.
         /// </param>
-        public DesktopDuplicator(int whichGraphicsCardAdapter, int whichOutputDevice)
+        public DesktopDuplicator()
         {
-            _mWhichOutputDevice = whichOutputDevice;
+
+
             Adapter1 adapter;
             try
             {
-                adapter = new Factory1().GetAdapter1(whichGraphicsCardAdapter);
+                adapter = GetBestAdapter(out int bestAdapaterIndex);
+                if (adapter == null) throw new SharpDXException();
+                Console.WriteLine($"Using the {adapter.Description.Description} for screen share.");
             }
             catch (SharpDXException)
             {
+                ScreenData.CanUseGpuAcceleration = false;
                 throw new DesktopDuplicationException("Could not find the specified graphics card adapter.");
             }
-            _mDevice = new Device(adapter);
+            DeviceCreationFlags flags = DeviceCreationFlags.BgraSupport;
+            _mDevice = new Device(adapter, flags, FeatureLevel.Level_11_0);
             Output output;
             try
             {
-                output = adapter.GetOutput(whichOutputDevice);
+                output = adapter.GetOutput(0);
             }
             catch (SharpDXException)
             {
+                ScreenData.CanUseGpuAcceleration = false;
                 throw new DesktopDuplicationException("Could not find the specified output device.");
             }
             var output1 = output.QueryInterface<Output1>();
@@ -101,10 +97,8 @@ namespace AgentInterface.Api.ScreenShare.DesktopDuplication
             catch (SharpDXException ex)
             {
                 if (ex.ResultCode.Code == ResultCode.NotCurrentlyAvailable.Result.Code)
-                {
                     throw new DesktopDuplicationException(
                         "There is already the maximum number of applications using the Desktop Duplication API running, please close one of the applications and try again.");
-                }
             }
         }
 
@@ -124,6 +118,48 @@ namespace AgentInterface.Api.ScreenShare.DesktopDuplication
                     _finalImage2?.Dispose();
                 }
                 _isFinalImage1 = !_isFinalImage1;
+            }
+        }
+
+        /// <summary>
+        ///     Finds the most capable graphics card.
+        /// </summary>
+        /// <returns></returns>
+        private static Adapter1 GetBestAdapter(out int bestAdapterIndex)
+        {
+            using (var dxgiFactory = new Factory1())
+            {
+                Adapter1 bestAdapter = null;
+                bestAdapterIndex = -1;
+                var adapterIndex = -1;
+                long bestVideoMemory = 0;
+                long bestSystemMemory = 0;
+
+                foreach (var dxgiAdapter in dxgiFactory.Adapters1)
+                {
+                    adapterIndex++;
+
+                    // not skip the render only WARP device
+                    if (dxgiAdapter.Description.VendorId != 0x1414 || dxgiAdapter.Description.DeviceId != 0x8c)
+                        if (dxgiAdapter.Outputs == null || dxgiAdapter.Outputs.Length == 0)
+                            continue;
+
+                    var level = Device.GetSupportedFeatureLevel(dxgiAdapter);
+
+                    if (level < FeatureLevel.Level_11_0)
+                        continue;
+                    long videoMemory = (uint) dxgiAdapter.Description.DedicatedVideoMemory;
+                    long systemMemory = (uint) dxgiAdapter.Description.DedicatedSystemMemory;
+
+                    if (bestAdapter != null && videoMemory <= bestVideoMemory &&
+                        (videoMemory != bestVideoMemory || systemMemory <= bestSystemMemory)) continue;
+                    bestAdapter = dxgiAdapter;
+                    bestAdapterIndex = adapterIndex;
+                    bestVideoMemory = videoMemory;
+                    bestSystemMemory = systemMemory;
+                }
+
+                return bestAdapter;
             }
         }
 
@@ -173,9 +209,7 @@ namespace AgentInterface.Api.ScreenShare.DesktopDuplication
             catch (SharpDXException ex)
             {
                 if (ex.ResultCode.Code == ResultCode.WaitTimeout.Result.Code)
-                {
                     return true;
-                }
                 if (ex.ResultCode.Failure)
                 {
                     //return true;
@@ -184,7 +218,9 @@ namespace AgentInterface.Api.ScreenShare.DesktopDuplication
                 }
             }
             using (var tempTexture = desktopResource?.QueryInterface<Texture2D>())
+            {
                 _mDevice.ImmediateContext.CopyResource(tempTexture, _desktopImageTexture);
+            }
             desktopResource?.Dispose();
             return false;
         }
@@ -198,7 +234,7 @@ namespace AgentInterface.Api.ScreenShare.DesktopDuplication
                 var movedRectangles = new OutputDuplicateMoveRectangle[_frameInfo.TotalMetadataBufferSize];
                 _mDeskDupl.GetFrameMoveRects(movedRectangles.Length, movedRectangles, out movedRegionsLength);
                 frame.MovedRegions =
-                    new MovedRegion[movedRegionsLength/Marshal.SizeOf(typeof(OutputDuplicateMoveRectangle))];
+                    new MovedRegion[movedRegionsLength / Marshal.SizeOf(typeof(OutputDuplicateMoveRectangle))];
                 for (var i = 0; i < frame.MovedRegions.Length; i++)
                 {
                     var destRect = (Rectangle) movedRectangles[i].DestinationRect;
@@ -214,12 +250,16 @@ namespace AgentInterface.Api.ScreenShare.DesktopDuplication
                 var dirtyRegionsLength = 0;
                 var dirtyRectangles = new RawRectangle[_frameInfo.TotalMetadataBufferSize];
                 _mDeskDupl.GetFrameDirtyRects(dirtyRectangles.Length, dirtyRectangles, out dirtyRegionsLength);
-                frame.UpdatedRegions = new global::System.Drawing.Rectangle[dirtyRegionsLength/Marshal.SizeOf(typeof(Rectangle))];
+                frame.UpdatedRegions =
+                    new global::System.Drawing.Rectangle[dirtyRegionsLength / Marshal.SizeOf(typeof(Rectangle))];
                 frame.FinishedRegions = new FinishedRegions[frame.UpdatedRegions.Length];
                 for (var i = 0; i < frame.UpdatedRegions.Length; i++)
                 {
                     var dirtyRect = (Rectangle) dirtyRectangles[i];
-                    var rect = new global::System.Drawing.Rectangle(dirtyRect.X, dirtyRect.Y, dirtyRect.Width, dirtyRect.Height);
+                    var rect = new global::System.Drawing.Rectangle(dirtyRect.X, dirtyRect.Y, dirtyRect.Width,
+                        dirtyRect.Height);
+
+
                     frame.FinishedRegions[i] = new FinishedRegions
                     {
                         Destination = rect,
@@ -237,7 +277,6 @@ namespace AgentInterface.Api.ScreenShare.DesktopDuplication
 
         private Bitmap ExtractRect(int originX, int originY, int width, int height)
         {
-           
             // Get the desktop capture screenTexture
             var mapSource = _mDevice.ImmediateContext.MapSubresource(_desktopImageTexture, 0, MapMode.Read,
                 MapFlags.None);
@@ -252,12 +291,12 @@ namespace AgentInterface.Api.ScreenShare.DesktopDuplication
             var sourcePtr = mapSource.DataPointer;
             var destPtr = mapDest.Scan0;
 
-            sourcePtr = IntPtr.Add(sourcePtr, originY*mapSource.RowPitch + originX*4);
+            sourcePtr = IntPtr.Add(sourcePtr, originY * mapSource.RowPitch + originX * 4);
             for (var y = 0; y < height; y++)
             {
                 // Copy a single line 
 
-                Utilities.CopyMemory(destPtr, sourcePtr, width*4);
+                Utilities.CopyMemory(destPtr, sourcePtr, width * 4);
 
                 // Advance pointers
                 if (y != height - 1)
@@ -286,7 +325,7 @@ namespace AgentInterface.Api.ScreenShare.DesktopDuplication
             for (var y = 0; y < bounds.Height; y++)
             {
                 // Copy a single line 
-                Utilities.CopyMemory(destPtr, sourcePtr, bounds.Width*4);
+                Utilities.CopyMemory(destPtr, sourcePtr, bounds.Width * 4);
 
                 // Advance pointers
                 sourcePtr = IntPtr.Add(sourcePtr, mapSource.RowPitch);
@@ -308,9 +347,7 @@ namespace AgentInterface.Api.ScreenShare.DesktopDuplication
             catch (SharpDXException ex)
             {
                 if (ex.ResultCode.Failure)
-                {
                     throw new DesktopDuplicationException("Failed to release frame.");
-                }
             }
         }
     }

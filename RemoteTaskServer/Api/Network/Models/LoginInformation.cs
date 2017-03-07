@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace UlteriusServer.Api.Network.Models
+﻿namespace UlteriusServer.Api.Network.Models
 {
    public class LoginInformation
     {
