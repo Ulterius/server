@@ -67,6 +67,7 @@ namespace AgentInterface.Api.System
         {
             var myComputer = new Computer();
             myComputer.Open();
+            //TO DO: System.NullReferenceException is getting thrown here by OpenHardwareLib
             myComputer.CPUEnabled = true;
             var tempTemps = new List<float>();
             var procCount = Environment.ProcessorCount;
