@@ -62,10 +62,47 @@ namespace UlteriusServer.Api.Network.PacketHandlers
             return serviceinformation;
         }
 
+        /// <summary>
+        /// To pass back information about all windows services
+        /// </summary>
         public void RequestServiceInformation()
         {
             var serviceInformation = GetServiceInformation();
             _builder.WriteMessage(serviceInformation);
+        }
+
+        /// <summary>
+        /// To start a service by service name
+        /// </summary>
+        public void StartService()
+        {
+            var serviceName = _packet.Args[0].ToString();
+            bool serviceStarted = false;
+            try
+            {
+                var sc = new ServiceController(serviceName);
+                if (sc.Status == ServiceControllerStatus.Stopped)
+                {
+                    sc.Start();
+                    while (sc.Status == ServiceControllerStatus.Stopped)
+                    {
+                        System.Threading.Thread.Sleep(1000);
+                        sc.Refresh();
+                    }
+                    serviceStarted = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                serviceStarted = false;
+            }
+            var data = new
+            {
+                serviceStarted,
+                serviceName
+            };
+            _builder.WriteMessage(data);
         }
     }
 }
