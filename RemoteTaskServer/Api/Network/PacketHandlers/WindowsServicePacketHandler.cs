@@ -104,5 +104,79 @@ namespace UlteriusServer.Api.Network.PacketHandlers
             };
             _builder.WriteMessage(data);
         }
+
+        /// <summary>
+        /// Stop a Windows Service
+        /// </summary>
+        public void StopService()
+        {
+            var serviceName = _packet.Args[0].ToString();
+            bool serviceStopped = false;
+            try
+            {
+                var sc = new ServiceController(serviceName);
+                if (sc.CanStop)
+                {
+                    sc.Stop();
+                    while (sc.Status != ServiceControllerStatus.Stopped)
+                    {
+                        System.Threading.Thread.Sleep(1000);
+                        sc.Refresh();
+                    }
+                    serviceStopped = true;
+
+                }
+                else
+                {
+                    serviceStopped = false;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                serviceStopped = false;
+            }
+
+            var data = new
+            {
+                serviceStopped,
+                serviceName
+            };
+            _builder.WriteMessage(data);
+        }
+
+        public void DisableService ()
+        {
+            var serviceName = _packet.Args[0].ToString();
+            bool serviceDisabled;
+            try
+            {
+                var objPath = string.Format("Win32_Service.Name='{0}'", serviceName );
+                using (ManagementObject obService = new ManagementObject(new ManagementPath(objPath)))
+                {
+                    var result = obService.InvokeMethod("ChangeStartMode", new object[] { "Disabled" });
+                    if ((uint)result == 0)
+                    {
+                        serviceDisabled = true;
+                    }
+                    else
+                    {
+                        serviceDisabled = false;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                serviceDisabled = false;
+            }
+
+            var data = new
+            {
+                serviceDisabled ,
+                serviceName
+            };
+            _builder.WriteMessage(data);
+        }
     }
 }
