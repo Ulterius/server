@@ -220,9 +220,25 @@
 			"endPoint": "StartProcess",
 			"packetHandler": "ProcessPacketHandler"
 		},
-		"listports": {
-			"endPoint": "ListPorts",
-			"packetHandler": "ServerPacketHandler"
-		}
+    "listports": {
+      "endPoint": "ListPorts",
+      "packetHandler": "ServerPacketHandler"
+    },
+    "requestserviceinformation": {
+      "endPoint": "RequestServiceInformation",
+      "packetHandler": "WindowsServicePacketHandler"
+    },
+    "startservice": {
+      "endPoint": "StartService",
+      "packetHandler": "WindowsServicePacketHandler"
+    },
+    "stopservice": {
+      "endPoint": "StopService",
+      "packetHandler": "WindowsServicePacketHandler"
+    },
+    "disableservice": {
+      "endPoint": "DisableService",
+      "packetHandler": "WindowsServicePacketHandler"
+    }
 	}
 }

@@ -20,7 +20,7 @@ using System.Management;
 
 namespace UlteriusServer.Api.Network.PacketHandlers
 {
-    class WindowsServicePacketHandler
+    class WindowsServicePacketHandler : PacketHandler
     {
         private AuthClient _authClient;
         private MessageBuilder _builder;
@@ -177,6 +177,30 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                 serviceName
             };
             _builder.WriteMessage(data);
+        }
+
+        public override void HandlePacket(Packet packet)
+        {
+            _client = packet.Client;
+            _authClient = packet.AuthClient;
+            _packet = packet;
+            _builder = new MessageBuilder(_authClient, _client, _packet.EndPointName, _packet.SyncKey);
+            switch (_packet.EndPoint)
+            {
+                case PacketManager.EndPoints.RequestServiceInformation:
+                    RequestServiceInformation();
+                    break;
+                case PacketManager.EndPoints.StartService:
+
+                    StartService();
+                    break;
+                case PacketManager.EndPoints.StopService:
+                    StopService();
+                    break;
+                case PacketManager.EndPoints.DisableService:
+                    DisableService();
+                    break;
+            }
         }
     }
 }
