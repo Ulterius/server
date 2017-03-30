@@ -65,7 +65,7 @@
     <None Include="FodyWeavers.xml" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\inputsimulator2\WindowsInput\WindowsInput.csproj">
+    <ProjectReference Include="..\..\inputsimulator\WindowsInput\WindowsInput.csproj">
       <Project>{3549cd6f-80f8-450f-b99e-cf0a736b1f2a}</Project>
       <Name>WindowsInput</Name>
     </ProjectReference>

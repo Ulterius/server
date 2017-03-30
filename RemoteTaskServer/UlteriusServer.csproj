@@ -85,7 +85,9 @@
     <Compile Include="Api\Network\Messages\RectangleConverter.cs" />
     <Compile Include="Api\Network\Models\FanInformation.cs" />
     <Compile Include="Api\Network\Models\LoginInformation.cs" />
+    <Compile Include="Api\Network\Models\WindowsServiceInformation.cs" />
     <Compile Include="Api\Network\PacketHandlers\DisplayPacketHandler.cs" />
+    <Compile Include="Api\Network\PacketHandlers\WindowsServicePacketHandler.cs" />
     <Compile Include="Api\Network\UlteriusAgentClient.cs" />
     <Compile Include="Api\Services\LocalSystem\Daemons\JobModel.cs" />
     <Compile Include="Api\Network\PacketHandlers\CronJobPacketHandler.cs" />
@@ -376,7 +378,7 @@
     </COMReference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\inputsimulator2\WindowsInput\WindowsInput.csproj">
+    <ProjectReference Include="..\..\inputsimulator\WindowsInput\WindowsInput.csproj">
       <Project>{3549cd6f-80f8-450f-b99e-cf0a736b1f2a}</Project>
       <Name>WindowsInput</Name>
     </ProjectReference>

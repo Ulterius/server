@@ -24,6 +24,8 @@ namespace AgentInterface.Api.Win32
 
             if (returnValue == false)
             {
+                //error: Could not login as DESKTOP-CI81MQI\Frob
+                //TO DO: looks that a default user is passed by client in dev settings
                 throw new UnauthorizedAccessException("Could not login as " + domain + "\\" + username + ".",
                     new global::System.ComponentModel.Win32Exception(Marshal.GetLastWin32Error()));
             }

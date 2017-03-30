@@ -102,7 +102,11 @@ namespace UlteriusServer.Api.Network
             SetPrimaryDisplay,
             GetLogs,
             GetAvailableMonitors,
-            SetActiveMonitor
+            SetActiveMonitor,
+            RequestServiceInformation,
+            StartService,
+            StopService,
+            DisableService
         }
 
         #endregion
