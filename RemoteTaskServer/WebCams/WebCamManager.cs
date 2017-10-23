@@ -10,7 +10,7 @@ using System.Linq;
 using AForge.Video;
 using AForge.Video.DirectShow;
 using AForge.Vision.Motion;
-using AgentInterface.Settings;
+using UlteriusServer.Utilities;
 
 #endregion
 

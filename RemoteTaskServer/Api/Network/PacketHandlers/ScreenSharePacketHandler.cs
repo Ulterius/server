@@ -10,10 +10,10 @@ using System.Threading;
 using System.Windows.Forms;
 using WindowsInput;
 using WindowsInput.Native;
-using AgentInterface.Api.ScreenShare;
-using AgentInterface.Api.ScreenShare.DesktopDuplication;
-using AgentInterface.Api.Win32;
 using UlteriusServer.Api.Network.Messages;
+using UlteriusServer.Api.Win32;
+using UlteriusServer.Api.Win32.ScreenShare;
+using UlteriusServer.Api.Win32.ScreenShare.DesktopDuplication;
 using UlteriusServer.WebSocketAPI.Authentication;
 using vtortola.WebSockets;
 using static UlteriusServer.Api.UlteriusApiServer;
@@ -125,9 +125,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                     return;
                 }
                 _authClient.ShutDownScreenShare = false;
-                var stream = RunningAsService
-                    ? new Thread(GetScreenAgentFrame) { IsBackground = true }
-                    : new Thread(GetScreenFrame) { IsBackground = true };
+                var stream = new Thread(GetScreenFrame) { IsBackground = true };
                 ScreenShareService.Streams[_authClient] = stream;
                 var data = new
                 {
@@ -145,41 +143,6 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                 };
 
                 _builder.WriteMessage(data);
-            }
-        }
-
-
-        private void GetScreenAgentFrame()
-        {
-            try
-            {
-                while (_client != null && _client.IsConnected && _authClient != null &&
-                       !_authClient.ShutDownScreenShare)
-                {
-                    try
-                    {
-                        var image = AgentClient.GetCleanFrame();
-                        if (image != null)
-                        {
-                            if (image.UsingGpu)
-                            {
-                                SendGpuFrame(image.FinishedRegions);
-                            }
-                            else
-                            {
-                                SendPolledFrame(image.ScreenImage, image.Bounds);
-                            }
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        //  Console.WriteLine(e.Message + " " + e.StackTrace);
-                    }
-                }
-                Console.WriteLine("Screen Share Died");
-            }
-            catch (Exception)
-            {
             }
         }
 
@@ -208,6 +171,10 @@ namespace UlteriusServer.Api.Network.PacketHandlers
             while (_client != null && _client.IsConnected && _authClient != null &&
                    !_authClient.ShutDownScreenShare)
             {
+                if (RunningAsService && DesktopWatcher.CurrentDesktop != null)
+                {
+                    Desktop.SetCurrent(DesktopWatcher.CurrentDesktop);
+                }
                 try
                 {
                     var image = ScreenData.DesktopCapture();
@@ -243,6 +210,10 @@ namespace UlteriusServer.Api.Network.PacketHandlers
 
         public override void HandlePacket(Packet packet)
         {
+            if (RunningAsService && DesktopWatcher.CurrentDesktop != null)
+            {
+                Desktop.SetCurrent(DesktopWatcher.CurrentDesktop);
+            }
             _client = packet.Client;
             _authClient = packet.AuthClient;
             _packet = packet;
@@ -276,14 +247,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                     HandleKeyUp();
                     break;
                 case PacketManager.EndPoints.FullFrame:
-                    if (RunningAsService)
-                    {
-                        HandleAgentFullFrame();
-                    }
-                    else
-                    {
-                        HandleFullFrame();
-                    }
+                    HandleFullFrame();
                     break;
                 case PacketManager.EndPoints.RightClick:
                     HandleRightClick();
@@ -316,68 +280,12 @@ namespace UlteriusServer.Api.Network.PacketHandlers
 
         private void RightUp()
         {
-            if (!ScreenShareService.Streams.ContainsKey(_authClient)) return;
-            if (RunningAsService)
-            {
-                AgentClient.HandleRightMouseUp();
-            }
-            else
-            {
-                new InputSimulator().Mouse.RightButtonUp();
-            }
+            new InputSimulator().Mouse.RightButtonUp();
         }
 
         private void RightDown()
         {
-            if (!ScreenShareService.Streams.ContainsKey(_authClient)) return;
-            if (RunningAsService)
-            {
-                AgentClient.HandleRightMouseDown();
-            }
-            else
-            {
-                new InputSimulator().Mouse.RightButtonDown();
-            }
-        }
-
-        private void HandleAgentFullFrame()
-        {
-            try
-            {
-                var fullFrameData = AgentClient.GetFullFrame();
-                if (fullFrameData?.ScreenImage == null) throw new InvalidOperationException("Frame was null");
-                var bounds = fullFrameData.Bounds;
-                var image = ScreenData.ImageToByteArray(fullFrameData.ScreenImage);
-                var frameData = new
-                {
-                    screenBounds = new
-                    {
-                        top = bounds.Top,
-                        bottom = bounds.Bottom,
-                        left = bounds.Left,
-                        right = bounds.Right,
-                        height = bounds.Height,
-                        width = bounds.Width,
-                        x = bounds.X,
-                        y = bounds.Y,
-                        empty = bounds.IsEmpty,
-                        location = bounds.Location,
-                        size = bounds.Size
-                    },
-                    frameData = image.Select(b => (int)b).ToArray()
-                };
-                _builder.WriteMessage(frameData);
-            }
-            catch (Exception ex)
-            {
-                var data = new
-                {
-                    frameFailed = true,
-                    message = ex.Message
-                };
-                Console.WriteLine(ex.Message + "Fuck");
-                _builder.WriteMessage(data);
-            }
+            new InputSimulator().Mouse.RightButtonDown();
         }
 
         private void HandleFullFrame()
@@ -427,7 +335,6 @@ namespace UlteriusServer.Api.Network.PacketHandlers
 
         private void HandleKeyUp()
         {
-            if (!ScreenShareService.Streams.ContainsKey(_authClient)) return;
             var keyCodes = ((IEnumerable)_packet.Args[0]).Cast<object>()
                 .Select(x => x.ToString())
                 .ToList();
@@ -436,17 +343,10 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                     .Select(hexString => Convert.ToInt32(hexString, 16))
                     .ToList();
 
-            if (RunningAsService)
+            foreach (var code in codes)
             {
-                AgentClient.HandleKeyUp(codes);
-            }
-            else
-            {
-                foreach (var code in codes)
-                {
-                    var virtualKey = (VirtualKeyCode)code;
-                    new InputSimulator().Keyboard.KeyUp(virtualKey);
-                }
+                var virtualKey = (VirtualKeyCode)code;
+                new InputSimulator().Keyboard.KeyUp(virtualKey);
             }
         }
 
@@ -458,7 +358,6 @@ namespace UlteriusServer.Api.Network.PacketHandlers
 
         private void HandleKeyDown()
         {
-            if (!ScreenShareService.Streams.ContainsKey(_authClient)) return;
             var keyCodes = ((IEnumerable)_packet.Args[0]).Cast<object>()
                 .Select(x => x.ToString())
                 .ToList();
@@ -466,35 +365,20 @@ namespace UlteriusServer.Api.Network.PacketHandlers
                 keyCodes.Select(code => ToHex(int.Parse(code.ToString())))
                     .Select(hexString => Convert.ToInt32(hexString, 16))
                     .ToList();
-            if (RunningAsService)
+            foreach (var code in codes)
             {
-                AgentClient.HandleKeyDown(codes);
-            }
-            else
-            {
-                foreach (var code in codes)
-                {
-                    var virtualKey = (VirtualKeyCode)code;
-                    new InputSimulator().Keyboard.KeyDown(virtualKey);
-                }
+                var virtualKey = (VirtualKeyCode)code;
+                new InputSimulator().Keyboard.KeyDown(virtualKey);
             }
         }
 
         private void HandleScroll()
         {
-            if (!ScreenShareService.Streams.ContainsKey(_authClient)) return;
             var delta = Convert.ToInt32(_packet.Args[0], CultureInfo.InvariantCulture);
             delta = ~delta;
             var positive = delta > 0;
             var direction = positive ? 10 : -10;
-            if (RunningAsService)
-            {
-                AgentClient.ScrollMouse(positive);
-            }
-            else
-            {
-                new InputSimulator().Mouse.VerticalScroll(direction);
-            }
+            new InputSimulator().Mouse.VerticalScroll(direction);
         }
 
         private static Point Translate(Point point, Size from, Size to)
@@ -510,77 +394,36 @@ namespace UlteriusServer.Api.Network.PacketHandlers
 
         private void HandleMoveMouse()
         {
-            if (!ScreenShareService.Streams.ContainsKey(_authClient)) return;
             try
             {
 
                 int y = Convert.ToInt16(_packet.Args[0], CultureInfo.InvariantCulture);
                 int x = Convert.ToInt16(_packet.Args[1], CultureInfo.InvariantCulture);
-
-                if (RunningAsService)
-                {
-
-                    AgentClient.MoveMouse(x, y);
-                }
-                else
-                {
-                    var bounds = Display.GetWindowRectangle();
-                    x = checked((int)Math.Round(x * (65535 / (double)bounds.Width)));
-                    y = checked((int)Math.Round(y * (65535 / (double)bounds.Height)));
-                    new InputSimulator().Mouse.MoveMouseTo(x, y);
-                }
+                var bounds = Display.GetWindowRectangle();
+                x = checked((int)Math.Round(x * (65535 / (double)bounds.Width)));
+                y = checked((int)Math.Round(y * (65535 / (double)bounds.Height)));
+                new InputSimulator().Mouse.MoveMouseTo(x, y);
             }
 
             catch
             {
-                Console.WriteLine("Error moving mouse");
+                //Console.WriteLine("Error moving mouse");
             }
         }
 
         private void HandleRightClick()
         {
-            if (ScreenShareService.Streams.ContainsKey(_authClient))
-            {
-                if (RunningAsService)
-                {
-                    AgentClient.HandleRightClick();
-                }
-                else
-                {
-                    new InputSimulator().Mouse.RightButtonClick();
-                }
-            }
+            new InputSimulator().Mouse.RightButtonClick();
         }
 
         private void HandleMouseUp()
         {
-            if (ScreenShareService.Streams.ContainsKey(_authClient))
-            {
-                if (RunningAsService)
-                {
-                    AgentClient.HandleLeftMouseUp();
-                }
-                else
-                {
-                    new InputSimulator().Mouse.LeftButtonUp();
-                }
-            }
+            new InputSimulator().Mouse.LeftButtonUp();
         }
 
         private void HandleMouseDown()
         {
-            if (ScreenShareService.Streams.ContainsKey(_authClient))
-            {
-                if (RunningAsService)
-                {
-                    AgentClient.HandleLeftMouseDown();
-                }
-                else
-
-                {
-                    new InputSimulator().Mouse.LeftButtonDown();
-                }
-            }
+            new InputSimulator().Mouse.LeftButtonDown();
         }
     }
 }

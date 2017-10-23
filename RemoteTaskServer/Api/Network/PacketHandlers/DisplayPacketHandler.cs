@@ -1,7 +1,7 @@
 ﻿#region
 
-using AgentInterface.Api.Win32;
 using UlteriusServer.Api.Network.Messages;
+using UlteriusServer.Api.Win32;
 using UlteriusServer.WebSocketAPI.Authentication;
 using vtortola.WebSockets;
 
@@ -43,18 +43,18 @@ namespace UlteriusServer.Api.Network.PacketHandlers
 
         private void SetPrimaryDisplay()
         {
-            var device = _packet.Args[0].ToString();
+           /* var device = _packet.Args[0].ToString();
             var message =  Display.SetPrimary(device);
             var formThread = new
             {
                 message
             };
-            _builder.WriteMessage(formThread);
+            _builder.WriteMessage(formThread);*/
         }
 
         private void RotateDisplay()
         {
-            var width = int.Parse(_packet.Args[0].ToString());
+            /*var width = int.Parse(_packet.Args[0].ToString());
             var height = int.Parse(_packet.Args[1].ToString());
             var angle = int.Parse(_packet.Args[2].ToString());
             var device = _packet.Args[3].ToString();
@@ -63,13 +63,13 @@ namespace UlteriusServer.Api.Network.PacketHandlers
             {
                 message
             };
-            _builder.WriteMessage(formThread);
+            _builder.WriteMessage(formThread);*/
         }
 
         private void ChangeScreenResolution()
         {
 
-            var width = int.Parse(_packet.Args[0].ToString());
+            /*var width = int.Parse(_packet.Args[0].ToString());
             var height = int.Parse(_packet.Args[1].ToString());
             var bbp = int.Parse(_packet.Args[2].ToString());
             var freq = int.Parse(_packet.Args[3].ToString());
@@ -79,7 +79,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
             {
                 message
             };
-            _builder.WriteMessage(formThread);
+            _builder.WriteMessage(formThread);*/
         }
     }
 }

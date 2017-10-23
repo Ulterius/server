@@ -15,12 +15,12 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
-using AgentInterface.Api.ScreenShare;
-using AgentInterface.Api.Win32;
-using AgentInterface.Settings;
 using Ionic.Zip;
 using NetFwTypeLib;
 using Open.Nat;
+using UlteriusServer.Api.Win32;
+using UlteriusServer.Api.Win32.ScreenShare;
+using UlteriusServer.Utilities.Extensions;
 using static System.Security.Principal.WindowsIdentity;
 using Task = System.Threading.Tasks.Task;
 
@@ -82,17 +82,14 @@ namespace UlteriusServer.Utilities
             try
             {
                 if (Process.GetProcessesByName("DaemonManager").Length != 0) return;
-                ProcessStarter.PROCESS_INFORMATION managerInfo;
+               
                 var managerPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
                 "DaemonManager.exe");
-                ProcessStarter.StartProcessAndBypassUAC(managerPath, 
-                out managerInfo);
-                managerProcess = Process.GetProcessById((int)managerInfo.dwProcessId);
+                managerProcess = Process.Start(managerPath);
             }
             catch (Exception)
             {
-
-               
+               //
             }
         }
 
@@ -111,17 +108,11 @@ namespace UlteriusServer.Utilities
             }
          
             Thread.Sleep(3000);
-            ProcessStarter.PROCESS_INFORMATION agentInfo;
-        
-         
+
             var agentPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),"UlteriusAgent.exe");
 
+            agentProcess = Process.Start(agentPath);
             
-
-            ProcessStarter.StartProcessAndBypassUAC(agentPath, 
-                out agentInfo);
-            
-            agentProcess = Process.GetProcessById((int)agentInfo.dwProcessId);
             if (agentProcess != null)
             {
                 Console.WriteLine("Started Monitor on " + _CurrentSession);
@@ -343,10 +334,7 @@ namespace UlteriusServer.Utilities
             {
                 Console.WriteLine("Logs Ready");
             }
-            if (!RunningAsService())
-            {
-              ScreenData.SetupDuplication();  
-            }
+            ScreenData.SetupDuplication();
             if (Config.Empty)
             {
                 if (RunningPlatform() == Platform.Windows)
@@ -361,15 +349,7 @@ namespace UlteriusServer.Utilities
                     var username = Environment.GetEnvironmentVariable("USERNAME");
                     var userdomain = Environment.GetEnvironmentVariable("USERDOMAIN");
                     var command = $@"/C netsh http add urlacl url={prefix} user={userdomain}\{username} listen=yes";
-                    if (RunningAsService())
-                    {
-                        ProcessStarter.PROCESS_INFORMATION procInfo;
-                        ProcessStarter.StartProcessAndBypassUAC("CMD.exe " + command,  out procInfo);
-                    }
-                    else
-                    {
-                        Process.Start("CMD.exe", command);
-                    }
+                    Process.Start("CMD.exe", command);
                     OpenFirewallPort(webcamPort, "Ulterius Web Cams");
                     OpenFirewallPort(webServerPort, "Ulterius Web Server");
                     OpenFirewallPort(apiPort, "Ulterius Task Server");
@@ -399,17 +379,17 @@ namespace UlteriusServer.Utilities
                 {
                     FileName = "netsh",
                     Arguments =
-                        string.Format(
-                            "firewall add allowedprogram program=\"{0}\" name=\"{1}\" profile=\"ALL\"",
-                            exeFileName, displayName),
+                        $"firewall add allowedprogram program=\"{exeFileName}\" name=\"{displayName}\" profile=\"ALL\"",
                     WindowStyle = ProcessWindowStyle.Hidden
                 });
-            proc.WaitForExit();
+            proc?.WaitForExit();
         }
 
         public static bool RunningAsService()
         {
-            return GetCurrent().Name.ToLower().Contains(@"nt authority\system");
+            var me = Process.GetCurrentProcess();
+            var parent = me.Parent();
+            return parent != null && parent.IsService();
         }
 
 

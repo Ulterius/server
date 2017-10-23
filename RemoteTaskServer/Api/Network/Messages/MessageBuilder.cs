@@ -7,6 +7,7 @@ using Newtonsoft.Json;
 using UlteriusServer.Utilities.Security;
 using UlteriusServer.WebSocketAPI.Authentication;
 using vtortola.WebSockets;
+using vtortola.WebSockets.Http;
 using static UlteriusServer.Utilities.Security.UlteriusAes;
 
 #endregion
@@ -41,6 +42,7 @@ namespace UlteriusServer.Api.Network.Messages
  
             if (_client != null && data != null)
             {
+                var host = new Uri($"ws://{_client.HttpRequest.Headers[RequestHeader.Host]}", UriKind.Absolute);
                 JsonSerializerSettings settings = new JsonSerializerSettings {ContractResolver = new MessageResolver()};
 
                 var json = JsonConvert.SerializeObject(new
@@ -55,8 +57,11 @@ namespace UlteriusServer.Api.Network.Messages
                 {
                     if (_authClient != null)
                     {
+
                         if (_authClient.AesShook)
                         {
+                           
+
                             var keyBytes = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(_authClient.AesKey));
                             var keyIv = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(_authClient.AesIv));
 
@@ -71,7 +76,7 @@ namespace UlteriusServer.Api.Network.Messages
                                     binaryWriter.Write(encryptedData);
                                 }
                                 var message = new Message(_client, memoryStream.ToArray(), Message.MessageType.Binary);
-                                var targetPort = _client.LocalEndpoint.Port;
+                                var targetPort = host.Port;
                                 _authClient?.MessageQueueManagers[targetPort]?.SendQueue.Add(message);
                             }
                             return;
@@ -88,7 +93,7 @@ namespace UlteriusServer.Api.Network.Messages
                 var jsonMessage = new Message(_client, json, Message.MessageType.Text);
                 if (_authClient != null)
                 {
-                    var targetPort = _client.LocalEndpoint.Port;
+                    var targetPort = host.Port;
                     _authClient?.MessageQueueManagers[targetPort]?.SendQueue.Add(jsonMessage);
                 }
             }
@@ -104,6 +109,7 @@ namespace UlteriusServer.Api.Network.Messages
             if (_client == null || data == null) return;
             try
             {
+                var host = new Uri($"ws://{_client.HttpRequest.Headers[RequestHeader.Host]}", UriKind.Absolute);
                 if (_authClient == null) return;
                 if (!_authClient.AesShook) return;
                 var keyBytes = Encoding.UTF8.GetBytes(Rsa.SecureStringToString(_authClient.AesKey));
@@ -121,7 +127,7 @@ namespace UlteriusServer.Api.Network.Messages
                         binaryWriter.Write(encryptedData);
                     }
                     var message = new Message(_client, memoryStream.ToArray(), Message.MessageType.Binary);
-                    var targetPort = _client.LocalEndpoint.Port;
+                    var targetPort = host.Port;
                     _authClient?.MessageQueueManagers[targetPort]?.SendQueue.Add(message);
                 }
             }

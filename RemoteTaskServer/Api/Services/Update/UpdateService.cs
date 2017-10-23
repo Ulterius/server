@@ -1,12 +1,13 @@
 ﻿#region
 
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Net.Http;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using AgentInterface.Api.Win32;
+using UlteriusServer.Api.Win32;
 using UlteriusServer.Utilities;
 
 #endregion
@@ -52,10 +53,8 @@ namespace UlteriusServer.Api.Services.Update
 
         private void CheckForServerUpdates()
         {
-            var file = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
-                 "Ulterius Updater.exe /silentall -nofreqcheck");
-            ProcessStarter.PROCESS_INFORMATION procInfo;
-            ProcessStarter.StartProcessAndBypassUAC(file,  out procInfo);
+            var file = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "Ulterius Updater.exe /silentall -nofreqcheck");
+            Process.Start(file);
         }
 
 

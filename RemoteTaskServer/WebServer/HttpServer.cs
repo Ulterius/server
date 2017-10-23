@@ -9,10 +9,11 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Web;
-using AgentInterface.Settings;
 using Newtonsoft.Json;
 using UlteriusServer.Api.Services.Network;
 using UlteriusServer.Properties;
+using UlteriusServer.Utilities;
+using UlteriusServer.Utilities.Extensions;
 using UlteriusServer.Utilities.Files;
 using UlteriusServer.WebServer.RemoteTaskServer.WebServer;
 using File = System.IO.File;
@@ -286,13 +287,19 @@ namespace UlteriusServer.WebServer
             }
 
             filename = HttpUtility.UrlDecode(Path.Combine(_rootDirectory, filename));
-
             if (File.Exists(filename))
             {
+               
                 try
                 {
+                    var targetPath = Path.GetDirectoryName(new DirectoryInfo(filename).FullName);
+                    //prevent directory traversal, we should only allow access to the root directory of the HTTP Server.
+                    if (!targetPath.IsSubPathOf(_rootDirectory))
+                    {
+                        context.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                        return;
+                    }
                     Stream input = new FileStream(filename, FileMode.Open);
-
                     //Adding permanent http response headers
                     string mime;
 

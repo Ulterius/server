@@ -18,6 +18,7 @@ TestResults
 [Dd]ebug/
 [Rr]elease/
 x64/
+.vs/
 *_i.c
 *_p.c
 *.ilk

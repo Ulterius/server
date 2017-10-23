@@ -7,9 +7,9 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using AgentInterface.Api.Win32;
 using UlteriusServer.Api.Network.Messages;
 using UlteriusServer.Api.Network.Models;
+using UlteriusServer.Api.Win32;
 using UlteriusServer.Utilities;
 using UlteriusServer.WebSocketAPI.Authentication;
 using vtortola.WebSockets;
@@ -33,29 +33,10 @@ namespace UlteriusServer.Api.Network.PacketHandlers
             var processId = -1;
             try
             {
-                if (Environment.UserName.Equals("SYSTEM") && Tools.RunningPlatform() == Tools.Platform.Windows)
-                {
-                    var task = Task.Run(() =>
-                    {
-                        try
-                        {
-                            ProcessStarter.PROCESS_INFORMATION procInfo;
-                            ProcessStarter.StartProcessAndBypassUAC(path,  out procInfo);
-                        }
-                        catch (Exception)
-                        {
-                            //continue
-                        }
-                    });
-                    processStarted = task.Wait(TimeSpan.FromSeconds(5));
-                }
-                else
-                {
-                    var processStartInfo = new ProcessStartInfo(path);
-                    var process = new Process {StartInfo = processStartInfo};
-                    processStarted = process.Start();
-                    processId = process.Id;
-                }
+                var processStartInfo = new ProcessStartInfo(path);
+                var process = new Process { StartInfo = processStartInfo };
+                processStarted = process.Start();
+                processId = process.Id;
             }
             catch (Exception ex)
             {

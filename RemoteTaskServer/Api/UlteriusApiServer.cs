@@ -5,9 +5,9 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
+using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
-using AgentInterface.Settings;
 using Newtonsoft.Json;
 using UlteriusServer.Api.Network;
 using UlteriusServer.Api.Network.Messages;
@@ -15,10 +15,12 @@ using UlteriusServer.Api.Services.LocalSystem;
 using UlteriusServer.Api.Services.Network;
 using UlteriusServer.Api.Services.Update;
 using UlteriusServer.Forms.Utilities;
+using UlteriusServer.Utilities;
 using UlteriusServer.Utilities.Security;
 using UlteriusServer.WebSocketAPI;
 using UlteriusServer.WebSocketAPI.Authentication;
 using vtortola.WebSockets;
+using vtortola.WebSockets.Http;
 using ScreenShareService = UlteriusServer.Api.Services.LocalSystem.ScreenShareService;
 
 #endregion
@@ -32,14 +34,15 @@ namespace UlteriusServer.Api
         public static ScreenShareService ScreenShareService { get; set; }
         public static FileSearchService FileSearchService { get; set; }
         public static CronJobService CronJobService { get; set; }
-
-        public static UlteriusAgentClient AgentClient { get; set; }
+        private static int _bufferSize = 1024 * 8;
+        private static int _bufferPoolSize;
 
         /// <summary>
         ///     Start the API Server
         /// </summary>
         public static void Start()
         {
+            _bufferPoolSize = 100 * _bufferSize;
             PacketLoader.LoadPackets();
             var config = Config.Load();
             var clientUpdateService = new UpdateService();
@@ -54,27 +57,42 @@ namespace UlteriusServer.Api
             var address = NetworkService.GetAddress();
             var webCamPort = config.Webcams.WebcamPort;
             var screenSharePort = config.ScreenShareService.ScreenSharePort;
-            var endPoints = new List<IPEndPoint>
-            {
-                new IPEndPoint(address, apiPort),
-                new IPEndPoint(address, webCamPort),
-                new IPEndPoint(address, screenSharePort)
+            var listenEndPoints = new Uri[] {
+                new Uri($"ws://{address}:{apiPort}"),
+                new Uri($"ws://{address}:{webCamPort}"),
+                new Uri($"ws://{address}:{screenSharePort}")
             };
-            var server = new WebSocketEventListener(endPoints, new WebSocketListenerOptions
+            var options = new WebSocketListenerOptions
             {
-                PingTimeout = TimeSpan.FromSeconds(2),
-                NegotiationTimeout = TimeSpan.FromSeconds(2),
-                WebSocketSendTimeout = TimeSpan.FromSeconds(2),
-                WebSocketReceiveTimeout = TimeSpan.FromSeconds(2),
-                ParallelNegotiations = Environment.ProcessorCount*2,
+                PingMode = PingMode.LatencyControl,
+                NegotiationTimeout = TimeSpan.FromSeconds(30),
+                PingTimeout = TimeSpan.FromSeconds(5),
+                ParallelNegotiations = 16,
                 NegotiationQueueCapacity = 256,
-                TcpBacklog = 1000,
-                OnHttpNegotiation = (request, response) =>
+                BufferManager = BufferManager.CreateBufferManager(_bufferPoolSize, _bufferSize),
+                Logger = NullLogger.Instance,
+                HttpAuthenticationHandler = async (request, response) =>
                 {
+                    await Task.Delay(TimeSpan.FromMilliseconds(1));
                     if (request.Cookies["ConnectionId"] == null)
                         response.Cookies.Add(new Cookie("ConnectionId", Guid.NewGuid().ToString()));
+                    return true;
                 }
+            };
+            options.Transports.ConfigureTcp(tcp =>
+            {
+                tcp.BacklogSize = 1000; // max pending connections waiting to be accepted
+                tcp.ReceiveBufferSize = _bufferSize;
+                tcp.SendBufferSize = _bufferSize;
+                tcp.LingerState = new LingerOption(true, 0);
+                tcp.NoDelay = true;
+                tcp.IsAsync = true;
+                
+                tcp.ReceiveTimeout = TimeSpan.FromSeconds(1);
+                tcp.SendTimeout = TimeSpan.FromSeconds(3);
             });
+
+            var server = new WebSocketEventListener(listenEndPoints, options);
             server.OnConnect += HandleConnect;
             server.OnDisconnect += HandleDisconnect;
             server.OnPlainTextMessage += HandlePlainTextMessage;
@@ -82,11 +100,6 @@ namespace UlteriusServer.Api
             server.OnError += HandleError;
             server.Start();
             Log("Api Server started at " + address);
-            if (RunningAsService)
-            {
-                AgentClient = new UlteriusAgentClient();
-                AgentClient.Start();
-            }
         }
 
         
@@ -158,8 +171,11 @@ namespace UlteriusServer.Api
             var connectionId = CookieManager.GetConnectionId(clientSocket);
             AuthClient authClient;
             AllClients.TryGetValue(connectionId, out authClient);
+            var host = new Uri($"ws://{clientSocket.HttpRequest.Headers[RequestHeader.Host]}", UriKind.Absolute);
+
             if (authClient != null)
             {
+
                 if (RunningAsService)
                 {
                     MessageQueueManager agentManager;
@@ -174,12 +190,13 @@ namespace UlteriusServer.Api
                 }
                 MessageQueueManager manager;
                 //check if a manager for that port exist, if not, create one
-                if (!authClient.MessageQueueManagers.TryGetValue(clientSocket.LocalEndpoint.Port, out manager))
+                
+                if (!authClient.MessageQueueManagers.TryGetValue(host.Port, out manager))
                 {
-                    if (authClient.MessageQueueManagers.TryAdd(clientSocket.LocalEndpoint.Port,
+                    if (authClient.MessageQueueManagers.TryAdd(host.Port,
                         new MessageQueueManager()))
                     {
-                        Console.WriteLine("Manager started for " + clientSocket.LocalEndpoint.Port);
+                        Console.WriteLine($"Manager started for {host.Port}");
                     }
                 }
                 return;
@@ -193,7 +210,8 @@ namespace UlteriusServer.Api
                 PrivateKey = rsa.PrivateKey,
                 MessageQueueManagers = new ConcurrentDictionary<int, MessageQueueManager>()
             };
-            client.MessageQueueManagers.TryAdd(clientSocket.LocalEndpoint.Port, new MessageQueueManager());
+          
+            client.MessageQueueManagers.TryAdd(host.Port, new MessageQueueManager());
             AllClients.AddOrUpdate(connectionId, client, (key, value) => value);
             await SendWelcomeMessage(client, clientSocket);
         }

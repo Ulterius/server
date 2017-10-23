@@ -3,7 +3,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using AgentInterface.Settings;
 using UlteriusServer.Utilities.Extensions;
 
 #endregion

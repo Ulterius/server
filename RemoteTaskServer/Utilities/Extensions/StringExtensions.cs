@@ -2,12 +2,14 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Security;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Web.UI;
+using MassTransit.Util;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -59,28 +61,28 @@ namespace UlteriusServer.Utilities.Extensions
         public static bool IsLike(this string s, string pattern)
         {
             // Characters matched so far
-            int matched = 0;
+            var matched = 0;
 
             // Loop through pattern string
-            for (int i = 0; i < pattern.Length;)
+            for (var i = 0; i < pattern.Length;)
             {
                 // Check for end of string
                 if (matched > s.Length)
                     return false;
 
                 // Get next pattern character
-                char c = pattern[i++];
+                var c = pattern[i++];
                 if (c == '[') // Character list
                 {
                     // Test for exclude character
-                    bool exclude = (i < pattern.Length && pattern[i] == '!');
+                    var exclude = (i < pattern.Length && pattern[i] == '!');
                     if (exclude)
                         i++;
                     // Build character list
-                    int j = pattern.IndexOf(']', i);
+                    var j = pattern.IndexOf(']', i);
                     if (j < 0)
                         j = s.Length;
-                    HashSet<char> charList = CharListToSet(pattern.Substring(i, j - i));
+                    var charList = CharListToSet(pattern.Substring(i, j - i));
                     i = j + 1;
 
                     if (charList.Contains(s[matched]) == exclude)
@@ -103,8 +105,8 @@ namespace UlteriusServer.Utilities.Extensions
                     {
                         // Matches all characters until
                         // next character in pattern
-                        char next = pattern[i];
-                        int j = s.IndexOf(next, matched);
+                        var next = pattern[i];
+                        var j = s.IndexOf(next, matched);
                         if (j < 0)
                             return false;
                         matched = j;
@@ -126,6 +128,82 @@ namespace UlteriusServer.Utilities.Extensions
             // Return true if all characters matched
             return (matched == s.Length);
         }
+        /// <summary>
+        /// Checks if a string is a valid email
+        /// </summary>
+        /// <param name="email"></param>
+        /// <returns></returns>
+        public static bool IsValidEmail(this string email)
+        {
+            try
+            {
+                var addr = new System.Net.Mail.MailAddress(email);
+                return addr.Address == email;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Returns true if <paramref name="path"/> starts with the path <paramref name="baseDirPath"/>.
+        /// The comparison is case-insensitive, handles / and \ slashes as folder separators and
+        /// only matches if the base dir folder name is matched exactly ("c:\foobar\file.txt" is not a sub path of "c:\foo").
+        /// </summary>
+        public static bool IsSubPathOf(this string path, string baseDirPath)
+        {
+            var normalizedPath = Path.GetFullPath(path.Replace('/', '\\')
+                .WithEnding("\\"));
+
+            var normalizedBaseDirPath = Path.GetFullPath(baseDirPath.Replace('/', '\\')
+                .WithEnding("\\"));
+
+            return normalizedPath.StartsWith(normalizedBaseDirPath, StringComparison.OrdinalIgnoreCase);
+        }
+
+        /// <summary>
+        /// Returns <paramref name="str"/> with the minimal concatenation of <paramref name="ending"/> (starting from end) that
+        /// results in satisfying .EndsWith(ending).
+        /// </summary>
+        /// <example>"hel".WithEnding("llo") returns "hello", which is the result of "hel" + "lo".</example>
+        public static string WithEnding([CanBeNull] this string str, string ending)
+        {
+            if (str == null)
+                return ending;
+
+            var result = str;
+
+            // Right() is 1-indexed, so include these cases
+            // * Append no characters
+            // * Append up to N characters, where N is ending length
+            for (var i = 0; i <= ending.Length; i++)
+            {
+                var tmp = result + ending.Right(i);
+                if (tmp.EndsWith(ending))
+                    return tmp;
+            }
+
+            return result;
+        }
+
+        /// <summary>Gets the rightmost <paramref name="length" /> characters from a string.</summary>
+        /// <param name="value">The string to retrieve the substring from.</param>
+        /// <param name="length">The number of characters to retrieve.</param>
+        /// <returns>The substring.</returns>
+        public static string Right([NotNull] this string value, int length)
+        {
+            if (value == null)
+            {
+                throw new ArgumentNullException("value");
+            }
+            if (length < 0)
+            {
+                throw new ArgumentOutOfRangeException("length", length, "Length is less than zero");
+            }
+
+            return (length < value.Length) ? value.Substring(value.Length - length) : value;
+        }
 
         /// <summary>
         /// Converts a string of characters to a HashSet of characters. If the string
@@ -135,16 +213,16 @@ namespace UlteriusServer.Utilities.Extensions
         /// <param name="charList">Character list string</param>
         private static HashSet<char> CharListToSet(string charList)
         {
-            HashSet<char> set = new HashSet<char>();
+            var set = new HashSet<char>();
 
-            for (int i = 0; i < charList.Length; i++)
+            for (var i = 0; i < charList.Length; i++)
             {
                 if ((i + 1) < charList.Length && charList[i + 1] == '-')
                 {
                     // Character range
-                    char startChar = charList[i++];
+                    var startChar = charList[i++];
                     i++; // Hyphen
-                    char endChar = (char)0;
+                    var endChar = (char)0;
                     if (i < charList.Length)
                         endChar = charList[i++];
                     for (int j = startChar; j <= endChar; j++)

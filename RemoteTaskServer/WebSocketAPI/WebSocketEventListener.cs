@@ -26,30 +26,22 @@ namespace UlteriusServer.WebSocketAPI
 
     public class WebSocketEventListener : IDisposable
     {
-        private readonly List<WebSocketListener> _listeners = new List<WebSocketListener>();
+        private WebSocketListener _listener;
 
-        public WebSocketEventListener(List<IPEndPoint> endpoints)
+        public WebSocketEventListener(Uri[] endpoints)
             : this(endpoints, new WebSocketListenerOptions())
         {
         }
 
-        public WebSocketEventListener(List<IPEndPoint> endpoints, WebSocketListenerOptions options)
+        public WebSocketEventListener(Uri[] endpoints, WebSocketListenerOptions options)
         {
-            foreach (var endpoint in endpoints)
-            {
-                var listener = new WebSocketListener(endpoint, options);
-                var rfc6455 = new WebSocketFactoryRfc6455(listener);
-                listener.Standards.RegisterStandard(rfc6455);
-                _listeners.Add(listener);
-            }
+            options.Standards.RegisterRfc6455();
+            _listener = new WebSocketListener(endpoints, options);
         }
 
         public void Dispose()
         {
-            foreach (var listener in _listeners)
-            {
-                listener.Dispose();
-            }
+            _listener?.StopAsync().GetAwaiter().GetResult();
         }
 
         public event WebSocketEventListenerOnConnect OnConnect;
@@ -58,21 +50,15 @@ namespace UlteriusServer.WebSocketAPI
         public event WebSocketEventListenerOnPlainTextMessage OnPlainTextMessage;
         public event WebSocketEventListenerOnError OnError;
 
-        public void Start()
+        public async void Start()
         {
-            foreach (var listener in _listeners)
-            {
-                listener.Start();
-            }
+            await _listener.StartAsync();
             ListenAsync();
         }
 
-        public void Stop()
+        public async void Stop()
         {
-            foreach (var listener in _listeners)
-            {
-                listener.Stop();
-            }
+            await _listener.StopAsync();
         }
 
         private async Task HandleListners(WebSocketListener listener)
@@ -95,10 +81,7 @@ namespace UlteriusServer.WebSocketAPI
 
         private void ListenAsync()
         {
-            foreach (var listener in _listeners)
-            {
-                Task.Run(() => HandleListners(listener));
-            }
+            Task.Run(() => HandleListners(_listener));
         }
 
         private async Task HandleWebSocketAsync(WebSocket websocket)

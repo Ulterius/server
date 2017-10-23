@@ -11,6 +11,7 @@ using UlteriusServer.TerminalServer.Messaging.Serialization;
 using UlteriusServer.TerminalServer.Session;
 using vtortola.WebSockets;
 using vtortola.WebSockets.Rfc6455;
+using ILogger = UlteriusServer.TerminalServer.Infrastructure.ILogger;
 
 #endregion
 
@@ -38,14 +39,13 @@ namespace UlteriusServer.TerminalServer.Messaging
                 sbc.UseBinarySerializer();
                 sbc.ReceiveFrom("loopback://localhost/queue");
             });
-
-            _wsServer = new WebSocketListener(endpoint, new WebSocketListenerOptions
+            var options = new WebSocketListenerOptions
             {
                 PingTimeout = Timeout.InfiniteTimeSpan,
-                OnHttpNegotiation = HttpNegotiation
-            });
-            var rfc6455 = new WebSocketFactoryRfc6455(_wsServer);
-            _wsServer.Standards.RegisterStandard(rfc6455);
+                HttpAuthenticationHandler = this.HttpNegotiation
+            };
+            options.Standards.RegisterRfc6455();
+            _wsServer = new WebSocketListener(endpoint, options);
         }
 
         public void Dispose()
@@ -58,13 +58,13 @@ namespace UlteriusServer.TerminalServer.Messaging
 
         public Task StartAsync()
         {
-            _wsServer.Start();
-            _log.Info("Echo Server started");
+            _wsServer.StartAsync().GetAwaiter().GetResult();
             return AcceptWebSocketClientsAsync(_wsServer);
         }
 
-        private void HttpNegotiation(WebSocketHttpRequest request, WebSocketHttpResponse response)
+        private async Task<bool> HttpNegotiation(WebSocketHttpRequest request, WebSocketHttpResponse response)
         {
+            await Task.Delay(TimeSpan.FromMilliseconds(1));
             var connectionId = Guid.Empty;
             if (request.RequestUri == null || request.RequestUri.OriginalString.Length < 1 ||
                 !Guid.TryParse(request.RequestUri.OriginalString.Substring(1), out connectionId))
@@ -97,8 +97,10 @@ namespace UlteriusServer.TerminalServer.Messaging
                     res =>
                     {
                         response.Cookies.Add(new Cookie(ConnectionManager.UserSessionCookieName, res.UserId.ToString()));
+                       
                     });
             });
+            return true;
         }
 
         private async Task AcceptWebSocketClientsAsync(WebSocketListener server)
@@ -120,10 +122,11 @@ namespace UlteriusServer.TerminalServer.Messaging
                 }
                 catch (Exception aex)
                 {
-                    _log.Error("Error Accepting clients", aex.GetBaseException());
+                   // _log.Error("Error Accepting clients", aex.GetBaseException());
                 }
             }
-            _log.Info("Server Stop accepting clients");
+           
+            //_log.Info("Server Stop accepting clients");
         }
     }
 }

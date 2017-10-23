@@ -10,6 +10,7 @@ using UlteriusServer.TerminalServer.Messaging.Connection;
 using UlteriusServer.TerminalServer.Messaging.Serialization;
 using UlteriusServer.TerminalServer.Session;
 using vtortola.WebSockets;
+using ILogger = UlteriusServer.TerminalServer.Infrastructure.ILogger;
 
 #endregion
 
@@ -73,7 +74,7 @@ namespace UlteriusServer.TerminalServer.Messaging
                     {
                         continue;
                     }
-                    Console.WriteLine(queueRequest);
+              
                     queueRequest.ConnectionId = connectionId;
 
                     _queue.Publish(queueRequest, type);
@@ -84,7 +85,7 @@ namespace UlteriusServer.TerminalServer.Messaging
                 _log.Error("Error Handling connection", aex.GetBaseException());
                 try
                 {
-                    _ws.Close();
+                    _ws.CloseAsync();
                 }
                 catch
                 {

@@ -4,9 +4,9 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
-using AgentInterface.Settings;
 using UlteriusServer.Api;
 using UlteriusServer.Api.Services.LocalSystem;
+using UlteriusServer.Api.Win32;
 using UlteriusServer.TerminalServer;
 using UlteriusServer.Utilities;
 using UlteriusServer.WebCams;
@@ -25,24 +25,6 @@ namespace UlteriusServer
         {
             isService = serviceMode;
 
-            if (Process.GetProcessesByName(
-                Path.GetFileNameWithoutExtension(Assembly.GetEntryAssembly().Location))
-                .Length > 1)
-            {
-                Process.GetCurrentProcess().Kill();
-            }
-            if (!Directory.Exists(AppEnvironment.DataPath))
-            {
-                Directory.CreateDirectory(AppEnvironment.DataPath);
-            }
-
-            if (!Debugger.IsAttached)
-            {
-
-                ExceptionHandler.AddGlobalHandlers();
-                Console.WriteLine("Exception Handlers Attached");
-            }
-
             Setup();
         }
 
@@ -53,18 +35,11 @@ namespace UlteriusServer
         {
             
 
-
+            Tools.RestartDaemon();
              Console.WriteLine("Creating settings");
-           
-            var settings = Config.Load();
-
-        
-           
+             var settings = Config.Load();
             Console.WriteLine("Configuring up server");
             Tools.ConfigureServer();
-          
-          
-        
             Console.WriteLine(Assembly.GetExecutingAssembly().GetName().Version);
             var useTerminal = settings.Terminal.AllowTerminal;
             var useWebServer = settings.WebServer.ToggleWebServer;
@@ -83,7 +58,11 @@ namespace UlteriusServer
             Console.WriteLine("Creating system service");
             systemService.Start();
             UlteriusApiServer.RunningAsService = Tools.RunningAsService();
-            Console.Write($"Service: {UlteriusApiServer.RunningAsService}");
+            if (UlteriusApiServer.RunningAsService)
+            {
+                Console.Write($"Service: {UlteriusApiServer.RunningAsService}");
+                DesktopWatcher.Start();
+            }
             UlteriusApiServer.Start();
            
             if (useTerminal)

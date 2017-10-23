@@ -1,7 +1,7 @@
 ﻿#region
 
 using System.Collections.Generic;
-using AgentInterface.Api.Models;
+using UlteriusServer.Api.Win32.ScreenShare.Models;
 
 #endregion
 

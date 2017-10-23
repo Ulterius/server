@@ -13,12 +13,13 @@ using System.Security.Principal;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using AgentInterface.Api.Models;
-using AgentInterface.Api.System;
+using System.Windows.Forms;
 using UlteriusServer.Api.Network.Models;
 using UlteriusServer.Api.Services.Network;
+using UlteriusServer.Api.Win32;
+using UlteriusServer.Api.Win32.ScreenShare.Models;
 using UlteriusServer.Utilities.Drive;
-using static AgentInterface.Api.Win32.Display;
+using SystemInformation = UlteriusServer.Api.Network.Models.SystemInformation;
 
 #endregion
 
@@ -199,18 +200,31 @@ namespace UlteriusServer.Api.Services.LocalSystem
 
         private List<DisplayInformation> GetDisplayInformation()
         {
-            var displayList = DisplayInformation();
-            if (!UlteriusApiServer.RunningAsService) return displayList;
-            var displayInfo = UlteriusApiServer.AgentClient.GetDisplayInformation();
-            return displayInfo ?? displayList;
+            var displays = new List<DisplayInformation>();
+            for (var i = 0; i < Screen.AllScreens.Length; i++)
+            {
+                var friendly = Display.GetDeviceFriendlyName(i);
+                var display = new DisplayInformation {FriendlyName = friendly};
+                var currentScreen = Screen.AllScreens[i];
+                display.CurrentResolution = new ResolutionInformation
+                {
+                    BitsPerPixel = currentScreen.BitsPerPixel,
+                    Frequency = 60,
+                    Height = currentScreen.Bounds.Height,
+                    Width = currentScreen.Bounds.Width,
+                    Orientation = "Unknown",
+                    X = currentScreen.Bounds.X,
+                    Y = currentScreen.Bounds.Y
+                };
+                displays.Add(display);
+            }
+            return displays;
         }
 
       
         private List<float> GetCpuTemps()
         {
-            return UlteriusApiServer.RunningAsService
-                ? UlteriusApiServer.AgentClient.GetCpuTemps()
-                : SystemData.GetCpuTemps();
+            return SystemData.GetCpuTemps();
         }
 
 
@@ -231,7 +245,7 @@ namespace UlteriusServer.Api.Services.LocalSystem
                     _motherBoard = "Board Unknown";
                 }
             }
-            return _motherBoard;
+            return string.IsNullOrEmpty(_motherBoard) ? "Board Unknown" : _motherBoard;
         }
 
 
@@ -242,14 +256,14 @@ namespace UlteriusServer.Api.Services.LocalSystem
 
             foreach (var networkInterface in NetworkInterface.GetAllNetworkInterfaces())
             {
-                totalBytesReceived += networkInterface.GetIPv4Statistics().BytesReceived;
-                totalBytesSent += networkInterface.GetIPv4Statistics().BytesSent;
+                totalBytesReceived += networkInterface?.GetIPv4Statistics()?.BytesReceived ?? 0;
+                totalBytesSent += networkInterface?.GetIPv4Statistics()?.BytesSent ?? 0;
             }
 
 
             var data = new
             {
-                totalNetworkInterfaces = NetworkInterface.GetAllNetworkInterfaces().Length,
+                totalNetworkInterfaces = NetworkInterface.GetAllNetworkInterfaces()?.Length ?? 0,
                 networkInterfaces = NetworkInterface.GetAllNetworkInterfaces(),
                 totalBytesReceived,
                 totalBytesSent

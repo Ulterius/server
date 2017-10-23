@@ -3,8 +3,9 @@
 using System;
 using System.Diagnostics;
 using System.Security.Principal;
-using AgentInterface.Api.Win32;
 using UlteriusServer.Api.Network.Models;
+using UlteriusServer.Api.Win32;
+using UlteriusServer.Utilities.Extensions;
 
 #endregion
 
@@ -48,7 +49,7 @@ namespace UlteriusServer.Utilities.Security
                 return false;
             }
         }
-
+      
         public static LoginInformation AuthWindows(string username, string password)
         {
             var info = new LoginInformation();
@@ -56,6 +57,10 @@ namespace UlteriusServer.Utilities.Security
             {
                 
                 var domainName = Environment.UserDomainName;
+                if (username.IsValidEmail())
+                {
+                    domainName = "MicrosoftAccount";
+                }
                 if (username.Contains("\\"))
                 {
                     var splitName = username.Split('\\');

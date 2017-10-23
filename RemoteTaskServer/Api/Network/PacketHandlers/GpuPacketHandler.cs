@@ -3,7 +3,6 @@
 using System.Linq;
 using System.Management;
 using System.Runtime.ExceptionServices;
-using AgentInterface.Api.System;
 using UlteriusServer.Api.Network.Messages;
 using UlteriusServer.Api.Network.Models;
 using UlteriusServer.WebSocketAPI.Authentication;
@@ -54,9 +53,7 @@ namespace UlteriusServer.Api.Network.PacketHandlers
         private float? GetGpuTemp(string gpuName)
         {
 
-            return UlteriusApiServer.RunningAsService
-                ? UlteriusApiServer.AgentClient.GetGpuTemp(gpuName)
-                : SystemData.GetGpuTemp(gpuName);
+            return SystemData.GetGpuTemp(gpuName);
         }
 
 
